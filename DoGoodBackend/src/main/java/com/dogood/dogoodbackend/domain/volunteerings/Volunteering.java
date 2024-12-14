@@ -61,11 +61,11 @@ public class Volunteering {
         return categories;
     }
 
-    public List<Location> getLocations() {
+    public Map<Integer,Location> getLocations() {
         return locations;
     }
 
-    public List<Group> getGroups() {
+    public Map<Integer,Group> getGroups() {
         return groups;
     }
 
