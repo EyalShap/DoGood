@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
-public class VolunteeringFacade {
-
+public enum ApprovalType {
+    MANUAL,
+    AUTO_FROM_SCAN
 }
