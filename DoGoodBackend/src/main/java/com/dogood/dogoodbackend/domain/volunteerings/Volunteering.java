@@ -1,11 +1,16 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleRange;
+
+import java.time.LocalTime;
 import java.util.*;
 
 public class Volunteering {
     private final int id;
     private int availableGroupId;
     private int availableLocationId;
+    private int availableRangeId;
     private int organizationId;
     private String name;
     private String description;
@@ -17,8 +22,17 @@ public class Volunteering {
 
     private Map<String,Integer> volunteerToGroup;
 
-    private List<JoinRequest> pendingJoinRequests;
-    private List<HourApprovalRequests> pendingHourApprovalRequests;
+    private Map<String, JoinRequest> pendingJoinRequests;
+    private Map<String, List<HourApprovalRequests>> pendingHourApprovalRequests;
+
+    private List<Code> recentCodes;
+    private List<Code> constantCodes;
+    private final int SECONDS_UNTIL_INVALID = 15;
+
+    private ScanTypes scanTypes;
+    private ApprovalType approvalType;
+
+    private boolean active;
 
     public Volunteering(int id, int organizationId, String name, String description) {
         this.id = id;
@@ -27,14 +41,36 @@ public class Volunteering {
         this.description = description;
         this.availableGroupId = 0;
         this.availableLocationId = 0;
+        this.availableRangeId = 0;
         this.groups = new HashMap<>();
         this.locations = new HashMap<>();
         this.pastExperiences = new LinkedList<>();
         this.volunteerToGroup = new HashMap<>();
-        this.pendingJoinRequests = new LinkedList<>();
-        this.pendingHourApprovalRequests = new LinkedList<>();
+        this.pendingJoinRequests = new HashMap<>();
+        this.pendingHourApprovalRequests = new HashMap<>();
+        this.recentCodes = new LinkedList<>();
+        this.constantCodes = new LinkedList<>();
+        this.scanTypes = ScanTypes.NO_SCAN;
+        this.approvalType = ApprovalType.MANUAL;
+        this.active = true;
 
         addNewGroup();
+    }
+
+    public ScanTypes getScanTypes() {
+        return scanTypes;
+    }
+
+    public void setScanTypes(ScanTypes scanTypes) {
+        this.scanTypes = scanTypes;
+    }
+
+    public ApprovalType getApprovalType() {
+        return approvalType;
+    }
+
+    public void setApprovalType(ApprovalType approvalType) {
+        this.approvalType = approvalType;
     }
 
     public int getId() {
@@ -77,11 +113,11 @@ public class Volunteering {
         return volunteerToGroup;
     }
 
-    public List<JoinRequest> getPendingJoinRequests() {
+    public Map<String,JoinRequest> getPendingJoinRequests() {
         return pendingJoinRequests;
     }
 
-    public List<HourApprovalRequests> getPendingHourApprovalRequests() {
+    public Map<String, List<HourApprovalRequests>> getPendingHourApprovalRequests() {
         return pendingHourApprovalRequests;
     }
 
@@ -109,16 +145,17 @@ public class Volunteering {
         this.pastExperiences.add(e);
     }
 
-    public void addJoinRequest(JoinRequest r){
-        this.pendingJoinRequests.add(r);
+    public void addJoinRequest(String userId, JoinRequest r){
+        if(pendingJoinRequests.containsKey(userId)){
+            throw new UnsupportedOperationException("There is already a join request for this user!");
+        }
+        this.pendingJoinRequests.put(userId,r);
     }
 
-    public void addHourRequest(HourApprovalRequests r){
-        this.pendingHourApprovalRequests.add(r);
-    }
-
-    public void addNewGroup(){
-        this.groups.put(availableGroupId, new Group(availableGroupId++));
+    public int addNewGroup(){
+        Group g = new Group(availableGroupId++);
+        this.groups.put(g.getId(), g);
+        return g.getId();
     }
 
     public void removeGroup(int id){
@@ -129,8 +166,10 @@ public class Volunteering {
         groups.remove(id);
     }
 
-    public void addLocation(String name, String address){
-        this.locations.put(availableLocationId, new Location(availableGroupId++,name,address));
+    public int addLocation(String name, String address){
+        Location loc = new Location(availableGroupId++,name,address);
+        this.locations.put(loc.getId(), loc);
+        return loc.getId();
     }
 
     public void removeLocation(int id){
@@ -138,5 +177,105 @@ public class Volunteering {
         for(Group g : groups.values()){
             g.removeLocationIfhas(id);
         }
+    }
+
+    public boolean codeValid(String code){
+        cleanCodes();
+        for(Code c : recentCodes){
+            if(c.getCode().equals(code)){
+                return true;
+            }
+        }
+        for(Code c : constantCodes){
+            if(c.getCode().equals(code)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void cleanCodes(){
+        List<Code> validCodes = new LinkedList<>();
+        for(Code c : recentCodes){
+            if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
+                validCodes.add(c);
+            }
+        }
+        this.recentCodes = validCodes;
+    }
+
+    public String generateCode(){
+        cleanCodes();
+        UUID uuid = UUID.randomUUID();
+        String code = uuid.toString();
+        Code c = new Code(code, System.currentTimeMillis());
+        recentCodes.add(c);
+        return code;
+    }
+
+    public String generateConstantCode(){
+        UUID uuid = UUID.randomUUID();
+        String code = uuid.toString();
+        Code c = new Code(code, System.currentTimeMillis());
+        constantCodes.add(c);
+        return code;
+    }
+
+    public void clearConstantCodes(){
+        this.constantCodes = new LinkedList<>();
+    }
+
+    public void toggleActive(){
+        this.active = !this.active;
+    }
+
+    public void approveJoinRequest(String userId, int groupId){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        if(!pendingJoinRequests.containsKey(userId)){
+            throw new UnsupportedOperationException("There is no pending join request for user "+userId);
+        }
+        groups.get(groupId).addUser(userId);
+    }
+
+    public HourApprovalRequests getHoursRequest(String userId, Date startTime){
+        if(!pendingHourApprovalRequests.containsKey(userId) || pendingHourApprovalRequests.get(userId).isEmpty()){
+            throw new UnsupportedOperationException("There is no pending hour request for user "+userId);
+        }
+        for(HourApprovalRequests hr : pendingHourApprovalRequests.get(userId)){
+            if(hr.getStartTime().equals(startTime)){
+                return hr;
+            }
+        }
+        throw new IllegalArgumentException("There is no pending hour request for user " + userId + " that starts at " + startTime);
+    }
+
+    public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes){
+        Group g = groups.get(groupId);
+        ScheduleRange range = new ScheduleRange(availableRangeId++, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
+        g.addScheduleToLocation(locId, range);
+        return range.getId();
+    }
+
+    public void addRestrictionToRange(int groupId, int locId, int rangeId, RestrictionTuple restriction){
+        Group g = groups.get(groupId);
+        g.addRestrictionToRange(locId, rangeId, restriction);
+    }
+
+    public void removeRestrictionFromRange(int groupId, int locId, int rangeId, LocalTime startTime){
+        Group g = groups.get(groupId);
+        g.removeRestrictionFromRange(locId, rangeId, startTime);
+    }
+
+    public void requestUserHourApproval(String userId, Date start, Date end){
+        if(!volunteerToGroup.containsKey(userId)){
+            throw new IllegalArgumentException("User with id " + userId + " is not a volunteer in this volunteering");
+        }
+        if(!pendingHourApprovalRequests.containsKey(userId)){
+            pendingHourApprovalRequests.put(userId,new LinkedList<>());
+        }
+        HourApprovalRequests hr = new HourApprovalRequests(userId, start, end);
+        pendingHourApprovalRequests.get(userId).add(hr);
     }
 }
