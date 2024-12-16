@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleRange;
 
 import java.time.LocalTime;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Volunteering {
     private final int id;
@@ -23,16 +24,12 @@ public class Volunteering {
     private Map<String,Integer> volunteerToGroup;
 
     private Map<String, JoinRequest> pendingJoinRequests;
-    private Map<String, List<HourApprovalRequests>> pendingHourApprovalRequests;
-
-    private List<Code> recentCodes;
-    private List<Code> constantCodes;
-    private final int SECONDS_UNTIL_INVALID = 15;
 
     private ScanTypes scanTypes;
     private ApprovalType approvalType;
 
     private boolean active;
+    private BarcodeHandler barcodeHandler;
 
     public Volunteering(int id, int organizationId, String name, String description) {
         this.id = id;
@@ -47,11 +44,9 @@ public class Volunteering {
         this.pastExperiences = new LinkedList<>();
         this.volunteerToGroup = new HashMap<>();
         this.pendingJoinRequests = new HashMap<>();
-        this.pendingHourApprovalRequests = new HashMap<>();
-        this.recentCodes = new LinkedList<>();
-        this.constantCodes = new LinkedList<>();
         this.scanTypes = ScanTypes.NO_SCAN;
         this.approvalType = ApprovalType.MANUAL;
+        this.barcodeHandler = new BarcodeHandler();
         this.active = true;
 
         addNewGroup();
@@ -117,10 +112,6 @@ public class Volunteering {
         return pendingJoinRequests;
     }
 
-    public Map<String, List<HourApprovalRequests>> getPendingHourApprovalRequests() {
-        return pendingHourApprovalRequests;
-    }
-
     public void setOrganizationId(int organizationId) {
         this.organizationId = organizationId;
     }
@@ -167,7 +158,7 @@ public class Volunteering {
     }
 
     public int addLocation(String name, String address){
-        Location loc = new Location(availableGroupId++,name,address);
+        Location loc = new Location(availableLocationId++,name,address);
         this.locations.put(loc.getId(), loc);
         return loc.getId();
     }
@@ -180,49 +171,23 @@ public class Volunteering {
     }
 
     public boolean codeValid(String code){
-        cleanCodes();
-        for(Code c : recentCodes){
-            if(c.getCode().equals(code)){
-                return true;
-            }
-        }
-        for(Code c : constantCodes){
-            if(c.getCode().equals(code)){
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private void cleanCodes(){
-        List<Code> validCodes = new LinkedList<>();
-        for(Code c : recentCodes){
-            if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
-                validCodes.add(c);
-            }
-        }
-        this.recentCodes = validCodes;
+        return barcodeHandler.codeValid(code);
     }
 
     public String generateCode(){
-        cleanCodes();
-        UUID uuid = UUID.randomUUID();
-        String code = uuid.toString();
-        Code c = new Code(code, System.currentTimeMillis());
-        recentCodes.add(c);
-        return code;
+        return barcodeHandler.generateCode();
     }
 
     public String generateConstantCode(){
-        UUID uuid = UUID.randomUUID();
-        String code = uuid.toString();
-        Code c = new Code(code, System.currentTimeMillis());
-        constantCodes.add(c);
-        return code;
+        return barcodeHandler.generateConstantCode();
     }
 
     public void clearConstantCodes(){
-        this.constantCodes = new LinkedList<>();
+        this.barcodeHandler.clearConstantCodes();
+    }
+
+    public List<String> getConstantCodes(){
+        return barcodeHandler.getConstantCodes().stream().map(c -> c.getCode()).collect(Collectors.toList());
     }
 
     public void toggleActive(){
@@ -237,18 +202,6 @@ public class Volunteering {
             throw new UnsupportedOperationException("There is no pending join request for user "+userId);
         }
         groups.get(groupId).addUser(userId);
-    }
-
-    public HourApprovalRequests getHoursRequest(String userId, Date startTime){
-        if(!pendingHourApprovalRequests.containsKey(userId) || pendingHourApprovalRequests.get(userId).isEmpty()){
-            throw new UnsupportedOperationException("There is no pending hour request for user "+userId);
-        }
-        for(HourApprovalRequests hr : pendingHourApprovalRequests.get(userId)){
-            if(hr.getStartTime().equals(startTime)){
-                return hr;
-            }
-        }
-        throw new IllegalArgumentException("There is no pending hour request for user " + userId + " that starts at " + startTime);
     }
 
     public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes){
@@ -268,14 +221,7 @@ public class Volunteering {
         g.removeRestrictionFromRange(locId, rangeId, startTime);
     }
 
-    public void requestUserHourApproval(String userId, Date start, Date end){
-        if(!volunteerToGroup.containsKey(userId)){
-            throw new IllegalArgumentException("User with id " + userId + " is not a volunteer in this volunteering");
-        }
-        if(!pendingHourApprovalRequests.containsKey(userId)){
-            pendingHourApprovalRequests.put(userId,new LinkedList<>());
-        }
-        HourApprovalRequests hr = new HourApprovalRequests(userId, start, end);
-        pendingHourApprovalRequests.get(userId).add(hr);
+    public boolean hasVolunteer(String userId){
+        return volunteerToGroup.containsKey(userId);
     }
 }

@@ -1,7 +1,10 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import java.sql.Date;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.util.Date;
+import java.time.ZoneId;
 
 public class ScheduleAppointment {
     private String userId;
@@ -9,7 +12,7 @@ public class ScheduleAppointment {
     private LocalTime startTime;
     private LocalTime endTime;
     private int[] weekDays;
-    private Date oneTime;
+    private LocalDate oneTime;
 
     public ScheduleAppointment(String userId, int rangeId, LocalTime startTime, LocalTime endTime) {
         this.userId = userId;
@@ -38,7 +41,7 @@ public class ScheduleAppointment {
         return weekDays;
     }
 
-    public Date getOneTime() {
+    public LocalDate getOneTime() {
         return oneTime;
     }
 
@@ -62,7 +65,21 @@ public class ScheduleAppointment {
         this.weekDays = weekDays;
     }
 
-    public void setOneTime(Date oneTime) {
+    public void setOneTime(LocalDate oneTime) {
         this.oneTime = oneTime;
+    }
+
+    public DatePair getDefiniteRange(LocalDate day){
+        if(oneTime != null && day != null &&
+                (day.getDayOfMonth() != oneTime.getDayOfMonth() ||
+                        day.getMonth() != oneTime.getMonth() ||
+                        day.getYear() != oneTime.getYear())){
+            throw new UnsupportedOperationException("Given day doesn't match one time day");
+        }
+        LocalDateTime startDateTime = LocalDateTime.of(day.getYear(), day.getMonth(), day.getDayOfMonth(), startTime.getHour(), startTime.getMinute());
+        LocalDateTime endDateTime = LocalDateTime.of(day.getYear(), day.getMonth(), day.getDayOfMonth(), endTime.getHour(), endTime.getMinute());
+
+        return new DatePair(Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant()));
     }
 }

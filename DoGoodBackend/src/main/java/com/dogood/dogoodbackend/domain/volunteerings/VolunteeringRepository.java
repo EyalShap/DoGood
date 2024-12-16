@@ -12,5 +12,6 @@ public interface VolunteeringRepository {
     public void disableVolunteering(int volunteeringId);
     public void updateVolunteeringInDB(int volunteeringId);
     public void recordFirstVolunteerScan(int volunteeringId, String userId);
+    public void removeFirstVolunteerScan(int volunteeringId, String userId);
     public Date getFirstVolunteerScan(int volunteeringId, String userId);
 }

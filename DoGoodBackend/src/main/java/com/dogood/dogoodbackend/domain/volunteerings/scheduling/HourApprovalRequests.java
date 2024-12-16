@@ -1,4 +1,4 @@
-package com.dogood.dogoodbackend.domain.volunteerings;
+package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import java.util.Date;
 
