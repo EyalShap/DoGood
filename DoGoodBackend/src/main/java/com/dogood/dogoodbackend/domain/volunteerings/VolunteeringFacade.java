@@ -59,6 +59,9 @@ public class VolunteeringFacade {
         if(volunteering.getScanTypes() != ScanTypes.NO_SCAN){
             throw new UnsupportedOperationException("Volunteering " + volunteeringId + " does not support QR codes");
         }
+        if(!volunteering.codeValid(code)){
+            throw new IllegalArgumentException("Invalid code");
+        }
         Date first = repository.getFirstVolunteerScan(volunteeringId, userId);
         DatePair p = null;
         if(first == null){
