@@ -3,7 +3,6 @@ package com.dogood.dogoodbackend.domain.reports;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.utils.ReportErrors;
 
-import java.time.LocalDate;
 import java.util.List;
 
 public class ReportsFacade {
@@ -11,92 +10,61 @@ public class ReportsFacade {
     //private UsersFacade usersFacade;
     private PostsFacade postsFacade;
 
-    /*public ReportsFacade(ReportRepository reportRepository, UsersFacade usersFacade, PostsFacade postsFacade) {
-        this.reportRepository = reportRepository;
-        this.usersFacade = usersFacade;
-        this.postsFacade = postsFacade;
-    }*/
-
     public ReportsFacade(ReportRepository reportRepository, PostsFacade postsFacade) {
         this.reportRepository = reportRepository;
         this.postsFacade = postsFacade;
     }
 
-    public void createReport(int reportingUserId, int reportedPostId, String description) {
+    public void createReport(String reportingUser, int reportedPostId, String description) {
+        //TODO: check if user exists and logged in
+
         if(!postsFacade.doesExist(reportedPostId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportedPostDoesNotExistError(reportedPostId));
         }
 
-        reportRepository.createReport(reportingUserId, reportedPostId, description);
+        reportRepository.createReport(reportingUser, reportedPostId, description);
     }
 
-    // CHANGE TO THIS LATER
-    /*
-    public void removeReport(int reportId, int actorId) {
-        // checking if the user trying to remove the report is the one created it / admin
+    public void removeReport(int reportId, String actor) {
+        //TODO: check if user exists and logged in
+
         Report toRemove = reportRepository.getReport(reportId);
-        if(toRemove.getReportingUserId() != actorId && !usersFacade.isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actorId, reportId, "remove"));
+        if(!toRemove.getReportingUser().equals(actor) && !isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, reportId, "remove"));
         }
 
-        reportRepository.removeReport(reportId, actorId);
-    }*/
-
-    public void removeReport(int reportId, int actorId) {
-        // checking if the user trying to remove the report is the one created it / admin
-        Report toRemove = reportRepository.getReport(reportId);
-        if(toRemove.getReportingUserId() != actorId && !isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actorId, reportId, "remove"));
-        }
-
-        reportRepository.removeReport(reportId, actorId);
+        reportRepository.removeReport(reportId);
     }
 
-    // CHANGE TO THIS LATER
-    /*
-    public void editReport(int reportId, int actorId, String description) {
-        // checking if the user trying to edit the report is the one created it / admin
+    public void editReport(int reportId, String actor, String description) {
+        //TODO: check if user exists and logged in
+
         Report toEdit = reportRepository.getReport(reportId);
-        if(toEdit.getReportingUserId() != actorId  && !usersFacade.isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actorId, reportId, "edit"));
+        if(!toEdit.getReportingUser().equals(actor)  && !isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, reportId, "edit"));
         }
 
-        reportRepository.editReport(reportId, actorId, description);
-    }*/
-
-    public void editReport(int reportId, int actorId, String description) {
-        // checking if the user trying to edit the report is the one created it / admin
-        Report toEdit = reportRepository.getReport(reportId);
-        if(toEdit.getReportingUserId() != actorId  && !isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actorId, reportId, "edit"));
-        }
-
-        reportRepository.editReport(reportId, actorId, description);
+        reportRepository.editReport(reportId, description);
     }
 
-    public Report getReport(int reportId) {
-        return reportRepository.getReport(reportId);
+    public ReportDTO getReport(int reportId) {
+        Report report = reportRepository.getReport(reportId);
+        ReportDTO reportDTO = new ReportDTO(report);
+        return reportDTO;
     }
 
-    // CHANGE TO THIS LATER
-    /*
-    public List<Report> getAllReports(int actorId) {
-        if(!usersFacade.isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actorId));
+    public List<ReportDTO> getAllReportDTOs(String actor) {
+        //TODO: check if user exists and logged in
+
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
         }
 
-        return reportRepository.getAllReports();
-    }*/
-
-    public List<Report> getAllReports(int actorId) {
-        if(!isAdmin(actorId)) {
-            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actorId));
-        }
-
-        return reportRepository.getAllReports();
+        return reportRepository.getAllReportDTOs();
     }
 
-    private boolean isAdmin(int userId) {
-        return true;
+    //TODO: change this when users facade is implemented
+    private boolean isAdmin(String user) {
+        return false;
     }
 }

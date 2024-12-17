@@ -13,12 +13,12 @@ public class ReportErrors {
         return String.format("A report with id %d does not exist.", reportId);
     }
 
-    public static String makeUserUnauthorizedToMakeActionError(int userId, int reportId, String action) {
-        return String.format("The user %d tried to %s report with id %d when not authorized.", userId, action, reportId);
+    public static String makeUserUnauthorizedToMakeActionError(String user, int reportId, String action) {
+        return String.format("The user %s tried to %s report with id %d when not authorized.", user, action, reportId);
     }
 
-    public static String makeUserTriedToViewReportsError(int userId) {
-        return String.format("The user %d tried to view reports when not admin.", userId);
+    public static String makeUserTriedToViewReportsError(String user) {
+        return String.format("The user %s tried to view reports when not admin.", user);
     }
 
     public static String makeReportedPostDoesNotExistError(int postId) {

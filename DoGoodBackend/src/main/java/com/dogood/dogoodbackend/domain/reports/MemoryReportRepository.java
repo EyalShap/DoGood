@@ -2,7 +2,6 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.utils.ReportErrors;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -19,12 +18,12 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
-    public Report createReport(int reportingUserId, int reportedPostId, String description) {
+    public Report createReport(String reportingUser, int reportedPostId, String description) {
         if(reports.containsKey(nextReportId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportIdAlreadyExistsError(nextReportId));
         }
 
-        Report newReport = new Report(nextReportId, reportingUserId, reportedPostId, description);
+        Report newReport = new Report(nextReportId, reportingUser, reportedPostId, description);
 
         // trying to prevent a vicious ddos attack????????????
         if(isDuplicateReport(newReport)) {
@@ -47,21 +46,19 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
-    public void removeReport(int reportId, int actorId) {
+    public void removeReport(int reportId) {
         if(!reports.containsKey(reportId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
         }
-
         reports.remove(reportId);
     }
 
     @Override
-    public void editReport(int reportId, int actorId, String description) {
+    public void editReport(int reportId, String description) {
         if(!reports.containsKey(reportId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
         }
-
-        reports.get(reportId).update(description);
+        reports.get(reportId).edit(description);
     }
 
     @Override
