@@ -1,7 +1,9 @@
-package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
+package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+
+import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -12,8 +14,8 @@ public class ScheduleRange {
     private int minimumAppointmentMinutes;
     private int maximumAppointmentMinutes;
     private List<RestrictionTuple> restrict;
-    private int[] weekDays;
-    private Date oneTime;
+    private boolean[] weekDays;
+    private LocalDate oneTime;
 
     public ScheduleRange(int id, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
         this.id = id;
@@ -24,20 +26,26 @@ public class ScheduleRange {
         this.restrict = new LinkedList<>();
     }
 
-    public int[] getWeekDays() {
+    public boolean[] getWeekDays() {
         return weekDays;
     }
 
-    public void setWeekDays(int[] weekDays) {
+    public void setWeekDays(boolean[] weekDays) {
         this.weekDays = weekDays;
+        if(weekDays != null) {
+            oneTime = null;
+        }
     }
 
-    public Date getOneTime() {
+    public LocalDate getOneTime() {
         return oneTime;
     }
 
-    public void setOneTime(Date oneTime) {
+    public void setOneTime(LocalDate oneTime) {
         this.oneTime = oneTime;
+        if(oneTime != null){
+            weekDays = null;
+        }
     }
 
     public int getId() {

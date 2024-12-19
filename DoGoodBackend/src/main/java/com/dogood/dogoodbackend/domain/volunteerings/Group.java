@@ -1,7 +1,6 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleRange;
 
 import java.time.LocalTime;
 import java.util.HashMap;
@@ -13,13 +12,13 @@ public class Group {
     private final int id;
     private List<String> users;
 
-    private Map<Integer, List<String>> locationToVolunteers;
+    private Map<String, Integer> volunteersToLocation;
     private Map<Integer, List<ScheduleRange>> locationToRanges;
 
     public Group(int id) {
         this.id = id;
         this.users = new LinkedList<>();
-        this.locationToVolunteers = new HashMap<>();
+        this.volunteersToLocation = new HashMap<>();
     }
 
     public boolean isEmpty(){
@@ -33,10 +32,19 @@ public class Group {
         users.add(user);
     }
 
-    public void removeLocationIfhas(int locId){
-        if(locationToVolunteers.containsKey(locId)){
-            locationToVolunteers.remove(locId);
+    public void removeUser(String user){
+        if(!users.contains(user)){
+            throw new IllegalArgumentException("User not in group");
         }
+        users.remove(user);
+        volunteersToLocation.remove(user);
+    }
+
+    public void removeLocationIfhas(int locId){
+        if(locationToRanges.containsKey(locId)){
+            locationToRanges.remove(locId);
+        }
+        volunteersToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
     }
 
     public int getId() {
@@ -47,8 +55,8 @@ public class Group {
         return users;
     }
 
-    public Map<Integer, List<String>> getLocationToVolunteers() {
-        return locationToVolunteers;
+    public Map<String, Integer> getVolunteersToLocation() {
+        return volunteersToLocation;
     }
 
     public Map<Integer, List<ScheduleRange>> getLocationToRanges() {
@@ -56,7 +64,7 @@ public class Group {
     }
 
     public ScheduleRange getScheduleRange(int locId, int rangeId){
-        if(!locationToVolunteers.containsKey(locId)){
+        if(!locationToRanges.containsKey(locId)){
             throw new IllegalArgumentException("No schedule range on location with id " +locId);
         }
         List<ScheduleRange> ranges = locationToRanges.get(locId);
@@ -83,5 +91,22 @@ public class Group {
     public void removeRestrictionFromRange(int locId, int rangeId, LocalTime startTime){
         ScheduleRange range = getScheduleRange(locId, rangeId);
         range.removeRestrictionByStart(startTime);
+    }
+
+    public void assignUserToLocation(String userId, int locId){
+        if(!users.contains(userId)){
+            throw new IllegalArgumentException("User not in group");
+        }
+        volunteersToLocation.put(userId, locId);
+    }
+
+    public List<ScheduleRange> getRangesForUser(String userId){
+        if(!users.contains(userId)){
+            throw new IllegalArgumentException("User not in group");
+        }
+        if(!volunteersToLocation.containsKey(userId)){
+            throw new IllegalArgumentException("User was not assigned a location");
+        }
+        return locationToRanges.get(volunteersToLocation.get(userId));
     }
 }

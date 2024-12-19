@@ -1,8 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleRange;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -28,7 +28,6 @@ public class Volunteering {
     private ScanTypes scanTypes;
     private ApprovalType approvalType;
 
-    private boolean active;
     private BarcodeHandler barcodeHandler;
 
     public Volunteering(int id, int organizationId, String name, String description) {
@@ -47,7 +46,6 @@ public class Volunteering {
         this.scanTypes = ScanTypes.NO_SCAN;
         this.approvalType = ApprovalType.MANUAL;
         this.barcodeHandler = new BarcodeHandler();
-        this.active = true;
 
         addNewGroup();
     }
@@ -132,7 +130,7 @@ public class Volunteering {
         this.categories = categories;
     }
 
-    public void addNewExperience(PastExperience e){
+    private void addNewExperience(PastExperience e){
         this.pastExperiences.add(e);
     }
 
@@ -174,12 +172,14 @@ public class Volunteering {
         return barcodeHandler.codeValid(code);
     }
 
-    public String generateCode(){
-        return barcodeHandler.generateCode();
-    }
-
-    public String generateConstantCode(){
-        return barcodeHandler.generateConstantCode();
+    public String generateCode(boolean constant){
+        String code;
+        if(constant){
+            code = barcodeHandler.generateConstantCode();
+        }else{
+            code = barcodeHandler.generateCode();
+        }
+        return "" + id + ":"+code;
     }
 
     public void clearConstantCodes(){
@@ -188,10 +188,6 @@ public class Volunteering {
 
     public List<String> getConstantCodes(){
         return barcodeHandler.getConstantCodes().stream().map(c -> c.getCode()).collect(Collectors.toList());
-    }
-
-    public void toggleActive(){
-        this.active = !this.active;
     }
 
     public void approveJoinRequest(String userId, int groupId){
@@ -204,24 +200,98 @@ public class Volunteering {
         groups.get(groupId).addUser(userId);
     }
 
+    public void leaveVolunteering(String userId, PastExperience e){
+        if(!hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
+        }
+        int groupId = volunteerToGroup.get(userId);
+        Group group = groups.get(groupId);
+        group.removeUser(userId);
+        volunteerToGroup.remove(userId);
+        addNewExperience(e);
+    }
+
+    public void moveVolunteerToNewGroup(String userId, int groupIdTo){
+        if(!groups.containsKey(groupIdTo)){
+            throw new UnsupportedOperationException("There is no group with id "+groupIdTo);
+        }
+        if(!hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
+        }
+        int currentGroupId = volunteerToGroup.get(userId);
+        Group groupFrom = groups.get(currentGroupId);
+        Group groupTo = groups.get(groupIdTo);
+        groupFrom.removeUser(userId);
+        groupTo.addUser(userId);
+    }
+
+    public void assignVolunteerToLocation(String userId, int locId){
+        if(!locations.containsKey(locId)){
+            throw new UnsupportedOperationException("There is no location with id "+locId);
+        }
+        if(!hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
+        }
+        int currentGroupId = volunteerToGroup.get(userId);
+        Group group = groups.get(currentGroupId);
+        group.assignUserToLocation(userId, locId);
+    }
+
     public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes){
+        if(startTime.isAfter(endTime)){
+            throw new IllegalArgumentException("Start time cannot be after end time");
+        }
+        if(minimumAppointmentMinutes > 0 && minimumAppointmentMinutes > 0 && minimumAppointmentMinutes > maximumAppointmentMinutes){
+            throw new IllegalArgumentException("Illegal appointment minutes range");
+        }
         Group g = groups.get(groupId);
         ScheduleRange range = new ScheduleRange(availableRangeId++, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
         g.addScheduleToLocation(locId, range);
         return range.getId();
     }
 
+    public void updateRangeWeekdays(int groupId, int locId, int rangeId, boolean[] weekdays){
+        Group g = groups.get(groupId);
+        ScheduleRange range = g.getScheduleRange(locId, rangeId);
+        range.setWeekDays(weekdays);
+    }
+
+    public void updateRangeOneTimeDate(int groupId, int locId, int rangeId, LocalDate oneTime){
+        Group g = groups.get(groupId);
+        ScheduleRange range = g.getScheduleRange(locId, rangeId);
+        range.setOneTime(oneTime);
+    }
+
     public void addRestrictionToRange(int groupId, int locId, int rangeId, RestrictionTuple restriction){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
         Group g = groups.get(groupId);
         g.addRestrictionToRange(locId, rangeId, restriction);
     }
 
     public void removeRestrictionFromRange(int groupId, int locId, int rangeId, LocalTime startTime){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
         Group g = groups.get(groupId);
         g.removeRestrictionFromRange(locId, rangeId, startTime);
     }
 
     public boolean hasVolunteer(String userId){
         return volunteerToGroup.containsKey(userId);
+    }
+
+    public VolunteeringDTO getDTO(){
+        return new VolunteeringDTO(id, name, description, new LinkedList<>(categories), new LinkedList<>(skills));
+    }
+
+    public ScheduleRange getScheduleRange(int groupId, int locId, int rangeId){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        Group g = groups.get(groupId);
+        ScheduleRange range = g.getScheduleRange(locId, rangeId);
+        return range;
     }
 }

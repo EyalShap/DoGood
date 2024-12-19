@@ -28,4 +28,10 @@ public class RestrictionTuple {
     public boolean intersect(LocalTime otherStartTime, LocalTime otherEndTime) {
         return !(otherStartTime.isAfter(this.endTime) || otherEndTime.isBefore(this.startTime));
     }
+
+    public RestrictionTuple intersection(LocalTime otherStartTime, LocalTime otherEndTime) {
+        LocalTime latestStart = otherStartTime.isAfter(this.startTime) ? otherStartTime : this.startTime;
+        LocalTime earliestEnd = otherEndTime.isBefore(this.endTime) ? otherEndTime : this.endTime;
+        return new RestrictionTuple(latestStart, earliestEnd, amount);
+    }
 }
