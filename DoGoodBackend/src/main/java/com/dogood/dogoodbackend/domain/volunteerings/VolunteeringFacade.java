@@ -128,7 +128,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId() + " of volunteering " + volunteeringId);
         }
         if(volunteering.hasVolunteer(joinerId)){
-            throw new IllegalArgumentException("User " + userId + " is already a volunteer in volunteering " + volunteeringId);
+            throw new IllegalArgumentException("User " + joinerId + " is already a volunteer in volunteering " + volunteeringId);
         }
         volunteering.approveJoinRequest(joinerId, groupId);
     }
@@ -323,5 +323,39 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         volunteering.clearConstantCodes();
+    }
+
+    public void requestHoursApproval(String userId, int volunteeringId, Date start, Date end){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!volunteering.hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
+        }
+        schedulingFacade.addHourApprovalRequest(userId, volunteeringId, start, end);
+    }
+
+    public void approveUserHours(String userId, int volunteeringId, String volunteerId, Date start, Date end){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        if(!userExists(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " does not exist");
+        }
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId() + " of volunteering " + volunteeringId);
+        }
+        if(!volunteering.hasVolunteer(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + volunteeringId);
+        }
+        schedulingFacade.approveUserHours(userId, volunteeringId, start, end);
     }
 }
