@@ -5,18 +5,18 @@ import java.util.List;
 
 public class DBReportRepository implements ReportRepository{
     @Override
-    public Report createReport(int reportingUserId, int reportedPostId, String description) {
+    public Report createReport(String reportingUser, int reportedPostId, String description) {
         //TODO
         return null;
     }
 
     @Override
-    public void removeReport(int reportId, int actorId) {
+    public void removeReport(int reportId) {
         //TODO
     }
 
     @Override
-    public void editReport(int reportId, int actorId, String description) {
+    public void editReport(int reportId, String description) {
         //TODO
     }
 

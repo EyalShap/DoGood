@@ -3,22 +3,45 @@ package com.dogood.dogoodbackend.domain.reports;
 import java.time.LocalDate;
 import java.util.Objects;
 
+import static com.dogood.dogoodbackend.utils.ValidateFields.*;
+
 public class Report {
     private int id;
-    private int reportingUserId;
+    private String reportingUser;
     private int reportedPostId;
     private String description;
     private LocalDate date;
 
-    public Report(int id, int reportingUserId, int reportedPostId, String description) {
+    public Report(int id, String reportingUser, int reportedPostId, String description) {
+        String isValidOrg = isValid(id, description);
+        if(isValidOrg.length() > 0) {
+            throw new IllegalArgumentException(isValidOrg);
+        }
+
         this.id = id;
-        this.reportingUserId = reportingUserId;
+        this.reportingUser = reportingUser;
         this.reportedPostId = reportedPostId;
         this.description = description;
         this.date = LocalDate.now();
     }
 
-    public void update(String description) {
+    private String isValid(int id, String description) {
+        StringBuilder res = new StringBuilder();
+        if(id < 0) {
+            res.append(String.format("Invalid id: %d.\n", id));
+        }
+        if(!isValidText(description, 10, 100)) {
+            res.append(String.format("Invalid report description: %s.", description));
+        }
+        return res.toString();
+    }
+
+    public void edit(String description) {
+        String isValidOrg = isValid(id, description);
+        if(isValidOrg.length() > 0) {
+            throw new IllegalArgumentException(isValidOrg);
+        }
+
         this.description = description;
         this.date = LocalDate.now();
     }
@@ -27,8 +50,8 @@ public class Report {
         return id;
     }
 
-    public int getReportingUserId() {
-        return reportingUserId;
+    public String getReportingUser() {
+        return reportingUser;
     }
 
     public int getReportedPostId() {
@@ -48,11 +71,11 @@ public class Report {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Report report = (Report) o;
-        return id == report.id && reportingUserId == report.reportingUserId && reportedPostId == report.reportedPostId && Objects.equals(description, report.description) && Objects.equals(date, report.date);
+        return id == report.id && reportedPostId == report.reportedPostId && Objects.equals(reportingUser, report.reportingUser) && Objects.equals(description, report.description) && Objects.equals(date, report.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, reportingUserId, reportedPostId, description, date);
+        return Objects.hash(id, reportingUser, reportedPostId, description, date);
     }
 }
