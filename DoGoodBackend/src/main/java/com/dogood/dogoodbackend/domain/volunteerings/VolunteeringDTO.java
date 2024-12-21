@@ -4,13 +4,15 @@ import java.util.List;
 
 public class VolunteeringDTO {
     private final int id;
+    private final int orgId;
     private final String name;
     private final String description;
     private List<String> skills;
     private List<String> categories;
 
-    public VolunteeringDTO(int id, String name, String description, List<String> skills, List<String> categories) {
+    public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills, List<String> categories) {
         this.id = id;
+        this.orgId = orgId;
         this.name = name;
         this.description = description;
         this.skills = skills;
@@ -19,6 +21,10 @@ public class VolunteeringDTO {
 
     public int getId() {
         return id;
+    }
+
+    public int getOrgId() {
+        return orgId;
     }
 
     public String getName() {
