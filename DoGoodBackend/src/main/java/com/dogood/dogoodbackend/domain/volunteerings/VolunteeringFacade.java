@@ -358,4 +358,19 @@ public class VolunteeringFacade {
         }
         schedulingFacade.approveUserHours(userId, volunteeringId, start, end);
     }
+
+    public VolunteeringDTO getVolunteeringDTO(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        return volunteering.getDTO();
+    }
+
+    public List<String> getVolunteeringSkills(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        return volunteering.getSkills();
+    }
+
+    public List<String> getVolunteeringCategories(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        return volunteering.getCategories();
+    }
 }
