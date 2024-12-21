@@ -283,7 +283,7 @@ public class Volunteering {
     }
 
     public VolunteeringDTO getDTO(){
-        return new VolunteeringDTO(id, name, description, new LinkedList<>(categories), new LinkedList<>(skills));
+        return new VolunteeringDTO(id, organizationId, name, description, new LinkedList<>(categories), new LinkedList<>(skills));
     }
 
     public ScheduleRange getScheduleRange(int groupId, int locId, int rangeId){
