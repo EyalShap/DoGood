@@ -9,5 +9,9 @@ public class PostErrors {
         return String.format("A post with id %d does not exist." ,postId);
     }
 
+    public static String makeUserIsNotAllowedToMakePostAction(int postId, String username, String action) {
+        return String.format("The user %s is not allowed to %s post %d.", username, postId, action);
+    }
+
 
 }
