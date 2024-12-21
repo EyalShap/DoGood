@@ -153,6 +153,10 @@ public class OrganizationsFacade {
         return organizationRepository.getAllOrganizationDTOs();
     }
 
+    public boolean isManager(String username, int organizationId) {
+        return organizationRepository.getOrganization(organizationId).isManager(username);
+    }
+
     // TODO: remove when users facade is implemented
     private boolean isAdmin(String username) {
         return false;
