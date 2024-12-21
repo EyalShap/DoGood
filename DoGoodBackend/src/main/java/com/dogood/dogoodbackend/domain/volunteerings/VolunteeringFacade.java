@@ -361,16 +361,33 @@ public class VolunteeringFacade {
 
     public VolunteeringDTO getVolunteeringDTO(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
         return volunteering.getDTO();
     }
 
     public List<String> getVolunteeringSkills(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
         return volunteering.getSkills();
     }
 
     public List<String> getVolunteeringCategories(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
         return volunteering.getCategories();
+    }
+
+    public int getVolunteeringOrganizationId(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getOrganizationId();
     }
 }
