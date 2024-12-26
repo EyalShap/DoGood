@@ -46,6 +46,10 @@ public class SchedulingFacade {
         manager.approveUserHours(username, volunteeringId, start, end);
     }
 
+    public void denyUserHours(String username, int volunteeringId, Date start, Date end){
+        manager.denyUserHours(username, volunteeringId, start, end);
+    }
+
     private boolean checkIfFull(int volunteeringId, int rangeId, RestrictionTuple r, boolean[] weekDays, LocalDate oneTime){
         return manager.getAmountOfAppointmentsInRestrict(volunteeringId, rangeId, r, weekDays, oneTime) >= r.getAmount();
     }

@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import java.time.LocalTime;
 import java.util.Date;
 
 public class HourApprovalRequests {
@@ -11,6 +12,10 @@ public class HourApprovalRequests {
         this.userId = userId;
         this.startTime = startTime;
         this.endTime = endTime;
+    }
+
+    public boolean intersect(Date otherStartTime, Date otherEndTime) {
+        return !(otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
     }
 
     public String getUserId() {

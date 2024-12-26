@@ -17,6 +17,7 @@ public class Volunteering {
     private String description;
     private List<String> skills;
     private List<String> categories;
+    private List<String> imagePaths;
     private Map<Integer,Location> locations;
     private Map<Integer, Group> groups;
     private List<PastExperience> pastExperiences;
@@ -30,7 +31,7 @@ public class Volunteering {
 
     private BarcodeHandler barcodeHandler;
 
-    public Volunteering(int id, int organizationId, String name, String description) {
+    public Volunteering(int id, int organizationId, String name, String description, BarcodeHandler barcodeHandler) {
         this.id = id;
         this.organizationId = organizationId;
         this.name = name;
@@ -45,8 +46,8 @@ public class Volunteering {
         this.pendingJoinRequests = new HashMap<>();
         this.scanTypes = ScanTypes.NO_SCAN;
         this.approvalType = ApprovalType.MANUAL;
-        this.barcodeHandler = new BarcodeHandler();
-
+        this.barcodeHandler = barcodeHandler;
+        this.imagePaths = new LinkedList<>();
         addNewGroup();
     }
 
@@ -197,7 +198,18 @@ public class Volunteering {
         if(!pendingJoinRequests.containsKey(userId)){
             throw new UnsupportedOperationException("There is no pending join request for user "+userId);
         }
+        pendingJoinRequests.remove(userId);
         groups.get(groupId).addUser(userId);
+    }
+
+    public void denyJoinRequest(String userId, int groupId){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        if(!pendingJoinRequests.containsKey(userId)){
+            throw new UnsupportedOperationException("There is no pending join request for user "+userId);
+        }
+        pendingJoinRequests.remove(userId);
     }
 
     public void leaveVolunteering(String userId, PastExperience e){
@@ -283,7 +295,15 @@ public class Volunteering {
     }
 
     public VolunteeringDTO getDTO(){
-        return new VolunteeringDTO(id, organizationId, name, description, new LinkedList<>(categories), new LinkedList<>(skills));
+        return new VolunteeringDTO(id, organizationId, name, description, new LinkedList<>(categories), new LinkedList<>(skills), new LinkedList<>(imagePaths));
+    }
+
+    public void addImagePath(String imagePath){
+        imagePaths.add(imagePath);
+    }
+
+    public void removeImagePath(String imagePath){
+        imagePaths.remove(imagePath);
     }
 
     public ScheduleRange getScheduleRange(int groupId, int locId, int rangeId){

@@ -140,6 +140,11 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!hourApprovalRequestsMapping.get(volunteeringId).containsKey(username)){
             hourApprovalRequestsMapping.get(volunteeringId).put(username, new LinkedList<>());
         }
+        for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
+            if(request.intersect(start, end)){
+                throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
+            }
+        }
         hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, start, end));
     }
 
@@ -150,6 +155,7 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!approvedHoursMapping.get(volunteeringId).containsKey(username)){
             approvedHoursMapping.get(volunteeringId).put(username, new LinkedList<>());
         }
+
         approvedHoursMapping.get(volunteeringId).get(username).add(new ApprovedHours(username, volunteeringId, start, end));
     }
 
@@ -166,6 +172,21 @@ public class MemorySchedulingManager implements SchedulingManager{
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
         addApproval(username, volunteeringId, start, end);
+        hourApprovalRequestsMapping.get(volunteeringId).get(username).remove(requestToApprove);
+    }
+
+    @Override
+    public void denyUserHours(String username, int volunteeringId, Date start, Date end) {
+        checkExistsRequests(username, volunteeringId);
+        HourApprovalRequests requestToApprove = null;
+        for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
+            if(request.getStartTime().equals(start) && request.getEndTime().equals(end)){
+                requestToApprove = request;
+            }
+        }
+        if(requestToApprove == null){
+            throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
+        }
         hourApprovalRequestsMapping.get(volunteeringId).get(username).remove(requestToApprove);
     }
 

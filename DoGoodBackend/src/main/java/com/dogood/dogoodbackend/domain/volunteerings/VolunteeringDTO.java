@@ -9,14 +9,16 @@ public class VolunteeringDTO {
     private final String description;
     private List<String> skills;
     private List<String> categories;
+    private List<String> imagePaths;
 
-    public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills, List<String> categories) {
+    public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills, List<String> categories, List<String> imagePaths) {
         this.id = id;
         this.orgId = orgId;
         this.name = name;
         this.description = description;
         this.skills = skills;
         this.categories = categories;
+        this.imagePaths = imagePaths;
     }
 
     public int getId() {
@@ -41,5 +43,9 @@ public class VolunteeringDTO {
 
     public List<String> getCategories() {
         return categories;
+    }
+
+    public List<String> getImagePaths() {
+        return imagePaths;
     }
 }
