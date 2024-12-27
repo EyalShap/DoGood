@@ -245,7 +245,7 @@ public class VolunteeringFacade {
         repository.updateVolunteeringInDB(volunteeringId);
     }
 
-    public int addVolunteeringLocation(String userId, int volunteeringId, String name, String address){
+    public int addVolunteeringLocation(String userId, int volunteeringId, String name, AddressTuple address){
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
@@ -521,5 +521,13 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
         return volunteering.getOrganizationId();
+    }
+
+    public List<LocationDTO> getVolunteeringLocations(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getLocationDTOs();
     }
 }

@@ -15,6 +15,7 @@ public class BarcodeHandler {
     }
 
     public List<Code> getRecentCodes() {
+        cleanCodes();
         return recentCodes;
     }
 

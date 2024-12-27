@@ -156,7 +156,7 @@ public class Volunteering {
         groups.remove(id);
     }
 
-    public int addLocation(String name, String address){
+    public int addLocation(String name, AddressTuple address){
         Location loc = new Location(availableLocationId++,name,address);
         this.locations.put(loc.getId(), loc);
         return loc.getId();
@@ -313,5 +313,9 @@ public class Volunteering {
         Group g = groups.get(groupId);
         ScheduleRange range = g.getScheduleRange(locId, rangeId);
         return range;
+    }
+
+    public List<LocationDTO> getLocationDTOs(){
+        return locations.values().stream().map(location -> location.getDTO()).collect(Collectors.toList());
     }
 }
