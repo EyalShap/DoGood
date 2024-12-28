@@ -33,6 +33,13 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
 
     @Override
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId) {
+        //TODO
         return null;
+    }
+
+    @Override
+    public int getVolunteeringIdByPostId(int postId) {
+        //TODO
+        return 0;
     }
 }

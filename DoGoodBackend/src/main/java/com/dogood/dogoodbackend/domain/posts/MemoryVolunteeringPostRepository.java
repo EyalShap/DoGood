@@ -68,4 +68,10 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
         }
         return res;
     }
+
+    @Override
+    public int getVolunteeringIdByPostId(int postId) {
+        VolunteeringPost post = getVolunteeringPost(postId);
+        return post.getVolunteeringId();
+    }
 }

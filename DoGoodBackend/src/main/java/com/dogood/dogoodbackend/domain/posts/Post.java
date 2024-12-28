@@ -1,8 +1,15 @@
 package com.dogood.dogoodbackend.domain.posts;
 
-import java.time.LocalTime;
+import com.dogood.dogoodbackend.domain.users.UserDTO;
+import org.apache.lucene.analysis.en.EnglishAnalyzer;
 
-import static com.dogood.dogoodbackend.utils.ValidateFields.*;
+import java.time.LocalTime;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import static com.dogood.dogoodbackend.utils.ValidateFields.isValidText;
 
 public abstract class Post {
     private int id;
@@ -11,6 +18,7 @@ public abstract class Post {
     private LocalTime postedTime;
     private LocalTime lastEditedTime; // nicer in the UI
     private String posterUsername;
+    private int numOfPeopleRequestedToJoin; //this is to calculate popularity, TODO: something better in beta version
 
     public Post(int id, String title, String description, String posterUsername) {
         String isValidOrg = isValid(id, title, description);
@@ -24,6 +32,7 @@ public abstract class Post {
         this.postedTime = LocalTime.now();
         this.lastEditedTime = this.postedTime;
         this.posterUsername = posterUsername;
+        this.numOfPeopleRequestedToJoin = 0;
     }
 
     private String isValid(int id, String title, String description) {
@@ -34,7 +43,7 @@ public abstract class Post {
         if(!isValidText(title, 2, 50)) {
             res.append(String.format("Invalid post title: %s.\n", title));
         }
-        if(!isValidText(description, 50, 300)) {
+        if(!isValidText(description, 0, 300)) {
             res.append(String.format("Invalid post description: %s.\n", description));
         }
         return res.toString();
@@ -74,4 +83,22 @@ public abstract class Post {
     public LocalTime getLastEditedTime() {
         return lastEditedTime;
     }
+
+    public void incNumOfPeopleRequestedToJoin() {
+        numOfPeopleRequestedToJoin++;
+    }
+
+    public int evaluatePopularity() {
+        /*if(Glinda) {
+            return Integer.MAX_VALUE;
+        }
+        // will be betaba in beta version
+        else if(Alphaba) {
+            return Integer.MIN_VALUE;
+        }
+        return 0; */
+
+        return numOfPeopleRequestedToJoin;
+    }
+
 }
