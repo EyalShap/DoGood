@@ -16,5 +16,6 @@ public interface SchedulingManager {
     public void makeAppointment(ScheduleAppointment appointment);
     public void addHourApprovalRequest(String username, int volunteeringId, Date start, Date end);
     public void approveUserHours(String username, int volunteeringId, Date start, Date end);
+    public void denyUserHours(String username, int volunteeringId, Date start, Date end);
     public int getAmountOfAppointmentsInRestrict(int volunteeringId, int rangeId, RestrictionTuple r, boolean[] weekDays, LocalDate oneTime);
 }
