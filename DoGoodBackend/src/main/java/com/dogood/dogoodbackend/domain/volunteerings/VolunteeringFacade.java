@@ -23,8 +23,7 @@ public class VolunteeringFacade {
     }
 
     private boolean isManager(String userId, int organizationId){
-        //return organizationFacade.isManager(userId, organizationId);
-        return true;
+        return organizationFacade.isManager(userId, organizationId);
     }
 
     private boolean userExists(String userId){
