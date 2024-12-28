@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
+import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
@@ -111,6 +112,45 @@ public class PostsFacade {
         post.incNumOfPeopleRequestedToJoin();
     }
 
+    public List<VolunteeringPostDTO> searchByKeywords(String search) {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> searchKeywords = keywordExtractor.getKeywords(search);
+        List<VolunteeringPostDTO> result = new ArrayList<>();
+
+        for(VolunteeringPost post : allPosts) {
+            Set<String> postKeywords = getPostKeywords(post);
+            int common = countCommons(searchKeywords, postKeywords);
+            if(common >= 1) {
+                result.add(new VolunteeringPostDTO(post));
+            }
+        }
+        return result;
+    }
+
+    private Set<String> getPostKeywords(VolunteeringPost post) {
+        int volunteeringId = post.getVolunteeringId();
+        VolunteeringDTO volunteering = volunteeringFacade.getVolunteeringDTO(volunteeringId);
+
+        Set<String> postKeywords = keywordExtractor.getKeywords(post.getTitle() + " " + post.getDescription());
+        Set<String> volunteeringKeywords = getVolunteeringKeywords(volunteering);
+
+        postKeywords.addAll(volunteeringKeywords);
+        return postKeywords;
+    }
+
+    private Set<String> getVolunteeringKeywords(VolunteeringDTO volunteering) {
+        int volunteeringId = volunteering.getId();
+
+        Set<String> volunteeringKeywords = keywordExtractor.getKeywords(volunteering.getName() + " " + volunteering.getDescription());
+        Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
+        Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
+
+        volunteeringKeywords.addAll(volunteeringCategories);
+        volunteeringKeywords.addAll(volunteeringSkills);
+
+        return volunteeringKeywords;
+    }
+
     private int countCommons(Set<String> s1, Set<String> s2) {
         int matching = 0;
         for (String item : s1) {
@@ -121,118 +161,42 @@ public class PostsFacade {
         return matching;
     }
 
-    private int matchByKeywords(String search, Set<String> postKeywords) {
-        if(search == null || search.isBlank()) {
-            return 0;
-        }
-        Set<String> searchKeywords = keywordExtractor.getKeywords(search);
-        return countCommons(searchKeywords, postKeywords);
-    }
-
-    private int matchByCategories(Set<String> postKeywords, String actor, int volunteeringId) {
-        Set<String> userCategories = getUserCategories(actor);
-        Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
-        volunteeringCategories.addAll(postKeywords);
-        return countCommons(userCategories, volunteeringCategories);
-    }
-
-    private int matchBySkills(Set<String> postKeywords, String actor, int volunteeringId) {
-        Set<String> userSkills = getUserSkills(actor);
-        Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
-        volunteeringSkills.addAll(postKeywords);
-        return countCommons(userSkills, volunteeringSkills);
-    }
-
-    private int evaluateVolunteeringSimilarity(Set<String> currVolunteeringKeywords, Set<String> currVolunteeringCategories, Set<String> currVolunteeringSkills, VolunteeringDTO otherVolunteering) {
-        int otherVolunteeringId = otherVolunteering.getId();
-
-        Set<String> otherVolunteeringKeywords = keywordExtractor.getKeywords(otherVolunteering.getName() + " " + otherVolunteering.getDescription());
-
-        Set<String> otherVolunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(otherVolunteeringId));
-
-        Set<String> otherVolunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(otherVolunteeringId));
-
-        return countCommons(currVolunteeringKeywords, otherVolunteeringKeywords)
-                + countCommons(currVolunteeringCategories, otherVolunteeringCategories)
-                + countCommons(currVolunteeringSkills, otherVolunteeringSkills);
-    }
-
-    private int matchByHistory(String actor, int currVolunteeringId, Set<String> currVolunteeringKeywords, Set<String> currVolunteeringCategories, Set<String> currVolunteeringSkills) {
-        int match = 0;
-        List<VolunteeringDTO> history = getUserVolunteeringHistory(actor);
-        VolunteeringDTO currVolunteering = volunteeringFacade.getVolunteeringDTO(currVolunteeringId);
-
-        for(VolunteeringDTO historyVolunteering : history) {
-            match += evaluateVolunteeringSimilarity(currVolunteeringKeywords, currVolunteeringCategories, currVolunteeringSkills, historyVolunteering);
-        }
-        return match;
-    }
-
-    private int evaluatePostRelevance(VolunteeringPost post, String search, String actor) {
-        int volunteeringId = post.getVolunteeringId();
-
-        // combining all the words from keywords, categories, skills to avoid duplicates
-        Set<String> searchKeywords = (search == null || search.isBlank()) ? keywordExtractor.getKeywords(search) : new HashSet<>();
-        Set<String> postKeywords = keywordExtractor.getKeywords(post.getTitle() + " " + post.getDescription());
-
-        Set<String> volunteeringKeywords = keywordExtractor.getKeywords(post.getTitle() + " " + post.getDescription());
-
-        Set<String> userCategories = getUserCategories(actor);
-        Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
-
-        Set<String> userSkills = getUserSkills(actor);
-        Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
-
-        Set<String> userSet = searchKeywords;
-        userSet.addAll(userCategories);
-        userSet.addAll(userSkills);
-
-        Set<String> postSet = postKeywords;
-        postSet.addAll(volunteeringKeywords);
-        postSet.addAll(volunteeringCategories);
-        postSet.addAll(volunteeringSkills);
-
-        int relevance = countCommons(userSet, postSet) + matchByHistory(actor, volunteeringId, volunteeringKeywords, volunteeringCategories, volunteeringSkills);
-        return relevance;
-    }
-
-    private int getRelevanceFromMap(Map<VolunteeringPost, Integer> postWithRelevance) {
-        // only one item in map
-        for(Integer rel: postWithRelevance.values()) {
-            return rel;
-        }
-        return 0;
-    }
-
-    private VolunteeringPost getPostFromMap(Map<VolunteeringPost, Integer> postWithRelevance) {
-        // only one item in map
-        for(VolunteeringPost post: postWithRelevance.keySet()) {
-            return post;
-        }
-        return null;
-    }
-
-    public List<VolunteeringPostDTO> searchByKeywords(String search, String actor) {
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-
-        List<VolunteeringPost> filteredSortedList = allPosts.stream()
-                .map(post -> Map.of(post, evaluatePostRelevance(post, search, actor)))
-                .filter(postWithRelevance -> getRelevanceFromMap(postWithRelevance) >= 1)
-                .sorted(Comparator.comparingInt(postWithRelevance -> -1 * getRelevanceFromMap(postWithRelevance)))
-                .map(postWithRelevance -> getPostFromMap(postWithRelevance))
-                .collect(Collectors.toList());
-
-        return volunteeringPostRepository.getVolunteeringPostDTOs(filteredSortedList);
-    }
-
     public List<VolunteeringPostDTO> sortByRelevance(String actor) {
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        for(VolunteeringPost post: allPosts) {
+            post.setRelevance(evaluatePostRelevance(post, actor));
+        }
 
         List<VolunteeringPost> sorted = allPosts.stream()
-                .sorted(Comparator.comparingInt(post -> -1 * evaluatePostRelevance(post, null, actor)))
+                .sorted(Comparator.comparingInt(post -> -1 * post.getRelevance()))
                 .collect(Collectors.toList());
 
         return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
+    }
+
+    private int evaluatePostRelevance(VolunteeringPost post, String actor) {
+        VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId());
+
+        Set<String> userKeywords = getUserCategories(actor);
+        Set<String> userSkills = getUserSkills(actor);
+        userKeywords.addAll(userSkills);
+
+        Set<String> postKeywords = getPostKeywords(post);
+
+        int relevance = countCommons(userKeywords, postKeywords) + matchByHistory(actor, volunteeringDTO);
+        return relevance;
+    }
+
+    private int matchByHistory(String actor, VolunteeringDTO currVolunteering) {
+        int match = 0;
+        List<VolunteeringDTO> history = getUserVolunteeringHistory(actor);
+        Set<String> currKeywords = getVolunteeringKeywords(currVolunteering);
+
+        for(VolunteeringDTO historyVolunteering : history) {
+            Set<String> historyKeywords = getVolunteeringKeywords(historyVolunteering);
+            match += countCommons(currKeywords, historyKeywords);
+        }
+        return match;
     }
 
     public List<VolunteeringPostDTO> sortByPopularity() {
@@ -265,14 +229,30 @@ public class PostsFacade {
         return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
     }
 
-    //TODO: sort by location
+    //TODO: sort by location in beta version
 
-    /*public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, location, hour, available now, ) {
+    //TODO: add more parameters
+    // i wanted to continue
+    public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities) {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        List<VolunteeringPostDTO> result = new ArrayList<>();
 
-    }*/
+        for(VolunteeringPost post : allPosts) {
+            int volunteeringId = post.getVolunteeringId();
+            Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
+            Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
+            List<LocationDTO> volunteeringLocations = volunteeringFacade.getVolunteeringLocations(volunteeringId);
+            Set<String> volunteeringCities = volunteeringLocations.stream().map(locationDTO -> locationDTO.getAddress().getCity()).collect(Collectors.toSet());
 
-    public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills) {
+            volunteeringCategories.retainAll(categories);
+            volunteeringSkills.retainAll(skills);
+            volunteeringCities.retainAll(cities);
 
+            if(volunteeringCategories.size() >= 1 && volunteeringSkills.size() >= 1 && volunteeringCities.size() >= 1) {
+                result.add(new VolunteeringPostDTO(post));
+            }
+        }
+        return result;
     }
 
     // TODO: remove when users facade is implemented

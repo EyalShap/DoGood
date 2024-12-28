@@ -9,14 +9,18 @@ public abstract class PostDTO {
     private LocalTime postedTime;
     private LocalTime lastEditedTime; // nicer in the UI
     private String posterUsername;
+    private int numOfPeopleRequestedToJoin;
+    private int relevance;
 
-    public PostDTO(int id, String title, String description, LocalTime postedTime, LocalTime lastEditedTime, String posterUsername) {
+    public PostDTO(int id, String title, String description, LocalTime postedTime, LocalTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.postedTime = postedTime;
         this.lastEditedTime = lastEditedTime;
         this.posterUsername = posterUsername;
+        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
+        this.relevance = relevance;
     }
 
     public PostDTO(Post post) {
@@ -26,6 +30,8 @@ public abstract class PostDTO {
         this.postedTime = post.getPostedTime();
         this.lastEditedTime = post.getLastEditedTime();
         this.posterUsername = post.getPosterUsername();
+        this.numOfPeopleRequestedToJoin = post.getNumOfPeopleRequestedToJoin();
+        this.relevance = post.getRelevance();
     }
 
     public int getId() {
@@ -50,5 +56,13 @@ public abstract class PostDTO {
 
     public String getPosterUsername() {
         return posterUsername;
+    }
+
+    public int getNumOfPeopleRequestedToJoin() {
+        return numOfPeopleRequestedToJoin;
+    }
+
+    public int getRelevance() {
+        return relevance;
     }
 }

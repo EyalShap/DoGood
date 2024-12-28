@@ -4,10 +4,7 @@ import com.dogood.dogoodbackend.domain.organizations.Organization;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import com.dogood.dogoodbackend.utils.PostErrors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class MemoryVolunteeringPostRepository implements VolunteeringPostRepository {
     private Map<Integer, VolunteeringPost> posts;
@@ -74,4 +71,5 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
         VolunteeringPost post = getVolunteeringPost(postId);
         return post.getVolunteeringId();
     }
+
 }

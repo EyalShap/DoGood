@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.posts;
 
 import java.util.List;
+import java.util.Set;
 
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     @Override
@@ -42,4 +43,5 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
         //TODO
         return 0;
     }
+
 }

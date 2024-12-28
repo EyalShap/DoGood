@@ -4,6 +4,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.utils.PostErrors;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface VolunteeringPostRepository {
@@ -15,7 +16,7 @@ public interface VolunteeringPostRepository {
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId);
     public int getVolunteeringIdByPostId(int postId);
 
-    public default List<VolunteeringPostDTO> getVolunteeringPostDTOs(List<VolunteeringPost> posts) {
+        public default List<VolunteeringPostDTO> getVolunteeringPostDTOs(List<VolunteeringPost> posts) {
         List<VolunteeringPostDTO> volunteeringPostDTO = posts.stream()
                 .map(post -> new VolunteeringPostDTO(post))
                 .collect(Collectors.toList());
