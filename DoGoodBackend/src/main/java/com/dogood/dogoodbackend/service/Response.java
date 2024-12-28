@@ -18,6 +18,14 @@ public class Response<T> {
         return new Response<>(null, true, errorStr);
     }
 
+    public static <T> Response<T> createResponse(String errorStr) {
+        return new Response<>(null, true, errorStr);
+    }
+
+    public static <T> Response<T> createResponse(T data) {
+        return new Response<>(data, false, null);
+    }
+
     public T getData() {
         return this.data;
     }
