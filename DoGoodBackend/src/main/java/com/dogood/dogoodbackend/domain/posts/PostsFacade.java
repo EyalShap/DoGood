@@ -168,6 +168,7 @@ public class PostsFacade {
         }
 
         List<VolunteeringPost> sorted = allPosts.stream()
+                .filter(post -> post.getRelevance() != -1)
                 .sorted(Comparator.comparingInt(post -> -1 * post.getRelevance()))
                 .collect(Collectors.toList());
 
@@ -232,7 +233,6 @@ public class PostsFacade {
     //TODO: sort by location in beta version
 
     //TODO: add more parameters
-    // i wanted to continue
     public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities) {
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         List<VolunteeringPostDTO> result = new ArrayList<>();

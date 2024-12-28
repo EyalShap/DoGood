@@ -21,7 +21,7 @@ public abstract class Post {
     private int numOfPeopleRequestedToJoin; //this is to calculate popularity, TODO: something better in beta version
     private int relevance;
 
-    public Post(int id, String title, String description, String posterUsername, int relevance) {
+    public Post(int id, String title, String description, String posterUsername) {
         String isValidOrg = isValid(id, title, description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
@@ -34,7 +34,7 @@ public abstract class Post {
         this.lastEditedTime = this.postedTime;
         this.posterUsername = posterUsername;
         this.numOfPeopleRequestedToJoin = 0;
-        this.relevance = relevance;
+        this.relevance = -1;
     }
 
     private String isValid(int id, String title, String description) {
