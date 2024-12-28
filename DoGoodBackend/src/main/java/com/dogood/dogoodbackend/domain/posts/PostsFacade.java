@@ -98,14 +98,10 @@ public class PostsFacade {
         return volunteeringPostRepository.getVolunteeringPostDTOs(orgPosts);
     }
 
-    public int getVolunteeringIdByPostId(int postId) {
-        return volunteeringPostRepository.getVolunteeringIdByPostId(postId);
-    }
-
     public void joinVolunteeringRequest(int postId, String actor, String freeText) {
         //TODO: check if user exists and logged in
 
-        int volunteeringId = getVolunteeringIdByPostId(postId);
+        int volunteeringId = volunteeringPostRepository.getVolunteeringIdByPostId(postId);
         volunteeringFacade.requestToJoinVolunteering(actor, volunteeringId, freeText);
 
         Post post = volunteeringPostRepository.getVolunteeringPost(postId);
