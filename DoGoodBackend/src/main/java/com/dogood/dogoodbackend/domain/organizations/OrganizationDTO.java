@@ -33,4 +33,36 @@ public class OrganizationDTO {
         this.managerUsernames = organization.getManagerUsernames();
         this.founderUsername = organization.getFounderUsername();
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public List<Integer> getVolunteeringIds() {
+        return volunteeringIds;
+    }
+
+    public List<String> getManagerUsernames() {
+        return managerUsernames;
+    }
+
+    public String getFounderUsername() {
+        return founderUsername;
+    }
 }
