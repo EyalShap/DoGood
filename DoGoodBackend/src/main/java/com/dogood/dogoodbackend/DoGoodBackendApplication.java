@@ -9,5 +9,5 @@ public class DoGoodBackendApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(DoGoodBackendApplication.class, args);
 	}
-	
+
 }
