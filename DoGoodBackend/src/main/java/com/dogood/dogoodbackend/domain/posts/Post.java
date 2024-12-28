@@ -1,6 +1,5 @@
 package com.dogood.dogoodbackend.domain.posts;
 
-import com.dogood.dogoodbackend.domain.users.UserDTO;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 
 import java.time.LocalTime;

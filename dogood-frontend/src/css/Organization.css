@@ -1,0 +1,68 @@
+.orgInfo {
+    background-color: #F0F0FF;
+    padding: 10px;
+    display: flex;
+    flex-direction: row;
+}
+
+.orgInfoText {
+    display: flex;
+    align-self: flex-start;
+    flex-direction: column;
+    width: fit-content;
+    color: #2F2F2F;
+    margin-left: 20px;
+}
+
+.orgInfoText h1{
+    font-size: 40px;
+    margin-bottom: 10px;
+}
+
+.orgInfoContact {
+    display: flex;
+    align-self: flex-start;
+    flex-direction: column;
+    width: fit-content;
+    color: #2F2F2F;
+    margin-left: 20px;
+}
+
+.orgInfoButtons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 40%;
+    font-weight: bold;
+    color: #2F2F2F;
+    margin-right: 10px;
+}
+
+.orgInfoButtons button {
+    width: 50%;
+    margin-top: 5px;
+    height: 40px;
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.orgInfoButtons button:active {
+    background-color: lightgray;
+}
+
+@media (max-width: 500px) {
+    .volInfo {
+        flex-direction: column;
+        align-items: center;
+    }
+    .volInfoButtons button {
+        width: 80%;
+        font-size: 10px;
+    }
+}
