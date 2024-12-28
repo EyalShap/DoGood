@@ -6,8 +6,8 @@ public class VolunteeringPostDTO extends PostDTO{
     private int volunteeringId;
     private int organizationId;
 
-    public VolunteeringPostDTO(int id, String title, String description, LocalTime postedTime, LocalTime lastEditedTime, String posterUsername, int volunteeringId, int organizationId) {
-        super(id, title, description, postedTime, lastEditedTime, posterUsername);
+    public VolunteeringPostDTO(int id, String title, String description, LocalTime postedTime, LocalTime lastEditedTime, String posterUsername, int relevance, int numOfPeopleRequestedToJoin, int volunteeringId, int organizationId) {
+        super(id, title, description, postedTime, lastEditedTime, posterUsername,numOfPeopleRequestedToJoin, relevance);
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
     }
