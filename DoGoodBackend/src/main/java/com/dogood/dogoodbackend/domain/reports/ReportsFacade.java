@@ -15,14 +15,14 @@ public class ReportsFacade {
         this.postsFacade = postsFacade;
     }
 
-    public void createReport(String reportingUser, int reportedPostId, String description) {
+    public int createReport(String actor, int reportedPostId, String description) {
         //TODO: check if user exists and logged in
 
         if(!postsFacade.doesExist(reportedPostId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportedPostDoesNotExistError(reportedPostId));
         }
 
-        reportRepository.createReport(reportingUser, reportedPostId, description);
+        return reportRepository.createReport(actor, reportedPostId, description).getId();
     }
 
     public void removeReport(int reportId, String actor) {
@@ -47,7 +47,9 @@ public class ReportsFacade {
         reportRepository.editReport(reportId, description);
     }
 
-    public ReportDTO getReport(int reportId) {
+    public ReportDTO getReport(int reportId, String actor) {
+        //TODO: check if user exists and logged in
+
         Report report = reportRepository.getReport(reportId);
         ReportDTO reportDTO = new ReportDTO(report);
         return reportDTO;

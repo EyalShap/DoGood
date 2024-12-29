@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 
 import java.util.ArrayList;
@@ -9,11 +10,15 @@ public class OrganizationsFacade {
     private OrganizationRepository organizationRepository;
     private RequestRepository requestRepository;
     //private UsersFacade usersFacade;
-    //private VolunteeringFacade volunteeringFacade;
+    private VolunteeringFacade volunteeringFacade;
 
     public OrganizationsFacade(OrganizationRepository organizationRepository, RequestRepository requestRepository) {
         this.organizationRepository = organizationRepository;
         this.requestRepository = requestRepository;
+    }
+
+    public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
+        this.volunteeringFacade = volunteeringFacade;
     }
 
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
@@ -44,7 +49,7 @@ public class OrganizationsFacade {
         organizationRepository.editOrganization(organizationId, name, description, phoneNumber, email);
     }
 
-    public void createVolunteering(int organizationId, String volunteeringName, String volunteeringDescription, String actor) {
+    public int createVolunteering(int organizationId, String volunteeringName, String volunteeringDescription, String actor) {
         //TODO: check if user exists and logged in
 
         Organization organization = organizationRepository.getOrganization(organizationId);
@@ -52,11 +57,10 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "create a new volunteering"));
         }
 
-        //TODO: change when volunteering facade is merged
-        //int volunteeringId = volunteeringFacade.createVolunteering(organizationId, volunteeringName, volunteeringDescription);
-        int volunteeringId = 0;
-
+        int volunteeringId = volunteeringFacade.createVolunteering(actor, organizationId, volunteeringName, volunteeringDescription);
         organization.addVolunteering(volunteeringId);
+
+        return volunteeringId;
     }
 
     public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
@@ -68,9 +72,6 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "remove a volunteering"));
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
-
-        //TODO: change when volunteering facade is merged
-        //volunteeringFacade.removeVolunteering(volunteeringId);
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
