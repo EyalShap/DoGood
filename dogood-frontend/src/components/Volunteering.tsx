@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel from '../models/VolunteeringModel'
-import { getVolunteering } from '../api'
+import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 
 function Volunteering() {

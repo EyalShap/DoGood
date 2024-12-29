@@ -26,6 +26,10 @@ public class Response<T> {
         return new Response<>(data, false, null);
     }
 
+    public static Response<String> createOK() {
+        return new Response<>("OK", false, null);
+    }
+
     public T getData() {
         return this.data;
     }

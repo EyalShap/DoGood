@@ -4,8 +4,10 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class ScheduleRange {
     private final int id;
@@ -119,5 +121,16 @@ public class ScheduleRange {
             }
         }
         return collides;
+    }
+
+    public ScheduleRangeDTO getDTO(){
+        List<RestrictionTuple> restrictCopy = restrict.stream().map(restrictionTuple -> new RestrictionTuple(restrictionTuple.getStartTime(), restrictionTuple.getEndTime(), restrictionTuple.getAmount())).collect(Collectors.toList());
+        boolean[] weekDaysCopy;
+        if(weekDays != null){
+            weekDaysCopy  = Arrays.copyOf(weekDays,weekDays.length);
+        }else{
+            weekDaysCopy = null;
+        }
+        return new ScheduleRangeDTO(id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, restrictCopy,weekDaysCopy,oneTime);
     }
 }
