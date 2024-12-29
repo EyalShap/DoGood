@@ -23,6 +23,8 @@ public class FacadeManager {
         this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
         this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
         this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
+
+        this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
     }
 
     public void createFacades(VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
