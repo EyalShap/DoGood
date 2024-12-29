@@ -83,17 +83,23 @@ public class PostsFacade {
         }
     }
 
-    public VolunteeringPostDTO getVolunteeringPost(int postId) {
+    public VolunteeringPostDTO getVolunteeringPost(int postId, String actor) {
+        //TODO: check if user exists and logged in
+
         VolunteeringPost post = volunteeringPostRepository.getVolunteeringPost(postId);
         return new VolunteeringPostDTO(post);
     }
 
-    public List<VolunteeringPostDTO> getAllVolunteeringPosts() {
+    public List<VolunteeringPostDTO> getAllVolunteeringPosts(String actor) {
+        //TODO: check if user exists and logged in
+
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         return volunteeringPostRepository.getVolunteeringPostDTOs(allPosts);
     }
 
-    public List<VolunteeringPostDTO> getOrganizationVolunteeringPosts(int organizationId) {
+    public List<VolunteeringPostDTO> getOrganizationVolunteeringPosts(int organizationId, String actor) {
+        //TODO: check if user exists and logged in
+
         List<VolunteeringPost> orgPosts = volunteeringPostRepository.getOrganizationVolunteeringPosts(organizationId);
         return volunteeringPostRepository.getVolunteeringPostDTOs(orgPosts);
     }

@@ -137,7 +137,7 @@ public class OrganizationService {
         }
     }
 
-    public Response<OrganizationDTO> getOrganization(String token, int organizationId) {
+    public Response<OrganizationDTO> getOrganization(String token, int organizationId, String actor) {
         //TODO: check token
 
         try {
@@ -149,7 +149,7 @@ public class OrganizationService {
         }
     }
 
-    public Response<List<OrganizationDTO>> getAllOrganizations(String token) {
+    public Response<List<OrganizationDTO>> getAllOrganizations(String token, String actor) {
         //TODO: check token
 
         try {

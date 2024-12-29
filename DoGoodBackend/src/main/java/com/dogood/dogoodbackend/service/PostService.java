@@ -54,11 +54,11 @@ public class PostService {
         }
     }
 
-    public Response<VolunteeringPostDTO> getVolunteeringPost(String token, int postId) {
+    public Response<VolunteeringPostDTO> getVolunteeringPost(String token, int postId, String actor) {
         //TODO: check token
 
         try {
-            VolunteeringPostDTO post = postsFacade.getVolunteeringPost(postId);
+            VolunteeringPostDTO post = postsFacade.getVolunteeringPost(postId, actor);
             return Response.createResponse(post);
         }
         catch (Exception e) {
@@ -66,11 +66,11 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(String token) {
+    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(String token, String actor) {
         //TODO: check token
 
         try {
-            List<VolunteeringPostDTO> posts = postsFacade.getAllVolunteeringPosts();
+            List<VolunteeringPostDTO> posts = postsFacade.getAllVolunteeringPosts(actor);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -78,11 +78,11 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(String token, int organizationId) {
+    public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(String token, int organizationId, String actor) {
         //TODO: check token
 
         try {
-            List<VolunteeringPostDTO> posts = postsFacade.getOrganizationVolunteeringPosts(organizationId);
+            List<VolunteeringPostDTO> posts = postsFacade.getOrganizationVolunteeringPosts(organizationId, actor);
             return Response.createResponse(posts);
         }
         catch (Exception e) {

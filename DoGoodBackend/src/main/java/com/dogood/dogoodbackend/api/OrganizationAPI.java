@@ -115,17 +115,19 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/getOrganization")
-    public Response<OrganizationDTO> getOrganization(@RequestParam int orgId, HttpServletRequest request) {
+    public Response<OrganizationDTO> getOrganization(@RequestBody GeneralRequest getOrganizationRequest, HttpServletRequest request) {
         String token = getToken(request);
 
-        return organizationService.getOrganization(token, orgId);
+        int orgId = getOrganizationRequest.getId();
+        String actor = getOrganizationRequest.getActor();
+        return organizationService.getOrganization(token, orgId, actor);
     }
 
     @GetMapping("/getAllOrganizations")
-    public Response<List<OrganizationDTO>> getAllOrganizations(HttpServletRequest request) {
+    public Response<List<OrganizationDTO>> getAllOrganizations(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        return organizationService.getAllOrganizations(token);
+        return organizationService.getAllOrganizations(token, actor);
     }
 
     @GetMapping("/isManager")

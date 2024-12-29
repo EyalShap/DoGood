@@ -51,24 +51,28 @@ public class PostAPI {
     }
 
     @GetMapping("/getVolunteeringPost")
-    public Response<VolunteeringPostDTO> getVolunteeringPost(@RequestParam int postId, HttpServletRequest request) {
+    public Response<VolunteeringPostDTO> getVolunteeringPost(@RequestBody GeneralRequest getPostRequest, HttpServletRequest request) {
         String token = getToken(request);
 
-        return postService.getVolunteeringPost(token, postId);
+        String actor = getPostRequest.getActor();
+        int postId = getPostRequest.getId();
+        return postService.getVolunteeringPost(token, postId, actor);
     }
 
     @GetMapping("/getAllVolunteeringPosts")
-    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(HttpServletRequest request) {
+    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        return postService.getAllVolunteeringPosts(token);
+        return postService.getAllVolunteeringPosts(token, actor);
     }
 
     @GetMapping("/getOrganizationVolunteeringPosts")
-    public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(@RequestParam int orgId, HttpServletRequest request) {
+    public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(@RequestBody GeneralRequest getOrganizationPostsRequest, HttpServletRequest request) {
         String token = getToken(request);
 
-        return postService.getOrganizationVolunteeringPosts(token, orgId);
+        String actor = getOrganizationPostsRequest.getActor();
+        int orgId = getOrganizationPostsRequest.getId();
+        return postService.getOrganizationVolunteeringPosts(token, orgId, actor);
     }
 
     @PostMapping("/joinVolunteeringRequest")
