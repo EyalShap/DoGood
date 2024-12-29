@@ -202,10 +202,7 @@ public class Volunteering {
         groups.get(groupId).addUser(userId);
     }
 
-    public void denyJoinRequest(String userId, int groupId){
-        if(!groups.containsKey(groupId)){
-            throw new UnsupportedOperationException("There is no group with id "+groupId);
-        }
+    public void denyJoinRequest(String userId){
         if(!pendingJoinRequests.containsKey(userId)){
             throw new UnsupportedOperationException("There is no pending join request for user "+userId);
         }
@@ -317,5 +314,13 @@ public class Volunteering {
 
     public List<LocationDTO> getLocationDTOs(){
         return locations.values().stream().map(location -> location.getDTO()).collect(Collectors.toList());
+    }
+
+    public GroupDTO getGroupDTO(int groupId){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        Group g = groups.get(groupId);
+        return g.getDTO();
     }
 }

@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 public class Group {
     private final int id;
@@ -108,5 +109,19 @@ public class Group {
             throw new IllegalArgumentException("User was not assigned a location");
         }
         return locationToRanges.get(volunteersToLocation.get(userId));
+    }
+
+    public GroupDTO getDTO(){
+        Map<String, Integer> volunteersToLocationCopy = new HashMap<>();
+        Map<Integer, List<ScheduleRangeDTO>> locationToRangesCopy = new HashMap<>();
+
+        for(String userId : volunteersToLocation.keySet()){
+            volunteersToLocationCopy.put(userId, volunteersToLocation.get(userId));
+        }
+
+        for(int locId : locationToRanges.keySet()){
+            locationToRangesCopy.put(locId, locationToRanges.get(locId).stream().map(scheduleRange -> scheduleRange.getDTO()).collect(Collectors.toList()));
+        }
+        return new GroupDTO(id, new LinkedList<>(users), volunteersToLocationCopy, locationToRangesCopy);
     }
 }
