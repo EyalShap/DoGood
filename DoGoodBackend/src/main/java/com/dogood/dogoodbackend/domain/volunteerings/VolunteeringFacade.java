@@ -202,7 +202,7 @@ public class VolunteeringFacade {
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
-        if(!volunteering.hasVolunteer(userId)){
+        if(volunteering.hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is already a volunteer in volunteering " + volunteeringId);
         }
         volunteering.addJoinRequest(userId, new JoinRequest(userId, freeText));
@@ -437,8 +437,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         ScheduleRange range = volunteering.getScheduleRange(groupId, locId, rangeId);
-        List<RestrictionTuple> restrictionTuples = range.checkCollision(start, end);
-        schedulingFacade.makeAppointment(userId, volunteeringId, rangeId, start, end, weekdays, oneTime, restrictionTuples);
+        schedulingFacade.makeAppointment(userId, volunteeringId, range, start, end, weekdays, oneTime);
         repository.updateVolunteeringInDB(volunteeringId);
     }
 

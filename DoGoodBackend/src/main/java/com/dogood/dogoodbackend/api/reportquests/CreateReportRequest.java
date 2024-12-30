@@ -1,4 +1,4 @@
-package com.dogood.dogoodbackend.api;
+package com.dogood.dogoodbackend.api.reportquests;
 
 public class CreateReportRequest {
     private String actor;

@@ -1,4 +1,4 @@
-package com.dogood.dogoodbackend.api;
+package com.dogood.dogoodbackend.api.postrequests;
 
 public class CreateVolunteeringPostRequest {
     private String title;

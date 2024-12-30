@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.api;
 
+import com.dogood.dogoodbackend.api.postrequests.CreateVolunteeringPostRequest;
+import com.dogood.dogoodbackend.api.postrequests.FilterPostsRequest;
+import com.dogood.dogoodbackend.api.postrequests.SearchPostRequest;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.service.PostService;
 import com.dogood.dogoodbackend.service.Response;

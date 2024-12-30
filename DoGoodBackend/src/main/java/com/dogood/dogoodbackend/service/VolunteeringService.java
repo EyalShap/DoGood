@@ -21,6 +21,20 @@ public class VolunteeringService {
     @Autowired
     public VolunteeringService(FacadeManager facadeManager){
         this.facadeManager = facadeManager;
+
+
+        //frontend testing scenarios
+        int orgid = facadeManager.getOrganizationsFacade().createOrganization("OrgOrg",
+                "i dont know what to write here this will never be relevant for me",
+                "052-0520520",
+                "irefuse@this.is.irelevant",
+                "TheDoctor");
+        int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
+                "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
+                "TheDoctor");
+
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "EyalShapiro", 0);
     }
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){

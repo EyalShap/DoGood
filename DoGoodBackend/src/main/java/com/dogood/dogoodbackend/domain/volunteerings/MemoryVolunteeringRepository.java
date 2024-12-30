@@ -21,6 +21,7 @@ public class MemoryVolunteeringRepository implements VolunteeringRepository{
     @Override
     public Volunteering addVolunteering(int organizationId, String name, String description) {
         Volunteering volunteering = new Volunteering(latestId++, organizationId, name, description, new BarcodeHandler());
+        volunteerings.put(volunteering.getId(), volunteering);
         return volunteering;
     }
 

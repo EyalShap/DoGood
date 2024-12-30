@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.api;
 
+import com.dogood.dogoodbackend.api.organizationrequests.CreateOrganizationRequest;
+import com.dogood.dogoodbackend.api.organizationrequests.CreateVolunteeringRequest;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.Request;
 import com.dogood.dogoodbackend.service.OrganizationService;
@@ -13,6 +15,7 @@ import java.util.List;
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/organizations")
 public class OrganizationAPI {
     @Autowired
@@ -131,11 +134,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/isManager")
-    public Response<Boolean> isManager(@RequestBody GeneralRequest isManagerRequest, HttpServletRequest request) {
+    public Response<Boolean> isManager(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = isManagerRequest.getId();
-        String actor = isManagerRequest.getActor();
         return organizationService.isManager(token, actor, orgId);
     }
 }

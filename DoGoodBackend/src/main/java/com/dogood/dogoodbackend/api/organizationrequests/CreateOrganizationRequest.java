@@ -1,4 +1,4 @@
-package com.dogood.dogoodbackend.api;
+package com.dogood.dogoodbackend.api.organizationrequests;
 
 public class CreateOrganizationRequest {
     private String name;

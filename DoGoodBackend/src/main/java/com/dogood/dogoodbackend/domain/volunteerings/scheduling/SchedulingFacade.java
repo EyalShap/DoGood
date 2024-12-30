@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRange;
+
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
@@ -54,13 +56,14 @@ public class SchedulingFacade {
         return manager.getAmountOfAppointmentsInRestrict(volunteeringId, rangeId, r, weekDays, oneTime) >= r.getAmount();
     }
 
-    public void makeAppointment(String userId, int volunteeringId, int rangeId, LocalTime start, LocalTime end, boolean[] weekDays, LocalDate oneTime, List<RestrictionTuple> restrictions){
-        for(RestrictionTuple r : restrictions){
-            if(checkIfFull(volunteeringId, rangeId, r.intersection(start, end), weekDays, oneTime)){
-                throw new UnsupportedOperationException("The range " + rangeId + " between " + start + " and " + end + " is full on the specified dates");
+    public void makeAppointment(String userId, int volunteeringId, ScheduleRange range, LocalTime start, LocalTime end, boolean[] weekDays, LocalDate oneTime){
+        for(RestrictionTuple r : range.checkCollision(start, end)){
+            if(checkIfFull(volunteeringId, range.getId(), r.intersection(start, end), weekDays, oneTime)){
+                throw new UnsupportedOperationException("The range " + range.getId() + " between " + start + " and " + end + " is full on the specified dates");
             }
         }
-        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, rangeId, start, end);
+        range.checkMinutes(start,end);
+        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end);
         scheduleAppointment.setWeekDays(weekDays);
         scheduleAppointment.setOneTime(oneTime);
         manager.makeAppointment(scheduleAppointment);
