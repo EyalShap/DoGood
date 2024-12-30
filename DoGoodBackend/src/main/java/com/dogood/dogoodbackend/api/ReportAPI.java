@@ -47,11 +47,9 @@ public class ReportAPI {
     }
 
     @GetMapping("/getReport")
-    public Response<ReportDTO> getReport(@RequestBody GeneralRequest getReportRequest, HttpServletRequest request) {
+    public Response<ReportDTO> getReport(@RequestParam int reportId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int reportId = getReportRequest.getId();
-        String actor = getReportRequest.getActor();
         return reportService.getReport(token, reportId, actor);
     }
 

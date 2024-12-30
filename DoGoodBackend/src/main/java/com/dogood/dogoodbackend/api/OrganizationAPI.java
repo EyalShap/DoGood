@@ -115,11 +115,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/getOrganization")
-    public Response<OrganizationDTO> getOrganization(@RequestBody GeneralRequest getOrganizationRequest, HttpServletRequest request) {
+    public Response<OrganizationDTO> getOrganization(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = getOrganizationRequest.getId();
-        String actor = getOrganizationRequest.getActor();
         return organizationService.getOrganization(token, orgId, actor);
     }
 
@@ -131,11 +129,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/isManager")
-    public Response<Boolean> isManager(@RequestBody GeneralRequest isManagerRequest, HttpServletRequest request) {
+    public Response<Boolean> isManager(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = isManagerRequest.getId();
-        String actor = isManagerRequest.getActor();
         return organizationService.isManager(token, actor, orgId);
     }
 }
