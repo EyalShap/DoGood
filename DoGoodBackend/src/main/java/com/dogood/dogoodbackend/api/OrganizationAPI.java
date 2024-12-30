@@ -33,12 +33,10 @@ public class OrganizationAPI {
         return organizationService.createOrganization(token, name, description, phoneNumber, email, actor);
     }
 
-    @DeleteMapping("/createOrganization")
-    public Response<Boolean> removeOrganization(@RequestBody GeneralRequest removeOrganizationRequest, HttpServletRequest request) {
+    @DeleteMapping("/removeOrganization")
+    public Response<Boolean> removeOrganization(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = removeOrganizationRequest.getId();
-        String actor = removeOrganizationRequest.getActor();
         return organizationService.removeOrganization(token, orgId, actor);
     }
 
@@ -84,20 +82,16 @@ public class OrganizationAPI {
     }
 
     @DeleteMapping("/resign")
-    public Response<Boolean> resign(@RequestBody GeneralRequest resignRequest, HttpServletRequest request) {
+    public Response<Boolean> resign(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = resignRequest.getId();
-        String actor = resignRequest.getActor();
         return organizationService.resign(token, actor, orgId);
     }
 
     @DeleteMapping("/removeManager")
-    public Response<Boolean> removeManager(@RequestBody GeneralRequest removeManagerRequest, @RequestParam String managerToRemove, HttpServletRequest request) {
+    public Response<Boolean> removeManager(@RequestParam int orgId, @RequestParam String actor, @RequestParam String managerToRemove, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = removeManagerRequest.getId();
-        String actor = removeManagerRequest.getActor();
         return organizationService.removeManager(token, actor, managerToRemove, orgId);
     }
 
