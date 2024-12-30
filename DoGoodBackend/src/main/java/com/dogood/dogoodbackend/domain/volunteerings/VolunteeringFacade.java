@@ -135,7 +135,7 @@ public class VolunteeringFacade {
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
-        String[] parts = code.split(":");
+        String[] parts = code.replaceAll("\"", "").split(":");
         int volunteeringId = -1;
         try{
             volunteeringId = Integer.parseInt(parts[0]);
@@ -149,7 +149,7 @@ public class VolunteeringFacade {
         if(!volunteering.hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
-        if(volunteering.getScanTypes() != ScanTypes.NO_SCAN){
+        if(volunteering.getScanTypes() == ScanTypes.NO_SCAN){
             throw new UnsupportedOperationException("Volunteering " + volunteeringId + " does not support QR codes");
         }
         if(!volunteering.codeValid(parts[1])){
@@ -297,7 +297,7 @@ public class VolunteeringFacade {
         if(!volunteering.hasVolunteer(volunteerId)){
             throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + volunteeringId);
         }
-        if(!userId.equals(volunteerId) || !isManager(userId, volunteering.getOrganizationId())){
+        if(!userId.equals(volunteerId) && !isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " cannot assign " + volunteerId + " to a location");
         }
         volunteering.assignVolunteerToLocation(volunteerId, locId);

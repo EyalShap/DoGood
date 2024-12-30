@@ -4,7 +4,7 @@ import APIResponse from "../models/APIResponse";
 
 const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
 
-const server = '127.0.0.1:8080';
+const server = '10.0.0.22:8080';
 
 export const getVolunteering = async (volunteeringId: number): Promise<VolunteeringModel> => {
     const config = {
@@ -39,6 +39,32 @@ export const getIsManager = async (organizationId: number): Promise<boolean> => 
     if(response.error){
         throw response.errorString;
     }
-    console.log(res);
+    return response.data;
+}
+
+export const getCode = async (volunteeringId: number, constant: boolean): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.post(`http://${server}/api/volunteering/makeVolunteeringCode?userId=${sessionStorage.getItem('username')}`, {
+        volunteeringId: volunteeringId,
+        constant: constant
+    }, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const scanCode = async (volunteeringId: number, code: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.post(`http://${server}/api/volunteering/scanCode?userId=${sessionStorage.getItem('username')}`, code, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
     return response.data;
 }

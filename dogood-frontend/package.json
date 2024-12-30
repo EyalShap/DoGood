@@ -13,9 +13,11 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@mui/material": "^6.3.0",
+    "@yudiel/react-qr-scanner": "^2.1.0",
     "axios": "^1.7.9",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1"
+    "react-dom": "^18.3.1",
+    "react-qr-code": "^2.0.15"
   },
   "devDependencies": {
     "@eslint/js": "^9.17.0",
@@ -29,6 +31,7 @@
     "react-router-dom": "^7.1.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.18.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vite-plugin-mkcert": "^1.17.6"
   }
 }

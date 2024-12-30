@@ -60,12 +60,14 @@ public class BarcodeHandler {
     }
 
     private void cleanCodes(){
-        List<Code> validCodes = new LinkedList<>();
-        for(Code c : recentCodes){
-            if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
-                validCodes.add(c);
+        synchronized (this.recentCodes) {
+            List<Code> validCodes = new LinkedList<>();
+            for(Code c : recentCodes){
+                if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
+                    validCodes.add(c);
+                }
             }
+            this.recentCodes = validCodes;
         }
-        this.recentCodes = validCodes;
     }
 }

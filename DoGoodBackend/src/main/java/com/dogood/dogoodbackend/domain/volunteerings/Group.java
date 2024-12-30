@@ -20,6 +20,7 @@ public class Group {
         this.id = id;
         this.users = new LinkedList<>();
         this.volunteersToLocation = new HashMap<>();
+        this.locationToRanges = new HashMap<>();
     }
 
     public boolean isEmpty(){

@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
 import { getIsManager, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 interface GroupToVolunteers {
     [key: number]: string[];
@@ -24,6 +24,7 @@ function Volunteering() {
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
     const [ready, setReady] = useState(false);
+    let navigate = useNavigate();
     const fetchVolunteering = async () => {
         try{
             let found = await getVolunteering(parseInt(id!));
@@ -77,10 +78,10 @@ function Volunteering() {
         </div>
         {isManager ? 
         <div className='scanButtons'>
-                <button>Show Changing QR Code</button>
+                <button onClick={() => navigate("./code")}>Show Changing QR Code</button>
         </div> :
         <div className='scanButtons'>
-            <button>Scan QR Code</button>
+            <button onClick={() => navigate("./scan")}>Scan QR Code</button>
         </div>}
         {isManager ? 
         <div className="volunteers">
