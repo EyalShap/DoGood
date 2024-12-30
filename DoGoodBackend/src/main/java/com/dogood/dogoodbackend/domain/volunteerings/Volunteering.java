@@ -200,6 +200,7 @@ public class Volunteering {
         }
         pendingJoinRequests.remove(userId);
         groups.get(groupId).addUser(userId);
+        volunteerToGroup.put(userId,groupId);
     }
 
     public void denyJoinRequest(String userId){
@@ -292,7 +293,9 @@ public class Volunteering {
     }
 
     public VolunteeringDTO getDTO(){
-        return new VolunteeringDTO(id, organizationId, name, description, new LinkedList<>(categories), new LinkedList<>(skills), new LinkedList<>(imagePaths));
+        return new VolunteeringDTO(id, organizationId, name, description,
+                skills == null ? skills : new LinkedList<>(skills),
+                categories == null ? categories : new LinkedList<>(categories), new LinkedList<>(imagePaths));
     }
 
     public void addImagePath(String imagePath){

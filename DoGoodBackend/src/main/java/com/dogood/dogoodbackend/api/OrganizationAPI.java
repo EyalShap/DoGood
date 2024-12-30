@@ -15,6 +15,7 @@ import java.util.List;
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/organizations")
 public class OrganizationAPI {
     @Autowired
@@ -133,11 +134,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/isManager")
-    public Response<Boolean> isManager(@RequestBody GeneralRequest isManagerRequest, HttpServletRequest request) {
+    public Response<Boolean> isManager(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = isManagerRequest.getId();
-        String actor = isManagerRequest.getActor();
         return organizationService.isManager(token, actor, orgId);
     }
 }

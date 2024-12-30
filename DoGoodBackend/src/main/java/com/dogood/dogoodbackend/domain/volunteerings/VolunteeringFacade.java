@@ -202,7 +202,7 @@ public class VolunteeringFacade {
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
-        if(!volunteering.hasVolunteer(userId)){
+        if(volunteering.hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is already a volunteer in volunteering " + volunteeringId);
         }
         volunteering.addJoinRequest(userId, new JoinRequest(userId, freeText));

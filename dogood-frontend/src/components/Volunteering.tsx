@@ -20,15 +20,16 @@ function GroupRow({ groupId, volunteers } : {groupId:number, volunteers: string[
 
 function Volunteering() {
     const [model, setModel] = useState<VolunteeringModel>({id: -1, orgId: -1, name: "", description: "", skills: [], categories: []});
-    const [fetched, setFetched] = useState(false);
     const [groups, setGroups] = useState<GroupToVolunteers>({});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
+    const [ready, setReady] = useState(false);
     const fetchVolunteering = async () => {
         try{
             let found = await getVolunteering(parseInt(id!));
             await setModel(found);
             let volunteers: VolunteersToGroup = await getVolunteeringVolunteers(parseInt(id!));
+            console.log(volunteers)
             let fetchedGroups: GroupToVolunteers = {};
             Object.entries(volunteers).forEach(([key, value]) => {
                 if(!fetchedGroups.hasOwnProperty(value)){
@@ -37,29 +38,29 @@ function Volunteering() {
                 fetchedGroups[value].push(key)
             })
             setGroups(fetchedGroups);
-            setFetched(true);
+            setReady(true);
         }catch(e){
             //send to error page
             alert(e)
         }
     }
 
-    const updateIsManager = async () => {
-        if(fetched){
-            try{
-                setIsManager(await getIsManager(model.orgId))
-            }catch(e){
-                //send to error page
-                alert(e)
-            }
+    const updatePermissions = async () => {
+        try{
+            setIsManager(await getIsManager(model.orgId))
+        }catch(e){
+            //send to error page
+            alert(e)
         }
     }
     useEffect(() => {
         fetchVolunteering();
     }, [])
-    useEffect(() => {
-        updateIsManager();
-    }, [model])
+    useEffect(() =>{
+        if(ready){
+            updatePermissions();
+        }
+    }, [model, ready])
   return (
     <div>
         <div className="volInfo">

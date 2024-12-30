@@ -16,6 +16,7 @@ import java.util.Map;
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/api/volunteering")
 public class VolunteeringAPI {
     @Autowired
