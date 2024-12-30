@@ -118,11 +118,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/getOrganization")
-    public Response<OrganizationDTO> getOrganization(@RequestBody GeneralRequest getOrganizationRequest, HttpServletRequest request) {
+    public Response<OrganizationDTO> getOrganization(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = getOrganizationRequest.getId();
-        String actor = getOrganizationRequest.getActor();
         return organizationService.getOrganization(token, orgId, actor);
     }
 
