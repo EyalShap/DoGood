@@ -295,4 +295,3 @@ export const isManager = async (organizationId: number): Promise<Boolean> => {
     }
     return response.data;
 }
-
