@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,5 +133,19 @@ public class ScheduleRange {
             weekDaysCopy = null;
         }
         return new ScheduleRangeDTO(id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, restrictCopy,weekDaysCopy,oneTime);
+    }
+
+    public void checkMinutes(LocalTime startTime, LocalTime endTime) {
+        if(minimumAppointmentMinutes == -1 && maximumAppointmentMinutes == -1){
+            return;
+        }
+        long minutes = startTime.until(endTime, ChronoUnit.MINUTES);
+        if(minimumAppointmentMinutes > -1 && minutes < minimumAppointmentMinutes){
+            throw new IllegalArgumentException("Must make appointment to at least " + minimumAppointmentMinutes + " minutes.");
+        }
+
+        if(maximumAppointmentMinutes > -1 && minutes > maximumAppointmentMinutes){
+            throw new IllegalArgumentException("Must make appointment to at most " + maximumAppointmentMinutes + " minutes.");
+        }
     }
 }

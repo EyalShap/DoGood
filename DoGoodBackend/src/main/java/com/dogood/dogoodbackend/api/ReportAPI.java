@@ -1,7 +1,7 @@
 package com.dogood.dogoodbackend.api;
 
+import com.dogood.dogoodbackend.api.reportquests.CreateReportRequest;
 import com.dogood.dogoodbackend.domain.reports.ReportDTO;
-import com.dogood.dogoodbackend.service.PostService;
 import com.dogood.dogoodbackend.service.ReportService;
 import com.dogood.dogoodbackend.service.Response;
 import jakarta.servlet.http.HttpServletRequest;

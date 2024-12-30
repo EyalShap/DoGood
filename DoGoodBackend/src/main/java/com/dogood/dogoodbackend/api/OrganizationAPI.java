@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.api;
 
+import com.dogood.dogoodbackend.api.organizationrequests.CreateOrganizationRequest;
+import com.dogood.dogoodbackend.api.organizationrequests.CreateVolunteeringRequest;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.Request;
 import com.dogood.dogoodbackend.service.OrganizationService;

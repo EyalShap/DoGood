@@ -437,8 +437,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         ScheduleRange range = volunteering.getScheduleRange(groupId, locId, rangeId);
-        List<RestrictionTuple> restrictionTuples = range.checkCollision(start, end);
-        schedulingFacade.makeAppointment(userId, volunteeringId, rangeId, start, end, weekdays, oneTime, restrictionTuples);
+        schedulingFacade.makeAppointment(userId, volunteeringId, range, start, end, weekdays, oneTime);
         repository.updateVolunteeringInDB(volunteeringId);
     }
 

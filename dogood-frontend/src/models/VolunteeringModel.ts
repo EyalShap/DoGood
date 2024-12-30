@@ -8,4 +8,8 @@ type VolunteeringModel = {
     imagePaths?: string[]
 }
 
+export interface VolunteersToGroup {
+    [Key: string]: number;
+}
+
 export default VolunteeringModel;
