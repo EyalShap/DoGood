@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.api.organizationrequests.CreateOrganizationReque
 import com.dogood.dogoodbackend.api.organizationrequests.CreateVolunteeringRequest;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.Request;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.service.OrganizationService;
 import com.dogood.dogoodbackend.service.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -33,12 +34,10 @@ public class OrganizationAPI {
         return organizationService.createOrganization(token, name, description, phoneNumber, email, actor);
     }
 
-    @DeleteMapping("/createOrganization")
-    public Response<Boolean> removeOrganization(@RequestBody GeneralRequest removeOrganizationRequest, HttpServletRequest request) {
+    @DeleteMapping("/removeOrganization")
+    public Response<Boolean> removeOrganization(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = removeOrganizationRequest.getId();
-        String actor = removeOrganizationRequest.getActor();
         return organizationService.removeOrganization(token, orgId, actor);
     }
 
@@ -84,20 +83,16 @@ public class OrganizationAPI {
     }
 
     @DeleteMapping("/resign")
-    public Response<Boolean> resign(@RequestBody GeneralRequest resignRequest, HttpServletRequest request) {
+    public Response<Boolean> resign(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = resignRequest.getId();
-        String actor = resignRequest.getActor();
         return organizationService.resign(token, actor, orgId);
     }
 
     @DeleteMapping("/removeManager")
-    public Response<Boolean> removeManager(@RequestBody GeneralRequest removeManagerRequest, @RequestParam String managerToRemove, HttpServletRequest request) {
+    public Response<Boolean> removeManager(@RequestParam int orgId, @RequestParam String actor, @RequestParam String managerToRemove, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = removeManagerRequest.getId();
-        String actor = removeManagerRequest.getActor();
         return organizationService.removeManager(token, actor, managerToRemove, orgId);
     }
 
@@ -118,11 +113,9 @@ public class OrganizationAPI {
     }
 
     @GetMapping("/getOrganization")
-    public Response<OrganizationDTO> getOrganization(@RequestBody GeneralRequest getOrganizationRequest, HttpServletRequest request) {
+    public Response<OrganizationDTO> getOrganization(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
-        int orgId = getOrganizationRequest.getId();
-        String actor = getOrganizationRequest.getActor();
         return organizationService.getOrganization(token, orgId, actor);
     }
 
@@ -138,5 +131,19 @@ public class OrganizationAPI {
         String token = getToken(request);
 
         return organizationService.isManager(token, actor, orgId);
+    }
+
+    @GetMapping("/getOrganizationVolunteerings")
+    public Response<List<VolunteeringDTO>> getOrganizationVolunteerings(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.getOrganizationVolunteerings(token, actor, orgId);
+    }
+
+    @GetMapping("/getOrganizationName")
+    public Response<String> getOrganizationName(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.getOrganizationName(token, actor, orgId);
     }
 }

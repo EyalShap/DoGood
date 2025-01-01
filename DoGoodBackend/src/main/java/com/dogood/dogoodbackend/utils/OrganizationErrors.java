@@ -18,6 +18,10 @@ public class OrganizationErrors {
         return String.format("The user %s is the founder of organization %s and therefore can not resign.", username, organizationName);
     }
 
+    public static String makeFounderCanNotBeRemovedError(String username, String organizationName) {
+        return String.format("The user %s is the founder of organization %s and therefore can not be removed.", username, organizationName);
+    }
+
     public static String makeUserIsNotAManagerError(String username, String organizationName) {
         return String.format("The user %s is not a manager in organization %s.", username, organizationName);
     }
