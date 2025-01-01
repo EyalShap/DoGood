@@ -2,26 +2,33 @@ import APIResponse from "../models/APIResponse";
 import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
 import RequestModel from "../models/RequestModel";
-import CreateOrganizationModel from "../models/CreateOrganizationModel";
+import VolunteeringModel from "../models/VolunteeringModel";
 
 const server: string = 'http://127.0.0.1:8080/api/organizations';
 
-export const createOrganization = async (newOrganization: CreateOrganizationModel): Promise<number> => {
+export const createOrganization = async (name: string, description: string, email: string, phoneNumber: string): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
-    
-    newOrganization.actor = username
 
     let url = `${server}/createOrganization`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
-    let res = await axios.post(url, newOrganization, config);
+    const request = {
+        name: name,
+        description: description,
+        email: email,
+        phoneNumber: phoneNumber, 
+        actor: username
+    }
+    console.log(request)
+
+    let res = await axios.post(url, request, config);
     const response: APIResponse<number> = await res.data;
     if(response.error){
         throw response.errorString;
@@ -34,11 +41,11 @@ export const removeOrganization = async (organizationId: number) => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
-    let url = `${server}/removeOrganization?orgId=${organizationId}?actor=${username}`;
+    let url = `${server}/removeOrganization?orgId=${organizationId}&actor=${username}`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
@@ -54,7 +61,7 @@ export const editOrganization = async (organizationId: number, newName: string, 
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
@@ -81,12 +88,12 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
     let url = `${server}/createVolunteering`;
-
+    console.log(url)
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
@@ -98,6 +105,7 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
     }
 
     let res = await axios.post(url, request, config);
+    console.log(res);
     const response: APIResponse<number> = await res.data;
 
     if(response.error){
@@ -110,7 +118,7 @@ export const sendAssignManagerRequest = async (organizationId: number, newManage
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
@@ -136,7 +144,7 @@ export const handleAssignManagerRequest = async (organizationId: number, approve
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
@@ -162,11 +170,11 @@ export const resign = async (organizationId: number) => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
-    let url = `${server}/resign?orgId=${organizationId}?actor=${username}`;
+    let url = `${server}/resign?orgId=${organizationId}&actor=${username}`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
@@ -184,11 +192,11 @@ export const removeManager = async (organizationId: number, managerToRemove: str
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
-    let url = `${server}/resign?orgId=${organizationId}?actor=${username}?managerToRemove=${managerToRemove}`;
+    let url = `${server}/removeManager?orgId=${organizationId}&actor=${username}&managerToRemove=${managerToRemove}`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
@@ -206,7 +214,7 @@ export const setFounder = async (organizationId: number, newFounder: string) => 
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
-    if(username === null || token === null) {
+    if(username === null) {
         throw new Error("Error");
     }
     
@@ -249,7 +257,9 @@ export const getOrganization = async (organizationId: number): Promise<Organizat
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
     
-    let url = `${server}/getOrganization?orgId=${organizationId}?actor=${username}`;
+    let url = `${server}/getOrganization?orgId=${organizationId}&actor=${username}`;
+    
+    console.log(url)
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
@@ -279,17 +289,52 @@ export const getAllOrganizations = async (): Promise<OrganizationModel[]> => {
     return response.data;
 }
 
-export const isManager = async (organizationId: number): Promise<Boolean> => {
+export const getIsManager = async (organizationId: number): Promise<boolean> => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
     
-    let url = `${server}/isManager?orgId=${organizationId}?actor=${username}`;
+    let url = `${server}/isManager?orgId=${organizationId}&actor=${username}`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }
     };
     let res = await axios.get(url, config);
-    const response: APIResponse<Boolean> = await res.data;
+    const response: APIResponse<boolean> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getOrganizationVolunteerings = async (organizationId: number): Promise<VolunteeringModel[]> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+    
+    let url = `${server}/getOrganizationVolunteerings?orgId=${organizationId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.get(url, config);
+    const response: APIResponse<VolunteeringModel[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getOrganizationName = async (organizationId: number): Promise<string> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+    
+    let url = `${server}/getOrganizationName?orgId=${organizationId}&actor=${username}`;
+    console.log("Request URL:", url); // Log the URL to check for issues
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.get(url, config);
+    const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;
     }

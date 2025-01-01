@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.api.organizationrequests.CreateOrganizationReque
 import com.dogood.dogoodbackend.api.organizationrequests.CreateVolunteeringRequest;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.Request;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.service.OrganizationService;
 import com.dogood.dogoodbackend.service.Response;
 import jakarta.servlet.http.HttpServletRequest;
@@ -130,5 +131,19 @@ public class OrganizationAPI {
         String token = getToken(request);
 
         return organizationService.isManager(token, actor, orgId);
+    }
+
+    @GetMapping("/getOrganizationVolunteerings")
+    public Response<List<VolunteeringDTO>> getOrganizationVolunteerings(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.getOrganizationVolunteerings(token, actor, orgId);
+    }
+
+    @GetMapping("/getOrganizationName")
+    public Response<String> getOrganizationName(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.getOrganizationName(token, actor, orgId);
     }
 }

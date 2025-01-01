@@ -42,7 +42,7 @@ public class Organization {
         if(!isValidText(name, 2, 50)) {
             res.append(String.format("Invalid organization name: %s.\n", name));
         }
-        if(!isValidText(description, 50, 300)) {
+        if(!isValidText(description, 2, 300)) {
             res.append(String.format("Invalid organization description: %s.\n", description));
         }
         if(!isValidPhoneNumber(phoneNumber)) {
@@ -81,6 +81,9 @@ public class Organization {
     public void removeManager(String username) {
         if(!isManager(username)) {
             throw new IllegalArgumentException(OrganizationErrors.makeUserIsNotAManagerError(username, name));
+        }
+        if(isFounder(username)) {
+            throw new IllegalArgumentException(OrganizationErrors.makeFounderCanNotBeRemovedError(username, name));
         }
 
         managerUsernames.remove(username);

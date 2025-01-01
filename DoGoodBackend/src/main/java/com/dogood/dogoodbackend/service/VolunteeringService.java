@@ -32,9 +32,14 @@ public class VolunteeringService {
         int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
                 "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
                 "TheDoctor");
+        facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Hiiiiiiiiiii",
+                "blah blah blah blah blah",
+                "TheDoctor");
 
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
         facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "EyalShapiro", 0);
+        facadeManager.getOrganizationsFacade().sendAssignManagerRequest("EyalShapiro", "TheDoctor", orgid);
+        //facadeManager.getOrganizationsFacade().handleAssignManagerRequest("EyalShapiro", orgid, true);
     }
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){

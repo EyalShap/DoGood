@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 
@@ -156,6 +157,17 @@ public class OrganizationsFacade {
 
     public boolean isManager(String username, int organizationId) {
         return organizationRepository.getOrganization(organizationId).isManager(username);
+    }
+
+    public List<VolunteeringDTO> getOrganizationVolunteerings(int organizationId) {
+        OrganizationDTO organization = getOrganization(organizationId);
+        List<Integer> volunteeringIds = organization.getVolunteeringIds();
+        List<VolunteeringDTO> volunteeringDTOS = new ArrayList<>();
+
+        for(int volunteeringId : volunteeringIds) {
+            volunteeringDTOS.add(volunteeringFacade.getVolunteeringDTO(volunteeringId));
+        }
+        return volunteeringDTOS;
     }
 
     // TODO: remove when users facade is implemented
