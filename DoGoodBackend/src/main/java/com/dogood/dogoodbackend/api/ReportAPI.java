@@ -14,6 +14,7 @@ import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
 @RestController
 @RequestMapping("/api/reports")
+@CrossOrigin
 public class ReportAPI {
     @Autowired
     private ReportService reportService;
@@ -29,11 +30,9 @@ public class ReportAPI {
     }
 
     @DeleteMapping("/removeReport")
-    public Response<Boolean> removeReport(@RequestBody GeneralRequest removeReportRequest, HttpServletRequest request) {
+    public Response<Boolean> removeReport(@RequestParam String actor, @RequestParam int reportId, HttpServletRequest request) {
         String token = getToken(request);
 
-        String actor = removeReportRequest.getActor();
-        int reportId = removeReportRequest.getId();
         return reportService.removeReport(token, reportId, actor);
     }
 
@@ -53,7 +52,7 @@ public class ReportAPI {
         return reportService.getReport(token, reportId, actor);
     }
 
-    @GetMapping("/getAllReportDTOs")
+    @GetMapping("/getAllReports")
     public Response<List<ReportDTO>> getAllReportDTOs(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 

@@ -9,6 +9,7 @@ import OrganizationModel from '../models/OrganizationModel';
 import { getIsManager, getOrganization } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
+import { createReport } from '../api/report_api';
 
 
 function VolunteeringPost() {
@@ -20,6 +21,8 @@ function VolunteeringPost() {
     const [ready, setReady] = useState(false);
     const [showJoinFreeText, setShowJoinFreeText] = useState(false);
     const [joinFreeText, setJoinFreeText] = useState("");
+    const [showReportDescription, setShowReportDescription] = useState(false);
+    const [reportDescription, setReportDescription] = useState("");
     let { id } = useParams();
     
     const fetchVolunteeringPost = async () => {
@@ -96,8 +99,16 @@ function VolunteeringPost() {
         setShowJoinFreeText(true);
     }
 
+    const handleReportOnClick = async () => {
+        setShowReportDescription(true);
+    }
+
     const handleJoinFreeTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
         setJoinFreeText(event.target.value);
+    };
+
+    const handleReportDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setReportDescription(event.target.value);
     };
 
     const handleSubmitOnClick = async () => {
@@ -115,6 +126,23 @@ function VolunteeringPost() {
     const handleCancelOnClick = async () => {
         setShowJoinFreeText(false);
         setJoinFreeText("");
+    }
+
+    const handleSubmitReportOnClick = async () => {
+        try {
+            await createReport(model.id, reportDescription);
+            alert("Thank you for your report!");
+        }
+        catch(e) {
+            alert(e);
+        }
+        setShowReportDescription(false);
+        setReportDescription("");
+    }
+
+    const handleCancelReportOnClick = () => {
+        setShowReportDescription(false);
+        setReportDescription("");
     }
 
     const handleEditPostOnClick = () => {
@@ -157,6 +185,7 @@ function VolunteeringPost() {
                 </div>
             <div>
                 <button onClick={handleJoinVolunteeringOnClick}>Join Volunteering</button>
+                
                 {showJoinFreeText && (
                     <div>
                         <textarea
@@ -168,6 +197,20 @@ function VolunteeringPost() {
                 )}
                 {showJoinFreeText && <button onClick={handleSubmitOnClick}>Submit Request</button>}
                 {showJoinFreeText && <button onClick={handleCancelOnClick}>Cancel</button>}
+
+                <button onClick={handleReportOnClick}>Report</button>
+                {showReportDescription && (
+                    <div>
+                        <textarea
+                            value={reportDescription}
+                            onChange = {handleReportDescriptionChange}
+                            placeholder="Enter your report here..."
+                        />
+                    </div>
+                )}
+                {showReportDescription && <button onClick={handleSubmitReportOnClick}>Submit Report</button>}
+                {showReportDescription && <button onClick={handleCancelReportOnClick}>Cancel</button>}
+
                 {isManager && <button onClick={handleEditPostOnClick}>Edit Post</button>}
                 {isManager && <button onClick={handleRemovePostOnClick}>Remove Post</button>}
             </div>

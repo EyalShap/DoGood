@@ -67,6 +67,6 @@ public class ReportsFacade {
 
     //TODO: change this when users facade is implemented
     private boolean isAdmin(String user) {
-        return false;
+        return true;
     }
 }
