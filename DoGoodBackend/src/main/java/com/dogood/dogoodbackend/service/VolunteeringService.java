@@ -13,6 +13,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+import static java.lang.Thread.sleep;
+
 @Service
 public class VolunteeringService {
 
@@ -32,14 +34,27 @@ public class VolunteeringService {
         int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
                 "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
                 "TheDoctor");
-        facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Hiiiiiiiiiii",
+        int volId2 = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Hiiiiiiiiiii",
                 "blah blah blah blah blah",
                 "TheDoctor");
 
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
         facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "EyalShapiro", 0);
         facadeManager.getOrganizationsFacade().sendAssignManagerRequest("EyalShapiro", "TheDoctor", orgid);
-        //facadeManager.getOrganizationsFacade().handleAssignManagerRequest("EyalShapiro", orgid, true);
+
+        facadeManager.getPostsFacade().createVolunteeringPost("post1", "dance", "TheDoctor", volId);
+        facadeManager.getPostsFacade().createVolunteeringPost("post2", "dance", "TheDoctor", volId);
+        facadeManager.getPostsFacade().createVolunteeringPost("post3", "description3", "TheDoctor", volId2);
+        facadeManager.getVolunteeringFacade().updateVolunteeringSkills("TheDoctor", volId, List.of("First Aid"));
+        facadeManager.getVolunteeringFacade().updateVolunteeringSkills("TheDoctor", volId2, List.of("Finance"));
+
+        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volId, List.of("Dance", "Art"));
+        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volId2, List.of("Dance", "Yoga"));
+
+        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "What", new AddressTuple("Beer Sheva", "", ""));
+        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId2, "What", new AddressTuple("Tel Aviv", "", ""));
+
+        System.out.println("doneeeeeeeeeeeeeeeeee");
     }
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){

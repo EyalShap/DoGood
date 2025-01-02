@@ -3,6 +3,7 @@ import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
 import { getIsManager, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 interface GroupToVolunteers {
     [key: number]: string[];
@@ -19,6 +20,7 @@ function GroupRow({ groupId, volunteers } : {groupId:number, volunteers: string[
 }
 
 function Volunteering() {
+    const navigate = useNavigate();
     const [model, setModel] = useState<VolunteeringModel>({id: -1, orgId: -1, name: "", description: "", skills: [], categories: []});
     const [groups, setGroups] = useState<GroupToVolunteers>({});
     let { id } = useParams();
@@ -61,6 +63,10 @@ function Volunteering() {
             updatePermissions();
         }
     }, [model, ready])
+
+    const handlePostVolunteeringOnClick = () => {
+        navigate(`./createVolunteeringPost/-1`);
+    }
   return (
     <div>
         <div className="volInfo">
@@ -82,6 +88,12 @@ function Volunteering() {
         <div className='scanButtons'>
             <button>Scan QR Code</button>
         </div>}
+
+        {isManager &&
+        <div className='postVolunteering'>
+            <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
+        </div>}
+        
         {isManager ? 
         <div className="volunteers">
             {Object.entries(groups).map(([key, value]) => <GroupRow groupId={parseInt(key)} volunteers={value}/>)}

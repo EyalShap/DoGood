@@ -114,24 +114,26 @@ public class PostsFacade {
         post.incNumOfPeopleRequestedToJoin();
     }
 
-    public List<VolunteeringPostDTO> searchByKeywords(String search, String actor) {
+    public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
+        if(search == null || search.isBlank()) {
+            return volunteeringPostRepository.getVolunteeringPostDTOs();
+        }
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-        Set<String> searchKeywords = keywordExtractor.getKeywords(search);
+        Set<String> searchKeywords = keywordExtractor.getKeywords(search).stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
-        for(VolunteeringPost post : allPosts) {
-            Set<String> postKeywords = getPostKeywords(post);
+        for(VolunteeringPostDTO post : allPosts) {
+            Set<String> postKeywords = getPostKeywords(post).stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());;
             int common = countCommons(searchKeywords, postKeywords);
             if(common >= 1) {
-                result.add(new VolunteeringPostDTO(post));
+                result.add(post);
             }
         }
         return result;
     }
 
-    private Set<String> getPostKeywords(VolunteeringPost post) {
+    private Set<String> getPostKeywords(VolunteeringPostDTO post) {
         int volunteeringId = post.getVolunteeringId();
         VolunteeringDTO volunteering = volunteeringFacade.getVolunteeringDTO(volunteeringId);
 
@@ -146,11 +148,15 @@ public class PostsFacade {
         int volunteeringId = volunteering.getId();
 
         Set<String> volunteeringKeywords = keywordExtractor.getKeywords(volunteering.getName() + " " + volunteering.getDescription());
-        Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
-        Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
+        List<String> volunteeringCategories = volunteeringFacade.getVolunteeringCategories(volunteeringId);
+        List<String> volunteeringSkills = volunteeringFacade.getVolunteeringSkills(volunteeringId);
 
-        volunteeringKeywords.addAll(volunteeringCategories);
-        volunteeringKeywords.addAll(volunteeringSkills);
+        if(volunteeringCategories != null) {
+            volunteeringKeywords.addAll(volunteeringCategories);
+        }
+        if(volunteeringSkills != null) {
+            volunteeringKeywords.addAll(volunteeringSkills);
+        }
 
         return volunteeringKeywords;
     }
@@ -165,23 +171,22 @@ public class PostsFacade {
         return matching;
     }
 
-    public List<VolunteeringPostDTO> sortByRelevance(String actor) {
+    public List<VolunteeringPostDTO> sortByRelevance(String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-        for(VolunteeringPost post: allPosts) {
+        for(VolunteeringPostDTO post: allPosts) {
             post.setRelevance(evaluatePostRelevance(post, actor));
         }
 
-        List<VolunteeringPost> sorted = allPosts.stream()
+        List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .filter(post -> post.getRelevance() != -1)
                 .sorted(Comparator.comparingInt(post -> -1 * post.getRelevance()))
                 .collect(Collectors.toList());
 
-        return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
+        return sorted;
     }
 
-    private int evaluatePostRelevance(VolunteeringPost post, String actor) {
+    private int evaluatePostRelevance(VolunteeringPostDTO post, String actor) {
         VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId());
 
         Set<String> userKeywords = getUserCategories(actor);
@@ -206,67 +211,140 @@ public class PostsFacade {
         return match;
     }
 
-    public List<VolunteeringPostDTO> sortByPopularity(String actor) {
+    public List<VolunteeringPostDTO> sortByPopularity(String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-
-        List<VolunteeringPost> sorted = allPosts.stream()
-                .sorted(Comparator.comparingInt(post -> -1 * post.evaluatePopularity()))
+        List<VolunteeringPostDTO> sorted = allPosts.stream()
+                .sorted(Comparator.comparingInt(post -> -1 * volunteeringPostRepository.getVolunteeringPost(post.getId()).evaluatePopularity()))
                 .collect(Collectors.toList());
 
-        return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
+        return sorted;
     }
 
-    public List<VolunteeringPostDTO> sortByPostingTime(String actor) {
+    public List<VolunteeringPostDTO> sortByPostingTime(String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-
-        List<VolunteeringPost> sorted = allPosts.stream()
+        List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .sorted((post1, post2) -> post2.getPostedTime().compareTo(post1.getPostedTime()))
                 .collect(Collectors.toList());
 
-        return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
+        return sorted;
     }
 
-    public List<VolunteeringPostDTO> sortByLastEditTime(String actor) {
+    public List<VolunteeringPostDTO> sortByLastEditTime(String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
-
-        List<VolunteeringPost> sorted = allPosts.stream()
+        List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .sorted((post1, post2) -> post2.getLastEditedTime().compareTo(post1.getLastEditedTime()))
                 .collect(Collectors.toList());
 
-        return volunteeringPostRepository.getVolunteeringPostDTOs(sorted);
+        return sorted;
     }
 
     //TODO: sort by location in beta version
 
     //TODO: add more parameters
-    public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities, String actor) {
+    public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
         //TODO: check if user exists and logged in
 
-        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
-        for(VolunteeringPost post : allPosts) {
+        for(VolunteeringPostDTO post : allPosts) {
             int volunteeringId = post.getVolunteeringId();
             Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
             Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
             List<LocationDTO> volunteeringLocations = volunteeringFacade.getVolunteeringLocations(volunteeringId);
             Set<String> volunteeringCities = volunteeringLocations.stream().map(locationDTO -> locationDTO.getAddress().getCity()).collect(Collectors.toSet());
+            String organizationName = organizationsFacade.getOrganization(post.getOrganizationId()).getName();
+            String volunteeringName = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId()).getName();
 
-            volunteeringCategories.retainAll(categories);
-            volunteeringSkills.retainAll(skills);
-            volunteeringCities.retainAll(cities);
+            boolean matchByCategory = true;
+            boolean matchBySkill = true;
+            boolean matchByCity = true;
+            boolean matchByOrganization = organizationNames.size() > 0 ? organizationNames.contains(organizationName) : true;
+            boolean matchByVolunteering = volunteeringNames.size() > 0 ? volunteeringNames.contains(volunteeringName) : true;
 
-            if(volunteeringCategories.size() >= 1 && volunteeringSkills.size() >= 1 && volunteeringCities.size() >= 1) {
-                result.add(new VolunteeringPostDTO(post));
+            if(categories.size() > 0) {
+                volunteeringCategories.retainAll(categories);
+                matchByCategory = volunteeringCategories.size() >= 1;
+            }
+            if(skills.size() > 0) {
+                volunteeringSkills.retainAll(skills);
+                matchBySkill = volunteeringSkills.size() >= 1;
+            }
+            if(cities.size() > 0) {
+                volunteeringCities.retainAll(cities);
+                matchByCity = volunteeringCities.size() >= 1;
+            }
+
+            if(matchByCategory && matchBySkill && matchByCity && matchByOrganization && matchByVolunteering) {
+                result.add(post);
             }
         }
         return result;
+    }
+
+    public List<String> getAllPostsCategories() {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> allCategories = new HashSet<>();
+
+        for(VolunteeringPost post : allPosts) {
+            List<String> volunteeringCategories = volunteeringFacade.getVolunteeringCategories(post.getVolunteeringId());
+            if(volunteeringCategories != null) {
+                allCategories.addAll(volunteeringCategories);
+            }
+        }
+        return new ArrayList<>(allCategories);
+    }
+
+    public List<String> getAllPostsSkills() {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> allSkills = new HashSet<>();
+
+        for(VolunteeringPost post : allPosts) {
+            List<String> volunteeringSkills = volunteeringFacade.getVolunteeringSkills(post.getVolunteeringId());
+            if(volunteeringSkills != null) {
+                allSkills.addAll(volunteeringSkills);
+            }
+        }
+        return new ArrayList<>(allSkills);
+    }
+
+    public List<String> getAllPostsCities() {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> allCities = new HashSet<>();
+
+        for(VolunteeringPost post : allPosts) {
+            List<LocationDTO> volunteeringLocations = volunteeringFacade.getVolunteeringLocations(post.getVolunteeringId());
+            Set<String> volunteeringCities = volunteeringLocations.stream().map(locationDTO -> locationDTO.getAddress().getCity()).collect(Collectors.toSet());
+
+            if(volunteeringCities != null) {
+                allCities.addAll(volunteeringCities);
+            }
+        }
+        return new ArrayList<>(allCities);
+    }
+
+    public List<String> getAllPostsOrganizations() {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> allOrganizations = new HashSet<>();
+
+        for(VolunteeringPost post : allPosts) {
+            String organizationName = organizationsFacade.getOrganization(post.getOrganizationId()).getName();
+            allOrganizations.add(organizationName);
+        }
+        return new ArrayList<>(allOrganizations);
+    }
+
+    public List<String> getAllPostsVolunteerings() {
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
+        Set<String> allVolunteerings = new HashSet<>();
+
+        for(VolunteeringPost post : allPosts) {
+            String volunteeringName = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId()).getName();
+            allVolunteerings.add(volunteeringName);
+        }
+        return new ArrayList<>(allVolunteerings);
     }
 
     // TODO: remove when users facade is implemented
@@ -276,17 +354,17 @@ public class PostsFacade {
 
     // TODO: remove when users facade is implemented
     private Set<String> getUserCategories(String actor) {
-        return null;
+        return new HashSet<>();
     }
 
     // TODO: remove when users facade is implemented
     private Set<String> getUserSkills(String actor) {
-        return null;
+        return new HashSet<>();
     }
 
     // TODO: remove when users facade is implemented
     private List<VolunteeringDTO> getUserVolunteeringHistory(String actor) {
-        return null;
+        return new ArrayList<>();
     }
 
 }
