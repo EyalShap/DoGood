@@ -1,18 +1,14 @@
-import React, { useEffect, useState } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form'; 
 import { useParams } from "react-router-dom";
-import { createOrganization, createVolunteering, editOrganization, getOrganization } from '../api/organization_api';
+import { createVolunteering } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
-import Organization from './Organization';
-import OrganizationModel from '../models/OrganizationModel';
-import VolunteeringModel from '../models/VolunteeringModel';
 
 interface VolunteeringFormData {
   name: string;
   description: string;
 }
 
-function CreateOrganization() {
+function CreateVolunteering() {
   const navigate = useNavigate();
   let { id } = useParams(); 
 
@@ -58,7 +54,7 @@ function CreateOrganization() {
         </div>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label htmlFor="description">Organization Description:</label>
+          <label htmlFor="description">Volunteering Description:</label>
           <input
             id="description"
             {...register('description', { 
@@ -81,4 +77,4 @@ function CreateOrganization() {
     );
 }
 
-export default CreateOrganization
+export default CreateVolunteering

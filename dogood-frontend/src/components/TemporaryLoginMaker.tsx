@@ -7,7 +7,7 @@ function TemporaryLoginMaker() {
 
     const login = () => {
         sessionStorage.setItem("username", username);
-        navigate('/organizationList');
+        navigate('/volunteeringPostList');
     }
   return (
     <div>
