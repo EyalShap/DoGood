@@ -3,7 +3,6 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useParams } from "react-router-dom";
 import { createOrganization, editOrganization, getOrganization } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
-import Organization from './Organization';
 import OrganizationModel from '../models/OrganizationModel';
 
 interface OrganizationFormData {
