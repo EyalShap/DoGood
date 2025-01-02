@@ -11,6 +11,8 @@ import ManagerRequestsList from './components/ManagerRequestsList'
 import VolunteeringPostList from './components/VolunteeringPostList'
 import VolunteeringPost from './components/VolunteeringPost'
 import CreatePost from './components/CreatePost'
+import ReportList from './components/ReportList'
+import Homepage from './components/Homepage'
 
 
 function App() {
@@ -21,6 +23,8 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/" element={<TemporaryLoginMaker />} />
+        <Route path='/homepage' element={<Homepage/>}/>
+        <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
         <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
         <Route path='/organizationList' element={<OrganizationList/>}/>
