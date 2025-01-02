@@ -30,7 +30,7 @@ public class Report {
         if(id < 0) {
             res.append(String.format("Invalid id: %d.\n", id));
         }
-        if(!isValidText(description, 10, 100)) {
+        if(!isValidText(description, 2,100)) {
             res.append(String.format("Invalid report description: %s.", description));
         }
         return res.toString();
