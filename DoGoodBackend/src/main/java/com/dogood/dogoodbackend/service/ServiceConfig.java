@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.organizations.MemoryOrganizationRepositor
 import com.dogood.dogoodbackend.domain.organizations.MemoryRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
+import com.dogood.dogoodbackend.domain.users.MemoryUsersRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ public class ServiceConfig {
                 new MemoryVolunteeringPostRepository(),
                 new MemoryRequestRepository(),
                 new MemoryReportRepository(),
+                new MemoryUsersRepository(),
                 new MemorySchedulingManager(),
                 new ProxyKeywordExtractor());
     }

@@ -9,6 +9,10 @@ import com.dogood.dogoodbackend.domain.posts.VolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
+import com.dogood.dogoodbackend.domain.users.MemoryUsersRepository;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.UsersRepository;
+import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
@@ -20,14 +24,17 @@ public class FacadeManager {
     private OrganizationsFacade organizationsFacade;
     private PostsFacade postsFacade;
     private ReportsFacade reportsFacade;
-    //private UsersFacade;
+    private UsersFacade usersFacade;
+    private AuthFacade authFacade;
 
     public FacadeManager(VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
-                              RequestRepository reqRepo, ReportRepository repRepo, SchedulingManager schedMan, KeywordExtractor keyExt){
+                         RequestRepository reqRepo, ReportRepository repRepo, UsersRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt){
         this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
         this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
         this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
+        this.authFacade = new AuthFacade();
+        this.usersFacade = new UsersFacade(userRepo, authFacade);
 
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
     }
@@ -39,18 +46,21 @@ public class FacadeManager {
         SchedulingManager schedMan = new MemorySchedulingManager();
         VolunteeringPostRepository volPostRepo = new MemoryVolunteeringPostRepository();
         ReportRepository repRepo = new MemoryReportRepository();
+        UsersRepository userReop = new MemoryUsersRepository();
         KeywordExtractor keyExt = new ProxyKeywordExtractor();
 
         this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
         this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
         this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
+        this.authFacade = new AuthFacade();
+        this.usersFacade = new UsersFacade(userReop, authFacade);
 
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
     }
 
     public void createFacades(VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
-                              RequestRepository reqRepo, ReportRepository repRepo, SchedulingManager schedMan, KeywordExtractor keyExt){
+                              RequestRepository reqRepo, ReportRepository repRepo, UsersRepository userRep, SchedulingManager schedMan, KeywordExtractor keyExt){
         if(organizationsFacade == null) {
             this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
         }
@@ -62,6 +72,12 @@ public class FacadeManager {
         }
         if(reportsFacade == null) {
             this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
+        }
+        if(authFacade == null) {
+            this.authFacade = new AuthFacade();
+        }
+        if (usersFacade == null) {
+            this.usersFacade = new UsersFacade(userRep, authFacade);
         }
     }
 
@@ -79,5 +95,13 @@ public class FacadeManager {
 
     public ReportsFacade getReportsFacade() {
         return reportsFacade;
+    }
+
+    public AuthFacade getAuthFacade() {
+        return authFacade;
+    }
+
+    public UsersFacade getUsersFacade() {
+        return usersFacade;
     }
 }
