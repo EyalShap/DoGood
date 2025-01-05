@@ -17,13 +17,17 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
-    public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
+    public int getNextOrganizationId() {
+        return nextOrganizationId;
+    }
+
+    @Override
+    public int createOrganization(Organization organization) {
         if(organizations.containsKey(nextOrganizationId)) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdAlreadyExistsError(nextOrganizationId));
         }
 
-        Organization newOrganization = new Organization(nextOrganizationId, name, description, phoneNumber, email, actor);
-        organizations.put(nextOrganizationId, newOrganization);
+        organizations.put(nextOrganizationId, organization);
         nextOrganizationId++;
         return nextOrganizationId - 1;
     }

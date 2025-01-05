@@ -5,7 +5,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public interface OrganizationRepository {
-    public int createOrganization(String name, String description, String phoneNumber, String email, String actor);
+    public int getNextOrganizationId();
+    public int createOrganization(Organization organization);
     public void removeOrganization(int organizationId);
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email);
     public Organization getOrganization(int organizationId);

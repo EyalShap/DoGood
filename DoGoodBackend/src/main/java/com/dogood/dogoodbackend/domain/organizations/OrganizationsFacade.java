@@ -25,7 +25,9 @@ public class OrganizationsFacade {
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
         //TODO: check if user exists and logged in
 
-        return organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        int organizationId = organizationRepository.getNextOrganizationId();
+        Organization organization = new Organization(organizationId, name, description, phoneNumber, email, actor);
+        return organizationRepository.createOrganization(organization);
     }
 
     public void removeOrganization(int organizationId, String actor) {
@@ -45,7 +47,7 @@ public class OrganizationsFacade {
         Organization toEdit = organizationRepository.getOrganization(organizationId);
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
-            throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
+            throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
         }
         organizationRepository.editOrganization(organizationId, name, description, phoneNumber, email);
     }
@@ -171,7 +173,7 @@ public class OrganizationsFacade {
     }
 
     // TODO: remove when users facade is implemented
-    private boolean isAdmin(String username) {
+    public boolean isAdmin(String username) {
         return false;
     }
 
