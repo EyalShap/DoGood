@@ -129,6 +129,11 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!appointmentsMapping.get(appointment.getVolunteeringId()).containsKey(appointment.getUserId())){
             appointmentsMapping.get(appointment.getVolunteeringId()).put(appointment.getUserId(), new LinkedList<>());
         }
+        for(ScheduleAppointment other : appointmentsMapping.get(appointment.getVolunteeringId()).get(appointment.getUserId())){
+            if(appointment.intersect(other)){
+                throw new IllegalArgumentException("You have an intersecting appointment within this range");
+            }
+        }
         appointmentsMapping.get(appointment.getVolunteeringId()).get(appointment.getUserId()).add(appointment);
     }
 

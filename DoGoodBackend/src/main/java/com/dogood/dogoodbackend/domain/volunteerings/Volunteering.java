@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -325,5 +326,10 @@ public class Volunteering {
         }
         Group g = groups.get(groupId);
         return g.getDTO();
+    }
+
+    public List<ScheduleRangeDTO> getVolunteerAvailableRanges(String userId){
+        Group g = groups.get(volunteerToGroup.get(userId));
+        return g.getRangesForUser(userId).stream().map(range -> range.getDTO()).toList();
     }
 }

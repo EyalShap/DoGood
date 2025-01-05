@@ -4,12 +4,11 @@ import { useNavigate, useParams } from "react-router-dom";
 import { Scanner } from '@yudiel/react-qr-scanner';
 
 function CodeScan() {
-    let { id } = useParams();
     const navigate = useNavigate();
 
     const onScan = async (result: string) => {
         try{
-            await scanCode(parseInt(id!), result);
+            await scanCode(result);
             navigate("../")
         }catch(e){
             alert(e)

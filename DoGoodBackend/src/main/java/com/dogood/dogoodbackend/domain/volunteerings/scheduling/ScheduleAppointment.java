@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRangeDTO;
+
+import java.util.Arrays;
 import java.util.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -70,6 +73,9 @@ public class ScheduleAppointment {
     }
 
     public void setWeekDays(boolean[] weekDays) {
+        if (weekDays != null && weekDays.length != 7) {
+            throw new IllegalArgumentException("weekDays.length != 7");
+        }
         this.weekDays = weekDays;
         if(weekDays != null){
             oneTime = null;
@@ -88,7 +94,7 @@ public class ScheduleAppointment {
         if(oneTime != null && !oneTime.isEqual(includeDateTime.toLocalDate())){
             return false;
         }
-        if(weekDays != null && !weekDays[includeDateTime.getDayOfWeek().getValue()]){
+        if(weekDays != null && !weekDays[includeDateTime.getDayOfWeek().getValue()%7]){
             return false;
         }
         return MINUTES.between(includeDateTime.toLocalTime(), startTime) <= minutesAllowed || MINUTES.between(includeDateTime.toLocalTime(), endTime) <= minutesAllowed
@@ -104,7 +110,7 @@ public class ScheduleAppointment {
         if(oneTime != null && !oneTime.isEqual(startDateTime.toLocalDate())){
             return false;
         }
-        if(weekDays != null && !weekDays[startDateTime.getDayOfWeek().getValue()]){
+        if(weekDays != null && !weekDays[startDateTime.getDayOfWeek().getValue()%7]){
             return false;
         }
         return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed && MINUTES.between(endDateTime.toLocalTime(), endTime) <= minutesAllowed;
@@ -117,7 +123,7 @@ public class ScheduleAppointment {
                         day.getYear() != oneTime.getYear())){
             throw new UnsupportedOperationException("Given day doesn't match one time day");
         }
-        if(weekDays != null && !weekDays[day.getDayOfWeek().getValue()]){
+        if(weekDays != null && !weekDays[day.getDayOfWeek().getValue()%7]){
             throw new UnsupportedOperationException("Given day doesn't match week day");
         }
         LocalDateTime startDateTime = LocalDateTime.of(day.getYear(), day.getMonth(), day.getDayOfMonth(), startTime.getHour(), startTime.getMinute());
@@ -125,5 +131,32 @@ public class ScheduleAppointment {
 
         return new DatePair(Date.from(startDateTime.atZone(ZoneId.systemDefault()).toInstant()),
                 Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant()));
+    }
+
+    public ScheduleAppointmentDTO getDTO(){
+        boolean[] weekDaysCopy;
+        if(weekDays != null){
+            weekDaysCopy  = Arrays.copyOf(weekDays,weekDays.length);
+        }else{
+            weekDaysCopy = null;
+        }
+        return new ScheduleAppointmentDTO(userId, volunteeringId, rangeId, startTime, endTime, weekDaysCopy, oneTime);
+    }
+
+    public boolean intersect(ScheduleAppointment other) {
+        if(oneTime != null && other.oneTime != null) {
+            return !oneTime.isEqual(other.getOneTime()) || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+        }
+        if(weekDays != null && other.weekDays != null) {
+            for(int i = 0; i < 7; i++){
+                if(weekDays[i] && other.weekDays[i]){
+                    return !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+                }
+            }
+        }
+        if(weekDays != null){
+            return weekDays[other.getOneTime().getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+        }
+        return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
     }
 }

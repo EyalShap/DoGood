@@ -1,8 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 public class JoinRequest {
-    String userId;
-    String text;
+    private String userId;
+    private String text;
 
     public JoinRequest(String userId, String text) {
         this.userId = userId;

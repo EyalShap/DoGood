@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import TemporaryLoginMaker from './components/TemporaryLoginMaker';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
+import HourApprovalRequestList from './components/HourApprovalRequestList';
 
 
 function App() {
@@ -19,7 +20,8 @@ function App() {
         <Route path='/volunteering/:id' element={<Volunteering/>}/>
         <Route path='/organization/:id' element={<Organization/>}/>
         <Route path='/volunteering/:id/code' element={<CodeView/>}/>
-        <Route path='/volunteering/:id/scan' element={<CodeScan/>}/>
+        <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
+        <Route path='/scan' element={<CodeScan/>}/>
       </Routes>
     </BrowserRouter>
     </>

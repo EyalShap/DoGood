@@ -2,6 +2,8 @@ package com.dogood.dogoodbackend.api;
 
 import com.dogood.dogoodbackend.api.volunteeringrequests.*;
 import com.dogood.dogoodbackend.domain.volunteerings.*;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -236,5 +238,23 @@ public class VolunteeringAPI {
     public Response<List<String>> getConstantCodes(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.getConstantCodes(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteerAppointments")
+    public Response<List<ScheduleAppointmentDTO>> getVolunteerAppointments(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteerAppointments(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteerAvailableRanges")
+    public Response<List<ScheduleRangeDTO>> getVolunteerAvailableRanges(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteerAvailableRanges(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteeringHourRequests")
+    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringHourRequests(token, userId, volunteeringId);
     }
 }
