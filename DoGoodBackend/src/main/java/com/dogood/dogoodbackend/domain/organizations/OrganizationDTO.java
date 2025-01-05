@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
 import java.util.List;
+import java.util.Objects;
 
 public class OrganizationDTO {
     private int id;
@@ -64,5 +65,50 @@ public class OrganizationDTO {
 
     public String getFounderUsername() {
         return founderUsername;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        OrganizationDTO that = (OrganizationDTO) o;
+        return id == that.id && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && Objects.equals(volunteeringIds, that.volunteeringIds) && Objects.equals(managerUsernames, that.managerUsernames) && Objects.equals(founderUsername, that.founderUsername);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername);
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public void setVolunteeringIds(List<Integer> volunteeringIds) {
+        this.volunteeringIds = volunteeringIds;
+    }
+
+    public void setManagerUsernames(List<String> managerUsernames) {
+        this.managerUsernames = managerUsernames;
+    }
+
+    public void setFounderUsername(String founderUsername) {
+        this.founderUsername = founderUsername;
     }
 }
