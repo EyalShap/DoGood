@@ -332,4 +332,12 @@ public class Volunteering {
         Group g = groups.get(volunteerToGroup.get(userId));
         return g.getRangesForUser(userId).stream().map(range -> range.getDTO()).toList();
     }
+
+    public int getAssignedLocation(String volunteerId){
+        if(!hasVolunteer(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + id);
+        }
+        Group g = groups.get(volunteerToGroup.get(volunteerId));
+        return g.getAssignedLocation(volunteerId);
+    }
 }

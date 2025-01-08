@@ -125,4 +125,11 @@ public class Group {
         }
         return new GroupDTO(id, new LinkedList<>(users), volunteersToLocationCopy, locationToRangesCopy);
     }
+
+    public int getAssignedLocation(String volunteerId){
+        if(!volunteersToLocation.containsKey(volunteerId)){
+            return -1;
+        }
+        return volunteersToLocation.get(volunteerId);
+    }
 }

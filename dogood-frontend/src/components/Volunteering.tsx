@@ -181,8 +181,8 @@ function Volunteering() {
             {isManager ?
             <div className='volInfoButtons'>
                 <button>Settings</button>
-                <button>View Join Requests</button>
-                <button>View Hour Approval Requests</button>
+                <button onClick={() => navigate("./jrequests")}>View Join Requests</button>
+                <button onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
             </div> : <></>}
         </div>
         {isManager ? 

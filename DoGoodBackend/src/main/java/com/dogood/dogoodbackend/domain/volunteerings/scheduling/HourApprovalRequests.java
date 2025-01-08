@@ -15,7 +15,7 @@ public class HourApprovalRequests {
     }
 
     public boolean intersect(Date otherStartTime, Date otherEndTime) {
-        return !(otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
+        return !(otherStartTime.equals(this.endTime) || otherEndTime.equals(this.startTime) || otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
     }
 
     public String getUserId() {

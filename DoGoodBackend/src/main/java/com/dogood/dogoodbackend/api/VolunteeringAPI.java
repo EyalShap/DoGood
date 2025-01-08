@@ -257,4 +257,16 @@ public class VolunteeringAPI {
         String token = getToken(request);
         return volunteeringService.getVolunteeringHourRequests(token, userId, volunteeringId);
     }
+
+    @GetMapping("/getVolunteeringJoinRequests")
+    public Response<List<JoinRequest>> getVolunteeringJoinRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringJoinRequests(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getUserAssignedLocation")
+    public Response<Integer> getUserAssignedLocation(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getUserAssignedLocation(token, userId, volunteeringId);
+    }
 }

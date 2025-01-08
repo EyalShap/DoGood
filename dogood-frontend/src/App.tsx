@@ -7,6 +7,7 @@ import TemporaryLoginMaker from './components/TemporaryLoginMaker';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
 import HourApprovalRequestList from './components/HourApprovalRequestList';
+import JoinRequestList from './components/JoinRequestList';
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
         <Route path='/organization/:id' element={<Organization/>}/>
         <Route path='/volunteering/:id/code' element={<CodeView/>}/>
         <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
+        <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
         <Route path='/scan' element={<CodeScan/>}/>
       </Routes>
     </BrowserRouter>

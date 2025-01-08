@@ -145,6 +145,9 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!hourApprovalRequestsMapping.get(volunteeringId).containsKey(username)){
             hourApprovalRequestsMapping.get(volunteeringId).put(username, new LinkedList<>());
         }
+        if(end.before(start)){
+            throw new IllegalArgumentException("End time cannot be before start time");
+        }
         for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
             if(request.intersect(start, end)){
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
