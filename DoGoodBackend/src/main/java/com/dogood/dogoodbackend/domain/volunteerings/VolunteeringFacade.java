@@ -211,6 +211,9 @@ public class VolunteeringFacade {
         if(volunteering.hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is already a volunteer in volunteering " + volunteeringId);
         }
+        if(isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is already a manager in organization of volunteering " + volunteeringId);
+        }
         volunteering.addJoinRequest(userId, new JoinRequest(userId, freeText));
         repository.updateVolunteeringInDB(volunteeringId);
     }
