@@ -56,6 +56,9 @@ public class MemoryRequestRepository implements RequestRepository{
 
     @Override
     public List<Request> getUserRequests(String username) {
-        return new ArrayList<>(requests.get(username).values());
+        if(requests.containsKey(username)) {
+            return new ArrayList<>(requests.get(username).values());
+        }
+        return new ArrayList<>();
     }
 }

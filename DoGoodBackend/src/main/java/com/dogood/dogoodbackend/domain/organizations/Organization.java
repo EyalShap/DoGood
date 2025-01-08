@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.utils.OrganizationErrors;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static com.dogood.dogoodbackend.utils.ValidateFields.*;
 
@@ -42,7 +43,7 @@ public class Organization {
         if(!isValidText(name, 2, 50)) {
             res.append(String.format("Invalid organization name: %s.\n", name));
         }
-        if(!isValidText(description, 50, 300)) {
+        if(!isValidText(description, 2, 300)) {
             res.append(String.format("Invalid organization description: %s.\n", description));
         }
         if(!isValidPhoneNumber(phoneNumber)) {
@@ -63,7 +64,7 @@ public class Organization {
     }
 
     public void editOrganization(String newName, String newDescription, String newPhoneNumber, String newEmail) {
-        String isValidOrg = isValid(id, name, description, phoneNumber, email);
+        String isValidOrg = isValid(id, newName, newDescription, newPhoneNumber, newEmail);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
@@ -81,6 +82,9 @@ public class Organization {
     public void removeManager(String username) {
         if(!isManager(username)) {
             throw new IllegalArgumentException(OrganizationErrors.makeUserIsNotAManagerError(username, name));
+        }
+        if(isFounder(username)) {
+            throw new IllegalArgumentException(OrganizationErrors.makeFounderCanNotBeRemovedError(username, name));
         }
 
         managerUsernames.remove(username);
@@ -149,5 +153,18 @@ public class Organization {
 
     public String getFounderUsername() {
         return founderUsername;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Organization that = (Organization) o;
+        return id == that.id && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && Objects.equals(volunteeringIds, that.volunteeringIds) && Objects.equals(managerUsernames, that.managerUsernames) && Objects.equals(founderUsername, that.founderUsername);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername);
     }
 }

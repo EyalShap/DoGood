@@ -1,10 +1,13 @@
 import { useState } from "react"
+import { useNavigate } from 'react-router-dom';
 
 function TemporaryLoginMaker() {
+    const navigate = useNavigate();
     const [username, setUsername] = useState("")
 
     const login = () => {
         sessionStorage.setItem("username", username);
+        navigate('/homepage');
     }
   return (
     <div>

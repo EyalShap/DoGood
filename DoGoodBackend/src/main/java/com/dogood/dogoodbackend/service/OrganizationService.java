@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.organizations.Request;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -170,6 +171,30 @@ public class OrganizationService {
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<VolunteeringDTO>> getOrganizationVolunteerings(String token, String actor, int organizationId) {
+        //TODO: check token
+
+        try {
+            List<VolunteeringDTO> res = organizationsFacade.getOrganizationVolunteerings(organizationId);
+            return Response.createResponse(res);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> getOrganizationName(String token, String actor, int organizationId) {
+        //TODO: check token
+
+        try {
+            String res = organizationsFacade.getOrganization(organizationId).getName();
+            return Response.createResponse(res, null);
+        }
+        catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
         }
     }
 }

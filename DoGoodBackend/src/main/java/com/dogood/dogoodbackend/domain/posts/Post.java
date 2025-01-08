@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
@@ -14,8 +15,8 @@ public abstract class Post {
     private int id;
     private String title;
     private String description;
-    private LocalTime postedTime;
-    private LocalTime lastEditedTime; // nicer in the UI
+    private LocalDateTime postedTime;
+    private LocalDateTime lastEditedTime; // nicer in the UI
     private String posterUsername;
     private int numOfPeopleRequestedToJoin; //this is to calculate popularity, TODO: something better in beta version
     private int relevance;
@@ -29,10 +30,10 @@ public abstract class Post {
         this.id = id;
         this.title = title;
         this.description = description;
-        this.postedTime = LocalTime.now();
+        this.postedTime = title.equals("post3") ? LocalDateTime.now() : LocalDateTime.of(2024, 12, 31, 5, 12);
         this.lastEditedTime = this.postedTime;
         this.posterUsername = posterUsername;
-        this.numOfPeopleRequestedToJoin = 0;
+        this.numOfPeopleRequestedToJoin = title.equals("post2") ? 3 : 0;
         this.relevance = -1;
     }
 
@@ -58,7 +59,7 @@ public abstract class Post {
 
         this.title = title;
         this.description = description;
-        this.lastEditedTime = LocalTime.now();
+        this.lastEditedTime = LocalDateTime.now();
     }
 
     public int getId() {
@@ -73,7 +74,7 @@ public abstract class Post {
         return description;
     }
 
-    public LocalTime getPostedTime() {
+    public LocalDateTime getPostedTime() {
         return postedTime;
     }
 
@@ -81,7 +82,7 @@ public abstract class Post {
         return posterUsername;
     }
 
-    public LocalTime getLastEditedTime() {
+    public LocalDateTime getLastEditedTime() {
         return lastEditedTime;
     }
 

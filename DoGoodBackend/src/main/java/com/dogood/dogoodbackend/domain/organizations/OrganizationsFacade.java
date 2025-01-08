@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 
@@ -24,7 +25,9 @@ public class OrganizationsFacade {
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
         //TODO: check if user exists and logged in
 
-        return organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        int organizationId = organizationRepository.getNextOrganizationId();
+        Organization organization = new Organization(organizationId, name, description, phoneNumber, email, actor);
+        return organizationRepository.createOrganization(organization);
     }
 
     public void removeOrganization(int organizationId, String actor) {
@@ -44,7 +47,7 @@ public class OrganizationsFacade {
         Organization toEdit = organizationRepository.getOrganization(organizationId);
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
-            throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
+            throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
         }
         organizationRepository.editOrganization(organizationId, name, description, phoneNumber, email);
     }
@@ -158,8 +161,19 @@ public class OrganizationsFacade {
         return organizationRepository.getOrganization(organizationId).isManager(username);
     }
 
+    public List<VolunteeringDTO> getOrganizationVolunteerings(int organizationId) {
+        OrganizationDTO organization = getOrganization(organizationId);
+        List<Integer> volunteeringIds = organization.getVolunteeringIds();
+        List<VolunteeringDTO> volunteeringDTOS = new ArrayList<>();
+
+        for(int volunteeringId : volunteeringIds) {
+            volunteeringDTOS.add(volunteeringFacade.getVolunteeringDTO(volunteeringId));
+        }
+        return volunteeringDTOS;
+    }
+
     // TODO: remove when users facade is implemented
-    private boolean isAdmin(String username) {
+    public boolean isAdmin(String username) {
         return false;
     }
 

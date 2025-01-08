@@ -38,7 +38,7 @@ public class MemoryReportRepository implements ReportRepository{
     private boolean isDuplicateReport(Report newReport) {
         // assuming each user can report a specific post only once a day
         for(Report report : reports.values()) {
-            if(newReport.getReportedPostId() == report.getReportedPostId() && newReport.getDescription().equals(report.getDescription()) && newReport.getDate().isEqual(report.getDate())) {
+            if(newReport.getReportingUser().equals(report.getReportingUser()) && newReport.getReportedPostId() == report.getReportedPostId() && newReport.getDate().isEqual(report.getDate())) {
                 return true;
             }
         }

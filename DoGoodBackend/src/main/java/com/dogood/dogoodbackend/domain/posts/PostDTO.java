@@ -1,18 +1,23 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 
 public abstract class PostDTO {
     private int id;
     private String title;
     private String description;
-    private LocalTime postedTime;
-    private LocalTime lastEditedTime; // nicer in the UI
+    private LocalDateTime postedTime;
+    private LocalDateTime lastEditedTime; // nicer in the UI
     private String posterUsername;
     private int numOfPeopleRequestedToJoin;
     private int relevance;
 
-    public PostDTO(int id, String title, String description, LocalTime postedTime, LocalTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance) {
+    public PostDTO() {
+
+    }
+
+    public PostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -46,11 +51,11 @@ public abstract class PostDTO {
         return description;
     }
 
-    public LocalTime getPostedTime() {
+    public LocalDateTime getPostedTime() {
         return postedTime;
     }
 
-    public LocalTime getLastEditedTime() {
+    public LocalDateTime getLastEditedTime() {
         return lastEditedTime;
     }
 
@@ -64,5 +69,37 @@ public abstract class PostDTO {
 
     public int getRelevance() {
         return relevance;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public void setPostedTime(LocalDateTime postedTime) {
+        this.postedTime = postedTime;
+    }
+
+    public void setLastEditedTime(LocalDateTime lastEditedTime) {
+        this.lastEditedTime = lastEditedTime;
+    }
+
+    public void setPosterUsername(String posterUsername) {
+        this.posterUsername = posterUsername;
+    }
+
+    public void setNumOfPeopleRequestedToJoin(int numOfPeopleRequestedToJoin) {
+        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
+    }
+
+    public void setRelevance(int relevance) {
+        this.relevance = relevance;
     }
 }

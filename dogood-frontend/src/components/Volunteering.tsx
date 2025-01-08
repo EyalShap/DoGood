@@ -6,6 +6,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
+import { getIsManager, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
+import { useParams } from "react-router-dom";
+import { useNavigate } from 'react-router-dom';
 
 interface GroupToVolunteers {
     [key: number]: string[];
@@ -127,6 +130,7 @@ function AppointmentCalender({ volunteeringId } : {volunteeringId:number}) {
 }
 
 function Volunteering() {
+    const navigate = useNavigate();
     const [model, setModel] = useState<VolunteeringModel>({id: -1, orgId: -1, name: "", description: "", skills: [], categories: []});
     const [groups, setGroups] = useState<GroupToVolunteers>({});
     let { id } = useParams();
@@ -171,6 +175,10 @@ function Volunteering() {
             updatePermissions();
         }
     }, [model, ready])
+
+    const handlePostVolunteeringOnClick = () => {
+        navigate(`./createVolunteeringPost/-1`);
+    }
   return (
     <div>
         <div className="volInfo">
@@ -192,6 +200,12 @@ function Volunteering() {
         <div className='scanButtons'>
             <button onClick={() => navigate("/scan")}>Scan QR Code</button>
         </div>}
+
+        {isManager &&
+        <div className='postVolunteering'>
+            <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
+        </div>}
+        
         {isManager ? 
         <div className="volunteers">
             {Object.entries(groups).map(([key, value]) => <GroupRow groupId={parseInt(key)} volunteers={value}/>)}
