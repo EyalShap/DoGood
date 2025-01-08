@@ -144,7 +144,7 @@ public class Volunteering {
     }
 
     public int addNewGroup(){
-        Group g = new Group(availableGroupId++);
+        Group g = new Group(availableGroupId++, id);
         this.groups.put(g.getId(), g);
         return g.getId();
     }
@@ -158,7 +158,7 @@ public class Volunteering {
     }
 
     public int addLocation(String name, AddressTuple address){
-        Location loc = new Location(availableLocationId++,name,address);
+        Location loc = new Location(availableLocationId++,id,name,address);
         this.locations.put(loc.getId(), loc);
         return loc.getId();
     }
@@ -256,7 +256,7 @@ public class Volunteering {
             throw new IllegalArgumentException("Illegal appointment minutes range");
         }
         Group g = groups.get(groupId);
-        ScheduleRange range = new ScheduleRange(availableRangeId++, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
+        ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
         g.addScheduleToLocation(locId, range);
         return range.getId();
     }

@@ -153,7 +153,7 @@ public class MemorySchedulingManager implements SchedulingManager{
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
-        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, start, end));
+        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, volunteeringId, start, end));
     }
 
     private void addApproval(String username, int volunteeringId, Date start, Date end) {

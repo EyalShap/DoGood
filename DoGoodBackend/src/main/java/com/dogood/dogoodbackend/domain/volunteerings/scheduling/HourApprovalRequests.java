@@ -5,11 +5,13 @@ import java.util.Date;
 
 public class HourApprovalRequests {
     private String userId;
+    private int volunteeringId;
     private Date startTime;
     private Date endTime;
 
-    public HourApprovalRequests(String userId, Date startTime, Date endTime) {
+    public HourApprovalRequests(String userId, int volunteeringId, Date startTime, Date endTime) {
         this.userId = userId;
+        this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
     }
@@ -20,6 +22,10 @@ public class HourApprovalRequests {
 
     public String getUserId() {
         return userId;
+    }
+
+    public int getVolunteeringId() {
+        return volunteeringId;
     }
 
     public Date getStartTime() {

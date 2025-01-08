@@ -11,13 +11,15 @@ import java.util.stream.Collectors;
 
 public class Group {
     private final int id;
+    private int volunteeringId;
     private List<String> users;
 
     private Map<String, Integer> volunteersToLocation;
     private Map<Integer, List<ScheduleRange>> locationToRanges;
 
-    public Group(int id) {
+    public Group(int id, int volunteeringId) {
         this.id = id;
+        this.volunteeringId = volunteeringId;
         this.users = new LinkedList<>();
         this.volunteersToLocation = new HashMap<>();
         this.locationToRanges = new HashMap<>();
@@ -131,5 +133,9 @@ public class Group {
             return -1;
         }
         return volunteersToLocation.get(volunteerId);
+    }
+
+    public int getVolunteeringId() {
+        return volunteeringId;
     }
 }

@@ -2,11 +2,13 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 
 public class Location {
     private final int id;
+    private int volunteeringId;
     private String name;
     private AddressTuple address;
 
-    public Location(int id, String name, AddressTuple address) {
+    public Location(int id, int volunteeringId, String name, AddressTuple address) {
         this.id = id;
+        this.volunteeringId = volunteeringId;
         this.name = name;
         this.address = address;
     }
