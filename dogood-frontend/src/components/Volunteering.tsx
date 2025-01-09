@@ -6,9 +6,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
-import { getIsManager, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
-import { useParams } from "react-router-dom";
-import { useNavigate } from 'react-router-dom';
 
 interface GroupToVolunteers {
     [key: number]: string[];
@@ -137,7 +134,6 @@ function Volunteering() {
     const [isManager, setIsManager] = useState(false);
     const [ready, setReady] = useState(false);
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
-    let navigate = useNavigate();
     const fetchVolunteering = async () => {
         try{
             let found = await getVolunteering(parseInt(id!));
