@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 
 public class ScheduleRange {
     private final int id;
+    private int volunteeringId;
     private LocalTime startTime;
     private LocalTime endTime;
     private int minimumAppointmentMinutes;
@@ -20,8 +21,9 @@ public class ScheduleRange {
     private boolean[] weekDays;
     private LocalDate oneTime;
 
-    public ScheduleRange(int id, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
+    public ScheduleRange(int id, int volunteeringId, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
         this.id = id;
+        this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.minimumAppointmentMinutes = minimumAppointmentMinutes;

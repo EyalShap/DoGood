@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -143,7 +144,7 @@ public class Volunteering {
     }
 
     public int addNewGroup(){
-        Group g = new Group(availableGroupId++);
+        Group g = new Group(availableGroupId++, id);
         this.groups.put(g.getId(), g);
         return g.getId();
     }
@@ -157,7 +158,7 @@ public class Volunteering {
     }
 
     public int addLocation(String name, AddressTuple address){
-        Location loc = new Location(availableLocationId++,name,address);
+        Location loc = new Location(availableLocationId++,id,name,address);
         this.locations.put(loc.getId(), loc);
         return loc.getId();
     }
@@ -255,7 +256,7 @@ public class Volunteering {
             throw new IllegalArgumentException("Illegal appointment minutes range");
         }
         Group g = groups.get(groupId);
-        ScheduleRange range = new ScheduleRange(availableRangeId++, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
+        ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
         g.addScheduleToLocation(locId, range);
         return range.getId();
     }
@@ -325,5 +326,18 @@ public class Volunteering {
         }
         Group g = groups.get(groupId);
         return g.getDTO();
+    }
+
+    public List<ScheduleRangeDTO> getVolunteerAvailableRanges(String userId){
+        Group g = groups.get(volunteerToGroup.get(userId));
+        return g.getRangesForUser(userId).stream().map(range -> range.getDTO()).toList();
+    }
+
+    public int getAssignedLocation(String volunteerId){
+        if(!hasVolunteer(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + id);
+        }
+        Group g = groups.get(volunteerToGroup.get(volunteerId));
+        return g.getAssignedLocation(volunteerId);
     }
 }

@@ -68,4 +68,20 @@ public class SchedulingFacade {
         scheduleAppointment.setOneTime(oneTime);
         manager.makeAppointment(scheduleAppointment);
     }
+
+    public List<ApprovedHours> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
+        return manager.getApprovedUserHours(userId, volunteeringIds);
+    }
+
+    public List<HourApprovalRequests> getHourApprovalRequests(int volunteeringId){
+        return manager.getVolunteeringHourApproveRequests(volunteeringId);
+    }
+
+    public List<ScheduleAppointmentDTO> getUserAppointments(String userId, int volunteeringId){
+        return manager.getUserAppointments(userId, List.of(volunteeringId)).stream().map(sched -> sched.getDTO()).toList();
+    }
+
+    public List<ScheduleAppointmentDTO> getUserAppointments(String userId, List<Integer> volunteeringIds){
+        return manager.getUserAppointments(userId, volunteeringIds).stream().map(sched -> sched.getDTO()).toList();
+    }
 }

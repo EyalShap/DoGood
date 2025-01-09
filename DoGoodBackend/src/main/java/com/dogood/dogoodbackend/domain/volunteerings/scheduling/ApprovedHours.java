@@ -3,9 +3,9 @@ package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 import java.util.Date;
 
 public class ApprovedHours {
-    String userId;
-    int volunteeringId;
-    Date startTime;
+    private String userId;
+    private int volunteeringId;
+    private Date startTime;
     Date endTime;
 
     public ApprovedHours(String userId, int volunteeringId, Date startTime, Date endTime) {

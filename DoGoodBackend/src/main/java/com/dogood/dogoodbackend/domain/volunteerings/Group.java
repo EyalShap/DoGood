@@ -11,15 +11,18 @@ import java.util.stream.Collectors;
 
 public class Group {
     private final int id;
+    private int volunteeringId;
     private List<String> users;
 
     private Map<String, Integer> volunteersToLocation;
     private Map<Integer, List<ScheduleRange>> locationToRanges;
 
-    public Group(int id) {
+    public Group(int id, int volunteeringId) {
         this.id = id;
+        this.volunteeringId = volunteeringId;
         this.users = new LinkedList<>();
         this.volunteersToLocation = new HashMap<>();
+        this.locationToRanges = new HashMap<>();
     }
 
     public boolean isEmpty(){
@@ -123,5 +126,16 @@ public class Group {
             locationToRangesCopy.put(locId, locationToRanges.get(locId).stream().map(scheduleRange -> scheduleRange.getDTO()).collect(Collectors.toList()));
         }
         return new GroupDTO(id, new LinkedList<>(users), volunteersToLocationCopy, locationToRangesCopy);
+    }
+
+    public int getAssignedLocation(String volunteerId){
+        if(!volunteersToLocation.containsKey(volunteerId)){
+            return -1;
+        }
+        return volunteersToLocation.get(volunteerId);
+    }
+
+    public int getVolunteeringId() {
+        return volunteeringId;
     }
 }
