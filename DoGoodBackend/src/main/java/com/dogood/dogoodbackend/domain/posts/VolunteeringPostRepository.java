@@ -8,7 +8,8 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface VolunteeringPostRepository {
-    public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId);
+    public int getNextVolunteeringPostId();
+    public int createVolunteeringPost(VolunteeringPost volunteeringPost);
     public void removeVolunteeringPost(int postId);
     public void editVolunteeringPost(int postId, String title, String description);
     public VolunteeringPost getVolunteeringPost(int postId);

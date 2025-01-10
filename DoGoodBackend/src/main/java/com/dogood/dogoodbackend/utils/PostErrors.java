@@ -10,10 +10,19 @@ public class PostErrors {
     }
 
     public static String makeUserIsNotAllowedToMakePostActionError(int postId, String username, String action) {
-        return String.format("The user %s is not allowed to %s post %d.", username, postId, action);
+        return String.format("The user %s is not allowed to %s post %d.", username, action, postId);
     }
 
     public static String makeThereIsNoPostForVolunteeringError(int volunteeringId) {
         return String.format("There is no post for volunteering with id %d.", volunteeringId);
+    }
+
+    public static String makePostIsNotValidError() {
+        return "The given post is not valid.";
+    }
+
+
+    public static String makeVolunteeringIdDoesNotExistError(int volunteeringId) {
+        return String.format("An volunteering with id %d does not exist." ,volunteeringId);
     }
 }

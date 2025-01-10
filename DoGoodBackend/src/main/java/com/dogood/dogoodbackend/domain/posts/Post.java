@@ -45,7 +45,7 @@ public abstract class Post {
         if(!isValidText(title, 2, 50)) {
             res.append(String.format("Invalid post title: %s.\n", title));
         }
-        if(!isValidText(description, 0, 300)) {
+        if(!isValidText(description, 2, 300)) {
             res.append(String.format("Invalid post description: %s.\n", description));
         }
         return res.toString();
@@ -107,7 +107,7 @@ public abstract class Post {
             return Integer.MAX_VALUE;
         }
         // will be betaba in beta version
-        else if(Alphaba) {
+        else if(Elphaba) {
             return Integer.MIN_VALUE;
         }
         return 0; */
