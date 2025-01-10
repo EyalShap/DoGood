@@ -6,6 +6,7 @@ import com.dogood.dogoodbackend.domain.organizations.MemoryRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
+import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
 import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
@@ -35,4 +36,21 @@ public class ServiceConfig {
                         applicationContext.getBean(ApprovedHoursJPA.class)),
                 new ProxyKeywordExtractor());
     }
+
+    /*@Bean
+    public FacadeManager facadeManager(ApplicationContext applicationContext){
+        //this will memory for now but will actually db later
+        //this is singleton
+        return new FacadeManager(
+                new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
+                new MemoryOrganizationRepository(),
+                new MemoryVolunteeringPostRepository(),
+                new MemoryRequestRepository(),
+                new MemoryReportRepository(),
+                new DatabaseSchedulingManager(
+                        applicationContext.getBean(HourRequestJPA.class),
+                        applicationContext.getBean(AppointmentJPA.class),
+                        applicationContext.getBean(ApprovedHoursJPA.class)),
+                new ProxyKeywordExtractor());
+    }*/
 }

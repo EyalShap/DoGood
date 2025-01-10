@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
+import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
@@ -355,6 +356,11 @@ public class PostsFacade {
         return new ArrayList<>(allVolunteerings);
     }
 
+    public List<PastExperience> getPostPastExperiences(int postId) {
+        int volunteeringId = volunteeringPostRepository.getVolunteeringIdByPostId(postId);
+        return volunteeringFacade.getVolunteeringPastExperiences(volunteeringId);
+    }
+
     // TODO: remove when users facade is implemented
     private boolean isAdmin(String username) {
         return false;
@@ -374,5 +380,7 @@ public class PostsFacade {
     private List<VolunteeringDTO> getUserVolunteeringHistory(String actor) {
         return new ArrayList<>();
     }
+
+
 
 }
