@@ -286,6 +286,19 @@ class OrganizationsFacadeMemoryIntegrationTest {
     }
 
     @Test
+    void givenAssigningVolunteer_whenSendAssignManagerRequest_thenThrowException() {
+        int volunteeringId = organizationsFacade.createVolunteering(organizationId, "Name", "Description", actor1);
+        volunteeringFacade.requestToJoinVolunteering(actor2, volunteeringId, "Please");
+        volunteeringFacade.acceptUserJoinRequest(actor1, volunteeringId, actor2, 0);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
+        });
+
+        assertEquals(OrganizationErrors.makeUserIsVolunteerInTheOrganizationError(actor2, name1), exception.getMessage());
+    }
+
+    @Test
     void givenManagerAssigned_whenSendAssignManagerRequest_thenThrowException() {
         assertEquals(0, requestRepository.getUserRequests(actor1).size());
 

@@ -22,13 +22,13 @@ public class Volunteering {
     private String name;
     private String description;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> skills;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> categories;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> imagePaths;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -42,7 +42,7 @@ public class Volunteering {
     @MapKeyJoinColumn(name = "group_id")
     private Map<Integer, Group> groups;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<PastExperience> pastExperiences;
 
     private transient Map<String,Integer> volunteerToGroup;

@@ -55,8 +55,14 @@ public class VolunteeringService {
         facadeManager.getVolunteeringFacade().requestHoursApproval("EyalShapiro", volId, Date.from(LocalDateTime.of(2025,1,6,10,0).atZone(ZoneId.systemDefault()).toInstant()),
                 Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()));
 
+        facadeManager.getPostsFacade().createVolunteeringPost("post1", "description1", "TheDoctor", volId);
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", volId, "plz i also want join");
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "DanaFriedman", 0);
+        facadeManager.getVolunteeringFacade().finishVolunteering("DanaFriedman", volId, "Great");
+        facadeManager.getVolunteeringFacade().finishVolunteering("EyalShapiro", volId, "Amazing");
+
     }
+
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){
         try{

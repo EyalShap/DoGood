@@ -54,4 +54,7 @@ public class OrganizationErrors {
         return "This organization is invalid.";
     }
 
+    public static String makeUserIsVolunteerInTheOrganizationError(String username, String organizationName) {
+        return String.format("The user %s can not be a manager of organization %s since he is a volunteering in the organization.", username, organizationName);
+    }
 }
