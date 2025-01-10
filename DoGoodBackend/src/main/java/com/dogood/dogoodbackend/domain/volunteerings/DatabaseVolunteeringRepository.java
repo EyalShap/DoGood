@@ -22,6 +22,8 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
     public Volunteering addVolunteering(int organizationId, String name, String description) {
         Volunteering volunteering = new Volunteering(organizationId, name, description, new BarcodeHandler());
         jpa.save(volunteering);
+        volunteering.addNewGroup();
+        jpa.save(volunteering);
         return volunteering;
     }
 

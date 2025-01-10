@@ -37,9 +37,8 @@ public class Volunteering {
     private Map<Integer,Location> locations;
 
     @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinTable(name="volunteering_group_mapping", joinColumns = {@JoinColumn(name="vol_id", referencedColumnName = "id")},
-            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")})
-    @MapKeyJoinColumn(name = "group_id")
+    @JoinColumn(name = "volunteeringId")
+    @MapKey(name="id")
     private Map<Integer, Group> groups;
 
     @ElementCollection(fetch = FetchType.EAGER)
@@ -100,7 +99,6 @@ public class Volunteering {
         this.barcodeHandler = barcodeHandler;
         this.imagePaths = new LinkedList<>();
         this.scheduleRanges = new HashMap<>();
-        addNewGroup();
     }
 
     public Volunteering() {

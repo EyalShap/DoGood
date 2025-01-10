@@ -157,4 +157,8 @@ public class Group {
     public Map<Integer, Integer> getRangeToLocation() {
         return rangeToLocation;
     }
+
+    public void setVolunteeringId(int volunteeringId) {
+        this.volunteeringId = volunteeringId;
+    }
 }
