@@ -26,6 +26,9 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
         if(organizations.containsKey(nextOrganizationId)) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdAlreadyExistsError(nextOrganizationId));
         }
+        if(organization == null) {
+            throw new IllegalArgumentException(OrganizationErrors.makeInvalidOrganizationError());
+        }
 
         organizations.put(nextOrganizationId, organization);
         nextOrganizationId++;

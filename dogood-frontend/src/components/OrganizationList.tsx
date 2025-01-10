@@ -2,6 +2,7 @@ import { getAllOrganizations } from '../api/organization_api'
 import { useEffect, useState } from 'react'
 import OrganizationModel from '../models/OrganizationModel';
 import { useNavigate } from 'react-router-dom';
+import './../css/OrganizationList.css'
 
 function OrganizationList() {
     const navigate = useNavigate();

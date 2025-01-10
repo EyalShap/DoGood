@@ -65,7 +65,6 @@ class OrganizationRepositoryUnitTest {
         catch (Exception e) {
 
         }
-
     }
 
     static Stream<OrganizationRepository> repoProvider() {
@@ -74,7 +73,7 @@ class OrganizationRepositoryUnitTest {
 
     @ParameterizedTest
     @MethodSource("repoProvider")
-    void givenValidFields_whenCreateOrganization_thenCreate(OrganizationRepository organizationRepository) {
+    void givenNonNullOrganization_whenCreateOrganization_thenCreate(OrganizationRepository organizationRepository) {
         List<Organization> expectedBeforeAdd = new ArrayList<>();
         expectedBeforeAdd.add(organizationMock1);
 
@@ -92,8 +91,17 @@ class OrganizationRepositoryUnitTest {
 
     @ParameterizedTest
     @MethodSource("repoProvider")
+    void givenNullOrganization_whenCreateOrganization_thenThrowException(OrganizationRepository organizationRepository) {
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            organizationRepository.createOrganization(null);
+        });
+        assertEquals(OrganizationErrors.makeInvalidOrganizationError(), exception.getMessage());
+    }
+
+    @ParameterizedTest
+    @MethodSource("repoProvider")
     void givenExistingId_whenRemoveOrganization_thenRemove(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         assertDoesNotThrow(() -> organizationRepository.removeOrganization(orgId));
 
@@ -106,7 +114,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingId_whenRemoveOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.removeOrganization(orgId + 1);
@@ -117,7 +125,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingOrganizationAndValidFields_whenEditOrganization_thenEdit(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         doNothing().when(organizationMock1).editOrganization(any(), any(), any(), any());
         assertDoesNotThrow(() -> organizationRepository.editOrganization(orgId, "Magen David Adom", "description", "0547612954", "mada@gmail.com"));
@@ -126,7 +134,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingOrganizationAndNonValidFields_whenEditOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         doThrow(new IllegalArgumentException()).when(organizationMock1).editOrganization(any(), any(), any(), any());
         assertThrows(IllegalArgumentException.class, () -> organizationRepository.editOrganization(orgId, "Invalid", "Invalid", "Invalid", "Invalid"));
@@ -135,7 +143,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingOrganization_whenEditOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.editOrganization(orgId + 1, "Magen David Adom", "description", "0541970256", "mada@gmail.com");
@@ -146,7 +154,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingId_whenGetOrganization_thenNoThrownException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
         final Organization[] organization = new Organization[1];
         assertDoesNotThrow(() -> organization[0] = organizationRepository.getOrganization(orgId));
         assertEquals(organizationMock1, organization[0]);
@@ -155,7 +163,7 @@ class OrganizationRepositoryUnitTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingId_whenGetOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setIdByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.getOrganization(orgId + 1);
@@ -170,5 +178,9 @@ class OrganizationRepositoryUnitTest {
         expected.add(organizationMock1);
         List<Organization> res = organizationRepository.getAllOrganizations();
         assertEquals(expected, res);
+    }
+    
+    private void setIdByRepo(OrganizationRepository repository) {
+        this.orgId = repository == memoryOrganizationRepository ? memOrgId : dbOrgId;
     }
 }

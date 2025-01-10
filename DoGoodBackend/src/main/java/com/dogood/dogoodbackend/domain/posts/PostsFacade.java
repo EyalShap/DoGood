@@ -26,6 +26,7 @@ public class PostsFacade {
 
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId) {
         //TODO: check if user exists and logged in
+        volunteeringFacade.getVolunteeringDTO(volunteeringId); // check if volunteering exists
 
         int organizationId = volunteeringFacade.getVolunteeringOrganizationId(volunteeringId);
 
@@ -35,7 +36,9 @@ public class PostsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(posterUsername, organizationName, "post about the organization's volunteering"));
         }
 
-        return volunteeringPostRepository.createVolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);
+        int postId = volunteeringPostRepository.getNextVolunteeringPostId();
+        VolunteeringPost newPost = new VolunteeringPost(postId, title, description, posterUsername, volunteeringId, organizationId);
+        return volunteeringPostRepository.createVolunteeringPost(newPost);
     }
 
     private boolean isAllowedToMakePostAction(String actor, VolunteeringPost post) {
@@ -119,6 +122,7 @@ public class PostsFacade {
         if(search == null || search.isBlank()) {
             return volunteeringPostRepository.getVolunteeringPostDTOs();
         }
+        search = search.replaceAll("[^a-zA-Z0-9 ]", "");
 
         Set<String> searchKeywords = keywordExtractor.getKeywords(search).stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());
         List<VolunteeringPostDTO> result = new ArrayList<>();
@@ -137,7 +141,7 @@ public class PostsFacade {
         int volunteeringId = post.getVolunteeringId();
         VolunteeringDTO volunteering = volunteeringFacade.getVolunteeringDTO(volunteeringId);
 
-        Set<String> postKeywords = keywordExtractor.getKeywords(post.getTitle() + " " + post.getDescription());
+        Set<String> postKeywords = keywordExtractor.getKeywords(cleanString(post.getTitle()) + " " + cleanString(post.getDescription()));
         Set<String> volunteeringKeywords = getVolunteeringKeywords(volunteering);
 
         postKeywords.addAll(volunteeringKeywords);
@@ -147,7 +151,7 @@ public class PostsFacade {
     private Set<String> getVolunteeringKeywords(VolunteeringDTO volunteering) {
         int volunteeringId = volunteering.getId();
 
-        Set<String> volunteeringKeywords = keywordExtractor.getKeywords(volunteering.getName() + " " + volunteering.getDescription());
+        Set<String> volunteeringKeywords = keywordExtractor.getKeywords(cleanString(volunteering.getName()) + " " + cleanString(volunteering.getDescription()));
         List<String> volunteeringCategories = volunteeringFacade.getVolunteeringCategories(volunteeringId);
         List<String> volunteeringSkills = volunteeringFacade.getVolunteeringSkills(volunteeringId);
 
@@ -169,6 +173,10 @@ public class PostsFacade {
             }
         }
         return matching;
+    }
+
+    private String cleanString(String str) {
+        return str.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase();
     }
 
     public List<VolunteeringPostDTO> sortByRelevance(String actor, List<VolunteeringPostDTO> allPosts) {

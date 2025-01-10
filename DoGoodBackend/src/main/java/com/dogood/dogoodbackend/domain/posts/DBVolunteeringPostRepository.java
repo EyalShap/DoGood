@@ -4,9 +4,14 @@ import java.util.List;
 import java.util.Set;
 
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
+
     @Override
-    public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
-        //TODO
+    public int getNextVolunteeringPostId() {
+        return 0;
+    }
+
+    @Override
+    public int createVolunteeringPost(VolunteeringPost volunteeringPost) {
         return 0;
     }
 
