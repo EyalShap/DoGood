@@ -107,7 +107,7 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     public void approveUserHours(String username, int volunteeringId, Date start, Date end) {
         HourApprovalRequests requestToApprove = null;
         for(HourApprovalRequests request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
-            if(request.getStartTime().equals(start) && request.getEndTime().equals(end)){
+            if(request.getStartTime().getTime() == start.getTime() && request.getEndTime().getTime() == end.getTime()){
                 requestToApprove = request;
             }
         }
@@ -122,7 +122,7 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     public void denyUserHours(String username, int volunteeringId, Date start, Date end) {
         HourApprovalRequests requestToApprove = null;
         for(HourApprovalRequests request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
-            if(request.getStartTime().equals(start) && request.getEndTime().equals(end)){
+            if(request.getStartTime().getTime() == start.getTime() && request.getEndTime().getTime() == end.getTime()){
                 requestToApprove = request;
             }
         }
