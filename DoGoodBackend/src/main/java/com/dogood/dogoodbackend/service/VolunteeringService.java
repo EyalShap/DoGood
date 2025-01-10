@@ -60,6 +60,7 @@ public class VolunteeringService {
         facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "DanaFriedman", 0);
         facadeManager.getVolunteeringFacade().finishVolunteering("DanaFriedman", volId, "Great");
         facadeManager.getVolunteeringFacade().finishVolunteering("EyalShapiro", volId, "Amazing");
+        facadeManager.getVolunteeringFacade().updateVolunteering("TheDoctor", volId, "Burgerrooms", "Everyone left so now we are burgerrooms");
 
     }
 

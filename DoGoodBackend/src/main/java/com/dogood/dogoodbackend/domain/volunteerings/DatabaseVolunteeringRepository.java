@@ -15,7 +15,7 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
 
     @Override
     public Volunteering getVolunteering(int volunteeringId) {
-        return jpa.findById(volunteeringId).orElseThrow(() -> new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist"));
+        return jpa.findById(volunteeringId).orElse(null);
     }
 
     @Override
@@ -30,18 +30,21 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
         Volunteering volunteering = getVolunteering(volunteeringId);
         volunteering.setName(name);
         volunteering.setDescription(description);
+        jpa.save(volunteering);
     }
 
     @Override
     public void updateVolunteeringSkills(int volunteeringId, Collection<String> skills) {
         Volunteering volunteering = getVolunteering(volunteeringId);
         volunteering.setSkills(new LinkedList<>(skills));
+        jpa.save(volunteering);
     }
 
     @Override
     public void updateVolunteeringCategories(int volunteeringId, Collection<String> categories) {
         Volunteering volunteering = getVolunteering(volunteeringId);
         volunteering.setCategories(new LinkedList<>(categories));
+        jpa.save(volunteering);
     }
 
     @Override
