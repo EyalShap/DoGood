@@ -1,27 +1,27 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.jparepos.VolunteeringJPA;
+
 import java.util.*;
 
-public class MemoryVolunteeringRepository implements VolunteeringRepository{
-    private int latestId;
-    private Map<Integer, Volunteering> volunteerings;
+public class DatabaseVolunteeringRepository implements VolunteeringRepository{
+    private VolunteeringJPA jpa;
     private Map<Integer, Map<String, Date>> firstScans;
 
-    public MemoryVolunteeringRepository() {
-        volunteerings = new HashMap<>();
+    public DatabaseVolunteeringRepository(VolunteeringJPA jpa) {
+        this.jpa = jpa;
         firstScans = new HashMap<>();
-        latestId = 0;
     }
 
     @Override
     public Volunteering getVolunteering(int volunteeringId) {
-        return volunteerings.get(volunteeringId);
+        return jpa.findById(volunteeringId).orElseThrow(() -> new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist"));
     }
 
     @Override
     public Volunteering addVolunteering(int organizationId, String name, String description) {
-        Volunteering volunteering = new Volunteering(latestId++, organizationId, name, description, new BarcodeHandler());
-        volunteerings.put(volunteering.getId(), volunteering);
+        Volunteering volunteering = new Volunteering(organizationId, name, description, new BarcodeHandler());
+        jpa.save(volunteering);
         return volunteering;
     }
 
@@ -46,12 +46,12 @@ public class MemoryVolunteeringRepository implements VolunteeringRepository{
 
     @Override
     public void disableVolunteering(int volunteeringId) {
-        volunteerings.remove(volunteeringId);
+        jpa.deleteById(volunteeringId);
     }
 
     @Override
     public void updateVolunteeringInDB(Volunteering volunteering) {
-        return;
+        jpa.save(volunteering);
     }
 
     @Override

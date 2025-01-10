@@ -2,30 +2,60 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
+import jakarta.persistence.*;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Entity
 public class Volunteering {
-    private final int id;
-    private int availableGroupId;
-    private int availableLocationId;
-    private int availableRangeId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+    private transient int availableGroupId;
+    private transient int availableLocationId;
+    private transient int availableRangeId;
     private int organizationId;
     private String name;
     private String description;
+
+    @ElementCollection
     private List<String> skills;
+
+    @ElementCollection
     private List<String> categories;
+
+    @ElementCollection
     private List<String> imagePaths;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "volunteeringId")
+    @MapKey(name="id")
     private Map<Integer,Location> locations;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinTable(name="volunteering_group_mapping", joinColumns = {@JoinColumn(name="vol_id", referencedColumnName = "id")},
+            inverseJoinColumns = {@JoinColumn(name = "group_id", referencedColumnName = "id")})
+    @MapKeyJoinColumn(name = "group_id")
     private Map<Integer, Group> groups;
+
+    @ElementCollection
     private List<PastExperience> pastExperiences;
 
-    private Map<String,Integer> volunteerToGroup;
+    private transient Map<String,Integer> volunteerToGroup;
 
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name="volunteering_joinrequests_mapping")
+    @MapKeyJoinColumn(name = "user_id")
     private Map<String, JoinRequest> pendingJoinRequests;
+
+    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JoinColumn(name = "volunteeringId")
+    @MapKey(name="id")
+    private Map<Integer, ScheduleRange> scheduleRanges;
 
     private ScanTypes scanTypes;
     private ApprovalType approvalType;
@@ -49,7 +79,32 @@ public class Volunteering {
         this.approvalType = ApprovalType.MANUAL;
         this.barcodeHandler = barcodeHandler;
         this.imagePaths = new LinkedList<>();
+        this.scheduleRanges = new HashMap<>();
         addNewGroup();
+    }
+
+    public Volunteering(int organizationId, String name, String description, BarcodeHandler barcodeHandler) {
+        this.organizationId = organizationId;
+        this.name = name;
+        this.description = description;
+        this.availableGroupId = 0;
+        this.availableLocationId = 0;
+        this.availableRangeId = 0;
+        this.groups = new HashMap<>();
+        this.locations = new HashMap<>();
+        this.pastExperiences = new LinkedList<>();
+        this.volunteerToGroup = new HashMap<>();
+        this.pendingJoinRequests = new HashMap<>();
+        this.scanTypes = ScanTypes.NO_SCAN;
+        this.approvalType = ApprovalType.MANUAL;
+        this.barcodeHandler = barcodeHandler;
+        this.imagePaths = new LinkedList<>();
+        this.scheduleRanges = new HashMap<>();
+        addNewGroup();
+    }
+
+    public Volunteering() {
+
     }
 
     public ScanTypes getScanTypes() {
@@ -257,19 +312,24 @@ public class Volunteering {
         }
         Group g = groups.get(groupId);
         ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
-        g.addScheduleToLocation(locId, range);
+        scheduleRanges.put(range.getId(), range);
+        g.addScheduleToLocation(locId, range.getId());
         return range.getId();
     }
 
     public void updateRangeWeekdays(int groupId, int locId, int rangeId, boolean[] weekdays){
-        Group g = groups.get(groupId);
-        ScheduleRange range = g.getScheduleRange(locId, rangeId);
+        if(!scheduleRanges.containsKey(rangeId)){
+            throw new IllegalArgumentException("No range with Id " + rangeId);
+        }
+        ScheduleRange range = scheduleRanges.get(rangeId);
         range.setWeekDays(weekdays);
     }
 
     public void updateRangeOneTimeDate(int groupId, int locId, int rangeId, LocalDate oneTime){
-        Group g = groups.get(groupId);
-        ScheduleRange range = g.getScheduleRange(locId, rangeId);
+        if(!scheduleRanges.containsKey(rangeId)){
+            throw new IllegalArgumentException("No range with Id " + rangeId);
+        }
+        ScheduleRange range = scheduleRanges.get(rangeId);
         range.setOneTime(oneTime);
     }
 
@@ -277,16 +337,20 @@ public class Volunteering {
         if(!groups.containsKey(groupId)){
             throw new UnsupportedOperationException("There is no group with id "+groupId);
         }
-        Group g = groups.get(groupId);
-        g.addRestrictionToRange(locId, rangeId, restriction);
+        if(!scheduleRanges.containsKey(rangeId)){
+            throw new IllegalArgumentException("No range with Id " + rangeId);
+        }
+        scheduleRanges.get(rangeId).addRestriction(restriction);
     }
 
     public void removeRestrictionFromRange(int groupId, int locId, int rangeId, LocalTime startTime){
         if(!groups.containsKey(groupId)){
             throw new UnsupportedOperationException("There is no group with id "+groupId);
         }
-        Group g = groups.get(groupId);
-        g.removeRestrictionFromRange(locId, rangeId, startTime);
+        if(!scheduleRanges.containsKey(rangeId)){
+            throw new IllegalArgumentException("No range with Id " + rangeId);
+        }
+        scheduleRanges.get(rangeId).removeRestrictionByStart(startTime);
     }
 
     public boolean hasVolunteer(String userId){
@@ -311,9 +375,10 @@ public class Volunteering {
         if(!groups.containsKey(groupId)){
             throw new UnsupportedOperationException("There is no group with id "+groupId);
         }
-        Group g = groups.get(groupId);
-        ScheduleRange range = g.getScheduleRange(locId, rangeId);
-        return range;
+        if(!scheduleRanges.containsKey(rangeId)){
+            throw new IllegalArgumentException("No range with Id " + rangeId);
+        }
+        return scheduleRanges.get(rangeId);
     }
 
     public List<LocationDTO> getLocationDTOs(){
@@ -330,7 +395,7 @@ public class Volunteering {
 
     public List<ScheduleRangeDTO> getVolunteerAvailableRanges(String userId){
         Group g = groups.get(volunteerToGroup.get(userId));
-        return g.getRangesForUser(userId).stream().map(range -> range.getDTO()).toList();
+        return g.getRangesForUser(userId).stream().map(rangeId -> scheduleRanges.get(rangeId).getDTO()).toList();
     }
 
     public int getAssignedLocation(String volunteerId){
@@ -339,5 +404,39 @@ public class Volunteering {
         }
         Group g = groups.get(volunteerToGroup.get(volunteerId));
         return g.getAssignedLocation(volunteerId);
+    }
+
+    @PostLoad
+    private void load(){
+        volunteerToGroup = new HashMap<>();
+        for(Group g : groups.values()){
+            for(String userId : g.getUsers()){
+                volunteerToGroup.put(userId, g.getId());
+            }
+        }
+        availableGroupId = 0;
+        availableLocationId = 0;
+        availableRangeId = 0;
+        for(int groupId : groups.keySet()){
+            if(groupId > availableGroupId){
+                availableGroupId = groupId;
+            }
+        }
+
+        for(int locId : locations.keySet()){
+            if(locId > availableLocationId){
+                availableLocationId = locId;
+            }
+        }
+
+        for(int rangeId : scheduleRanges.keySet()){
+            if(rangeId > availableRangeId){
+                availableRangeId = rangeId;
+            }
+        }
+    }
+
+    public Map<Integer, ScheduleRange> getScheduleRanges() {
+        return scheduleRanges;
     }
 }

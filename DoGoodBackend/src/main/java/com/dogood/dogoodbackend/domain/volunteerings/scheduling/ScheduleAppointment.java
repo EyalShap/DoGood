@@ -1,6 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRangeDTO;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -11,13 +13,30 @@ import java.time.ZoneId;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 
+@Entity
+@IdClass(UserVolunteerTimeKT.class)
 public class ScheduleAppointment {
+    @Id
     private String userId;
     private int rangeId;
+
+    @Id
     private int volunteeringId;
+
+    @Id
     private LocalTime startTime;
     private LocalTime endTime;
-    private boolean[] weekDays;
+
+    private boolean sunday;
+    private boolean monday;
+    private boolean tuesday;
+    private boolean wednesday;
+    private boolean thursday;
+    private boolean friday;
+    private boolean saturday;
+
+    private transient boolean[] weekDays;
+
     private LocalDate oneTime;
 
     public ScheduleAppointment(String userId, int volunteeringId, int rangeId, LocalTime startTime, LocalTime endTime) {
@@ -27,6 +46,8 @@ public class ScheduleAppointment {
         this.startTime = startTime;
         this.endTime = endTime;
     }
+
+    public ScheduleAppointment() {}
 
     public int getVolunteeringId() {
         return volunteeringId;
@@ -79,6 +100,22 @@ public class ScheduleAppointment {
         this.weekDays = weekDays;
         if(weekDays != null){
             oneTime = null;
+            sunday = weekDays[0];
+            monday = weekDays[1];
+            tuesday = weekDays[2];
+            wednesday = weekDays[3];
+            thursday = weekDays[4];
+            friday = weekDays[5];
+            saturday = weekDays[6];
+        }
+        if(weekDays == null){
+            sunday = false;
+            monday = false;
+            tuesday = false;
+            wednesday = false;
+            thursday = false;
+            friday = false;
+            saturday = false;
         }
     }
 
@@ -86,6 +123,13 @@ public class ScheduleAppointment {
         this.oneTime = oneTime;
         if(oneTime != null){
             weekDays = null;
+            sunday = false;
+            monday = false;
+            tuesday = false;
+            wednesday = false;
+            thursday = false;
+            friday = false;
+            saturday = false;
         }
     }
 
@@ -158,5 +202,12 @@ public class ScheduleAppointment {
             return weekDays[other.getOneTime().getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
         }
         return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+    }
+
+    @PostLoad
+    private void loadWeekDays(){
+        if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
+            weekDays = new boolean[]{sunday, monday, tuesday, wednesday, thursday, friday, saturday};
+        }
     }
 }
