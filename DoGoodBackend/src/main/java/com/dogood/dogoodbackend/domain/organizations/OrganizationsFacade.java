@@ -87,6 +87,11 @@ public class OrganizationsFacade {
         if(organization.isManager(newManager)) {
             throw new IllegalArgumentException(OrganizationErrors.makeUserIsAlreadyAManagerError(newManager, organization.getName()));
         }
+        for(int volunteeringId : organization.getVolunteeringIds()) {
+            if(volunteeringFacade.getHasVolunteer(newManager, volunteeringId)) {
+                throw new IllegalArgumentException(OrganizationErrors.makeUserIsVolunteerInTheOrganizationError(newManager, organization.getName()));
+            }
+        }
         requestRepository.createRequest(newManager, actor, organizationId);
 
         //TODO: change when users facade is implemented

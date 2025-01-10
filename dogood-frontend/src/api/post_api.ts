@@ -1,6 +1,7 @@
 import APIResponse from "../models/APIResponse";
 import axios from "axios";
 import { VolunteeringPostModel } from "../models/VolunteeringPostModel";
+import PastExperienceModel from "../models/PastExpreienceModel";
 
 const server: string = 'http://192.168.1.28:8080/api/posts';
 
@@ -449,4 +450,27 @@ export const getAllVolunteeringNames = async (): Promise<string[]> => {
     }
     let cities: string[] = response.data;
     return cities;
+}
+
+export const getPostPastExperiences = async (postId : number): Promise<PastExperienceModel[]> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getPostPastExperiences?postId=${postId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<PastExperienceModel[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let experiences: PastExperienceModel[] = response.data;
+    return experiences;
 }

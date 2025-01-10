@@ -4,12 +4,13 @@ import VolunteeringModel from '../models/VolunteeringModel'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
+import { getPostPastExperiences, getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
 import OrganizationModel from '../models/OrganizationModel';
 import { getIsManager, getOrganization } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
 import { createReport } from '../api/report_api';
+import PastExperienceModel from '../models/PastExpreienceModel';
 
 
 function VolunteeringPost() {
@@ -23,6 +24,8 @@ function VolunteeringPost() {
     const [joinFreeText, setJoinFreeText] = useState("");
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
+    const [pastExperiences, setPastExperiences] = useState<PastExperienceModel[]>([]);
+    const [currentIndex, setCurrentIndex] = useState(0);
     let { id } = useParams();
     
     const fetchVolunteeringPost = async () => {
@@ -56,6 +59,24 @@ function VolunteeringPost() {
         }
     }
 
+    const fetchPastExperiences = async () => {
+        try {
+            //if(ready) {
+                if(id !== undefined) {
+                    let pastExperiences: PastExperienceModel[] = await getPostPastExperiences(parseInt(id));                    
+                    setPastExperiences(pastExperiences);
+                    setReady(true);
+                }
+                else {
+                    alert("Error");
+                }
+            //}
+        }
+        catch(e) {
+            alert(e);
+        }
+    }
+
     const updatePermissions = async () => {
         try{
             setIsManager(await getIsManager(model.organizationId));
@@ -68,6 +89,7 @@ function VolunteeringPost() {
 
     useEffect(() => {
         fetchVolunteeringPost();
+        fetchPastExperiences();
     }, [id])
 
     useEffect(() => {
@@ -80,11 +102,11 @@ function VolunteeringPost() {
         }
     }, [model, ready])
 
-    const fixDate = (dateJson: string) : string => {
+    const fixDate = (dateJson: string, showHour: boolean) : string => {
         let date: Date = new Date(dateJson);
         let dateStr = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}`;
-        let houtStr = `${date.getHours()}:${date.getMinutes()}`;
-        return dateStr + " at " + houtStr;
+        let houtStr = showHour ? ` at ${date.getHours()}:${date.getMinutes()}` : "";
+        return dateStr + houtStr;
     }
 
     const handleShowVolunteeringOnClick = () => {
@@ -167,6 +189,24 @@ function VolunteeringPost() {
         }
     }
 
+    const handlePrev = async () => {
+        if(currentIndex == 0) {
+            setCurrentIndex(pastExperiences.length - 1);
+        }
+        else {
+            setCurrentIndex(currentIndex - 1);
+        }
+    }
+
+    const handleNext = async () => {
+        if(currentIndex == pastExperiences.length - 1) {
+            setCurrentIndex(0);
+        }
+        else {
+            setCurrentIndex(currentIndex + 1);
+        }
+    }
+
     return (
         <div>
             <div className="postInfo">
@@ -175,45 +215,62 @@ function VolunteeringPost() {
                     <p>{model.description}</p>
                     <img src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg" alt="Description of image" className='image' />
                     <p>Posted by: {model.posterUsername}</p>
-                    <p>Posted on: {fixDate(model.postedTime)}</p>
-                    <p>Last edited on: {fixDate(model.lastEditedTime)}</p>
+                    <p>Posted on: {fixDate(model.postedTime, true)}</p>
+                    <p>Last edited on: {fixDate(model.lastEditedTime, true)}</p>
                     <p>Number of people requested to join so far: {model.numOfPeopleRequestedToJoin}</p>
                     <p>Volunteering: {volunteeringName}</p>
                     <button onClick={handleShowVolunteeringOnClick}>show</button>
                     <p>Organization: {organizationName}</p>
                     <button onClick={handleShowOrganizationOnClick}>show</button>
                 </div>
-            <div>
-                <button onClick={handleJoinVolunteeringOnClick}>Join Volunteering</button>
-                
-                {showJoinFreeText && (
-                    <div>
-                        <textarea
-                            value={joinFreeText}
-                            onChange = {handleJoinFreeTextChange}
-                            placeholder="Enter your message here..."
-                        />
-                    </div>
-                )}
-                {showJoinFreeText && <button onClick={handleSubmitOnClick}>Submit Request</button>}
-                {showJoinFreeText && <button onClick={handleCancelOnClick}>Cancel</button>}
+                <div>
+                    <button onClick={handleJoinVolunteeringOnClick}>Join Volunteering</button>
+                    
+                    {showJoinFreeText && (
+                        <div>
+                            <textarea
+                                value={joinFreeText}
+                                onChange = {handleJoinFreeTextChange}
+                                placeholder="Enter your message here..."
+                            />
+                        </div>
+                    )}
+                    {showJoinFreeText && <button onClick={handleSubmitOnClick}>Submit Request</button>}
+                    {showJoinFreeText && <button onClick={handleCancelOnClick}>Cancel</button>}
 
-                <button onClick={handleReportOnClick}>Report</button>
-                {showReportDescription && (
-                    <div>
-                        <textarea
-                            value={reportDescription}
-                            onChange = {handleReportDescriptionChange}
-                            placeholder="Enter your report here..."
-                        />
-                    </div>
-                )}
-                {showReportDescription && <button onClick={handleSubmitReportOnClick}>Submit Report</button>}
-                {showReportDescription && <button onClick={handleCancelReportOnClick}>Cancel</button>}
+                    <button onClick={handleReportOnClick}>Report</button>
+                    {showReportDescription && (
+                        <div>
+                            <textarea
+                                value={reportDescription}
+                                onChange = {handleReportDescriptionChange}
+                                placeholder="Enter your report here..."
+                            />
+                        </div>
+                    )}
+                    {showReportDescription && <button onClick={handleSubmitReportOnClick}>Submit Report</button>}
+                    {showReportDescription && <button onClick={handleCancelReportOnClick}>Cancel</button>}
 
-                {isManager && <button onClick={handleEditPostOnClick}>Edit Post</button>}
-                {isManager && <button onClick={handleRemovePostOnClick}>Remove Post</button>}
-            </div>
+                    {isManager && <button onClick={handleEditPostOnClick}>Edit Post</button>}
+                    {isManager && <button onClick={handleRemovePostOnClick}>Remove Post</button>}
+                </div>
+
+                <div>
+                    <h1>Volunteers Past Experiences:</h1>
+                    {pastExperiences.length > 0 ? (
+                        <div className="pastExperienceItem">
+                            <button onClick={handlePrev}>&lt;</button>
+                            <div>
+                                <h3>{pastExperiences[currentIndex].userId}</h3>
+                                <p>{pastExperiences[currentIndex].text}</p>
+                                <p>{fixDate(pastExperiences[currentIndex].when, false)}</p>
+                            </div>
+                            <button onClick={handleNext}>&gt;</button>
+                        </div>
+                    ) : (
+                        <p>No past experiences available.</p>
+                    )}
+                </div>
             </div>
         </div>
     )
