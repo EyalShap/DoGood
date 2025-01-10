@@ -3,13 +3,18 @@ package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.volunteerings.*;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatePair;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -34,27 +39,23 @@ public class VolunteeringService {
         int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
                 "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
                 "TheDoctor");
-        int volId2 = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Hiiiiiiiiiii",
-                "blah blah blah blah blah",
-                "TheDoctor");
+        facadeManager.getVolunteeringFacade().updateVolunteeringScanDetails("TheDoctor", volId, ScanTypes.DOUBLE_SCAN, ApprovalType.AUTO_FROM_SCAN);
 
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
         facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "EyalShapiro", 0);
-        facadeManager.getOrganizationsFacade().sendAssignManagerRequest("EyalShapiro", "TheDoctor", orgid);
+        int locId = facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "The Backrooms", new AddressTuple("B7", "Ben Gurion", "72"));
+        int rID = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId, LocalTime.of(0,0), LocalTime.of(23,59), -1,-1);
+        facadeManager.getVolunteeringFacade().updateRangeWeekdays("TheDoctor",volId, 0, locId, rID, new boolean[]{true,true,true,true,true,true,true});
+        facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "EyalShapiro", volId, locId);
+        facadeManager.getVolunteeringFacade().makeAppointment("EyalShapiro", volId, 0, locId, rID, LocalTime.of(9,0), LocalTime.of(11,0), null, LocalDate.of(2025, 1, 5));
+        facadeManager.getVolunteeringFacade().makeAppointment("EyalShapiro", volId, 0, locId, rID, LocalTime.of(13,0), LocalTime.of(14,0), new boolean[]{false,true,false,false,false,true,false}, null);
 
-        facadeManager.getPostsFacade().createVolunteeringPost("post1", "dance", "TheDoctor", volId);
-        facadeManager.getPostsFacade().createVolunteeringPost("post2", "dance", "TheDoctor", volId);
-        facadeManager.getPostsFacade().createVolunteeringPost("post3", "description3", "TheDoctor", volId2);
-        facadeManager.getVolunteeringFacade().updateVolunteeringSkills("TheDoctor", volId, List.of("First Aid"));
-        facadeManager.getVolunteeringFacade().updateVolunteeringSkills("TheDoctor", volId2, List.of("Finance"));
+        facadeManager.getVolunteeringFacade().requestHoursApproval("EyalShapiro", volId, Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDateTime.of(2025,1,6,14,0).atZone(ZoneId.systemDefault()).toInstant()));
+        facadeManager.getVolunteeringFacade().requestHoursApproval("EyalShapiro", volId, Date.from(LocalDateTime.of(2025,1,6,10,0).atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()));
 
-        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volId, List.of("Dance", "Art"));
-        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volId2, List.of("Dance", "Yoga"));
-
-        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "What", new AddressTuple("Beer Sheva", "", ""));
-        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId2, "What", new AddressTuple("Tel Aviv", "", ""));
-
-        System.out.println("doneeeeeeeeeeeeeeeeee");
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", volId, "plz i also want join");
     }
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){
@@ -346,6 +347,46 @@ public class VolunteeringService {
         try{
             List<String> codes = facadeManager.getVolunteeringFacade().getConstantCodes(userId, volunteeringId);
             return Response.createResponse(codes);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ScheduleAppointmentDTO>> getVolunteerAppointments(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteerAppointments(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ScheduleRangeDTO>> getVolunteerAvailableRanges(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteerAvailableRanges(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringHourRequests(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<JoinRequest>> getVolunteeringJoinRequests(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(new LinkedList<>(facadeManager.getVolunteeringFacade().getVolunteeringJoinRequests(userId, volunteeringId).values()));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Integer> getUserAssignedLocation(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getUserAssignedLocation(userId, volunteeringId));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }

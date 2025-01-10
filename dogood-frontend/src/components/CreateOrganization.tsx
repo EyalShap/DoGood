@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { createOrganization, editOrganization, getOrganization } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import OrganizationModel from '../models/OrganizationModel';
+import './../css/CreateOrganization.css'
 
 interface OrganizationFormData {
   name: string;
@@ -72,7 +73,7 @@ function CreateOrganization() {
     }, [id])
 
     return (
-      <form onSubmit={handleSubmit(contactSubmit)}>
+      <form className = "create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
         <h1>{edit? "Edit Organization" : "Create Organization"}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <label htmlFor="name">Organization Name:</label>

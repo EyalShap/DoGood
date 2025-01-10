@@ -5,7 +5,7 @@ import RequestModel from "../models/RequestModel";
 import VolunteeringModel from "../models/VolunteeringModel";
 import ReportModel from "../models/ReportModel";
 
-const server: string = 'http://127.0.0.1:8080/api/reports';
+const server: string = 'http://192.168.1.28:8080/api/reports';
 
 export const createReport = async (reportedPostId: number, description: string): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");

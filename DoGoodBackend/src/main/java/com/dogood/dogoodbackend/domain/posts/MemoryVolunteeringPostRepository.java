@@ -16,13 +16,20 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
-    public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
+    public int getNextVolunteeringPostId() {
+        return nextPostId;
+    }
+
+    @Override
+    public int createVolunteeringPost(VolunteeringPost volunteeringPost) {
         if(posts.containsKey(nextPostId)) {
             throw new IllegalArgumentException(PostErrors.makePostIdAlreadyExistsError(nextPostId));
         }
+        if(volunteeringPost == null) {
+            throw new IllegalArgumentException(PostErrors.makePostIsNotValidError());
+        }
 
-        VolunteeringPost newVolunteeringPost = new VolunteeringPost(nextPostId, title, description, posterUsername, volunteeringId, organizationId);
-        posts.put(nextPostId, newVolunteeringPost);
+        posts.put(nextPostId, volunteeringPost);
         nextPostId++;
         return nextPostId - 1;
     }

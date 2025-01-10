@@ -224,24 +224,28 @@ function Organization() {
 
             {isManager && 
             (<div className = 'orgInfoButtons'>
-                    <button onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>
-                    <button onClick={handleRemoveOrganizationOnClick}>Remove Organization</button>
-                    <button onClick={handleEditOrganizationOnClick}>Edit Organization</button>
+                <button onClick={handleRemoveOrganizationOnClick}>Remove Organization</button>
+                <button onClick={handleEditOrganizationOnClick}>Edit Organization</button>
             </div>)}
 
             <div className="volunteerings">
                 <h2>Volunteerings</h2>
                 {volunteerings.length > 0 ? (
                     volunteerings.map((volunteering, index) => (
-                        <div key={index} className="volunteeringItem">
+                        <div
+                            key={index}
+                            className="volunteeringItem"
+                            onClick={() => handleShowVolunteeringOnClick(volunteering.id)}
+                            style={{ cursor: 'pointer' }} // Indicate it's clickable
+                        >
                             <h3>{volunteering.name}</h3>
                             <p>{volunteering.description}</p>
-                            <button onClick={() => handleShowVolunteeringOnClick(volunteering.id)}>show</button>
                         </div>
                     ))
                 ) : (
                     <p>No volunteerings available.</p>
                 )}
+                <button onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>
             </div>
 
             {isManager &&

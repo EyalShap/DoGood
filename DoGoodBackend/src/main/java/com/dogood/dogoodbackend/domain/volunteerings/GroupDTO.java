@@ -13,9 +13,9 @@ public class GroupDTO {
     private List<String> users;
 
     private Map<String, Integer> volunteersToLocation;
-    private Map<Integer, List<ScheduleRangeDTO>> locationToRanges;
+    private Map<Integer, List<Integer>> locationToRanges;
 
-    public GroupDTO(int id, List<String> users, Map<String, Integer> volunteersToLocation, Map<Integer, List<ScheduleRangeDTO>> locationToRanges) {
+    public GroupDTO(int id, List<String> users, Map<String, Integer> volunteersToLocation, Map<Integer, List<Integer>> locationToRanges) {
         this.id = id;
         this.users = new LinkedList<>();
         this.volunteersToLocation = volunteersToLocation;
@@ -34,7 +34,7 @@ public class GroupDTO {
         return volunteersToLocation;
     }
 
-    public Map<Integer, List<ScheduleRangeDTO>> getLocationToRanges() {
+    public Map<Integer, List<Integer>> getLocationToRanges() {
         return locationToRanges;
     }
 }

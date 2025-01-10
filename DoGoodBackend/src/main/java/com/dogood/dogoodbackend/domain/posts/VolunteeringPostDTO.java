@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
 
 public class VolunteeringPostDTO extends PostDTO{
     private int volunteeringId;
@@ -37,5 +38,18 @@ public class VolunteeringPostDTO extends PostDTO{
 
     public void setOrganizationId(int organizationId) {
         this.organizationId = organizationId;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VolunteeringPostDTO that = (VolunteeringPostDTO) o;
+        return volunteeringId == that.volunteeringId && organizationId == that.organizationId;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(volunteeringId, organizationId);
     }
 }

@@ -16,7 +16,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 
-@ExtendWith(MockitoExtension.class)
 class OrganizationsFacadeMemoryIntegrationTest {
     private OrganizationsFacade organizationsFacade;
     private int organizationId;

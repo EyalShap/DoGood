@@ -49,4 +49,9 @@ public class OrganizationErrors {
     public static String makeOrganizationIdDoesNotExistError(int organizationId) {
         return String.format("An organization with id %d does not exist." ,organizationId);
     }
+
+    public static String makeInvalidOrganizationError() {
+        return "This organization is invalid.";
+    }
+
 }

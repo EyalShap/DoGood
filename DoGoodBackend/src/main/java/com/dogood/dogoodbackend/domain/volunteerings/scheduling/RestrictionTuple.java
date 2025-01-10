@@ -1,7 +1,10 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import jakarta.persistence.Embeddable;
+
 import java.time.LocalTime;
 
+@Embeddable
 public class RestrictionTuple {
     private LocalTime startTime;
     private LocalTime endTime;
@@ -12,6 +15,8 @@ public class RestrictionTuple {
         this.endTime = endTime;
         this.amount = amount;
     }
+
+    public RestrictionTuple() {}
 
     public LocalTime getStartTime() {
         return startTime;

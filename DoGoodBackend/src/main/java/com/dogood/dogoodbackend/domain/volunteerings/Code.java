@@ -1,7 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
-import java.util.Date;
+import jakarta.persistence.Embeddable;
 
+@Embeddable
 public class Code {
     private String code;
     private long created;
@@ -9,6 +10,10 @@ public class Code {
     public Code(String code, long created) {
         this.code = code;
         this.created = created;
+    }
+
+    public Code() {
+
     }
 
     public String getCode() {

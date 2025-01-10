@@ -50,7 +50,7 @@ public class MemoryVolunteeringRepository implements VolunteeringRepository{
     }
 
     @Override
-    public void updateVolunteeringInDB(int volunteeringId) {
+    public void updateVolunteeringInDB(Volunteering volunteering) {
         return;
     }
 
@@ -69,6 +69,9 @@ public class MemoryVolunteeringRepository implements VolunteeringRepository{
 
     @Override
     public Date getFirstVolunteerScan(int volunteeringId, String userId) {
+        if(!firstScans.containsKey(volunteeringId)){
+            return null;
+        }
         return firstScans.get(volunteeringId).get(userId);
     }
 }
