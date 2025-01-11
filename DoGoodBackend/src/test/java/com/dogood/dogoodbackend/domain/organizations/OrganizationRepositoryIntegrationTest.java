@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,20 +28,19 @@ class OrganizationRepositoryIntegrationTest {
     private final String actor1 = "TheDoctor";
 
 
+
     @BeforeAll
     static void setUpBeforeAll() {
         memoryOrganizationRepository = new MemoryOrganizationRepository();
-        dbOrganizationRepository = new DBOrganizationRepository();
+        dbOrganizationRepository = new DBOrganizationRepository(null);
     }
 
     @BeforeEach
     void setUpBeforeEach() {
-        memOrgId = memoryOrganizationRepository.getNextOrganizationId();
-        dbOrgId = dbOrganizationRepository.getNextOrganizationId();
+        memOrgId = memoryOrganizationRepository.createOrganization(name, description, phoneNumber, email, actor1);
+        dbOrgId = dbOrganizationRepository.createOrganization(name, description, phoneNumber, email, actor1);
         this.memOrganization = new Organization(memOrgId, name, description, phoneNumber, email, actor1);
         this.dbOrganization = new Organization(dbOrgId, name, description, phoneNumber, email, actor1);
-        memoryOrganizationRepository.createOrganization(memOrganization);
-        dbOrgId = dbOrganizationRepository.createOrganization(dbOrganization);
     }
 
     @AfterEach
@@ -72,20 +72,18 @@ class OrganizationRepositoryIntegrationTest {
     void givenValidFields_whenCreateOrganization_thenCreate(OrganizationRepository organizationRepository) {
         Organization organization1 = organizationRepository == memoryOrganizationRepository ? memOrganization : dbOrganization;
 
-        int orgId2 = organizationRepository.getNextOrganizationId();
-        Organization organization2 = new Organization(orgId2, "Magen David Kachol", "Water services", "0548195544", "madk@gmail.com", actor1);
 
         List<Organization> expectedBeforeAdd = new ArrayList<>();
         expectedBeforeAdd.add(organization1);
 
+        List<Organization> resBeforeAdd = organizationRepository.getAllOrganizations();
+        assertEquals(expectedBeforeAdd, resBeforeAdd);
+        int orgId2 = organizationRepository.createOrganization("Magen David Kachol", "Water services", "0548195544", "madk@gmail.com", actor1);
+        Organization organization2 = new Organization(orgId2, "Magen David Kachol", "Water services", "0548195544", "madk@gmail.com", actor1);
+
         List<Organization> expectedAfterAdd = new ArrayList<>();
         expectedAfterAdd.add(organization1);
         expectedAfterAdd.add(organization2);
-
-        List<Organization> resBeforeAdd = organizationRepository.getAllOrganizations();
-        assertEquals(expectedBeforeAdd, resBeforeAdd);
-
-        organizationRepository.createOrganization(organization2);
         List<Organization> resAfterAdd = organizationRepository.getAllOrganizations();
         assertEquals(expectedAfterAdd, resAfterAdd);
     }
@@ -106,12 +104,10 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingId_whenRemoveOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        int newId = organizationRepository.getNextOrganizationId();
-
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            organizationRepository.removeOrganization(newId);
+            organizationRepository.removeOrganization(orgId + 1);
         });
-        assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(newId), exception.getMessage());
+        assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(orgId + 1), exception.getMessage());
     }
 
     @ParameterizedTest

@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -8,23 +9,56 @@ import java.util.Objects;
 
 import static com.dogood.dogoodbackend.utils.ValidateFields.*;
 
+@Entity
+@Table(name = "organizations")
 public class Organization {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "organization_id")
     private int id;
+
+    @Column(name = "organization_name")
     private String name;
+
+    @Column(name = "organization_description")
     private String description;
+
+    @Column(name = "organization_phone_number")
     private String phoneNumber;
+
+    @Column(name = "organization_email")
     private String email;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "organization_volunteering_ids", joinColumns = @JoinColumn(name = "organization_id"))
+    @Column(name = "volunteering_id")
     private List<Integer> volunteeringIds;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "organization_managers", joinColumns = @JoinColumn(name = "organization_id"))
+    @Column(name = "manager_username")
     private List<String> managerUsernames;
+
+    @Column(name = "organization_founder")
     private String founderUsername;
 
+    public Organization() {}
+
     public Organization(int id, String name, String description, String phoneNumber, String email, String actor) {
-        String isValidOrg = isValid(id, name, description, phoneNumber, email);
+        this.id = id;
+        setFields(name, description, phoneNumber, email, actor);
+    }
+
+    public Organization(String name, String description, String phoneNumber, String email, String actor) {
+        setFields(name, description, phoneNumber, email, actor);
+    }
+
+    private void setFields(String name, String description, String phoneNumber, String email, String actor) {
+        String isValidOrg = isValid(name, description, phoneNumber, email);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
 
-        this.id = id;
         this.name = name;
         this.description = description;
         this.phoneNumber = phoneNumber;
@@ -35,11 +69,8 @@ public class Organization {
         this.founderUsername = actor;
     }
 
-    private String isValid(int id, String name, String description, String phoneNumber, String email) {
+    private String isValid(String name, String description, String phoneNumber, String email) {
         StringBuilder res = new StringBuilder();
-        if(id < 0) {
-            res.append(String.format("Invalid id: %d.\n", id));
-        }
         if(!isValidText(name, 2, 50)) {
             res.append(String.format("Invalid organization name: %s.\n", name));
         }
@@ -64,7 +95,7 @@ public class Organization {
     }
 
     public void editOrganization(String newName, String newDescription, String newPhoneNumber, String newEmail) {
-        String isValidOrg = isValid(id, newName, newDescription, newPhoneNumber, newEmail);
+        String isValidOrg = isValid(newName, newDescription, newPhoneNumber, newEmail);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
@@ -120,7 +151,7 @@ public class Organization {
         if(!volunteeringIds.contains(volunteeringId)) {
             throw new IllegalArgumentException(OrganizationErrors.makeVolunteeringDoesNotExistsError(volunteeringId, name));
         }
-        this.volunteeringIds.remove(volunteeringId);
+        boolean removed = this.volunteeringIds.remove(Integer.valueOf(volunteeringId));
     }
 
     public String getName() {
@@ -154,6 +185,15 @@ public class Organization {
     public String getFounderUsername() {
         return founderUsername;
     }
+
+    public void setVolunteeringIds(List<Integer> volunteeringIds) {
+        this.volunteeringIds = volunteeringIds;
+    }
+
+    public void setManagers(List<String> managers) {
+        this.managerUsernames = managers;
+    }
+
 
     @Override
     public boolean equals(Object o) {

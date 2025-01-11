@@ -3,10 +3,12 @@ package com.dogood.dogoodbackend.domain.organizations;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 public class OrganizationsFacade {
     private OrganizationRepository organizationRepository;
     private RequestRepository requestRepository;
@@ -25,9 +27,7 @@ public class OrganizationsFacade {
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
         //TODO: check if user exists and logged in
 
-        int organizationId = organizationRepository.getNextOrganizationId();
-        Organization organization = new Organization(organizationId, name, description, phoneNumber, email, actor);
-        return organizationRepository.createOrganization(organization);
+        return organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
     }
 
     public void removeOrganization(int organizationId, String actor) {
@@ -56,12 +56,13 @@ public class OrganizationsFacade {
         //TODO: check if user exists and logged in
 
         Organization organization = organizationRepository.getOrganization(organizationId);
-        if(!organization.isManager(actor) && !isAdmin(actor)) {
+        if(!isManager(actor, organizationId) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "create a new volunteering"));
         }
 
         int volunteeringId = volunteeringFacade.createVolunteering(actor, organizationId, volunteeringName, volunteeringDescription);
         organization.addVolunteering(volunteeringId);
+        organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
 
         return volunteeringId;
     }
@@ -75,6 +76,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "remove a volunteering"));
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
+        organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
@@ -103,9 +105,9 @@ public class OrganizationsFacade {
 
         Request request = requestRepository.getRequest(actor, organizationId);
         Organization organization = organizationRepository.getOrganization(organizationId);
-
         if(approved) {
             organization.addManager(actor);
+            organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
         }
         requestRepository.deleteRequest(actor, organizationId);
 
@@ -120,6 +122,7 @@ public class OrganizationsFacade {
 
         Organization organization = organizationRepository.getOrganization(organizationId);
         organization.resign(actor);
+        organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
     }
 
     public void removeManager(String actor, String managerToRemove, int organizationId) {
@@ -132,6 +135,7 @@ public class OrganizationsFacade {
         }
 
         organization.removeManager(managerToRemove);
+        organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
     }
 
     public void setFounder(String actor, String newFounder, int organizationId) {
@@ -143,7 +147,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, organization.getName(), "set a new founder to the organization"));
         }
 
-        organization.setFounder(newFounder);
+        organizationRepository.setFounder(organizationId, newFounder);
     }
 
     public List<Request> getUserRequests(String actor) {

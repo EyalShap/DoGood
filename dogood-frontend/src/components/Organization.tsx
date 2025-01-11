@@ -1,9 +1,10 @@
 import OrganizationModel from '../models/OrganizationModel';
 import { useEffect, useState } from 'react'
 import './../css/Organization.css'
-import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign } from '../api/organization_api'
+import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, removeVolunteering } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
+import Volunteering from './Volunteering';
 
 function Organization() {
     const navigate = useNavigate();
@@ -207,6 +208,24 @@ function Organization() {
     const handleShowVolunteeringOnClick = (volunteeringId: number) => {
         navigate(`/volunteering/${volunteeringId}`);
     }
+
+    const handleRemoveVolunteeringOnClick = async (volunteeringId: number) => {
+        if (window.confirm(`Are you sure you want to remove this volunteering?`)) {
+            if(id !== undefined) {
+                try {
+                    await removeVolunteering(parseInt(id), volunteeringId);
+                    let new_volunteerings = volunteerings.filter((volunteering) => volunteering.id !== volunteeringId)
+                    setVolunteerings(new_volunteerings);
+                }
+                catch(e) {
+                    alert(e);
+                }
+            }
+            else {
+                alert("Error");
+            }
+        }
+    }
     
     return (
         <div>
@@ -235,11 +254,11 @@ function Organization() {
                         <div
                             key={index}
                             className="volunteeringItem"
-                            onClick={() => handleShowVolunteeringOnClick(volunteering.id)}
-                            style={{ cursor: 'pointer' }} // Indicate it's clickable
                         >
                             <h3>{volunteering.name}</h3>
                             <p>{volunteering.description}</p>
+                            <button onClick={() => handleShowVolunteeringOnClick(volunteering.id)}>Show</button>
+                            <button onClick={() => handleRemoveVolunteeringOnClick(volunteering.id)}>Remove</button>
                         </div>
                     ))
                 ) : (

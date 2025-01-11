@@ -1,10 +1,23 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.UserVolunteerDateKT;
+import jakarta.persistence.*;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "requests")
+@IdClass(RequestKey.class)
 public class Request {
+    @Id
+    @Column(name = "assignee_username")
     private String assigneeUsername;
+
+    @Column(name = "assigner_username")
     private String assignerUsername;
+
+    @Id
+    @Column(name = "organization_id")
     private int organizationId;
 
     public Request(String assigneeUsername, String assignerUsername, int organizationId) {
@@ -12,6 +25,8 @@ public class Request {
         this.assignerUsername = assignerUsername;
         this.organizationId = organizationId;
     }
+
+    public Request() {}
 
     public String getAssignerUsername() {
         return assignerUsername;
