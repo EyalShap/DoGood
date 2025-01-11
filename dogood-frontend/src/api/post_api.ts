@@ -2,8 +2,9 @@ import APIResponse from "../models/APIResponse";
 import axios from "axios";
 import { VolunteeringPostModel } from "../models/VolunteeringPostModel";
 import PastExperienceModel from "../models/PastExpreienceModel";
+import { host } from "./general";
 
-const server: string = 'http://192.168.1.28:8080/api/posts';
+const server: string = `http://${host}/api/posts`;
 
 export const createVolunteeringPost = async (title: string, description: string, volunteeringId: number): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");

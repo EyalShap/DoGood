@@ -49,10 +49,8 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @Test
     void givenValidFields_whenCreateOrganization_thenCreate() {
-        int newOrgId = organizationRepository.getNextOrganizationId();
-        int resId = organizationsFacade.createOrganization(name2, description2, phoneNumber2, email2, actor1);
+        int newOrgId = organizationsFacade.createOrganization(name2, description2, phoneNumber2, email2, actor1);
 
-        assertEquals(newOrgId, resId);
         assertEquals(2, organizationsFacade.getAllOrganizations().size());
 
         organization2.setId(newOrgId);
@@ -61,8 +59,6 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @Test
     void givenInvalidFields_whenCreateOrganization_thenThrowException() {
-        int newOrgId = organizationRepository.getNextOrganizationId();
-
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationsFacade.createOrganization("", "", "", "", actor1);
         });

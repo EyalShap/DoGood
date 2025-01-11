@@ -39,6 +39,9 @@ public class VolunteeringService {
         int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
                 "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
                 "TheDoctor");
+        facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Construction of sleep pods",
+                "mmmm sleep pods",
+                "TheDoctor");
         facadeManager.getVolunteeringFacade().updateVolunteeringScanDetails("TheDoctor", volId, ScanTypes.DOUBLE_SCAN, ApprovalType.AUTO_FROM_SCAN);
 
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
@@ -56,10 +59,8 @@ public class VolunteeringService {
                 Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()));
 
         facadeManager.getPostsFacade().createVolunteeringPost("post1", "description1", "TheDoctor", volId);
-        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", volId, "plz i also want join");
-        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "DanaFriedman", 0);
-        facadeManager.getVolunteeringFacade().finishVolunteering("DanaFriedman", volId, "Great");
-        facadeManager.getVolunteeringFacade().finishVolunteering("EyalShapiro", volId, "Amazing");
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", 2, "plz i also want join");
+        facadeManager.getVolunteeringFacade().updateVolunteering("TheDoctor", volId, "Burgerrooms", "Everyone left so now we are burgerrooms");
 
     }
 
