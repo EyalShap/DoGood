@@ -37,15 +37,15 @@ class OrganizationRepositoryUnitTest {
     @BeforeAll
     static void setUpBeforeAll() {
         memoryOrganizationRepository = new MemoryOrganizationRepository();
-        dbOrganizationRepository = new DBOrganizationRepository();
+        dbOrganizationRepository = new DBOrganizationRepository(null);
     }
 
     @BeforeEach
     void setUpBeforeEach() {
         MockitoAnnotations.openMocks(OrganizationRepositoryUnitTest.class);
 
-        memOrgId = memoryOrganizationRepository.createOrganization(organizationMock1);
-        dbOrgId = dbOrganizationRepository.createOrganization(organizationMock1);
+        memOrgId = memoryOrganizationRepository.createOrganization("Organization", "Description", "0541987066", "org@gmail.com", "TheDoctor");
+        dbOrgId = dbOrganizationRepository.createOrganization("Organization", "Description", "0541987066", "org@gmail.com", "TheDoctor");
     }
 
     @AfterEach
@@ -84,18 +84,9 @@ class OrganizationRepositoryUnitTest {
         List<Organization> resBeforeAdd = organizationRepository.getAllOrganizations();
         assertEquals(expectedBeforeAdd, resBeforeAdd);
 
-        organizationRepository.createOrganization(organizationMock2);
+        organizationRepository.createOrganization("NewOrganization", "NewDescription", "0541987067", "neworg@gmail.com", "TheDoctor");
         List<Organization> resAfterAdd = organizationRepository.getAllOrganizations();
         assertEquals(expectedAfterAdd, resAfterAdd);
-    }
-
-    @ParameterizedTest
-    @MethodSource("repoProvider")
-    void givenNullOrganization_whenCreateOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            organizationRepository.createOrganization(null);
-        });
-        assertEquals(OrganizationErrors.makeInvalidOrganizationError(), exception.getMessage());
     }
 
     @ParameterizedTest

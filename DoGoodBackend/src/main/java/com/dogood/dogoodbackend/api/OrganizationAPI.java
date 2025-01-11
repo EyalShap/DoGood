@@ -64,6 +64,13 @@ public class OrganizationAPI {
         return organizationService.createVolunteering(token, orgId, volunteeringName, description, actor);
     }
 
+    @DeleteMapping("/removeVolunteering")
+    public Response<Boolean> removeVolunteering(@RequestParam int organizationId, @RequestParam int volunteeringId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.removeVolunteering(token, organizationId, volunteeringId, actor);
+    }
+
     @PostMapping("/sendAssignManagerRequest")
     public Response<Boolean> sendAssignManagerRequest(@RequestBody GeneralRequest assignManagerRequest, @RequestParam String newManager, HttpServletRequest request) {
         String token = getToken(request);

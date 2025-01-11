@@ -1,6 +1,8 @@
 package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
+import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
+import com.dogood.dogoodbackend.domain.organizations.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.organizations.MemoryOrganizationRepository;
 import com.dogood.dogoodbackend.domain.organizations.MemoryRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
@@ -9,10 +11,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringReposit
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
-import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
-import com.dogood.dogoodbackend.jparepos.ApprovedHoursJPA;
-import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
-import com.dogood.dogoodbackend.jparepos.VolunteeringJPA;
+import com.dogood.dogoodbackend.jparepos.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +25,9 @@ public class ServiceConfig {
         //this is singleton
         return new FacadeManager(
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
-                new MemoryOrganizationRepository(),
+                new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
                 new MemoryVolunteeringPostRepository(),
-                new MemoryRequestRepository(),
+                new DBRequestRepository(applicationContext.getBean(RequestJPA.class)),
                 new MemoryReportRepository(),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),

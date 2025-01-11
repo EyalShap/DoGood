@@ -66,6 +66,18 @@ public class OrganizationService {
         }
     }
 
+    public Response<Boolean> removeVolunteering(String token, int organizationId, int volunteeringId, String actor) {
+        //TODO: check token
+
+        try {
+            organizationsFacade.removeVolunteering(organizationId, volunteeringId, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Boolean> sendAssignManagerRequest(String token, String newManager, String actor, int organizationId) {
         //TODO: check token
 

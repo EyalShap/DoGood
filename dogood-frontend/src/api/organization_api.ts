@@ -114,6 +114,29 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
     return response.data;
 }
 
+export const removeVolunteering = async (organizationId: number, volunteeringId: number) => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+    
+    let url = `${server}/removeVolunteering?organizationId=${organizationId}&volunteeringId=${volunteeringId}&actor=${username}`;
+    console.log(url)
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.delete(url, config);
+    console.log(res);
+    const response: APIResponse<Boolean> = await res.data;
+
+    if(response.error){
+        throw response.errorString;
+    }
+}
+
 export const sendAssignManagerRequest = async (organizationId: number, newManager: string) => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
