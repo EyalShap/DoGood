@@ -3,11 +3,13 @@ package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
 import com.dogood.dogoodbackend.jparepos.ApprovedHoursJPA;
 import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional
 public class DatabaseSchedulingManager implements SchedulingManager{
     private HourRequestJPA hourRequestJPA;
     private AppointmentJPA appointmentJPA;
@@ -142,5 +144,11 @@ public class DatabaseSchedulingManager implements SchedulingManager{
             }
         }
         return count;
+    }
+
+    @Override
+    public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
+        hourRequestJPA.deleteByVolunteeringId(volunteeringId);
+        appointmentJPA.deleteByVolunteeringId(volunteeringId);
     }
 }

@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
+import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import jakarta.transaction.Transactional;
 
@@ -18,6 +19,7 @@ public class VolunteeringFacade {
     private final double APPROVAL_PERCENTAGE = 0.75;
     private SchedulingFacade schedulingFacade;
     private OrganizationsFacade organizationFacade;
+    private PostsFacade postsFacade;
     //private UserFacade userFacade;
 
 
@@ -32,6 +34,10 @@ public class VolunteeringFacade {
         return organizationFacade.isManager(userId, organizationId);
     }
 
+    public void setPostsFacade(PostsFacade postsFacade) {
+        this.postsFacade = postsFacade;
+    }
+
     private void loggedInCheck(String userId){
         //do a logged in check and throw exception if not because i forgot
         if(false){
@@ -42,6 +48,11 @@ public class VolunteeringFacade {
     private boolean userExists(String userId){
         loggedInCheck(userId);
         //return userFacade.userExists(userId);
+        return true;
+    }
+
+    private boolean isAdmin(String userId){
+        //return userFacade.isAdmin(userId);
         return true;
     }
 
@@ -59,10 +70,12 @@ public class VolunteeringFacade {
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
-        if(!isManager(userId, volunteering.getOrganizationId())){
-            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        if(!isAdmin(userId) || !isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " cannot remove volunteering " + volunteeringId);
         }
         repository.disableVolunteering(volunteeringId);
+        postsFacade.removePostsByVolunteeringId(volunteeringId);
+        schedulingFacade.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
         organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId);
     }
 
