@@ -16,12 +16,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-@Repository
 public class DBOrganizationRepository implements OrganizationRepository{
     private OrganizationJPA jpa;
-
-    @PersistenceContext
-    private EntityManager entityManager;
 
     public DBOrganizationRepository(OrganizationJPA jpa) {
         this.jpa = jpa;
