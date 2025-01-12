@@ -19,6 +19,7 @@ public class Group {
     @Column(name="id")
     private int id;
     @Id
+    @Column(name = "volunteering_id", nullable = false)
     private int volunteeringId;
 
     @ElementCollection

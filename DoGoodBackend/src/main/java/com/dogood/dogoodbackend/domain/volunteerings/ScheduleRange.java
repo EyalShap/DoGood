@@ -20,6 +20,7 @@ public class ScheduleRange {
     @Column(name="id")
     private int id;
     @Id
+    @Column(name = "volunteering_id", nullable = false)
     private int volunteeringId;
     private LocalTime startTime;
     private LocalTime endTime;

@@ -4,6 +4,8 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -31,13 +33,15 @@ public class Volunteering {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> imagePaths;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "volunteeringId")
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "volunteering_id", updatable = false)
     @MapKey(name="id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Map<Integer,Location> locations;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "volunteeringId")
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "volunteering_id", updatable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @MapKey(name="id")
     private Map<Integer, Group> groups;
 
@@ -49,11 +53,13 @@ public class Volunteering {
     @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name="volunteering_joinrequests_mapping")
     @MapKeyJoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Map<String, JoinRequest> pendingJoinRequests;
 
-    @OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JoinColumn(name = "volunteeringId")
+    @OneToMany(cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.REFRESH}, fetch = FetchType.LAZY, orphanRemoval = true)
+    @JoinColumn(name = "volunteering_id", updatable = false)
     @MapKey(name="id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     private Map<Integer, ScheduleRange> scheduleRanges;
 
     private ScanTypes scanTypes;

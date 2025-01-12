@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRange;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,6 +9,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+@Transactional
 public class SchedulingFacade {
     private SchedulingManager manager;
     public SchedulingFacade(SchedulingManager manager) {
@@ -83,5 +85,9 @@ public class SchedulingFacade {
 
     public List<ScheduleAppointmentDTO> getUserAppointments(String userId, List<Integer> volunteeringIds){
         return manager.getUserAppointments(userId, volunteeringIds).stream().map(sched -> sched.getDTO()).toList();
+    }
+
+    public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
+        manager.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
     }
 }

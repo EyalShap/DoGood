@@ -209,4 +209,14 @@ public class MemorySchedulingManager implements SchedulingManager{
         }
         return count;
     }
+
+    @Override
+    public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
+        if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
+            hourApprovalRequestsMapping.remove(volunteeringId);
+        }
+        if(appointmentsMapping.containsKey(volunteeringId)){
+            appointmentsMapping.remove(volunteeringId);
+        }
+    }
 }

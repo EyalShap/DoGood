@@ -61,7 +61,7 @@ public class VolunteeringService {
         facadeManager.getPostsFacade().createVolunteeringPost("post1", "description1", "TheDoctor", volId);
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", 2, "plz i also want join");
         facadeManager.getVolunteeringFacade().updateVolunteering("TheDoctor", volId, "Burgerrooms", "Everyone left so now we are burgerrooms");
-
+        facadeManager.getVolunteeringFacade().removeVolunteering("TheDoctor", volId);
     }
 
 
