@@ -66,7 +66,7 @@ public class OrganizationService {
         }
     }
 
-    public Response<Boolean> removeVolunteering(String token, int organizationId, int volunteeringId, String actor) {
+    /*public Response<Boolean> removeVolunteering(String token, int organizationId, int volunteeringId, String actor) {
         //TODO: check token
 
         try {
@@ -76,7 +76,7 @@ public class OrganizationService {
         catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
-    }
+    }*/
 
     public Response<Boolean> sendAssignManagerRequest(String token, String newManager, String actor, int organizationId) {
         //TODO: check token
@@ -203,6 +203,18 @@ public class OrganizationService {
 
         try {
             String res = organizationsFacade.getOrganization(organizationId).getName();
+            return Response.createResponse(res, null);
+        }
+        catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+
+    public Response<List<Integer>> getUserVolunteeerings(String token, String actor, int organizationId) {
+        //TODO: check token
+
+        try {
+            List<Integer> res = organizationsFacade.getUserVolunteerings(organizationId, actor);
             return Response.createResponse(res, null);
         }
         catch (Exception e) {

@@ -6,6 +6,7 @@ import { getAllReports, removeReport } from '../api/report_api';
 import ReportModel from '../models/ReportModel';
 import { getVolunteeringPost } from '../api/post_api';
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
+import './../css/ReportList.css'
 
 function ReportList() {
     const navigate = useNavigate();
@@ -72,15 +73,20 @@ function ReportList() {
                 {reports.length > 0 ? (
                     reports.map((report, index) => (
                         <div key={index} className="reportItem">
-                            <h3>Report on post: {postTitles[report.id]}</h3>
-                            <p>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
-                            <p>Issue: {report.description}</p>
-                            <button onClick={() => handleShowOnClick(report.reportedPostId)}>Show Post</button>
-                            <button onClick={() => handleDeleteOnClick(report.id)}>Delete Report</button>
+                            <div id = "info"> 
+                                <h3>Report on post: {postTitles[report.id]}</h3>
+                                <p>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
+                                <p>Issue: {report.description}</p>
+                            </div>
+
+                            <div id = "buttons">
+                                <button onClick={() => handleShowOnClick(report.reportedPostId)}>Show Post</button>
+                                <button onClick={() => handleDeleteOnClick(report.id)}>Delete Report</button>
+                            </div>
                         </div>
                     ))
                 ) : (
-                    <p>No reports available.</p>
+                    <p id = "noReports">No reports available.</p>
                 )}
             </div>
             

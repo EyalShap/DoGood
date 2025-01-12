@@ -43,6 +43,11 @@ public class DBRequestRepository implements RequestRepository{
 
     @Override
     public List<Request> getUserRequests(String username) {
-        return jpa.findUserRequests(username);
+        return jpa.findByAssigneeUsername(username);
+    }
+
+    @Override
+    public void removeOrganizationRequests(int organizationId) {
+        jpa.deleteByOrganizationId(organizationId);
     }
 }

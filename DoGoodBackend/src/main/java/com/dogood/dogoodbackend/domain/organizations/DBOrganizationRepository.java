@@ -3,8 +3,6 @@ package com.dogood.dogoodbackend.domain.organizations;
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import jakarta.transaction.Transactional;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 import java.util.Optional;
 

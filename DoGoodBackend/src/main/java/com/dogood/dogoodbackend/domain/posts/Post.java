@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import jakarta.persistence.*;
 import org.apache.lucene.analysis.en.EnglishAnalyzer;
 
 import java.time.LocalDateTime;
@@ -11,33 +12,62 @@ import java.util.stream.Collectors;
 
 import static com.dogood.dogoodbackend.utils.ValidateFields.isValidText;
 
+@Entity
+@Inheritance(strategy = InheritanceType.TABLE_PER_CLASS)
 public abstract class Post {
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "post_id")
     private int id;
+
+    @Column(name = "post_title")
     private String title;
+
+    @Column(name = "post_description")
     private String description;
+
+    @Column(name = "post_posting_time")
     private LocalDateTime postedTime;
+
+    @Column(name = "post_last_edit_time")
     private LocalDateTime lastEditedTime; // nicer in the UI
+
+    @Column(name = "post_poster_username")
     private String posterUsername;
+
+    @Column(name = "post_num_of_join_requests")
     private int numOfPeopleRequestedToJoin; //this is to calculate popularity, TODO: something better in beta version
+
+    @Transient
     private int relevance;
 
     public Post(int id, String title, String description, String posterUsername) {
-        String isValidOrg = isValid(id, title, description);
+        this.id = id;
+        setFields(title, description, posterUsername);
+    }
+
+    public Post(String title, String description, String posterUsername) {
+        setFields(title, description, posterUsername);
+    }
+
+    private void setFields(String title, String description, String posterUsername) {
+        String isValidOrg = isValid(title, description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
 
-        this.id = id;
         this.title = title;
         this.description = description;
-        this.postedTime = title.equals("post3") ? LocalDateTime.now() : LocalDateTime.of(2024, 12, 31, 5, 12);
+        this.postedTime = LocalDateTime.now();
         this.lastEditedTime = this.postedTime;
         this.posterUsername = posterUsername;
-        this.numOfPeopleRequestedToJoin = title.equals("post2") ? 3 : 0;
+        this.numOfPeopleRequestedToJoin = 0;
         this.relevance = -1;
     }
 
-    private String isValid(int id, String title, String description) {
+    public Post() {}
+
+    private String isValid(String title, String description) {
         StringBuilder res = new StringBuilder();
         if(id < 0) {
             res.append(String.format("Invalid id: %d.\n", id));
@@ -52,7 +82,7 @@ public abstract class Post {
     }
 
     public void edit(String title, String description) {
-        String isValidOrg = isValid(id, title, description);
+        String isValidOrg = isValid(title, description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }

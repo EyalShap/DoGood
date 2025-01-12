@@ -38,6 +38,12 @@ public class OrganizationsFacade {
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toRemove.getName(), "remove the organization"));
         }
+        //for(int volunteeringId : toRemove.getVolunteeringIds()) {
+        //    volunteeringFacade.removeVolunteering(actor, volunteeringId);
+        //}
+        requestRepository.removeOrganizationRequests(organizationId);
+        organizationRepository.setManagers(organizationId, new ArrayList<>());
+        organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
     }
 
@@ -67,7 +73,7 @@ public class OrganizationsFacade {
         return volunteeringId;
     }
 
-    public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
+    /*public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
         //TODO: check if user exists and logged in
 
         Organization organization = organizationRepository.getOrganization(organizationId);
@@ -77,7 +83,7 @@ public class OrganizationsFacade {
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
-    }
+    }*/
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
         //TODO: check if user exists and logged in
@@ -160,6 +166,17 @@ public class OrganizationsFacade {
         Organization organization = organizationRepository.getOrganization(organizationId);
         OrganizationDTO organizationDTO = new OrganizationDTO(organization);
         return organizationDTO;
+    }
+
+    public List<Integer> getUserVolunteerings(int organizationId, String actor) {
+        List<Integer> res = new ArrayList<>();
+        List<Integer> orgVolunteeringIds = getOrganization(organizationId).getVolunteeringIds();
+        for(int volunteeringId : orgVolunteeringIds) {
+            if(volunteeringFacade.getHasVolunteer(actor, volunteeringId)) {
+                res.add(volunteeringId);
+            }
+        }
+        return res;
     }
 
     public List<OrganizationDTO> getAllOrganizations() {

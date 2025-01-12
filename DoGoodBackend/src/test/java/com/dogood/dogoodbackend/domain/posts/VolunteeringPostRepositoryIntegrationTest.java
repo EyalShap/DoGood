@@ -35,18 +35,16 @@ class VolunteeringPostRepositoryIntegrationTest {
     @BeforeAll
     static void setUpBeforeAll() {
         memoryVolunteeringPostRepository = new MemoryVolunteeringPostRepository();
-        dbVolunteeringPostRepository = new DBVolunteeringPostRepository();
+        dbVolunteeringPostRepository = new DBVolunteeringPostRepository(null);
     }
 
     @BeforeEach
     void setUpBeforeEach() {
-        this.memPostId = memoryVolunteeringPostRepository.getNextVolunteeringPostId();
+        this.memPostId = memoryVolunteeringPostRepository.createVolunteeringPost(title, description, actor1, volunteeringId, organizationId);
         this.memVolunteeringPost = new VolunteeringPost(memPostId, title, description, actor1, volunteeringId, organizationId);
-        memoryVolunteeringPostRepository.createVolunteeringPost(memVolunteeringPost);
 
-        dbPostId = dbVolunteeringPostRepository.getNextVolunteeringPostId();
+        this.dbPostId = dbVolunteeringPostRepository.createVolunteeringPost(title, description, actor1, volunteeringId, organizationId);
         this.dbVolunteeringPost = new VolunteeringPost(dbPostId, title, description, actor1, volunteeringId, organizationId);
-        dbVolunteeringPostRepository.createVolunteeringPost(dbVolunteeringPost);
     }
 
     @AfterEach
@@ -75,31 +73,21 @@ class VolunteeringPostRepositoryIntegrationTest {
     void givenNonNullPost_whenCreateVolunteeringPost_thenCreate(VolunteeringPostRepository volunteeringPostRepository) {
         VolunteeringPost post1 = getPostByRepo(volunteeringPostRepository);
 
-        int newPostId = volunteeringPostRepository.getNextVolunteeringPostId();
-        VolunteeringPost post2 = new VolunteeringPost(newPostId, "Blah", "Blah", actor1, 1, 2);
 
         List<VolunteeringPost> expectedBeforeAdd = new ArrayList<>();
         expectedBeforeAdd.add(post1);
 
+        List<VolunteeringPost> resBeforeAdd = volunteeringPostRepository.getAllVolunteeringPosts();
+        assertEquals(expectedBeforeAdd, resBeforeAdd);
+
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", actor1, 1, 2);
+        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", actor1, 1, 2);
         List<VolunteeringPost> expectedAfterAdd = new ArrayList<>();
         expectedAfterAdd.add(post1);
         expectedAfterAdd.add(post2);
 
-        List<VolunteeringPost> resBeforeAdd = volunteeringPostRepository.getAllVolunteeringPosts();
-        assertEquals(expectedBeforeAdd, resBeforeAdd);
-
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost(post2);
         List<VolunteeringPost> resAfterAdd = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expectedAfterAdd, resAfterAdd);
-    }
-
-    @ParameterizedTest
-    @MethodSource("repoProvider")
-    void givenNullPost_whenCreatePost_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.createVolunteeringPost(null);
-        });
-        assertEquals(PostErrors.makePostIsNotValidError(), exception.getMessage());
     }
 
     @ParameterizedTest
@@ -193,21 +181,19 @@ class VolunteeringPostRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenOrganizationId_whenGetOrganizationVolunteeringPosts_thenReturn(VolunteeringPostRepository volunteeringPostRepository) {
-        VolunteeringPost expectedPost1 = getPostByRepo(volunteeringPostRepository);
-        int newPostId = volunteeringPostRepository.getNextVolunteeringPostId();
-        VolunteeringPost post2 = new VolunteeringPost(newPostId, "Blah", "Blah", actor1, 1, 1);
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", actor1, 1, 1);
+        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", actor1, 1, 1);
 
+        List<VolunteeringPost> res1 = volunteeringPostRepository.getOrganizationVolunteeringPosts(0);
+        List<VolunteeringPost> res2 = volunteeringPostRepository.getOrganizationVolunteeringPosts(1);
+        List<VolunteeringPost> res3 = volunteeringPostRepository.getOrganizationVolunteeringPosts(2);
+
+        VolunteeringPost expectedPost1 = getPostByRepo(volunteeringPostRepository);
         List<VolunteeringPost> expected1 = new ArrayList<>();
         expected1.add(expectedPost1);
         List<VolunteeringPost> expected2 = new ArrayList<>();
         expected2.add(post2);
         List<VolunteeringPost> expected3 = new ArrayList<>();
-
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost(post2);
-
-        List<VolunteeringPost> res1 = volunteeringPostRepository.getOrganizationVolunteeringPosts(0);
-        List<VolunteeringPost> res2 = volunteeringPostRepository.getOrganizationVolunteeringPosts(1);
-        List<VolunteeringPost> res3 = volunteeringPostRepository.getOrganizationVolunteeringPosts(2);
 
         assertEquals(expected1, res1);
         assertEquals(expected2, res2);

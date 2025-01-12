@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 public interface ReportRepository {
     public Report createReport(String reportingUser, int reportedPostId, String description);
     public void removeReport(int reportId);
+    public void removePostReports(int postId);
     public void editReport(int reportId, String description);
     public Report getReport(int reportId);
     public List<Report> getAllReports();

@@ -2,6 +2,7 @@ import { useForm, SubmitHandler } from 'react-hook-form';
 import { useParams } from "react-router-dom";
 import { createVolunteering } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
+import './../css/CreateVolunteering.css'
 
 interface VolunteeringFormData {
   name: string;
@@ -32,7 +33,7 @@ function CreateVolunteering() {
     };
 
     return (
-      <form onSubmit={handleSubmit(contactSubmit)}>
+      <form className = "create-volunteering-form" onSubmit={handleSubmit(contactSubmit)}>
         <h1>Create Volunteering</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <label htmlFor="name">Volunteering Name:</label>
