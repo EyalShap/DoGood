@@ -34,15 +34,15 @@ class VolunteeringPostRepositoryUnitTest {
     @BeforeAll
     static void setUpBeforeAll() {
         memoryVolunteeringPostRepository = new MemoryVolunteeringPostRepository();
-        dbVolunteeringPostRepository = new DBVolunteeringPostRepository();
+        dbVolunteeringPostRepository = new DBVolunteeringPostRepository(null);
     }
 
     @BeforeEach
     void setUpBeforeEach() {
         MockitoAnnotations.openMocks(VolunteeringPostRepositoryUnitTest.class);
 
-        memPostId1 = memoryVolunteeringPostRepository.createVolunteeringPost(volunteeringPostMock1);
-        dbPostId1 = dbVolunteeringPostRepository.createVolunteeringPost(volunteeringPostMock1);
+        memPostId1 = memoryVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
+        dbPostId1 = dbVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
     }
 
     @AfterEach
@@ -79,18 +79,9 @@ class VolunteeringPostRepositoryUnitTest {
         List<VolunteeringPost> resBeforeAdd = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expectedBeforeAdd, resBeforeAdd);
 
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost(volunteeringPostMock2);
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Title2", "Description2", "TheDoctor", 0, 0);
         List<VolunteeringPost> resAfterAdd = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expectedAfterAdd, resAfterAdd);
-    }
-
-    @ParameterizedTest
-    @MethodSource("repoProvider")
-    void givenNullPost_whenCreatePost_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
-        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.createVolunteeringPost(null);
-        });
-        assertEquals(PostErrors.makePostIsNotValidError(), exception.getMessage());
     }
 
     @ParameterizedTest
@@ -184,7 +175,7 @@ class VolunteeringPostRepositoryUnitTest {
         expected2.add(volunteeringPostMock2);
         List<VolunteeringPost> expected3 = new ArrayList<>();
 
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost(volunteeringPostMock2);
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Title2", "Description2", "TheDoctor", 0, 0);
         when(volunteeringPostMock1.getOrganizationId()).thenReturn(0);
         when(volunteeringPostMock2.getOrganizationId()).thenReturn(1);
 

@@ -6,7 +6,7 @@ import jakarta.persistence.*;
 import java.util.Objects;
 
 @Entity
-@Table(name = "requests")
+@Table(name = "assign_manager_requests")
 @IdClass(RequestKey.class)
 public class Request {
     @Id

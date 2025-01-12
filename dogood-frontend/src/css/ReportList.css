@@ -1,0 +1,121 @@
+/* General styles */
+body {
+    font-family: 'Roboto', Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    color: #333;
+    box-sizing: border-box;
+  }
+  
+  .Reports {
+    max-width: 1100px;
+    margin: 30px auto;
+    padding: 25px;
+    background: linear-gradient(135deg, #ffffff, #f9f9f9);
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Header */
+  .Reports h2 {
+    font-size: 2.8rem;
+    color: #222;
+    margin-bottom: 15px;
+    text-align: center;
+  }
+  
+  /* Request Item */
+  .reportItem {
+    padding: 20px;
+    margin: 15px 0;
+    border-radius: 10px;
+    background: #ffffff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between; 
+    align-items: center;
+  }
+  
+
+  .reportItem h3 {
+    font-size: 1.5rem;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .reportItem p {
+    font-size: 1.1rem;
+    color: #555;
+    margin-bottom: 10px;
+    line-height: 1.5;
+  }
+  
+  /* Buttons */
+  .reportItem button {
+    margin: 5px;
+    padding: 12px 18px;
+    font-size: 1rem;
+    color: #fff;
+    background: linear-gradient(135deg, #007bff, #0056b3);
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    height: 40px;
+  }
+
+  
+  /* No Reports available */
+  #noReports {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+  
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .Reports {
+      padding: 20px;
+    }
+  
+    .Reports h2 {
+      font-size: 2rem;
+    }
+  
+    .reportItem h3 {
+      font-size: 1.3rem;
+    }
+  
+    .reportItem p {
+      font-size: 1rem;
+    }
+  
+    .reportItem button {
+      font-size: 0.85rem;
+      padding: 10px;
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .Reports h2 {
+      font-size: 1.8rem;
+    }
+  
+    .reportItem h3 {
+      font-size: 1.2rem;
+    }
+  
+    .reportItem p {
+      font-size: 0.9rem;
+    }
+  
+    .reportItem button {
+      font-size: 0.85rem;
+      padding: 10px;
+    }
+  }
+
+  

@@ -112,13 +112,6 @@ body {
   background: #ffffff;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
-  cursor: pointer;
-}
-
-.volunteerings .volunteeringItem:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-  background: #f0f8ff; 
 }
 
 .volunteerings .volunteeringItem h3 {
@@ -193,13 +186,6 @@ body {
     font-size: 1.5rem;
   }
 
-  .volunteerings .volunteeringItem h3 {
-    font-size: 1.3rem;
-  }
-
-  .volunteerings .volunteeringItem p {
-    font-size: 1rem;
-  }
 
   .managers li {
     font-size: 1rem;
@@ -212,6 +198,8 @@ body {
     margin-top: 10px;
     width: 100%;
     text-align: center;
+    font-size: 0.85rem;
+    padding: 8px;
   }
 }
 
@@ -229,16 +217,6 @@ body {
     padding: 10px;
   }
 
-  .managers li button {
-    font-size: 0.85rem;
-    padding: 8px;
-  }
 
-  .volunteerings .volunteeringItem h3 {
-    font-size: 1.2rem;
-  }
 
-  .volunteerings .volunteeringItem p {
-    font-size: 0.9rem;
-  }
 }

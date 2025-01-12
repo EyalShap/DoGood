@@ -1,7 +1,7 @@
 package com.dogood.dogoodbackend.jparepos;
 
-import com.dogood.dogoodbackend.domain.organizations.Request;
-import com.dogood.dogoodbackend.domain.organizations.RequestKey;
+import com.dogood.dogoodbackend.domain.posts.Post;
+import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -12,10 +12,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface RequestJPA extends JpaRepository<Request, RequestKey> {
-    List<Request> findByAssigneeUsername(String assigneeUsername);
+public interface VolunteeringPostJPA extends JpaRepository<VolunteeringPost, Integer> {
+    List<VolunteeringPost> findByOrganizationId(int organizationId);
 
     @Modifying
     @Transactional
-    Long deleteByOrganizationId(int organizationId);
+    Long deleteByVolunteeringId(int volunteeringId);
 }

@@ -2,14 +2,26 @@ package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.stereotype.Repository;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public class DBOrganizationRepository implements OrganizationRepository{
     private OrganizationJPA jpa;
+
+    @PersistenceContext
+    private EntityManager entityManager;
 
     public DBOrganizationRepository(OrganizationJPA jpa) {
         this.jpa = jpa;

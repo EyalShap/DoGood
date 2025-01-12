@@ -2,6 +2,7 @@ import { getOrganizationName, getUserRequests, handleAssignManagerRequest } from
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import RequestModel from '../models/RequestModel';
+import './../css/ManagerRequestsList.css'
 
 function ManagerRequestsList() {
     const navigate = useNavigate();
@@ -65,15 +66,20 @@ function ManagerRequestsList() {
                 {requests.length > 0 ? (
                     requests.map((request, index) => (
                         <div key={index} className="requestItem">
-                            <h3>Organization name: {organizationNames[request.organizationId]}</h3>
-                            <p>Sent by: {request.assignerUsername}</p>
-                            <button onClick={() => handleShowOnClick(request.organizationId)}>Show Organization</button>
-                            <button onClick={() => handleApproveOnClick(request.organizationId)}>Approve</button>
-                            <button onClick={() => handleDenyOnClick(request.organizationId)}>Deny</button>
+                            <div id = "info">
+                                <h3>Organization name: {organizationNames[request.organizationId]}</h3>
+                                <p>Sent by: {request.assignerUsername}</p>
+                            </div>
+
+                            <div id = "buttons"> 
+                                <button onClick={() => handleShowOnClick(request.organizationId)}>Show Organization</button>
+                                <button onClick={() => handleApproveOnClick(request.organizationId)}>V</button>
+                                <button onClick={() => handleDenyOnClick(request.organizationId)}>X</button>
+                            </div>
                         </div>
                     ))
                 ) : (
-                    <p>No requests available.</p>
+                    <p id = "noRequests">No requests available.</p>
                 )}
             </div>
         </div>

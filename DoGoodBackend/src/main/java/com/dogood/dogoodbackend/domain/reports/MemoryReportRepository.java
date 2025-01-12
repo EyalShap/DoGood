@@ -54,6 +54,15 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
+    public void removePostReports(int postId) {
+        for(Report report : reports.values()) {
+            if(report.getReportedPostId() == postId) {
+                reports.remove(report);
+            }
+        }
+    }
+
+    @Override
     public void editReport(int reportId, String description) {
         if(!reports.containsKey(reportId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));

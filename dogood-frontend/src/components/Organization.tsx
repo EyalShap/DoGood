@@ -1,16 +1,18 @@
 import OrganizationModel from '../models/OrganizationModel';
 import { useEffect, useState } from 'react'
 import './../css/Organization.css'
-import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, removeVolunteering } from '../api/organization_api'
+import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import Volunteering from './Volunteering';
+import { getVolunteering } from '../api/volunteering_api';
 
 function Organization() {
     const navigate = useNavigate();
     const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: ""});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
+    const [userVolunteerings, setUserVolunteerings] = useState<number[]>([]);
     const [volunteerings, setVolunteerings] = useState<{ name: string; description: string; id: number }[]>([]);
     const [ready, setReady] = useState(false);
     const [showAddManager, setShowAddManager] = useState(false);
@@ -31,6 +33,10 @@ function Organization() {
         try {
             const volunteeringDetails = await getOrganizationVolunteerings(model.id);
             setVolunteerings(volunteeringDetails);
+
+            const userVolunteerings = await getUserVolunteerings(model.id);
+            setUserVolunteerings(userVolunteerings);
+
             setReady(true);
         } catch (e) {
             // send to error page
@@ -209,7 +215,7 @@ function Organization() {
         navigate(`/volunteering/${volunteeringId}`);
     }
 
-    const handleRemoveVolunteeringOnClick = async (volunteeringId: number) => {
+    /*const handleRemoveVolunteeringOnClick = async (volunteeringId: number) => {
         if (window.confirm(`Are you sure you want to remove this volunteering?`)) {
             if(id !== undefined) {
                 try {
@@ -225,6 +231,10 @@ function Organization() {
                 alert("Error");
             }
         }
+    }*/
+
+    const isVolunteer = (volunteeringId: number) : boolean => {
+        return userVolunteerings.includes(volunteeringId);
     }
     
     return (
@@ -257,14 +267,13 @@ function Organization() {
                         >
                             <h3>{volunteering.name}</h3>
                             <p>{volunteering.description}</p>
-                            <button onClick={() => handleShowVolunteeringOnClick(volunteering.id)}>Show</button>
-                            <button onClick={() => handleRemoveVolunteeringOnClick(volunteering.id)}>Remove</button>
+                            {(isVolunteer(volunteering.id) || isManager) && <button onClick={() => handleShowVolunteeringOnClick(volunteering.id)}>Show</button>}
                         </div>
                     ))
                 ) : (
                     <p>No volunteerings available.</p>
                 )}
-                <button onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>
+                {isManager && <button onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>}
             </div>
 
             {isManager &&

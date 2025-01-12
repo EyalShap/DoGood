@@ -2,7 +2,6 @@ package com.dogood.dogoodbackend.api;
 
 import com.dogood.dogoodbackend.api.postrequests.CreateVolunteeringPostRequest;
 import com.dogood.dogoodbackend.api.postrequests.FilterPostsRequest;
-import com.dogood.dogoodbackend.api.postrequests.SearchPostRequest;
 import com.dogood.dogoodbackend.api.volunteeringrequests.SortRequest;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
@@ -171,5 +170,12 @@ public class PostAPI {
         String token = getToken(request);
 
         return postService.getPostPastExperiences(token, actor, postId);
+    }
+
+    @GetMapping("/getVolunteeringName")
+    public Response<String> getVolunteeringName(@RequestParam int volunteeringId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getVolunteeringName(token, actor, volunteeringId);
     }
 }
