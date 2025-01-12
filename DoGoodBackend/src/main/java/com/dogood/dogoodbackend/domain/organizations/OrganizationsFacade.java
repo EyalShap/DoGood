@@ -73,7 +73,7 @@ public class OrganizationsFacade {
         return volunteeringId;
     }
 
-    /*public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
+    public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
         //TODO: check if user exists and logged in
 
         Organization organization = organizationRepository.getOrganization(organizationId);
@@ -83,7 +83,7 @@ public class OrganizationsFacade {
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
-    }*/
+    }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
         //TODO: check if user exists and logged in
