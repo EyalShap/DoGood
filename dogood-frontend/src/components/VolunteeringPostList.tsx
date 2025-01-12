@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
 import { filterPosts, getAllOrganizationNames, getAllPostsCategories, getAllPostsCities, getAllPostsSkills, getAllVolunteeringNames, getAllVolunteeringPosts, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
 import { useNavigate } from 'react-router-dom';
+import './../css/VolunteeringPostList.css'
 
 function VolunteeringPostList() {
     const navigate = useNavigate();
@@ -171,25 +172,22 @@ function VolunteeringPostList() {
     }
 
     return (
-        <div>
+        <div >
             <div className="Posts">
-                <h2>Posts</h2>
+                <h1 id = "header">Posts</h1>
 
                 <div className="search">
-                <label>
-                    Search:
-                    <input
-                    type="text"
-                    value={search}
-                    onChange={handleSearchChange}
-                    />
-                </label>
+                        
+                        <input id = "searchTextbox"
+                        type="text"
+                        value={search}
+                        onChange={handleSearchChange}
+                        placeholder = "Search..."
+                        />
 
-                <button onClick={handleSearchOnClick}>Search</button>
-                </div>
+                    <button id = "searchButton" onClick={handleSearchOnClick}>Search</button>
 
-                <div className = "sort">
-                    <select onChange={handleSelectionChange} value={sortFunction}>
+                    <select id = "sortTypeSelection" onChange={handleSelectionChange} value={sortFunction}>
                         <option value = "">Sort by</option>
                         <option value = "relevance">Relevance</option>
                         <option value = "popularity">Popularity</option>
@@ -197,6 +195,8 @@ function VolunteeringPostList() {
                         <option value = "last edit time">Last edit time</option>
                     </select>
                 </div>
+
+                
 
                 <div className = "filterByCategory" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
                 <label>Filter by category: </label>
@@ -283,17 +283,22 @@ function VolunteeringPostList() {
                 ))}
                 </div>
                 
-            {posts.length > 0 ? (
-                posts.map((post, index) => (
-                    <div key={index} className="postItem">
-                        <h3>{post.title}</h3>
-                        <p>{post.description}</p>
-                        <button onClick={() => handleShowOnClick(post.id)}>Show</button>
-                    </div>
-                ))
-            ) : (
-                <p>No volunteering posts available.</p>
-            )}
+                <div id = "postList">
+                    {posts.length > 0 ? (
+                        posts.map((post, index) => (
+                            <div key={index} className="postItem" onClick={() => handleShowOnClick(post.id)}>
+                                <h3>{post.title}</h3>
+                                <p>{post.description}</p>
+                                <img 
+                                    src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg" 
+                                    alt="Dog" 
+                                    />
+                            </div>
+                        ))
+                    ) : (
+                        <p>No volunteering posts available.</p>
+                    )}
+                </div>
 
             </div>
         </div>

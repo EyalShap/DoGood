@@ -3,14 +3,11 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
 import com.dogood.dogoodbackend.domain.organizations.DBRequestRepository;
-import com.dogood.dogoodbackend.domain.organizations.MemoryOrganizationRepository;
-import com.dogood.dogoodbackend.domain.organizations.MemoryRequestRepository;
-import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
+import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
+import com.dogood.dogoodbackend.domain.reports.DBReportRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
-import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
@@ -26,9 +23,9 @@ public class ServiceConfig {
         return new FacadeManager(
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
-                new MemoryVolunteeringPostRepository(),
+                new DBVolunteeringPostRepository(applicationContext.getBean(VolunteeringPostJPA.class)),
                 new DBRequestRepository(applicationContext.getBean(RequestJPA.class)),
-                new MemoryReportRepository(),
+                new DBReportRepository(applicationContext.getBean(ReportJPA.class)),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class),

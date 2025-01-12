@@ -61,4 +61,17 @@ public class MemoryRequestRepository implements RequestRepository{
         }
         return new ArrayList<>();
     }
+
+    @Override
+    public void removeOrganizationRequests(int organizationId) {
+        for(String username : requests.keySet()) {
+            Map<Integer, Request> userRequests = requests.get(username);
+            if(userRequests.containsKey(organizationId)) {
+                userRequests.remove(organizationId);
+            }
+            if(userRequests.isEmpty()) {
+                requests.remove(username);
+            }
+        }
+    }
 }

@@ -475,3 +475,26 @@ export const getPostPastExperiences = async (postId : number): Promise<PastExper
     let experiences: PastExperienceModel[] = response.data;
     return experiences;
 }
+
+export const getVolunteeringName = async (volunteeringId : number): Promise<string> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getVolunteeringName?volunteeringId=${volunteeringId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let name: string = response.data;
+    return name;
+}

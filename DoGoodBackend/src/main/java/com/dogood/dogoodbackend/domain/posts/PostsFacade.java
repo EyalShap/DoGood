@@ -2,20 +2,24 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import com.dogood.dogoodbackend.utils.PostErrors;
+import jakarta.transaction.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Transactional
 public class PostsFacade {
     private VolunteeringPostRepository volunteeringPostRepository;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
+    private ReportsFacade reportsFacade;
     private KeywordExtractor keywordExtractor;
 
     public PostsFacade(VolunteeringPostRepository volunteeringPostRepository, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor) {
@@ -23,6 +27,10 @@ public class PostsFacade {
         this.volunteeringFacade = volunteeringFacade;
         this.organizationsFacade = organizationsFacade;
         this.keywordExtractor = keywordExtractor;
+    }
+
+    public void setReportsFacade(ReportsFacade reportsFacade) {
+        this.reportsFacade = reportsFacade;
     }
 
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId) {
@@ -37,9 +45,8 @@ public class PostsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(posterUsername, organizationName, "post about the organization's volunteering"));
         }
 
-        int postId = volunteeringPostRepository.getNextVolunteeringPostId();
-        VolunteeringPost newPost = new VolunteeringPost(postId, title, description, posterUsername, volunteeringId, organizationId);
-        return volunteeringPostRepository.createVolunteeringPost(newPost);
+        int postId = volunteeringPostRepository.createVolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);
+        return postId;
     }
 
     private boolean isAllowedToMakePostAction(String actor, VolunteeringPost post) {
@@ -55,6 +62,7 @@ public class PostsFacade {
         return post.getPosterUsername().equals(actor);
     }
 
+    @Transactional
     public void removeVolunteeringPost(int postId, String actor) {
         //TODO: check if user exists and logged in
 
@@ -63,8 +71,14 @@ public class PostsFacade {
         if(!isAllowedToMakePostAction(actor, toRemove)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(postId, actor, "remove"));
         }
+        reportsFacade.removePostReports(postId);
         volunteeringPostRepository.removeVolunteeringPost(postId);
     }
+
+    public void removePostsByVolunteeringId(int volunteeringId) {
+        volunteeringPostRepository.removePostsByVolunteeringId(volunteeringId);
+    }
+
 
     public void editVolunteeringPost(int postId, String title, String description, String actor) {
         //TODO: check if user exists and logged in
@@ -114,8 +128,7 @@ public class PostsFacade {
         int volunteeringId = volunteeringPostRepository.getVolunteeringIdByPostId(postId);
         volunteeringFacade.requestToJoinVolunteering(actor, volunteeringId, freeText);
 
-        Post post = volunteeringPostRepository.getVolunteeringPost(postId);
-        post.incNumOfPeopleRequestedToJoin();
+        volunteeringPostRepository.incNumOfPeopleRequestedToJoin(postId);
     }
 
     public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
@@ -359,6 +372,10 @@ public class PostsFacade {
     public List<PastExperience> getPostPastExperiences(int postId) {
         int volunteeringId = volunteeringPostRepository.getVolunteeringIdByPostId(postId);
         return volunteeringFacade.getVolunteeringPastExperiences(volunteeringId);
+    }
+
+    public String getVolunteeringName(int volunteeringId) {
+        return volunteeringFacade.getVolunteeringDTO(volunteeringId).getName();
     }
 
     // TODO: remove when users facade is implemented

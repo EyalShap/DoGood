@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { createVolunteeringPost, editVolunteeringPost, getVolunteeringPost } from '../api/post_api';
 import React, { useEffect, useState } from 'react';
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
+import './../css/CreateVolunteeringPost.css'
 
 interface VolunteeringPostFormData {
   title: string;
@@ -69,7 +70,7 @@ function CreatePost() {
   }, [id])
 
     return (
-      <form onSubmit={handleSubmit(contactSubmit)}>
+      <form className = "create-volunteering-post-form" onSubmit={handleSubmit(contactSubmit)}>
         <h1>{edit ? "Edit Volunteering Post" : "Create Volunteering Post"}</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
           <label htmlFor="title">Post Title:</label>

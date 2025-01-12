@@ -3,6 +3,7 @@ import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
 import RequestModel from "../models/RequestModel";
 import VolunteeringModel from "../models/VolunteeringModel";
+import { getVolunteering } from "./volunteering_api";
 
 const server: string = 'http://192.168.1.28:8080/api/organizations';
 
@@ -114,7 +115,7 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
     return response.data;
 }
 
-export const removeVolunteering = async (organizationId: number, volunteeringId: number) => {
+/*export const removeVolunteering = async (organizationId: number, volunteeringId: number) => {
     let username: string | null = sessionStorage.getItem("username");
     let token: string | null = sessionStorage.getItem("token");
 
@@ -135,7 +136,7 @@ export const removeVolunteering = async (organizationId: number, volunteeringId:
     if(response.error){
         throw response.errorString;
     }
-}
+}*/
 
 export const sendAssignManagerRequest = async (organizationId: number, newManager: string) => {
     let username: string | null = sessionStorage.getItem("username");
@@ -363,3 +364,22 @@ export const getOrganizationName = async (organizationId: number): Promise<strin
     }
     return response.data;
 }
+
+export const getUserVolunteerings = async (organizationId: number): Promise<number[]> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+    
+    let url = `${server}/getUserVolunteerings?organizationId=${organizationId}&actor=${username}`;
+    console.log("Request URL:", url); // Log the URL to check for issues
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.get(url, config);
+    const response: APIResponse<number[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+

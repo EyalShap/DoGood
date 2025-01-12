@@ -1,9 +1,18 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Table;
+
 import java.util.Objects;
 
+@Entity
+@Table(name = "volunteering_posts")
 public class VolunteeringPost extends Post{
+    @Column(name = "volunteering_id")
     private int volunteeringId;
+
+    @Column(name = "organization_id")
     private int organizationId;
 
     public VolunteeringPost(int id, String title, String description, String posterUsername, int volunteeringId, int organizationId) {
@@ -11,6 +20,14 @@ public class VolunteeringPost extends Post{
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
     }
+
+    public VolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
+        super(title, description, posterUsername);
+        this.volunteeringId = volunteeringId;
+        this.organizationId = organizationId;
+    }
+
+    public VolunteeringPost() {}
 
     public int getVolunteeringId() {
         return volunteeringId;
