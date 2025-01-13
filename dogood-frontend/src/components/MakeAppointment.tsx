@@ -1,5 +1,6 @@
 import { DayPilotCalendar, DayPilot } from '@daypilot/daypilot-lite-react';
 import './../css/Volunteering.css'
+import "./../css/MakeAppointment.css"
 import { useEffect, useState } from 'react';
 import ScheduleRange from '../models/ScheduleRange';
 import { getUserAssignedLocationData, getVolunteerAvailableRanges, getVolunteerGroup, makeAppointment } from '../api/volunteering_api';
@@ -60,15 +61,15 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
 
 
     return (
-        <div>
+        <div className='maker'>
             <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
             {range.oneTime !== null && <p>At {range.oneTime}</p>}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
-                <TimePicker ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
             </LocalizationProvider>
             {range.weekDays !== null &&
-            <div> 
+            <div className='selector'> 
             <FormControl>
                 <FormLabel>Weekly or One Time?</FormLabel>
                 <RadioGroup
@@ -129,7 +130,7 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
                     </FormGroup>
                 </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)}/></LocalizationProvider>}
                 </div>}
-                <button onClick={send}>Make Appointment</button>
+                <button className='sendButton' onClick={send}>Make Appointment</button>
         </div>
     )
 }
@@ -240,12 +241,14 @@ function MakeAppointment() {
     const isMobile = width <= 768;
 
     return (
-        <div>
+        <div className='makeAppointment'>
             <h1>Available appointment ranges for Group {group} at {location.name} for {sessionStorage.getItem("username")}</h1>
-            <div>
-                <button onClick={() => addWeeks(-1)}>Last Week</button>
-                <button onClick={() => addWeeks(1)}>Next Week</button>
+            <div className='weekButtons'>
+                <button className='left weekButton' onClick={() => addWeeks(-1)}>← Last Week</button>
+                <button className='right weekButton' onClick={() => addWeeks(1)}>Next Week →</button>
             </div>
+            <div className='calender'>
+                <div className='innercalender'>
             <DayPilotCalendar
                 startDate={new DayPilot.Date(startDate, true)}
                 viewType='Week'
@@ -255,6 +258,7 @@ function MakeAppointment() {
                 cellHeight={isMobile ? 15 : 30}
                 headerTextWrappingEnabled={true}
                 onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
+                </div></div>
             {selectedRange === null || selectedRange === undefined ? <></> :
                 <ActualAppointmentMaker volunteeringId={parseInt(id!)} range={selectedRange!} />
             }

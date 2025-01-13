@@ -1,0 +1,88 @@
+.makeAppointment {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.weekButtons {
+    width: 40%;
+    display: flex;
+    flex-direction: row;
+    align-self: center;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 5px;
+}
+
+.left{
+    margin-right: 10px;
+}
+
+.right{
+    margin-left: 10px;
+}
+
+.weekButton{
+    background-color: white;
+    width: 20%;
+    height: 35px;
+    border-color: #1066A8;
+    color: #1066A8;
+    font-weight: bold;
+    font-size: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 5px;
+}
+
+.maker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timePicker {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.sendButton{
+    background-color: white;
+    width: 50%;
+    height: 50px;
+    border-color: #105090;
+    color: #105090;
+    font-weight: bold;
+    font-size: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 5px;
+    margin-bottom: 10px;
+}
+
+
+.selector{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+
+@media (max-width: 500px) {
+    .weekButton{
+        width: 80%;
+    }
+
+    .weekButtons{
+        width: 100%;
+    }
+
+    .calender {
+        overflow-x: scroll;
+    }
+
+    .innercalender {
+        width: 1000px;
+    }
+}

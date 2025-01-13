@@ -114,14 +114,17 @@ function AppointmentCalender({ volunteeringId } : {volunteeringId:number}) {
                 <button onClick={() => addWeeks(-1)}>Last Week</button>
                 <button onClick={() => addWeeks(1)}>Next Week</button>
             </div>
-            <DayPilotCalendar 
-            startDate={new DayPilot.Date(startDate, true)} 
-            viewType='Week' 
-            headerDateFormat='dddd dd/MM/yyyy'
-            events={events}
-            height={isMobile ? 100 : 300}
-            cellHeight={isMobile ? 15 : 30}
-            headerTextWrappingEnabled={true}/>
+            <div className='calender'>
+                <div className='innercalender'>
+            <DayPilotCalendar
+                startDate={new DayPilot.Date(startDate, true)}
+                viewType='Week'
+                headerDateFormat='dddd dd/MM/yyyy'
+                events={events}
+                height={isMobile ? 100 : 300}
+                cellHeight={isMobile ? 15 : 30}
+                headerTextWrappingEnabled={true} />
+                </div></div>
         </div>
     )
 }
