@@ -5,8 +5,8 @@ import ScheduleAppointment from "../models/ScheduleAppointment";
 import HourApprovalRequest from "../models/HourApprovalRequest";
 import JoinRequest from "../models/JoinRequest";
 import { host } from "./general";
-
-const loremIpsum = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.";
+import ScheduleRange from "../models/ScheduleRange";
+import Location from "../models/Location";
 
 const server = host;
 
@@ -40,6 +40,18 @@ export const getVolunteerAppointments = async (volunteeringId: number): Promise<
     };
     let res = await axios.get(`http://${server}/api/volunteering/getVolunteerAppointments?volunteeringId=${volunteeringId}&userId=${sessionStorage.getItem('username')}`, config);
     const response: APIResponse<ScheduleAppointment[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getVolunteerAvailableRanges = async (volunteeringId: number): Promise<ScheduleRange[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getVolunteerAvailableRanges?volunteeringId=${volunteeringId}&userId=${sessionStorage.getItem('username')}`, config);
+    const response: APIResponse<ScheduleRange[]> = await res.data;
     if(response.error){
         throw response.errorString;
     }
@@ -169,6 +181,66 @@ export const denyUserJoinRequest = async (volunteeringId: number, volunteerId: s
         requesterId: volunteerId
     }
     let res = await axios.put(`http://${server}/api/volunteering/denyUserJoinRequest?userId=${sessionStorage.getItem('username')}`, request, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getUserAssignedLocation = async (volunteeringId: number): Promise<number> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getUserAssignedLocation?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getVolunteerGroup = async (volunteeringId: number): Promise<number> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getVolunteerGroup?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getUserAssignedLocationData = async (volunteeringId: number): Promise<Location> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getUserAssignedLocationData?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<Location> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const makeAppointment = async (volunteeringId: number, rangeId:number, startHour: number, startMinute: number, endHour: number, endMinute: number, oneTime: string | null, weekDays: boolean[] | null): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        volunteeringId: volunteeringId,
+        groupId: await getVolunteerGroup(volunteeringId),
+        locId: await getUserAssignedLocation(volunteeringId),
+        rangeId: rangeId,
+        startHour: startHour,
+        startMinute: startMinute,
+        endHour: endHour,
+        endMinute: endMinute,
+        weekdays: weekDays,
+        oneTime: oneTime
+    }
+    let res = await axios.post(`http://${server}/api/volunteering/makeAppointment?userId=${sessionStorage.getItem('username')}`, request, config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;

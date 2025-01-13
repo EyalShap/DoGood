@@ -189,19 +189,19 @@ public class ScheduleAppointment {
 
     public boolean intersect(ScheduleAppointment other) {
         if(oneTime != null && other.oneTime != null) {
-            return !oneTime.isEqual(other.getOneTime()) || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+            return oneTime.isEqual(other.getOneTime()) && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
         }
         if(weekDays != null && other.weekDays != null) {
             for(int i = 0; i < 7; i++){
                 if(weekDays[i] && other.weekDays[i]){
-                    return !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+                    return !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
                 }
             }
         }
         if(weekDays != null){
-            return weekDays[other.getOneTime().getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+            return weekDays[other.getOneTime().getDayOfWeek().getValue()%7] && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
         }
-        return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+        return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
     }
 
     @PostLoad

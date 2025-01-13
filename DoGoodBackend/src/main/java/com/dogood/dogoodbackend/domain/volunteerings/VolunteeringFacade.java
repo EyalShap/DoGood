@@ -716,6 +716,22 @@ public class VolunteeringFacade {
         return volunteering.getAssignedLocation(userId);
     }
 
+    public int getVolunteerGroup(String userId, int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getVolunteerGroup(userId);
+    }
+
+    public LocationDTO getUserAssignedLocationData(String userId, int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getAssignedLocationData(userId);
+    }
+
 
     public List<PastExperience> getVolunteeringPastExperiences(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);

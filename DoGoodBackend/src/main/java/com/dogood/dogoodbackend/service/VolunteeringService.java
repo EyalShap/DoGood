@@ -29,7 +29,7 @@ public class VolunteeringService {
     public VolunteeringService(FacadeManager facadeManager){
         this.facadeManager = facadeManager;
 
-
+/*
         //frontend testing scenarios
         int orgid = facadeManager.getOrganizationsFacade().createOrganization("OrgOrg",
                 "i dont know what to write here this will never be relevant for me",
@@ -59,9 +59,14 @@ public class VolunteeringService {
                 Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()));
 
         facadeManager.getPostsFacade().createVolunteeringPost("post1", "description1", "TheDoctor", volId);
-        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", 2, "plz i also want join");
-        facadeManager.getVolunteeringFacade().updateVolunteering("TheDoctor", volId, "Burgerrooms", "Everyone left so now we are burgerrooms");
-        facadeManager.getVolunteeringFacade().removeVolunteering("TheDoctor", volId);
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", 1, "plz i also want join");
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "DanaFriedman", 0);
+        int locId2 = facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "The Poolrooms", new AddressTuple("B7", "Ben Gurion", "Sports Centre"));
+        int rID2 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(14,0), LocalTime.of(20,0), -1,120);
+        facadeManager.getVolunteeringFacade().updateRangeWeekdays("TheDoctor",volId, 0, locId2, rID2, new boolean[]{false,true,false,false,true,true,false});
+        facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "DanaFriedman", volId, locId2);
+        int rID3 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(18,0), LocalTime.of(20,0), 60,120);
+        facadeManager.getVolunteeringFacade().updateRangeOneTimeDate("TheDoctor", volId, 0, locId2, rID3, LocalDate.of(2025, 1, 14));*/
     }
 
 
@@ -394,6 +399,22 @@ public class VolunteeringService {
     public Response<Integer> getUserAssignedLocation(String token, String userId, int volunteeringId){
         try{
             return Response.createResponse(facadeManager.getVolunteeringFacade().getUserAssignedLocation(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Integer> getVolunteerGroup(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteerGroup(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<LocationDTO> getUserAssignedLocationData(String token, String userId, int volunteeringId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getUserAssignedLocationData(userId, volunteeringId));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }

@@ -4,8 +4,9 @@ import axios from "axios";
 import RequestModel from "../models/RequestModel";
 import VolunteeringModel from "../models/VolunteeringModel";
 import { getVolunteering } from "./volunteering_api";
+import { host } from "./general";
 
-const server: string = 'http://192.168.1.28:8080/api/organizations';
+const server: string = `http://${host}/api/organizations`;
 
 export const createOrganization = async (name: string, description: string, email: string, phoneNumber: string): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");

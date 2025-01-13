@@ -195,12 +195,39 @@ public class ScheduleRange {
         if(maximumAppointmentMinutes > -1 && minutes > maximumAppointmentMinutes){
             throw new IllegalArgumentException("Must make appointment to at most " + maximumAppointmentMinutes + " minutes.");
         }
+        if(startTime.isBefore(this.startTime) || endTime.isAfter(this.endTime)){
+            throw new IllegalArgumentException("Appointment must be within range");
+        }
     }
 
     @PostLoad
     private void loadWeekDays(){
         if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
             weekDays = new boolean[]{sunday, monday, tuesday, wednesday, thursday, friday, saturday};
+        }
+    }
+
+    private boolean daysMatch(LocalDate oneTime, boolean[] weekDays) {
+        if(oneTime != null){
+            if(this.oneTime != null){
+                return oneTime.isEqual(this.oneTime);
+            }
+            return this.weekDays[oneTime.getDayOfWeek().getValue()%7];
+        }
+        if(this.oneTime != null){
+            return false;
+        }
+        for(int i = 0; i < 7; i++){
+            if(weekDays[i] && !this.weekDays[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void checkDays(LocalDate oneTime, boolean[] weekDays) {
+        if(!daysMatch(oneTime, weekDays)){
+            throw new IllegalArgumentException("Appointment days do not match range days");
         }
     }
 }

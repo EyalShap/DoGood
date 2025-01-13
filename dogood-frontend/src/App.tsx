@@ -17,10 +17,10 @@ import VolunteeringPost from './components/VolunteeringPost'
 import CreatePost from './components/CreatePost'
 import ReportList from './components/ReportList'
 import Homepage from './components/Homepage'
+import MakeAppointment from './components/MakeAppointment'
 
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
@@ -39,6 +39,7 @@ function App() {
         <Route path='/volunteering/:id/code' element={<CodeView/>}/>
         <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
         <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
+        <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
         <Route path='/scan' element={<CodeScan/>}/>
         <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
         <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
