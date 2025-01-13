@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { getIsManager, getVolunteerAppointments, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
+import { getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteering, getVolunteeringVolunteers } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -114,14 +114,17 @@ function AppointmentCalender({ volunteeringId } : {volunteeringId:number}) {
                 <button onClick={() => addWeeks(-1)}>Last Week</button>
                 <button onClick={() => addWeeks(1)}>Next Week</button>
             </div>
-            <DayPilotCalendar 
-            startDate={new DayPilot.Date(startDate, true)} 
-            viewType='Week' 
-            headerDateFormat='dddd dd/MM/yyyy'
-            events={events}
-            height={isMobile ? 100 : 300}
-            cellHeight={isMobile ? 15 : 30}
-            headerTextWrappingEnabled={true}/>
+            <div className='calender'>
+                <div className='innercalender'>
+            <DayPilotCalendar
+                startDate={new DayPilot.Date(startDate, true)}
+                viewType='Week'
+                headerDateFormat='dddd dd/MM/yyyy'
+                events={events}
+                height={isMobile ? 100 : 300}
+                cellHeight={isMobile ? 15 : 30}
+                headerTextWrappingEnabled={true} />
+                </div></div>
         </div>
     )
 }
@@ -134,6 +137,7 @@ function Volunteering() {
     const [isManager, setIsManager] = useState(false);
     const [ready, setReady] = useState(false);
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
+    const [hasLocation, setHasLocation] = useState(false)
     const fetchVolunteering = async () => {
         try{
             let found = await getVolunteering(parseInt(id!));
@@ -163,6 +167,16 @@ function Volunteering() {
             alert(e)
         }
     }
+
+    const updateHasLocation = async () => {
+        try{
+            setHasLocation((await getUserAssignedLocation(model.id)) > -1)
+        }catch(e){
+            //send to error page
+            alert(e)
+        }
+    }
+
     useEffect(() => {
         fetchVolunteering();
     }, [])
@@ -171,6 +185,12 @@ function Volunteering() {
             updatePermissions();
         }
     }, [model, ready])
+
+    useEffect(() =>{
+        if(permissionsLoaded && !isManager){
+            updateHasLocation();
+        }
+    }, [isManager, permissionsLoaded])
 
     const handlePostVolunteeringOnClick = () => {
         navigate(`./createVolunteeringPost/-1`);
@@ -207,6 +227,10 @@ function Volunteering() {
             {Object.entries(groups).map(([key, value]) => <GroupRow groupId={parseInt(key)} volunteers={value}/>)}
         </div> : <></>}
         {permissionsLoaded && !isManager ? <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
+        {!isManager && hasLocation ? 
+        <div className='scanButtons'>
+            <button onClick={() => navigate("./appointment")}>Make An Appointment</button>
+        </div> : <></>}
     </div>
   )
 }

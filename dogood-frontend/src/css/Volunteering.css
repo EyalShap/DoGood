@@ -122,4 +122,12 @@ button:active {
         width: 80%;
         font-size: 15px;
     }
+
+    .calender {
+        overflow-x: scroll;
+    }
+
+    .innercalender {
+        width: 1000px;
+    }
 }

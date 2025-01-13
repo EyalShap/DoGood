@@ -65,6 +65,7 @@ public class SchedulingFacade {
             }
         }
         range.checkMinutes(start,end);
+        range.checkDays(oneTime, weekDays);
         ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end);
         scheduleAppointment.setWeekDays(weekDays);
         scheduleAppointment.setOneTime(oneTime);

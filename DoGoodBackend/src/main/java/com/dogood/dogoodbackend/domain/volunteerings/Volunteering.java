@@ -404,10 +404,25 @@ public class Volunteering {
 
     public int getAssignedLocation(String volunteerId){
         if(!hasVolunteer(volunteerId)){
-            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + id);
+            return -1;
         }
         Group g = groups.get(volunteerToGroup.get(volunteerId));
         return g.getAssignedLocation(volunteerId);
+    }
+
+    public LocationDTO getAssignedLocationData(String volunteerId){
+        if(!hasVolunteer(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + id);
+        }
+        Group g = groups.get(volunteerToGroup.get(volunteerId));
+        return locations.get(g.getAssignedLocation(volunteerId)).getDTO();
+    }
+
+    public int getVolunteerGroup(String volunteerId){
+        if(!hasVolunteer(volunteerId)){
+            throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + id);
+        }
+        return volunteerToGroup.get(volunteerId);
     }
 
     @PostLoad
@@ -422,20 +437,20 @@ public class Volunteering {
         availableLocationId = 0;
         availableRangeId = 0;
         for(int groupId : groups.keySet()){
-            if(groupId > availableGroupId){
-                availableGroupId = groupId;
+            if(groupId >= availableGroupId){
+                availableGroupId = groupId+1;
             }
         }
 
         for(int locId : locations.keySet()){
-            if(locId > availableLocationId){
-                availableLocationId = locId;
+            if(locId >= availableLocationId){
+                availableLocationId = locId+1;
             }
         }
 
         for(int rangeId : scheduleRanges.keySet()){
-            if(rangeId > availableRangeId){
-                availableRangeId = rangeId;
+            if(rangeId >= availableRangeId){
+                availableRangeId = rangeId+1;
             }
         }
     }

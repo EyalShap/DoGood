@@ -1,8 +1,5 @@
 import APIResponse from "../models/APIResponse";
-import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
-import RequestModel from "../models/RequestModel";
-import VolunteeringModel from "../models/VolunteeringModel";
 import ReportModel from "../models/ReportModel";
 import { host } from "./general";
 
