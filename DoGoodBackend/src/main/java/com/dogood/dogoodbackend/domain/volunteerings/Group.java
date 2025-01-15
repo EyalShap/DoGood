@@ -162,4 +162,11 @@ public class Group {
     public void setVolunteeringId(int volunteeringId) {
         this.volunteeringId = volunteeringId;
     }
+
+    public List<Integer> getRangesForLocation(int locId) {
+        if(!locationToRanges.containsKey(locId)){
+            throw new IllegalArgumentException("Location not in group");
+        }
+        return locationToRanges.get(locId);
+    }
 }

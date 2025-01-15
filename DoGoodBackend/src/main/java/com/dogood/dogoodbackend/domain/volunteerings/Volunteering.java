@@ -225,6 +225,9 @@ public class Volunteering {
     public void removeLocation(int id){
         this.locations.remove(id);
         for(Group g : groups.values()){
+            for(int rangeId : g.getRangesForLocation(id)){
+                this.scheduleRanges.remove(rangeId);
+            }
             g.removeLocationIfhas(id);
         }
     }
@@ -311,7 +314,7 @@ public class Volunteering {
         if(startTime.isAfter(endTime)){
             throw new IllegalArgumentException("Start time cannot be after end time");
         }
-        if(minimumAppointmentMinutes > 0 && minimumAppointmentMinutes > 0 && minimumAppointmentMinutes > maximumAppointmentMinutes){
+        if(minimumAppointmentMinutes > 0 && maximumAppointmentMinutes > 0 && minimumAppointmentMinutes > maximumAppointmentMinutes){
             throw new IllegalArgumentException("Illegal appointment minutes range");
         }
         Group g = groups.get(groupId);
@@ -457,5 +460,17 @@ public class Volunteering {
 
     public Map<Integer, ScheduleRange> getScheduleRanges() {
         return scheduleRanges;
+    }
+
+    public List<ScheduleRangeDTO> getLocationGroupRanges(int groupId, int locId) {
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        if(!locations.containsKey(locId)){
+            throw new UnsupportedOperationException("There is no location with id "+locId);
+        }
+        Group g = groups.get(groupId);
+        List<Integer> rangeIds = g.getRangesForLocation(locId);
+        return rangeIds.stream().map(rangeId -> scheduleRanges.get(rangeId).getDTO()).toList();
     }
 }

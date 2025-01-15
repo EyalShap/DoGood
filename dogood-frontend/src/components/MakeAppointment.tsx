@@ -257,6 +257,7 @@ function MakeAppointment() {
                 height={isMobile ? 100 : 300}
                 cellHeight={isMobile ? 15 : 30}
                 headerTextWrappingEnabled={true}
+                eventMoveHandling='Disabled'
                 onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
                 </div></div>
             {selectedRange === null || selectedRange === undefined ? <></> :
