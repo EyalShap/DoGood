@@ -137,6 +137,32 @@ public class VolunteeringAPI {
                 body.getOneTime());
     }
 
+    @PostMapping("/addRestrictionToRange")
+    public Response<String> addRestrictionToRange(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.addRestrictionToRange(token, userId,
+                body.get("volunteeringId"),
+                body.get("groupId"),
+                body.get("locId"),
+                body.get("rangeId"),
+                body.get("startHour"),
+                body.get("startMinute"),
+                body.get("endHour"),
+                body.get("endMinute"),
+                body.get("amount")
+        );
+    }
+
+    @DeleteMapping("/removeRestrictionFromRange")
+    public Response<String> removeRestrictionFromRange(@RequestParam String userId,
+                                                    @RequestParam int volunteeringId,
+                                                    @RequestParam int groupId,
+                                                    @RequestParam int locId,
+                                                    @RequestParam int rangeId, @RequestParam int startHour, @RequestParam int startMinute, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeRestrictionFromRange(token, userId,volunteeringId, groupId, locId, rangeId, startHour, startMinute);
+    }
+
     @PatchMapping("/updateRangeWeekdays")
     public Response<String> updateRangeWeekdays(@RequestParam String userId, @RequestBody UpdateRangeWeekdaysRequest body, HttpServletRequest request){
         String token = getToken(request);

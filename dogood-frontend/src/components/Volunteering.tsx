@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addScheduleRangeToGroup, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteering, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers } from '../api/volunteering_api'
+import { addRestrictionToRange, addScheduleRangeToGroup, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteering, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, removeRestrictionFromRange } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
 import Location from '../models/Location';
 
-import ScheduleRange from '../models/ScheduleRange';
+import ScheduleRange, { RestrictionTuple } from '../models/ScheduleRange';
 import dayjs from 'dayjs';
 import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -134,6 +134,7 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
                         height={isMobile ? 100 : 300}
                         cellHeight={isMobile ? 15 : 30}
                         eventMoveHandling='Disabled'
+                        eventResizeHandling='Disabled'
                         headerTextWrappingEnabled={true} />
                 </div></div>
         </div>
@@ -277,6 +278,53 @@ function RangeMaker({ groupId, locId, volunteeringId, refreshRanges }: { groupId
     )
 }
 
+function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange }: { volunteeringId: number, groupId:number, locId: number, range: ScheduleRange, refreshRange: (range: ScheduleRange)=> void }) {
+    const [startTime, setStartTime] = useState(dayjs('2024-01-01T'+range.startTime));
+    const [endTime, setEndTime] = useState(dayjs('2024-01-01T'+range.endTime));
+    const [amount, setAmount] = useState(0);
+
+    const send = async () => {
+        try{
+            await addRestrictionToRange(volunteeringId, groupId, locId, range.id, startTime.hour(), startTime.minute(), endTime.hour(), endTime.minute(), amount);
+            refreshRange(range);
+        }catch(e){
+            alert(e)
+        }
+    }
+
+    const remove = async (restrict: RestrictionTuple) => {
+        try{
+            let sTime = dayjs('2024-01-01T'+restrict.startTime);
+            await removeRestrictionFromRange(volunteeringId, groupId, locId, range.id, sTime.hour(), sTime.minute());
+            refreshRange(range);
+        }catch(e){
+            alert(e)
+        }
+    }
+
+    return (
+        <div className='maker'>
+            <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
+            {range.oneTime !== null && <p>At {range.oneTime}</p>}
+            <p>Current Restrictions:</p>
+            {range.restrict.map(restriction => <div className='restriction'>
+                <div className='restrictionData'>
+                    <p>Starts at: {restriction.startTime}</p>
+                    <p>Ends at: {restriction.endTime}</p>
+                    <p>Limited to {restriction.amount} volunteers</p>
+                </div>
+                <button onClick={() => remove(restriction)}>Remove</button>
+            </div>)}
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+            </LocalizationProvider>
+            <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0}/>
+            <button className='sendButton' onClick={send}>Add Restriction</button>
+        </div>
+    )
+}
+
 function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number, groups: number[] }) {
     const getLastSunday = (d: Date) => {
         var t = new Date(d);
@@ -290,6 +338,7 @@ function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number,
     const [ranges, setRanges] = useState<ScheduleRange[]>([])
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [events, setEvents] = useState<DayPilot.EventData[]>([])
+    const [selectedRange, setSelectedRange] = useState<ScheduleRange | null | undefined>(null)
 
     const fetchLocations = async () => {
         try {
@@ -367,6 +416,15 @@ function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number,
         }
     }
 
+    const refreshRange = async (range: ScheduleRange) => {
+        try {
+            setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup, selectedLocation))
+            setSelectedRange(range)
+        } catch (e) {
+            alert(e)
+        }
+    }
+
     useEffect(() => {
         updateEvents();
     }, [ranges, startDate])
@@ -414,9 +472,12 @@ function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number,
                                 height={isMobile ? 100 : 300}
                                 cellHeight={isMobile ? 15 : 30}
                                 eventMoveHandling='Disabled'
-                                headerTextWrappingEnabled={true} />
+                                headerTextWrappingEnabled={true}
+                                onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
                         </div></div>
                     <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} refreshRanges={fetchRanges} />
+                    {selectedRange === null || selectedRange === undefined ? <></> :
+                <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} range={selectedRange!} />}
                 </div>}
         </div>
     )

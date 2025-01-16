@@ -141,6 +141,37 @@ button:active {
     margin-bottom: 10px;
 }
 
+.restriction {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: white;
+    border-width: 5px;
+    border-color: #901010;
+    border-style: solid;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.restrictionData {
+    font-weight: bold;
+    margin: 5px;
+    margin-right: 10px;
+}
+
+.restriction button{
+    background-color: white;
+    border-color: #901010;
+    color: #901010;
+    font-weight: bold;
+    font-size: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 5px;
+    margin-bottom: 10px;
+}
+
 @media (max-width: 500px) {
     .volInfo {
         flex-direction: column;

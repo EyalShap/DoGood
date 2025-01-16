@@ -296,3 +296,48 @@ export const addScheduleRangeToGroup = async (volunteeringId: number, groupId: n
     }
     return response.data;
 }
+
+export const addRestrictionToRange = async (volunteeringId: number, groupId: number, locId: number, rangeId: number, startHour: number, startMinute: number, endHour: number, endMinute: number, amount: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        volunteeringId: volunteeringId,
+        groupId: groupId,
+        locId: locId,
+        rangeId: rangeId,
+        startHour: startHour,
+        startMinute: startMinute,
+        endHour: endHour,
+        endMinute: endMinute,
+        amount: amount
+    }
+    let res = await axios.post(`http://${server}/api/volunteering/addRestrictionToRange?userId=${sessionStorage.getItem('username')}`, request, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const removeRestrictionFromRange = async (volunteeringId: number, groupId: number, locId: number, rangeId: number, startHour: number, startMinute: number): Promise<string> => {
+    const params = {
+        userId: sessionStorage.getItem('username'),
+        volunteeringId: volunteeringId,
+        groupId: groupId,
+        locId: locId,
+        rangeId: rangeId,
+        startHour: startHour,
+        startMinute: startMinute,
+    }
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+        params: params
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/removeRestrictionFromRange`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}

@@ -447,6 +447,37 @@ public class VolunteeringFacade {
         return rangeId;
     }
 
+    public void addRestrictionToRange(String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalTime startTime, LocalTime endTime, int amount){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.addRestrictionToRange(groupId, locId, rangeId, new RestrictionTuple(startTime, endTime, amount));
+        repository.updateVolunteeringInDB(volunteering);
+    }
+
+    public void removeRestrictionFromRange(String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalTime startTime){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.removeRestrictionFromRange(groupId, locId, rangeId, startTime);
+        repository.updateVolunteeringInDB(volunteering);
+    }
 
     public void updateRangeWeekdays(String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
         if(!userExists(userId)){

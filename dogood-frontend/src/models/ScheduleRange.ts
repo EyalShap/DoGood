@@ -9,7 +9,7 @@ type ScheduleRange = {
     maximumAppointmentMinutes: number
 }
 
-type RestrictionTuple = {
+export type RestrictionTuple = {
     startTime: string,
     endTime: string,
     amount: number

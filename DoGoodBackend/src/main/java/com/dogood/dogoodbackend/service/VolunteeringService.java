@@ -232,6 +232,24 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> addRestrictionToRange(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, int startHour, int startMinute, int endHour, int endMinute, int amount){
+        try{
+            facadeManager.getVolunteeringFacade().addRestrictionToRange(userId, volunteeringId, groupId, locId, rangeId, LocalTime.of(startHour, startMinute), LocalTime.of(endHour, endMinute), amount);
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> removeRestrictionFromRange(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, int startHour, int startMinute){
+        try{
+            facadeManager.getVolunteeringFacade().removeRestrictionFromRange(userId, volunteeringId, groupId, locId, rangeId, LocalTime.of(startHour, startMinute));
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<String> updateRangeWeekdays(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
         try{
             facadeManager.getVolunteeringFacade().updateRangeWeekdays(userId, volunteeringId, groupId, locId, rangeId, weekdays);
