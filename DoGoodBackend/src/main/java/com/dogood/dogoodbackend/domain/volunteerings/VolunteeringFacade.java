@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -417,7 +418,7 @@ public class VolunteeringFacade {
     }
 
 
-    public int addScheduleRangeToGroup(String userId, int volunteeringId, int groupId, int locId, LocalTime startTime, LocalTime endTime, int minimumMinutes, int maximumMinutes){
+    public int addScheduleRangeToGroup(String userId, int volunteeringId, int groupId, int locId, LocalTime startTime, LocalTime endTime, int minimumMinutes, int maximumMinutes, boolean[] weekDays, LocalDate oneTime){
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
@@ -430,10 +431,53 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         int rangeId = volunteering.addRangeToGroup(groupId, locId, startTime, endTime, minimumMinutes, maximumMinutes);
+        if(weekDays != null){
+            if(weekDays.length != 7){
+                throw new IllegalArgumentException("Weekdays array length does not match number of weekdays");
+            }
+            volunteering.updateRangeWeekdays(groupId, locId, rangeId, weekDays);
+        }
+        if(oneTime != null){
+            volunteering.updateRangeOneTimeDate(groupId, locId, rangeId, oneTime);
+        }
+        if(weekDays == null && oneTime == null){
+            throw new IllegalArgumentException("Week days and One time cannot both be null");
+        }
         repository.updateVolunteeringInDB(volunteering);
         return rangeId;
     }
 
+    public void addRestrictionToRange(String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalTime startTime, LocalTime endTime, int amount){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.addRestrictionToRange(groupId, locId, rangeId, new RestrictionTuple(startTime, endTime, amount));
+        repository.updateVolunteeringInDB(volunteering);
+    }
+
+    public void removeRestrictionFromRange(String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalTime startTime){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.removeRestrictionFromRange(groupId, locId, rangeId, startTime);
+        repository.updateVolunteeringInDB(volunteering);
+    }
 
     public void updateRangeWeekdays(String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
         if(!userExists(userId)){
@@ -605,6 +649,14 @@ public class VolunteeringFacade {
         return volunteering.getLocationDTOs();
     }
 
+    public List<Integer> getVolunteeringGroups(int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return new LinkedList<>(volunteering.getGroups().keySet());
+    }
+
 
     public Map<String,Integer> getVolunteeringVolunteers(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
@@ -649,6 +701,15 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         return volunteering.getVolunteerAvailableRanges(userId);
+    }
+
+    public List<ScheduleRangeDTO> getVolunteeringLocationGroupRanges(String userId, int volunteeringId, int groupId, int locId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        checkViewingPermissions(userId, volunteeringId);
+        return volunteering.getLocationGroupRanges(groupId,locId);
     }
 
 

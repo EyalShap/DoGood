@@ -141,6 +141,9 @@ public class ScheduleRange {
     }
 
     public void addRestriction(RestrictionTuple restriction) {
+        if(restriction.getStartTime().isBefore(startTime) || restriction.getEndTime().isAfter(endTime)){
+            throw new IllegalArgumentException("Restriction times are outside range times");
+        }
         for(RestrictionTuple restrictionTuple : restrict) {
             if(restrictionTuple.intersect(restriction.getStartTime(), restriction.getEndTime())){
                 throw new IllegalArgumentException("Cannot add restriction that intersects an existing one");

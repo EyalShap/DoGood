@@ -223,10 +223,28 @@ public class VolunteeringService {
         }
     }
 
-    public Response<Integer> addScheduleRangeToGroup(String token, String userId, int volunteeringId, int groupId, int locId, int startHour, int startMinute, int endHour, int endMinute, int minimumMinutes, int maximumMinutes){
+    public Response<Integer> addScheduleRangeToGroup(String token, String userId, int volunteeringId, int groupId, int locId, int startHour, int startMinute, int endHour, int endMinute, int minimumMinutes, int maximumMinutes, boolean[] weekDays, LocalDate oneTime){
         try{
-            int rangeId = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup(userId, volunteeringId, groupId, locId, LocalTime.of(startHour, startMinute), LocalTime.of(endHour, endMinute), minimumMinutes, maximumMinutes);
+            int rangeId = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup(userId, volunteeringId, groupId, locId, LocalTime.of(startHour, startMinute), LocalTime.of(endHour, endMinute), minimumMinutes, maximumMinutes, weekDays, oneTime);
             return Response.createResponse(rangeId);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> addRestrictionToRange(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, int startHour, int startMinute, int endHour, int endMinute, int amount){
+        try{
+            facadeManager.getVolunteeringFacade().addRestrictionToRange(userId, volunteeringId, groupId, locId, rangeId, LocalTime.of(startHour, startMinute), LocalTime.of(endHour, endMinute), amount);
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> removeRestrictionFromRange(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, int startHour, int startMinute){
+        try{
+            facadeManager.getVolunteeringFacade().removeRestrictionFromRange(userId, volunteeringId, groupId, locId, rangeId, LocalTime.of(startHour, startMinute));
+            return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }
@@ -335,6 +353,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<List<Integer>> getVolunteeringGroups(String token, String userId, int volunteeringId){
+        try{
+            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);
+            List<Integer> groups = facadeManager.getVolunteeringFacade().getVolunteeringGroups(volunteeringId);
+            return Response.createResponse(groups);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Map<String,Integer>> getVolunteeringVolunteers(String token, String userId, int volunteeringId){
         try{
             facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);
@@ -375,6 +403,14 @@ public class VolunteeringService {
     public Response<List<ScheduleRangeDTO>> getVolunteerAvailableRanges(String token, String userId, int volunteeringId){
         try{
             return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteerAvailableRanges(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ScheduleRangeDTO>> getVolunteeringLocationGroupRanges(String token, String userId, int volunteeringId, int groupId, int locId){
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringLocationGroupRanges(userId, volunteeringId, groupId, locId));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }
