@@ -17,11 +17,32 @@ public class DBReportRepository implements ReportRepository{
         this.jpa = jpa;
     }
 
+    public DBReportRepository() {}
+
+    public void setJPA(ReportJPA jpa) {
+        this.jpa = jpa;
+    }
+
     @Override
-    public Report createReport(String reportingUser, int reportedPostId, String description) {
+    public int createReport(String reportingUser, int reportedPostId, String description) {
         Report report = new Report(reportingUser, reportedPostId, description);
+
+        if(isDuplicateReport(report)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportContentAlreadyExistsError());
+        }
+
         jpa.save(report);
-        return report;
+        return report.getId();
+    }
+
+    private boolean isDuplicateReport(Report newReport) {
+        // assuming each user can report a specific post only once a day
+        for(Report report : getAllReports()) {
+            if(newReport.getReportingUser().equals(report.getReportingUser()) && newReport.getReportedPostId() == report.getReportedPostId() && newReport.getDate().isEqual(report.getDate())) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -58,5 +79,10 @@ public class DBReportRepository implements ReportRepository{
     @Override
     public List<Report> getAllReports() {
         return jpa.findAll();
+    }
+
+    @Override
+    public void clear() {
+        jpa.deleteAll();
     }
 }

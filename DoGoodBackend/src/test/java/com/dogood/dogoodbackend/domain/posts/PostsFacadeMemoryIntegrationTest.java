@@ -2,6 +2,9 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
+import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
+import com.dogood.dogoodbackend.domain.reports.ReportRepository;
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.AddressTuple;
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
@@ -12,6 +15,7 @@ import com.dogood.dogoodbackend.utils.PostErrors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
@@ -23,6 +27,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mockStatic;
 
+@SpringBootTest
 public class PostsFacadeMemoryIntegrationTest {
     private PostsFacade postsFacade;
     private int postId;
@@ -38,8 +43,10 @@ public class PostsFacadeMemoryIntegrationTest {
     private RequestRepository requestRepository;
     private OrganizationRepository organizationRepository;
     private VolunteeringRepository volunteeringRepository;
+    private ReportRepository reportRepository;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
+    private ReportsFacade reportsFacade;
 
     @BeforeEach
     void setUp() {
@@ -47,11 +54,14 @@ public class PostsFacadeMemoryIntegrationTest {
         this.requestRepository = new MemoryRequestRepository();
         this.organizationRepository = new MemoryOrganizationRepository();
         this.volunteeringRepository = new MemoryVolunteeringRepository();
+        this.reportRepository = new MemoryReportRepository();
 
         this.organizationsFacade = new OrganizationsFacade(organizationRepository, requestRepository);
         this.volunteeringFacade = new VolunteeringFacade(organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
         this.postsFacade = new PostsFacade(volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
+        this.reportsFacade = new ReportsFacade(reportRepository, postsFacade);
 
+        this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
 
         this.organizationId1 = this.organizationsFacade.createOrganization("Organization1", "Description1", "0547960995", "org@gmail.com", actor1);
@@ -63,10 +73,8 @@ public class PostsFacadeMemoryIntegrationTest {
     void givenValidFieldsAndOrganizationManager_whenCreateVolunteeringPost_thenCreate() {
         assertEquals(1, postsFacade.getAllVolunteeringPosts(actor1).size());
 
-        int newPostId = volunteeringPostRepository.getNextVolunteeringPostId();
-        int resId = postsFacade.createVolunteeringPost(title2, description2, actor1, volunteeringId1);
+        int newPostId = postsFacade.createVolunteeringPost(title2, description2, actor1, volunteeringId1);
 
-        assertEquals(newPostId, resId);
         assertEquals(2, postsFacade.getAllVolunteeringPosts(actor1).size());
     }
 
@@ -221,8 +229,7 @@ public class PostsFacadeMemoryIntegrationTest {
 
     @Test
     void getAllVolunteeringPosts() {
-        int newPostId = volunteeringPostRepository.getNextVolunteeringPostId();
-        int resId = postsFacade.createVolunteeringPost(title2, description2, actor1, volunteeringId1);
+        int newPostId = postsFacade.createVolunteeringPost(title2, description2, actor1, volunteeringId1);
 
         List<VolunteeringPostDTO> expected = new ArrayList<>();
         LocalDateTime date = LocalDateTime.of(2025, 1, 1, 10, 0);

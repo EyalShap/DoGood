@@ -25,7 +25,7 @@ public class ReportsFacade {
             throw new IllegalArgumentException(ReportErrors.makeReportedPostDoesNotExistError(reportedPostId));
         }
 
-        return reportRepository.createReport(actor, reportedPostId, description).getId();
+        return reportRepository.createReport(actor, reportedPostId, description);
     }
 
     public void removeReport(int reportId, String actor) {
