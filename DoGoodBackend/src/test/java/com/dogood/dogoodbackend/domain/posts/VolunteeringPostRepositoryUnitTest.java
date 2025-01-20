@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
 import com.dogood.dogoodbackend.utils.PostErrors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,6 +11,9 @@ import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,8 +23,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
+@SpringBootTest
 @ExtendWith(MockitoExtension.class)
 class VolunteeringPostRepositoryUnitTest {
+    // MAY BE DELETED BECAUSE IT IS JUST THE SAME AS INTEGRATION
     private static MemoryVolunteeringPostRepository memoryVolunteeringPostRepository;
     private static DBVolunteeringPostRepository dbVolunteeringPostRepository;
     private int memPostId1, dbPostId1, postId1, postId2;
@@ -31,15 +37,23 @@ class VolunteeringPostRepositoryUnitTest {
     @Mock
     private VolunteeringPost volunteeringPostMock2;
 
+    @Autowired
+    private ApplicationContext applicationContext;
+    private VolunteeringPostJPA volunteeringPostJPA;
+
     @BeforeAll
     static void setUpBeforeAll() {
         memoryVolunteeringPostRepository = new MemoryVolunteeringPostRepository();
-        dbVolunteeringPostRepository = new DBVolunteeringPostRepository(null);
+        dbVolunteeringPostRepository = new DBVolunteeringPostRepository();
     }
 
     @BeforeEach
     void setUpBeforeEach() {
         MockitoAnnotations.openMocks(VolunteeringPostRepositoryUnitTest.class);
+
+        VolunteeringPostJPA volunteeringPostJPA = applicationContext.getBean(VolunteeringPostJPA.class);
+        dbVolunteeringPostRepository.setJPA(volunteeringPostJPA);
+        volunteeringPostJPA.deleteAll();
 
         memPostId1 = memoryVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
         dbPostId1 = dbVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
@@ -63,10 +77,10 @@ class VolunteeringPostRepositoryUnitTest {
     }
 
     static Stream<VolunteeringPostRepository> repoProvider() {
-        return Stream.of(memoryVolunteeringPostRepository);
+        return Stream.of(memoryVolunteeringPostRepository, dbVolunteeringPostRepository);
     }
 
-    @ParameterizedTest
+    /*@ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonNullPost_whenCreateVolunteeringPost_thenCreate(VolunteeringPostRepository volunteeringPostRepository) {
         List<VolunteeringPost> expectedBeforeAdd = new ArrayList<>();
@@ -82,7 +96,7 @@ class VolunteeringPostRepositoryUnitTest {
         this.postId2 = volunteeringPostRepository.createVolunteeringPost("Title2", "Description2", "TheDoctor", 0, 0);
         List<VolunteeringPost> resAfterAdd = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expectedAfterAdd, resAfterAdd);
-    }
+    }*/
 
     @ParameterizedTest
     @MethodSource("repoProvider")
@@ -113,7 +127,6 @@ class VolunteeringPostRepositoryUnitTest {
     void givenExistingPostAndValidFields_whenEditVolunteeringPost_thenEdit(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
-        doNothing().when(volunteeringPostMock1).edit(any(), any());
         assertDoesNotThrow(() -> volunteeringPostRepository.editVolunteeringPost(postId1, "Title", "description"));
     }
 
@@ -122,8 +135,7 @@ class VolunteeringPostRepositoryUnitTest {
     void givenExistingPostAndNonValidFields_whenEditVolunteeringPost_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
-        doThrow(new IllegalArgumentException()).when(volunteeringPostMock1).edit(any(), any());
-        assertThrows(IllegalArgumentException.class, () -> volunteeringPostRepository.editVolunteeringPost(postId1, "Invalid", "Invalid"));
+        assertThrows(IllegalArgumentException.class, () -> volunteeringPostRepository.editVolunteeringPost(postId1, "", ""));
     }
 
     @ParameterizedTest
@@ -137,14 +149,15 @@ class VolunteeringPostRepositoryUnitTest {
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1 + 1), exception.getMessage());
     }
 
-    @ParameterizedTest
+    // The same test as integration
+    /*@ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingId_whenGetVolunteeringPost_thenNoThrownException(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
         final VolunteeringPost[] post = new VolunteeringPost[1];
         assertDoesNotThrow(() -> post[0] = volunteeringPostRepository.getVolunteeringPost(postId1));
         assertEquals(volunteeringPostMock1, post[0]);
-    }
+    }*/
 
     @ParameterizedTest
     @MethodSource("repoProvider")
@@ -157,16 +170,16 @@ class VolunteeringPostRepositoryUnitTest {
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1 + 1), exception.getMessage());
     }
 
-    @ParameterizedTest
+    /*@ParameterizedTest
     @MethodSource("repoProvider")
     void getAllVolunteeringPosts(VolunteeringPostRepository volunteeringPostRepository) {
         List<VolunteeringPost> expected = new ArrayList<>();
         expected.add(volunteeringPostMock1);
         List<VolunteeringPost> res = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expected, res);
-    }
+    }*/
 
-    @ParameterizedTest
+    /*@ParameterizedTest
     @MethodSource("repoProvider")
     void givenOrganizationId_whenGetOrganizationVolunteeringPosts_thenReturn(VolunteeringPostRepository volunteeringPostRepository) {
         List<VolunteeringPost> expected1 = new ArrayList<>();
@@ -186,15 +199,14 @@ class VolunteeringPostRepositoryUnitTest {
         assertEquals(expected1, res1);
         assertEquals(expected2, res2);
         assertEquals(expected3, res3);
-    }
+    }*/
 
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingId_whenGetVolunteeringIdByPostId_thenReturnVolunteeringId(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
-        when(volunteeringPostMock1.getVolunteeringId()).thenReturn(435);
 
-        assertEquals(435, memoryVolunteeringPostRepository.getVolunteeringIdByPostId(postId1));
+        assertEquals(0, volunteeringPostRepository.getVolunteeringIdByPostId(postId1));
     }
 
     @ParameterizedTest

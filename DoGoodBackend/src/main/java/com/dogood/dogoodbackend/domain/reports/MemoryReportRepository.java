@@ -2,10 +2,7 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.utils.ReportErrors;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MemoryReportRepository implements ReportRepository{
@@ -18,7 +15,7 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
-    public Report createReport(String reportingUser, int reportedPostId, String description) {
+    public int createReport(String reportingUser, int reportedPostId, String description) {
         if(reports.containsKey(nextReportId)) {
             throw new IllegalArgumentException(ReportErrors.makeReportIdAlreadyExistsError(nextReportId));
         }
@@ -32,7 +29,7 @@ public class MemoryReportRepository implements ReportRepository{
 
         reports.put(nextReportId, newReport);
         nextReportId++;
-        return newReport;
+        return nextReportId - 1;
     }
 
     private boolean isDuplicateReport(Report newReport) {
@@ -55,9 +52,10 @@ public class MemoryReportRepository implements ReportRepository{
 
     @Override
     public void removePostReports(int postId) {
-        for(Report report : reports.values()) {
-            if(report.getReportedPostId() == postId) {
-                reports.remove(report);
+        Set<Integer> reportIds = new HashSet<>(reports.keySet());
+        for(int reportId : reportIds) {
+            if(reports.get(reportId).getReportedPostId() == postId) {
+                reports.remove(reportId);
             }
         }
     }
@@ -81,5 +79,11 @@ public class MemoryReportRepository implements ReportRepository{
     @Override
     public List<Report> getAllReports() {
         return new ArrayList<>(reports.values());
+    }
+
+    @Override
+    public void clear() {
+        this.nextReportId = 0;
+        reports = new HashMap<>();
     }
 }

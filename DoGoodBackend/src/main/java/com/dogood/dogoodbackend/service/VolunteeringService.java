@@ -70,6 +70,7 @@ public class VolunteeringService {
     }
 
 
+
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){
         try{
             facadeManager.getVolunteeringFacade().removeVolunteering(userId, volunteeringId);

@@ -16,6 +16,12 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
         this.jpa = jpa;
     }
 
+    public DBVolunteeringPostRepository() {}
+
+    public void setJPA(VolunteeringPostJPA jpa) {
+        this.jpa = jpa;
+    }
+
     @Override
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
         VolunteeringPost post = new VolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);

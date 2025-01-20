@@ -207,4 +207,8 @@ public class Organization {
     public int hashCode() {
         return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername);
     }
+
+
+
+
 }

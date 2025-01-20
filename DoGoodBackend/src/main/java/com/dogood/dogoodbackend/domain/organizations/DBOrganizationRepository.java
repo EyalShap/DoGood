@@ -13,6 +13,12 @@ public class DBOrganizationRepository implements OrganizationRepository{
         this.jpa = jpa;
     }
 
+    public DBOrganizationRepository() {}
+
+    public void setJPA(OrganizationJPA jpa) {
+        this.jpa = jpa;
+    }
+
     @Override
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
         Organization organization = new Organization(name, description, phoneNumber, email, actor);
