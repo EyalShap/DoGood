@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addRestrictionToRange, addScheduleRangeToGroup, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteering, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, removeRestrictionFromRange } from '../api/volunteering_api'
+import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRestrictionFromRange } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -21,11 +21,15 @@ interface GroupToVolunteers {
     [key: number]: string[];
 }
 
-function GroupRow({ groupId, volunteers }: { groupId: number, volunteers: string[] }) {
+function GroupRow({ groupId, volunteers, deleteGroup, onDragStart, onDrop }: { groupId: number, volunteers: string[], deleteGroup: (groupId: number) => void, onDragStart: (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => void, onDrop: (e: any, to: number) => void }) {
+
     return (
-        <div className='groupRow'>
-            <h1 className='groupId'>Group {groupId}</h1>
-            {volunteers.map(volunteer => <p className='volunteerUsername'>{volunteer}</p>)}
+        <div className='groupRow' onDragEnter={(e) => onDrop(e, groupId)}>
+            <div className='groupHeader'>
+                <h1 className='groupId'>Group {groupId}</h1>
+                <button onClick={() => deleteGroup(groupId)}>Remove Group</button>
+            </div>
+            {volunteers.map(volunteer => <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)} className='volunteerUsername'>{volunteer}</p>)}
             <hr />
         </div>
     )
@@ -263,41 +267,41 @@ function RangeMaker({ groupId, locId, volunteeringId, refreshRanges }: { groupId
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMinMin(e.target.checked)
                     e.target.checked ? setMinimumMinutes(0) : setMinimumMinutes(-1)
-                }}/>} label="Minimum Appointment Minutes?" />
-                {showMinMin && <NumberInput value={minimumMinutes} onChange={(_, val) => val != null && setMinimumMinutes(val)} min={0}/>}
+                }} />} label="Minimum Appointment Minutes?" />
+                {showMinMin && <NumberInput value={minimumMinutes} onChange={(_, val) => val != null && setMinimumMinutes(val)} min={0} />}
             </div>
             <div>
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMaxMin(e.target.checked)
                     e.target.checked ? setMaximumMinutes(0) : setMaximumMinutes(-1)
-                }}/>} label="Maximum Appointment Minutes?" />
-                {showMaxMin && <NumberInput value={maximumMinutes} onChange={(_, val) => val != null && setMaximumMinutes(val)} min={Math.max(0, minimumMinutes)}/>}
+                }} />} label="Maximum Appointment Minutes?" />
+                {showMaxMin && <NumberInput value={maximumMinutes} onChange={(_, val) => val != null && setMaximumMinutes(val)} min={Math.max(0, minimumMinutes)} />}
             </div>
             <button className='sendButton' onClick={send}>Create Range</button>
         </div>
     )
 }
 
-function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange }: { volunteeringId: number, groupId:number, locId: number, range: ScheduleRange, refreshRange: (range: ScheduleRange)=> void }) {
-    const [startTime, setStartTime] = useState(dayjs('2024-01-01T'+range.startTime));
-    const [endTime, setEndTime] = useState(dayjs('2024-01-01T'+range.endTime));
+function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange }: { volunteeringId: number, groupId: number, locId: number, range: ScheduleRange, refreshRange: (range: ScheduleRange) => void }) {
+    const [startTime, setStartTime] = useState(dayjs('2024-01-01T' + range.startTime));
+    const [endTime, setEndTime] = useState(dayjs('2024-01-01T' + range.endTime));
     const [amount, setAmount] = useState(0);
 
     const send = async () => {
-        try{
+        try {
             await addRestrictionToRange(volunteeringId, groupId, locId, range.id, startTime.hour(), startTime.minute(), endTime.hour(), endTime.minute(), amount);
             refreshRange(range);
-        }catch(e){
+        } catch (e) {
             alert(e)
         }
     }
 
     const remove = async (restrict: RestrictionTuple) => {
-        try{
-            let sTime = dayjs('2024-01-01T'+restrict.startTime);
+        try {
+            let sTime = dayjs('2024-01-01T' + restrict.startTime);
             await removeRestrictionFromRange(volunteeringId, groupId, locId, range.id, sTime.hour(), sTime.minute());
             refreshRange(range);
-        }catch(e){
+        } catch (e) {
             alert(e)
         }
     }
@@ -316,16 +320,16 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
                 <button onClick={() => remove(restriction)}>Remove</button>
             </div>)}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
-                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} />
             </LocalizationProvider>
-            <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0}/>
+            <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0} />
             <button className='sendButton' onClick={send}>Add Restriction</button>
         </div>
     )
 }
 
-function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number, groups: number[] }) {
+function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: number, volunteeringId: number, groups: number[] }) {
     const getLastSunday = (d: Date) => {
         var t = new Date(d);
         t.setDate(t.getDate() - t.getDay());
@@ -477,8 +481,48 @@ function ManageRangesPanel({ volunteeringId, groups }: { volunteeringId: number,
                         </div></div>
                     <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} refreshRanges={fetchRanges} />
                     {selectedRange === null || selectedRange === undefined ? <></> :
-                <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} range={selectedRange!} />}
+                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} range={selectedRange!} />}
                 </div>}
+        </div>
+    )
+}
+
+function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: number, assignUser: (locId: number) => void }) {
+    const [groupId, setGroupId] = useState(-1);
+    const [ready, setReady] = useState(false);
+    const [locations, setLocations] = useState<Location[]>([]);
+
+    const fetchGroup = async () => {
+        setGroupId(await getVolunteerGroup(volunteeringId));
+        setReady(true);
+    }
+
+    const fetchLocations = async () => {
+        setLocations(await getGroupLocations(volunteeringId, groupId));
+    }
+
+    useEffect(() => {
+        fetchGroup()
+    }, [])
+
+    useEffect(() => {
+        if (ready) {
+            fetchLocations();
+        }
+    }, [groupId, ready])
+
+    return (
+        <div className='locationSelector'>
+            <h1 className='chooseLocation'>Choose Location</h1>
+            <div className='locationButtons'>
+                {locations.map(location =>
+                    <button onClick={() => assignUser(location.id)} className='location'>
+                        <h2>{location.name}</h2>
+                        <p>{location.address.city}</p>
+                        <p>{location.address.street}</p>
+                        <p>{location.address.address}</p>
+                    </button>)}
+            </div>
         </div>
     )
 }
@@ -492,16 +536,22 @@ function Volunteering() {
     const [ready, setReady] = useState(false);
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
     const [hasLocation, setHasLocation] = useState(false)
+    const [rerenderManager, setRenenderManager] = useState(3);
+
+    const [currentDragVolunteer, setCurrentDragVolunteer] = useState("");
+    const [currentDragFrom, setCurrentDragFrom] = useState(-1);
+
     const fetchVolunteering = async () => {
         try {
             let found = await getVolunteering(parseInt(id!));
             await setModel(found);
             let volunteers: VolunteersToGroup = await getVolunteeringVolunteers(parseInt(id!));
+            let groupList: number[] = await getVolunteeringGroups(parseInt(id!));
             let fetchedGroups: GroupToVolunteers = {};
+            groupList.forEach(group => {
+                fetchedGroups[group] = []
+            })
             Object.entries(volunteers).forEach(([key, value]) => {
-                if (!fetchedGroups.hasOwnProperty(value)) {
-                    fetchedGroups[value] = [];
-                }
                 fetchedGroups[value].push(key)
             })
             setGroups(fetchedGroups);
@@ -549,6 +599,54 @@ function Volunteering() {
     const handlePostVolunteeringOnClick = () => {
         navigate(`./createVolunteeringPost/-1`);
     }
+
+    const deleteGroup = async (groupId: number) => {
+        try {
+            await removeGroup(parseInt(id!), groupId);
+            fetchVolunteering();
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    const onAddNewGroup = async () => {
+        try {
+            await createNewGroup(parseInt(id!));
+            fetchVolunteering();
+            setRenenderManager(5 - rerenderManager);
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    const onDragStart = (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => {
+        setCurrentDragVolunteer(volunteer);
+        setCurrentDragFrom(from);
+    }
+
+    const onDrop = async (e: React.DragEvent<HTMLParagraphElement>, to: number) => {
+        e.preventDefault();
+        try {
+            if (to !== currentDragFrom) {
+                console.log("DROP")
+                await moveVolunteerGroup(parseInt(id!), to, currentDragVolunteer);
+                fetchVolunteering();
+            }
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    const assignUserToLocation = async (locId: number) => {
+        try{
+            await assignVolunteerToLocation(parseInt(id!), locId);
+            fetchVolunteering();
+            updateHasLocation();
+        }catch(e){
+            alert(e);
+        }
+    }
+
     return (
         <div>
             <div className="volInfo">
@@ -578,14 +676,16 @@ function Volunteering() {
 
             {isManager ?
                 <div className="volunteers">
-                    {Object.entries(groups).map(([key, value]) => <GroupRow groupId={parseInt(key)} volunteers={value} />)}
+                    <button onClick={() => onAddNewGroup()}>New Group</button>
+                    {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart} onDrop={onDrop} deleteGroup={deleteGroup} groupId={parseInt(key)} volunteers={value} />)}
                 </div> : <></>}
             {permissionsLoaded && !isManager ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
                     <button onClick={() => navigate("./appointment")}>Make An Appointment</button>
                 </div> : <></>}
-            {isManager && <ManageRangesPanel volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />}
+            {!hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
+            {isManager && <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />}
         </div>
     )
 }

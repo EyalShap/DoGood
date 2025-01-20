@@ -109,9 +109,9 @@ public class VolunteeringAPI {
     }
 
     @DeleteMapping("/removeGroup")
-    public Response<String> removeGroup(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+    public Response<String> removeGroup(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, HttpServletRequest request){
         String token = getToken(request);
-        return volunteeringService.removeGroup(token, userId, body.get("volunteeringId"), body.get("groupId"));
+        return volunteeringService.removeGroup(token, userId, volunteeringId, groupId);
     }
 
     @DeleteMapping("/removeLocation")
@@ -248,6 +248,12 @@ public class VolunteeringAPI {
     public Response<List<LocationDTO>> getVolunteeringLocations(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.getVolunteeringLocations(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getGroupLocations")
+    public Response<List<LocationDTO>> getGroupLocations(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getGroupLocations(token, userId, volunteeringId, groupId);
     }
 
     @GetMapping("/getVolunteeringGroups")

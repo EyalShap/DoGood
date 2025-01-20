@@ -353,6 +353,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<List<LocationDTO>> getGroupLocations(String token, String userId, int volunteeringId, int groupId){
+        try{
+            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);
+            List<LocationDTO> dtos = facadeManager.getVolunteeringFacade().getGroupLocations(volunteeringId, groupId);
+            return Response.createResponse(dtos);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<List<Integer>> getVolunteeringGroups(String token, String userId, int volunteeringId){
         try{
             facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);

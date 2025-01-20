@@ -291,11 +291,14 @@ public class Volunteering {
         if(!hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
         }
-        int currentGroupId = volunteerToGroup.get(userId);
-        Group groupFrom = groups.get(currentGroupId);
-        Group groupTo = groups.get(groupIdTo);
-        groupFrom.removeUser(userId);
-        groupTo.addUser(userId);
+        synchronized (volunteerToGroup) {
+            int currentGroupId = volunteerToGroup.get(userId);
+            Group groupFrom = groups.get(currentGroupId);
+            Group groupTo = groups.get(groupIdTo);
+            groupFrom.removeUser(userId);
+            groupTo.addUser(userId);
+            volunteerToGroup.put(userId, groupIdTo);
+        }
     }
 
     public void assignVolunteerToLocation(String userId, int locId){
@@ -390,6 +393,13 @@ public class Volunteering {
 
     public List<LocationDTO> getLocationDTOs(){
         return locations.values().stream().map(location -> location.getDTO()).collect(Collectors.toList());
+    }
+
+    public List<LocationDTO> getGroupLocations(int groupId){
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        return groups.get(groupId).getLocationToRanges().keySet().stream().map(locId -> locations.get(locId).getDTO()).toList();
     }
 
     public GroupDTO getGroupDTO(int groupId){

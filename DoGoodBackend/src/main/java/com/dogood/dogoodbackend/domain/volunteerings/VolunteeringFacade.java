@@ -649,6 +649,14 @@ public class VolunteeringFacade {
         return volunteering.getLocationDTOs();
     }
 
+    public List<LocationDTO> getGroupLocations(int volunteeringId, int groupId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getGroupLocations(groupId);
+    }
+
     public List<Integer> getVolunteeringGroups(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
         if(volunteering == null){
