@@ -29,45 +29,46 @@ public class VolunteeringService {
     public VolunteeringService(FacadeManager facadeManager){
         this.facadeManager = facadeManager;
 
-
+/*
         //frontend testing scenarios
-        int orgidmada = facadeManager.getOrganizationsFacade().createOrganization("Magen David Adom",
-                "Magen David Adom (MDA) is Israel's national emergency medical service.",
+        int orgid = facadeManager.getOrganizationsFacade().createOrganization("OrgOrg",
+                "i dont know what to write here this will never be relevant for me",
                 "052-0520520",
                 "irefuse@this.is.irelevant",
                 "TheDoctor");
-        int volIdmada = facadeManager.getOrganizationsFacade().createVolunteering(orgidmada,"Ambulance driver",
-                "A driver for our ambulances. A driver's licence is required.",
+        int volId = facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Clearing The Backrooms Together",
+                "The Backrooms of 72 are mysterious areas, together we can clear them and help them become normal",
                 "TheDoctor");
-        int orgidlatet = facadeManager.getOrganizationsFacade().createOrganization("Latet",
-                "Provides aid to .",
-                "052-0520520",
-                "irefuse@this.is.irelevant",
+        facadeManager.getOrganizationsFacade().createVolunteering(orgid,"Construction of sleep pods",
+                "mmmm sleep pods",
                 "TheDoctor");
-        int volIdletet = facadeManager.getOrganizationsFacade().createVolunteering(orgidlatet,"Packaging food",
-                "Giving food package to families before Rosh Hashana.",
-                "TheDoctor");
+        facadeManager.getVolunteeringFacade().updateVolunteeringScanDetails("TheDoctor", volId, ScanTypes.DOUBLE_SCAN, ApprovalType.AUTO_FROM_SCAN);
 
-        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volIdmada, "The Backrooms", new AddressTuple("Tel Aviv", "h", "h"));
-        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volIdletet, "The Backrooms", new AddressTuple("Beer Sheva", "h", "h"));
-        facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volIdletet, "The Backrooms", new AddressTuple("Jerusalem", "h", "h"));
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("EyalShapiro", volId, "plz i want join");
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "EyalShapiro", 0);
+        int locId = facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "The Backrooms", new AddressTuple("B7", "Ben Gurion", "72"));
+        int rID = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId, LocalTime.of(0,0), LocalTime.of(23,59), -1,-1);
+        facadeManager.getVolunteeringFacade().updateRangeWeekdays("TheDoctor",volId, 0, locId, rID, new boolean[]{true,true,true,true,true,true,true});
+        facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "EyalShapiro", volId, locId);
+        facadeManager.getVolunteeringFacade().makeAppointment("EyalShapiro", volId, 0, locId, rID, LocalTime.of(9,0), LocalTime.of(11,0), null, LocalDate.of(2025, 1, 5));
+        facadeManager.getVolunteeringFacade().makeAppointment("EyalShapiro", volId, 0, locId, rID, LocalTime.of(13,0), LocalTime.of(14,0), new boolean[]{false,true,false,false,false,true,false}, null);
 
-        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volIdmada, List.of("Health", "Emergency", "Drive"));
-        facadeManager.getVolunteeringFacade().updateVolunteeringCategories("TheDoctor", volIdletet, List.of("Poverty", "Food"));
-        facadeManager.getVolunteeringFacade().updateVolunteeringSkills("TheDoctor", volIdmada, List.of("Driving", "First Aid"));
+        facadeManager.getVolunteeringFacade().requestHoursApproval("EyalShapiro", volId, Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDateTime.of(2025,1,6,14,0).atZone(ZoneId.systemDefault()).toInstant()));
+        facadeManager.getVolunteeringFacade().requestHoursApproval("EyalShapiro", volId, Date.from(LocalDateTime.of(2025,1,6,10,0).atZone(ZoneId.systemDefault()).toInstant()),
+                Date.from(LocalDateTime.of(2025,1,6,12,0).atZone(ZoneId.systemDefault()).toInstant()));
 
-        facadeManager.getPostsFacade().createVolunteeringPost("Ambulance driver", "A driver for our ambulances. A driver's licence is required.", "TheDoctor", volIdmada);
-        facadeManager.getPostsFacade().createVolunteeringPost("Packaging food", "Giving food package to families before Rosh Hashana.", "TheDoctor", volIdletet);
-
-        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("Miryam", volIdmada, "jnkj");
-        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volIdmada, "Miryam", 0);
-        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("Shooky", volIdmada, "jnkj");
-        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volIdmada, "Shooky", 0);
-
-        facadeManager.getVolunteeringFacade().finishVolunteering("Miryam", volIdmada, "I really enjoyed volunteering here. Felt meaningful.");
-        facadeManager.getVolunteeringFacade().finishVolunteering("Shooky", volIdmada, "It was intense but important.");
-
+        facadeManager.getPostsFacade().createVolunteeringPost("post1", "description1", "TheDoctor", volId);
+        facadeManager.getVolunteeringFacade().requestToJoinVolunteering("DanaFriedman", 1, "plz i also want join");
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("TheDoctor", volId, "DanaFriedman", 0);
+        int locId2 = facadeManager.getVolunteeringFacade().addVolunteeringLocation("TheDoctor", volId, "The Poolrooms", new AddressTuple("B7", "Ben Gurion", "Sports Centre"));
+        int rID2 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(14,0), LocalTime.of(20,0), -1,120);
+        facadeManager.getVolunteeringFacade().updateRangeWeekdays("TheDoctor",volId, 0, locId2, rID2, new boolean[]{false,true,false,false,true,true,false});
+        facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "DanaFriedman", volId, locId2);
+        int rID3 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(18,0), LocalTime.of(20,0), 60,120);
+        facadeManager.getVolunteeringFacade().updateRangeOneTimeDate("TheDoctor", volId, 0, locId2, rID3, LocalDate.of(2025, 1, 14));*/
     }
+
 
 
     public Response<String> removeVolunteering(String token, String userId, int volunteeringId){
