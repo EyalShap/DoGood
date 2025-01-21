@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRestrictionFromRange } from '../api/volunteering_api'
+import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -282,7 +282,7 @@ function RangeMaker({ groupId, locId, volunteeringId, refreshRanges }: { groupId
     )
 }
 
-function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange }: { volunteeringId: number, groupId: number, locId: number, range: ScheduleRange, refreshRange: (range: ScheduleRange) => void }) {
+function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange }: { volunteeringId: number, groupId: number, locId: number, range: ScheduleRange, refreshRange: (range: ScheduleRange | null) => void }) {
     const [startTime, setStartTime] = useState(dayjs('2024-01-01T' + range.startTime));
     const [endTime, setEndTime] = useState(dayjs('2024-01-01T' + range.endTime));
     const [amount, setAmount] = useState(0);
@@ -301,6 +301,15 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
             let sTime = dayjs('2024-01-01T' + restrict.startTime);
             await removeRestrictionFromRange(volunteeringId, groupId, locId, range.id, sTime.hour(), sTime.minute());
             refreshRange(range);
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    const onDelete = async () => {
+        try {
+            await removeRange(volunteeringId, range.id);
+            refreshRange(null);
         } catch (e) {
             alert(e)
         }
@@ -325,6 +334,7 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
             </LocalizationProvider>
             <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0} />
             <button className='sendButton' onClick={send}>Add Restriction</button>
+            <button className='sendButton' onClick={onDelete}>Delete Range</button>
         </div>
     )
 }
@@ -420,7 +430,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
         }
     }
 
-    const refreshRange = async (range: ScheduleRange) => {
+    const refreshRange = async (range: ScheduleRange | null) => {
         try {
             setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup, selectedLocation))
             setSelectedRange(range)
@@ -656,7 +666,7 @@ function Volunteering() {
                 </div>
                 {isManager ?
                     <div className='volInfoButtons'>
-                        <button>Settings</button>
+                        <button onClick={() => navigate("./settings")}>Settings</button>
                         <button onClick={() => navigate("./jrequests")}>View Join Requests</button>
                         <button onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
                     </div> : <></>}

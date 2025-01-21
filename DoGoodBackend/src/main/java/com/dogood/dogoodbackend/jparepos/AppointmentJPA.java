@@ -16,4 +16,5 @@ public interface AppointmentJPA extends JpaRepository<ScheduleAppointment, UserV
     List<ScheduleAppointment> findByUserIdAndVolunteeringId(String userId, int volunteeringId);
     List<ScheduleAppointment> findByVolunteeringId(int volunteeringId);
     Long deleteByVolunteeringId(int volunteeringId);
+    Long deleteByVolunteeringIdAndRangeId(int volunteeringId, int rangeId);
 }

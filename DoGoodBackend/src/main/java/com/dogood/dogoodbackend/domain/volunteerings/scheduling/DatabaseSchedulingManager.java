@@ -151,4 +151,9 @@ public class DatabaseSchedulingManager implements SchedulingManager{
         hourRequestJPA.deleteByVolunteeringId(volunteeringId);
         appointmentJPA.deleteByVolunteeringId(volunteeringId);
     }
+
+    @Override
+    public void removeAppointmentsOfRange(int volunteeringId, int rID) {
+        appointmentJPA.deleteByVolunteeringIdAndRangeId(volunteeringId, rID);
+    }
 }

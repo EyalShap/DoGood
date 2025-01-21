@@ -78,6 +78,13 @@ public class Group {
         rangeToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
     }
 
+    public void removeRangeIfHas(int rangeId){
+        if(rangeToLocation.containsKey(rangeId)){
+            locationToRanges.get(rangeToLocation.get(rangeId)).remove(Integer.valueOf(rangeId));
+            rangeToLocation.remove(rangeId);
+        }
+    }
+
     public int getId() {
         return id;
     }
@@ -165,7 +172,7 @@ public class Group {
 
     public List<Integer> getRangesForLocation(int locId) {
         if(!locationToRanges.containsKey(locId)){
-            throw new IllegalArgumentException("Location not in group");
+            return new LinkedList<>();
         }
         return locationToRanges.get(locId);
     }

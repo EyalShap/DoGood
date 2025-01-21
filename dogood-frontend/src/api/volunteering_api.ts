@@ -106,6 +106,18 @@ export const getIsManager = async (organizationId: number): Promise<boolean> => 
     return response.data;
 }
 
+export const userHasSettingsPermission = async (volunteeringId: number): Promise<boolean> => {
+    const config = {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/userHasSettingsPermission?volunteeringId=${volunteeringId}&userId=${sessionStorage.getItem('username')}`, config);
+    const response: APIResponse<boolean> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const getCode = async (volunteeringId: number, constant: boolean): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
@@ -390,6 +402,30 @@ export const removeGroup = async (volunteeringId: number, groupId: number): Prom
     return response.data;
 }
 
+export const removeLocation = async (volunteeringId: number, locId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/removeLocation?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}&locId=${locId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const removeRange = async (volunteeringId: number, rangeId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/removeRange?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}&rangeId=${rangeId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const moveVolunteerGroup = async (volunteeringId: number, groupId: number, volunteerId: string): Promise<string> => {
     const body = {
         volunteerId: volunteerId,
@@ -417,6 +453,26 @@ export const assignVolunteerToLocation = async (volunteeringId: number, locId: n
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
     };
     let res = await axios.patch(`http://${server}/api/volunteering/assignVolunteerToLocation?userId=${sessionStorage.getItem('username')}`, body, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const addVolunteeringLocation = async (volunteeringId: number, name: string, city: string, street: string, address: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        name: name,
+        address: {
+            city: city,
+            street: street,
+            address: address
+        }
+    }
+    let res = await axios.post(`http://${server}/api/volunteering/addVolunteeringLocation?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, request, config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;

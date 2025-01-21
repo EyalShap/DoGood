@@ -216,6 +216,16 @@ public class Volunteering {
         groups.remove(id);
     }
 
+    public void removeRange(int id){
+        if(!scheduleRanges.containsKey(id)){
+            throw new UnsupportedOperationException("There is no range with id "+id);
+        }
+        scheduleRanges.remove(id);
+        for(Group g : groups.values()){
+            g.removeRangeIfHas(id);
+        }
+    }
+
     public int addLocation(String name, AddressTuple address){
         Location loc = new Location(availableLocationId++,id,name,address);
         this.locations.put(loc.getId(), loc);
@@ -230,6 +240,14 @@ public class Volunteering {
             }
             g.removeLocationIfhas(id);
         }
+    }
+
+    public List<Integer> getRangeIdsForLocation(int id){
+        List<Integer> rangeIds = new LinkedList<>();
+        for(Group g : groups.values()){
+            rangeIds.addAll(g.getRangesForLocation(id));
+        }
+        return rangeIds;
     }
 
     public boolean codeValid(String code){

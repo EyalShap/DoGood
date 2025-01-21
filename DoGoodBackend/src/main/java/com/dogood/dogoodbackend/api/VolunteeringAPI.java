@@ -115,9 +115,15 @@ public class VolunteeringAPI {
     }
 
     @DeleteMapping("/removeLocation")
-    public Response<String> removeLocation(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+    public Response<String> removeLocation(@RequestParam String userId,  @RequestParam int volunteeringId, @RequestParam int locId, HttpServletRequest request){
         String token = getToken(request);
-        return volunteeringService.removeLocation(token, userId, body.get("volunteeringId"), body.get("locId"));
+        return volunteeringService.removeLocation(token, userId, volunteeringId, locId);
+    }
+
+    @DeleteMapping("/removeRange")
+    public Response<String> removeRange(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int rangeId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeRange(token, userId, volunteeringId, rangeId);
     }
 
     @PostMapping("/addScheduleRangeToGroup")
@@ -326,5 +332,11 @@ public class VolunteeringAPI {
     public Response<LocationDTO> getUserAssignedLocationData(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.getUserAssignedLocationData(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/userHasSettingsPermission")
+    public Response<Boolean> userHasSettingsPermission(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.userHasSettingsPermission(token, userId, volunteeringId);
     }
 }

@@ -18,6 +18,7 @@ import CreatePost from './components/CreatePost'
 import ReportList from './components/ReportList'
 import Homepage from './components/Homepage'
 import MakeAppointment from './components/MakeAppointment'
+import VolunteeringSettings from './components/VolunteeringSettings'
 
 
 function App() {
@@ -40,6 +41,7 @@ function App() {
         <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
         <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
         <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
+        <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
         <Route path='/scan' element={<CodeScan/>}/>
         <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
         <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
