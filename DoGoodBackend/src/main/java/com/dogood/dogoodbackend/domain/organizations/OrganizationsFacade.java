@@ -30,7 +30,9 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        return organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        int id =  organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        usersFacade.addUserOrganization(actor, id);
+        return id;
     }
 
     public void removeOrganization(int organizationId, String actor) {
@@ -49,6 +51,9 @@ public class OrganizationsFacade {
         organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
+        if(toRemove.isFounder(actor)) {
+            usersFacade.removeUserOrganization(actor, organizationId);
+        }
     }
 
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email, String actor) {

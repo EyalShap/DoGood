@@ -262,6 +262,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + joinerId + " is already a volunteer in volunteering " + volunteeringId);
         }
         volunteering.approveJoinRequest(joinerId, groupId);
+        usersFacade.addUserVolunteering(joinerId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
     }
 
@@ -300,6 +301,8 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         volunteering.leaveVolunteering(userId, new PastExperience(userId, experience, new Date()));
+        usersFacade.addUserVolunteeringHistory(userId, volunteering.getDTO());
+        usersFacade.removeUserVolunteering(userId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
     }
 

@@ -178,4 +178,10 @@ public class User {
             volunteeringIds.remove(volunteeringId);
         }
     }
+
+    public void removeOrganization(int organizationId) {
+        if(myOrganizationIds.contains(organizationId)){
+            myOrganizationIds.remove(organizationId);
+        }
+    }
 }
