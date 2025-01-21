@@ -1,13 +1,19 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Embeddable;
+
 import java.util.LinkedList;
 import java.util.List;
 import java.util.UUID;
 
+@Embeddable
 public class BarcodeHandler {
-    private List<Code> recentCodes;
+    private transient List<Code> recentCodes;
+
+    @ElementCollection
     private List<Code> constantCodes;
-    private final int SECONDS_UNTIL_INVALID = 15;
+    private transient final int SECONDS_UNTIL_INVALID = 15;
 
     public BarcodeHandler() {
         this.recentCodes = new LinkedList<>();
@@ -60,12 +66,14 @@ public class BarcodeHandler {
     }
 
     private void cleanCodes(){
-        List<Code> validCodes = new LinkedList<>();
-        for(Code c : recentCodes){
-            if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
-                validCodes.add(c);
+        synchronized (this.recentCodes) {
+            List<Code> validCodes = new LinkedList<>();
+            for(Code c : recentCodes){
+                if(System.currentTimeMillis() - c.getCreated() <= SECONDS_UNTIL_INVALID*1000){
+                    validCodes.add(c);
+                }
             }
+            this.recentCodes = validCodes;
         }
-        this.recentCodes = validCodes;
     }
 }

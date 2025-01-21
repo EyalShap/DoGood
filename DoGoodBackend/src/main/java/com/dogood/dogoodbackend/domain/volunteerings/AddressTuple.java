@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import jakarta.persistence.Embeddable;
+
+@Embeddable
 public class AddressTuple {
     private String city;
     private String street;
@@ -15,6 +18,10 @@ public class AddressTuple {
         this.city = other.getCity();
         this.street = other.getStreet();
         this.address = other.getAddress();
+    }
+
+    public AddressTuple() {
+
     }
 
     public String getCity() {

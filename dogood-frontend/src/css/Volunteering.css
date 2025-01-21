@@ -105,8 +105,126 @@
     border-style: solid;
 }
 
+.rangePanel {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
 button:active {
     background-color: lightgray;
+}
+
+.maker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.timePicker {
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.sendButton{
+    background-color: white;
+    width: 50%;
+    height: 50px;
+    border-color: #105090;
+    color: #105090;
+    font-weight: bold;
+    font-size: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 5px;
+    margin-bottom: 10px;
+}
+
+.restriction {
+    display: flex;
+    flex-direction: row;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    background-color: white;
+    border-width: 5px;
+    border-color: #901010;
+    border-style: solid;
+    border-radius: 10px;
+    padding: 5px;
+}
+
+.restrictionData {
+    font-weight: bold;
+    margin: 5px;
+    margin-right: 10px;
+}
+
+.restriction button{
+    background-color: white;
+    border-color: #901010;
+    color: #901010;
+    font-weight: bold;
+    font-size: 15px;
+    border-style: solid;
+    border-radius: 10px;
+    border-width: 5px;
+    margin-bottom: 10px;
+}
+
+.volunteers button {
+    width: 10%;
+    margin-top: 5px;
+    height: 40px;
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.volunteers button:active {
+    background-color: lightgray;
+}
+
+.groupHeader {
+    display: flex;
+    flex-direction: row;
+}
+
+.groupHeader button {
+    margin-left: 10px;
+}
+
+.locationSelector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
+}
+
+.locationButtons {
+    display: flex;
+    flex-direction: row;
+}
+
+.location {
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+    margin-left: 5px;
+    margin-right: 5px;
+}
+
+.location p{
+    margin-top: 0;
+    margin-bottom: 0;
 }
 
 @media (max-width: 500px) {
@@ -116,10 +234,22 @@ button:active {
     }
     .volInfoButtons button {
         width: 80%;
-        font-size: 20px;
+        font-size: 10px;
     }
     .scanButtons button {
         width: 80%;
         font-size: 15px;
+    }
+
+    .calender {
+        overflow-x: scroll;
+    }
+
+    .innercalender {
+        width: 1000px;
+    }
+
+    .volunteers button {
+        width: 30%;
     }
 }

@@ -129,6 +129,11 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!appointmentsMapping.get(appointment.getVolunteeringId()).containsKey(appointment.getUserId())){
             appointmentsMapping.get(appointment.getVolunteeringId()).put(appointment.getUserId(), new LinkedList<>());
         }
+        for(ScheduleAppointment other : appointmentsMapping.get(appointment.getVolunteeringId()).get(appointment.getUserId())){
+            if(appointment.intersect(other)){
+                throw new IllegalArgumentException("You have an intersecting appointment within this range");
+            }
+        }
         appointmentsMapping.get(appointment.getVolunteeringId()).get(appointment.getUserId()).add(appointment);
     }
 
@@ -140,12 +145,15 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(!hourApprovalRequestsMapping.get(volunteeringId).containsKey(username)){
             hourApprovalRequestsMapping.get(volunteeringId).put(username, new LinkedList<>());
         }
+        if(end.before(start)){
+            throw new IllegalArgumentException("End time cannot be before start time");
+        }
         for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
             if(request.intersect(start, end)){
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
-        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, start, end));
+        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, volunteeringId, start, end));
     }
 
     private void addApproval(String username, int volunteeringId, Date start, Date end) {
@@ -200,5 +208,25 @@ public class MemorySchedulingManager implements SchedulingManager{
             }
         }
         return count;
+    }
+
+    @Override
+    public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
+        if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
+            hourApprovalRequestsMapping.remove(volunteeringId);
+        }
+        if(appointmentsMapping.containsKey(volunteeringId)){
+            appointmentsMapping.remove(volunteeringId);
+        }
+    }
+
+    @Override
+    public void removeAppointmentsOfRange(int volunteeringId, int rID) {
+        if(appointmentsMapping.containsKey(volunteeringId)){
+            for(String userId : appointmentsMapping.get(volunteeringId).keySet()){
+                List<ScheduleAppointment> newList = appointmentsMapping.get(volunteeringId).get(userId).stream().filter(appointment -> appointment.getRangeId() != rID).toList();
+                appointmentsMapping.get(volunteeringId).put(userId, newList);
+            }
+        }
     }
 }

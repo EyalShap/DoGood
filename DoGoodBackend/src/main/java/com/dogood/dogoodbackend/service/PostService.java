@@ -1,9 +1,8 @@
 package com.dogood.dogoodbackend.service;
 
-import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
-import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
+import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -229,6 +228,30 @@ public class PostService {
         try {
             List<String> volNames = postsFacade.getAllPostsVolunteerings();
             return Response.createResponse(volNames);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<PastExperience>> getPostPastExperiences(String token, String actor, int postId) {
+        //TODO: check token
+
+        try {
+            List<PastExperience> pastExperiences = postsFacade.getPostPastExperiences(postId);
+            return Response.createResponse(pastExperiences);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> getVolunteeringName(String token, String actor, int volunteeringId) {
+        //TODO: check token
+
+        try {
+            String name = postsFacade.getVolunteeringName(volunteeringId);
+            return Response.createResponse(name, null);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());

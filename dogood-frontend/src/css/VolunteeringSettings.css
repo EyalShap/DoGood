@@ -1,0 +1,99 @@
+.settings {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.container {
+    background-color: #F0F0FF;
+    width: 100%;
+    align-items: center;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.locations {
+    display: flex;
+    flex-direction: row;
+}
+
+.remove {
+    border-color: red !important;
+    color: red;
+    width: 80% !important;
+}
+
+.location {
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.location p {
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.container button {
+    width: 20%;
+    margin-top: 5px;
+    height: 40px;
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.popup-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    margin: auto;
+    background: rgb(255, 255, 255);
+    width: 50%;
+    padding: 5px;
+}
+
+.modal {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.modal form{
+    display: flex;
+    flex-direction: column;
+}
+
+.modal input{
+    width: 50%;
+}
+
+.modal button{
+    width: 80%;
+    margin-top: 5px;
+    height: 40px;
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #959595;
+    border-width: 2px;
+    border-style: solid;
+    align-self: center;
+}

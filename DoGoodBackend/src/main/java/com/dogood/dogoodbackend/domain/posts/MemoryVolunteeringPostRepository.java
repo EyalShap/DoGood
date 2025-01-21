@@ -21,8 +21,8 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
             throw new IllegalArgumentException(PostErrors.makePostIdAlreadyExistsError(nextPostId));
         }
 
-        VolunteeringPost newVolunteeringPost = new VolunteeringPost(nextPostId, title, description, posterUsername, volunteeringId, organizationId);
-        posts.put(nextPostId, newVolunteeringPost);
+        VolunteeringPost post = new VolunteeringPost(nextPostId, title, description, posterUsername, volunteeringId, organizationId);
+        posts.put(nextPostId, post);
         nextPostId++;
         return nextPostId - 1;
     }
@@ -37,9 +37,24 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
+    public void removePostsByVolunteeringId(int volunteeringId) {
+        for(VolunteeringPost post : posts.values()) {
+            if(post.getVolunteeringId() == volunteeringId) {
+                posts.remove(post);
+            }
+        }
+    }
+
+    @Override
     public void editVolunteeringPost(int postId, String title, String description) {
         VolunteeringPost toEdit = getVolunteeringPost(postId); // will throw exception if does not exist
         toEdit.edit(title, description);
+    }
+
+    @Override
+    public void incNumOfPeopleRequestedToJoin(int postId) {
+        VolunteeringPost toInc = getVolunteeringPost(postId); // will throw exception if does not exist
+        toInc.incNumOfPeopleRequestedToJoin();
     }
 
     @Override

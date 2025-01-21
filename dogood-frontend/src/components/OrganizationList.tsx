@@ -2,6 +2,7 @@ import { getAllOrganizations } from '../api/organization_api'
 import { useEffect, useState } from 'react'
 import OrganizationModel from '../models/OrganizationModel';
 import { useNavigate } from 'react-router-dom';
+import './../css/OrganizationList.css'
 
 function OrganizationList() {
     const navigate = useNavigate();
@@ -36,10 +37,9 @@ function OrganizationList() {
                 <h2>Organizations</h2>
                 {organizations.length > 0 ? (
                     organizations.map((organization, index) => (
-                        <div key={index} className="organizationItem">
+                        <div key={index} className="organizationItem" onClick={() => handleShowOnClick(organization.id)}>
                             <h3>{organization.name}</h3>
                             <p>{organization.description}</p>
-                            <button onClick={() => handleShowOnClick(organization.id)}>Show</button>
                         </div>
                     ))
                 ) : (

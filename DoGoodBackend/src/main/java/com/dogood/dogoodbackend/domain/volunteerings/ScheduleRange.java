@@ -1,6 +1,9 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.WeekArray;
+import jakarta.persistence.*;
+import org.hibernate.annotations.Type;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -10,23 +13,46 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Entity
+@IdClass(IdVolunteeringPK.class)
 public class ScheduleRange {
-    private final int id;
+    @Id
+    @Column(name="id")
+    private int id;
+    @Id
+    @Column(name = "volunteering_id", nullable = false)
+    private int volunteeringId;
     private LocalTime startTime;
     private LocalTime endTime;
     private int minimumAppointmentMinutes;
     private int maximumAppointmentMinutes;
+
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<RestrictionTuple> restrict;
-    private boolean[] weekDays;
+
+    private boolean sunday;
+    private boolean monday;
+    private boolean tuesday;
+    private boolean wednesday;
+    private boolean thursday;
+    private boolean friday;
+    private boolean saturday;
+
+    private transient boolean[] weekDays;
     private LocalDate oneTime;
 
-    public ScheduleRange(int id, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
+    public ScheduleRange(int id, int volunteeringId, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
         this.id = id;
+        this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.minimumAppointmentMinutes = minimumAppointmentMinutes;
         this.maximumAppointmentMinutes = maximumAppointmentMinutes;
         this.restrict = new LinkedList<>();
+    }
+
+    public ScheduleRange() {
+
     }
 
     public boolean[] getWeekDays() {
@@ -37,6 +63,21 @@ public class ScheduleRange {
         this.weekDays = weekDays;
         if(weekDays != null) {
             oneTime = null;
+            sunday = weekDays[0];
+            monday = weekDays[1];
+            tuesday = weekDays[2];
+            wednesday = weekDays[3];
+            thursday = weekDays[4];
+            friday = weekDays[5];
+            saturday = weekDays[6];
+        }else{
+            sunday = false;
+            monday = false;
+            tuesday = false;
+            wednesday = false;
+            thursday = false;
+            friday = false;
+            saturday = false;
         }
     }
 
@@ -48,6 +89,13 @@ public class ScheduleRange {
         this.oneTime = oneTime;
         if(oneTime != null){
             weekDays = null;
+            sunday = false;
+            monday = false;
+            tuesday = false;
+            wednesday = false;
+            thursday = false;
+            friday = false;
+            saturday = false;
         }
     }
 
@@ -93,6 +141,9 @@ public class ScheduleRange {
     }
 
     public void addRestriction(RestrictionTuple restriction) {
+        if(restriction.getStartTime().isBefore(startTime) || restriction.getEndTime().isAfter(endTime)){
+            throw new IllegalArgumentException("Restriction times are outside range times");
+        }
         for(RestrictionTuple restrictionTuple : restrict) {
             if(restrictionTuple.intersect(restriction.getStartTime(), restriction.getEndTime())){
                 throw new IllegalArgumentException("Cannot add restriction that intersects an existing one");
@@ -146,6 +197,40 @@ public class ScheduleRange {
 
         if(maximumAppointmentMinutes > -1 && minutes > maximumAppointmentMinutes){
             throw new IllegalArgumentException("Must make appointment to at most " + maximumAppointmentMinutes + " minutes.");
+        }
+        if(startTime.isBefore(this.startTime) || endTime.isAfter(this.endTime)){
+            throw new IllegalArgumentException("Appointment must be within range");
+        }
+    }
+
+    @PostLoad
+    private void loadWeekDays(){
+        if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
+            weekDays = new boolean[]{sunday, monday, tuesday, wednesday, thursday, friday, saturday};
+        }
+    }
+
+    private boolean daysMatch(LocalDate oneTime, boolean[] weekDays) {
+        if(oneTime != null){
+            if(this.oneTime != null){
+                return oneTime.isEqual(this.oneTime);
+            }
+            return this.weekDays[oneTime.getDayOfWeek().getValue()%7];
+        }
+        if(this.oneTime != null){
+            return false;
+        }
+        for(int i = 0; i < 7; i++){
+            if(weekDays[i] && !this.weekDays[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public void checkDays(LocalDate oneTime, boolean[] weekDays) {
+        if(!daysMatch(oneTime, weekDays)){
+            throw new IllegalArgumentException("Appointment days do not match range days");
         }
     }
 }

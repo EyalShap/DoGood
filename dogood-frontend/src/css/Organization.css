@@ -1,68 +1,222 @@
+/* General styles */
+body {
+  font-family: 'Roboto', Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f5f5f5;
+  color: #333;
+  box-sizing: border-box;
+}
+
 .orgInfo {
-    background-color: #F0F0FF;
-    padding: 10px;
-    display: flex;
-    flex-direction: row;
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 25px;
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-.orgInfoText {
-    display: flex;
-    align-self: flex-start;
-    flex-direction: column;
-    width: fit-content;
-    color: #2F2F2F;
-    margin-left: 20px;
+/* Organization name and description */
+.orgInfoText h1 {
+  font-size: 2.8rem;
+  color: #222;
+  margin-bottom: 15px;
+  text-align: center;
 }
 
-.orgInfoText h1{
-    font-size: 40px;
-    margin-bottom: 10px;
+.orgInfoText p {
+  font-size: 1.3rem;
+  color: #555;
+  margin-bottom: 25px;
+  text-align: center;
+  line-height: 1.6;
 }
 
+/* Contact section */
 .orgInfoContact {
-    display: flex;
-    align-self: flex-start;
-    flex-direction: column;
-    width: fit-content;
-    color: #2F2F2F;
-    margin-left: 20px;
+  margin: 20px 0;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fcfcfc;
+}
+
+.orgInfoContact h2 {
+  font-size: 1.8rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.orgInfoContact p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+}
+
+.orgInfoContact a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.orgInfoContact a:hover {
+  text-decoration: underline;
+}
+
+/* Buttons */
+.orgInfoButtons button,
+.volunteerings button,
+.managers button {
+  margin: 5px;
+  padding: 12px 18px;
+  font-size: 1rem;
+  color: #fff;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.orgInfoButtons button:hover,
+.volunteerings button:hover,
+.managers button:hover {
+  background: linear-gradient(135deg, #0056b3, #00408d);
+  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .orgInfoButtons {
-    display: flex;
+  text-align: center;
+  margin: 20px 0;
+}
+
+/* Volunteerings */
+.volunteerings {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.volunteerings h2 {
+  font-size: 2rem;
+  color: #222;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+.volunteerings .volunteeringItem {
+  padding: 20px;
+  margin: 15px 0;
+  border-radius: 10px;
+  background: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.volunteerings .volunteeringItem h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.volunteerings .volunteeringItem p {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 10px;
+  line-height: 1.5;
+}
+
+/* Managers */
+.managers h2 {
+  font-size: 2rem;
+  color: #222;
+  margin-top: 40px;
+  text-align: center;
+}
+
+.managers ul {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+.managers li {
+  font-size: 1.2rem;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.managers li span {
+  color: #555;
+  font-weight: bold;
+  font-size: 0.95rem;
+}
+
+.managers input[type="text"] {
+  margin-top: 10px;
+  padding: 10px;
+  font-size: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  width: 100%;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+  .orgInfo {
+    padding: 20px;
+  }
+
+  .orgInfoText h1 {
+    font-size: 2rem;
+  }
+
+  .orgInfoText p {
+    font-size: 1.1rem;
+  }
+
+  .orgInfoContact h2 {
+    font-size: 1.5rem;
+  }
+
+
+  .managers li {
+    font-size: 1rem;
+    padding: 12px;
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    width: 40%;
-    font-weight: bold;
-    color: #2F2F2F;
-    margin-right: 10px;
+    align-items: flex-start;
+  }
+
+  .managers li button {
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 0.85rem;
+    padding: 8px;
+  }
 }
 
-.orgInfoButtons button {
-    width: 50%;
-    margin-top: 5px;
-    height: 40px;
-    font-size: 15px;
-    background-color: white;
-    border-radius: 10px;
-    font-weight: bold;
-    border-color: #959595;
-    border-width: 2px;
-    border-style: solid;
-}
+@media (max-width: 480px) {
+  .orgInfoText h1 {
+    font-size: 1.8rem;
+  }
 
-.orgInfoButtons button:active {
-    background-color: lightgray;
-}
+  .orgInfoContact h2 {
+    font-size: 1.2rem;
+  }
 
-@media (max-width: 500px) {
-    .volInfo {
-        flex-direction: column;
-        align-items: center;
-    }
-    .volInfoButtons button {
-        width: 80%;
-        font-size: 10px;
-    }
+  .orgInfoButtons button {
+    font-size: 0.85rem;
+    padding: 10px;
+  }
+
+
+
 }

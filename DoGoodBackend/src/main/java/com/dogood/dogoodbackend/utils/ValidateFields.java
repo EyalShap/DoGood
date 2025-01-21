@@ -5,7 +5,6 @@ public class ValidateFields {
         if(phoneNumber == null || phoneNumber.isBlank()) {
             return false;
         }
-        phoneNumber = phoneNumber.replaceAll(" ", "");
         return phoneNumber.matches("^(\\+972|0)5\\d-?\\d{7}$");
     }
 

@@ -1,11 +1,9 @@
 import APIResponse from "../models/APIResponse";
-import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
-import RequestModel from "../models/RequestModel";
-import VolunteeringModel from "../models/VolunteeringModel";
 import ReportModel from "../models/ReportModel";
+import { host } from "./general";
 
-const server: string = 'http://127.0.0.1:8080/api/reports';
+const server: string = `http://${host}/api/reports`;
 
 export const createReport = async (reportedPostId: number, description: string): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");

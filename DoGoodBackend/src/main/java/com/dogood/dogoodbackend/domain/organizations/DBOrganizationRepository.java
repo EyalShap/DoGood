@@ -1,33 +1,82 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
+import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.transaction.Transactional;
 import java.util.List;
+import java.util.Optional;
 
 public class DBOrganizationRepository implements OrganizationRepository{
+    private OrganizationJPA jpa;
+
+    public DBOrganizationRepository(OrganizationJPA jpa) {
+        this.jpa = jpa;
+    }
+
+    public DBOrganizationRepository() {}
+
+    public void setJPA(OrganizationJPA jpa) {
+        this.jpa = jpa;
+    }
+
     @Override
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
-        //TODO
-        return 0;
+        Organization organization = new Organization(name, description, phoneNumber, email, actor);
+        jpa.save(organization);
+        return organization.getId();
     }
 
     @Override
     public void removeOrganization(int organizationId) {
-        //TODO
+        if(!jpa.existsById(organizationId)) {
+            throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
+        }
+        jpa.deleteById(organizationId);
     }
 
     @Override
+    @Transactional
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email) {
-        //TODO
+        Organization toEdit = getOrganization(organizationId); // will throw exception if does not exist
+        toEdit.editOrganization(name, description, phoneNumber, email);
+        jpa.save(toEdit);
     }
 
     @Override
+    public void setVolunteeringIds(int organizationId, List<Integer> volunteeringIds) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setVolunteeringIds(volunteeringIds);
+        jpa.save(toSet);
+    }
+
+    @Override
+    public void setManagers(int organizationId, List<String> managers) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setManagers(managers);
+        jpa.save(toSet);
+    }
+
+    @Override
+    public void setFounder(int organizationId, String newFounder) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setFounder(newFounder);
+        jpa.save(toSet);
+    }
+
+    @Override
+    @Transactional
     public Organization getOrganization(int organizationId) {
-        //TODO
-        return null;
+        Optional<Organization> organization = jpa.findById(organizationId);
+        if(!organization.isPresent()) {
+            throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
+        }
+
+        Organization o = organization.get();
+        return o;
     }
 
     @Override
     public List<Organization> getAllOrganizations() {
-        //TODO
-        return null;
+        return jpa.findAll();
     }
 }

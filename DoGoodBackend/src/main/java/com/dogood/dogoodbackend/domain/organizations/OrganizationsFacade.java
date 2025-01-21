@@ -3,10 +3,12 @@ package com.dogood.dogoodbackend.domain.organizations;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.transaction.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Transactional
 public class OrganizationsFacade {
     private OrganizationRepository organizationRepository;
     private RequestRepository requestRepository;
@@ -36,6 +38,12 @@ public class OrganizationsFacade {
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toRemove.getName(), "remove the organization"));
         }
+        //for(int volunteeringId : toRemove.getVolunteeringIds()) {
+        //    volunteeringFacade.removeVolunteering(actor, volunteeringId);
+        //}
+        requestRepository.removeOrganizationRequests(organizationId);
+        organizationRepository.setManagers(organizationId, new ArrayList<>());
+        organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
     }
 
@@ -45,7 +53,7 @@ public class OrganizationsFacade {
         Organization toEdit = organizationRepository.getOrganization(organizationId);
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
-            throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
+            throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
         }
         organizationRepository.editOrganization(organizationId, name, description, phoneNumber, email);
     }
@@ -54,12 +62,13 @@ public class OrganizationsFacade {
         //TODO: check if user exists and logged in
 
         Organization organization = organizationRepository.getOrganization(organizationId);
-        if(!organization.isManager(actor) && !isAdmin(actor)) {
+        if(!isManager(actor, organizationId) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "create a new volunteering"));
         }
 
         int volunteeringId = volunteeringFacade.createVolunteering(actor, organizationId, volunteeringName, volunteeringDescription);
         organization.addVolunteering(volunteeringId);
+        organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
 
         return volunteeringId;
     }
@@ -73,6 +82,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "remove a volunteering"));
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
+        organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
@@ -85,6 +95,11 @@ public class OrganizationsFacade {
         if(organization.isManager(newManager)) {
             throw new IllegalArgumentException(OrganizationErrors.makeUserIsAlreadyAManagerError(newManager, organization.getName()));
         }
+        for(int volunteeringId : organization.getVolunteeringIds()) {
+            if(volunteeringFacade.getHasVolunteer(newManager, volunteeringId)) {
+                throw new IllegalArgumentException(OrganizationErrors.makeUserIsVolunteerInTheOrganizationError(newManager, organization.getName()));
+            }
+        }
         requestRepository.createRequest(newManager, actor, organizationId);
 
         //TODO: change when users facade is implemented
@@ -96,9 +111,9 @@ public class OrganizationsFacade {
 
         Request request = requestRepository.getRequest(actor, organizationId);
         Organization organization = organizationRepository.getOrganization(organizationId);
-
         if(approved) {
             organization.addManager(actor);
+            organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
         }
         requestRepository.deleteRequest(actor, organizationId);
 
@@ -113,6 +128,7 @@ public class OrganizationsFacade {
 
         Organization organization = organizationRepository.getOrganization(organizationId);
         organization.resign(actor);
+        organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
     }
 
     public void removeManager(String actor, String managerToRemove, int organizationId) {
@@ -125,6 +141,7 @@ public class OrganizationsFacade {
         }
 
         organization.removeManager(managerToRemove);
+        organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
     }
 
     public void setFounder(String actor, String newFounder, int organizationId) {
@@ -136,7 +153,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, organization.getName(), "set a new founder to the organization"));
         }
 
-        organization.setFounder(newFounder);
+        organizationRepository.setFounder(organizationId, newFounder);
     }
 
     public List<Request> getUserRequests(String actor) {
@@ -149,6 +166,17 @@ public class OrganizationsFacade {
         Organization organization = organizationRepository.getOrganization(organizationId);
         OrganizationDTO organizationDTO = new OrganizationDTO(organization);
         return organizationDTO;
+    }
+
+    public List<Integer> getUserVolunteerings(int organizationId, String actor) {
+        List<Integer> res = new ArrayList<>();
+        List<Integer> orgVolunteeringIds = getOrganization(organizationId).getVolunteeringIds();
+        for(int volunteeringId : orgVolunteeringIds) {
+            if(volunteeringFacade.getHasVolunteer(actor, volunteeringId)) {
+                res.add(volunteeringId);
+            }
+        }
+        return res;
     }
 
     public List<OrganizationDTO> getAllOrganizations() {
@@ -171,7 +199,7 @@ public class OrganizationsFacade {
     }
 
     // TODO: remove when users facade is implemented
-    private boolean isAdmin(String username) {
+    public boolean isAdmin(String username) {
         return false;
     }
 

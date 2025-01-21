@@ -2,9 +2,12 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.utils.ReportErrors;
+import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Propagation;
 
 import java.util.List;
 
+@Transactional
 public class ReportsFacade {
     private ReportRepository reportRepository;
     //private UsersFacade usersFacade;
@@ -22,7 +25,7 @@ public class ReportsFacade {
             throw new IllegalArgumentException(ReportErrors.makeReportedPostDoesNotExistError(reportedPostId));
         }
 
-        return reportRepository.createReport(actor, reportedPostId, description).getId();
+        return reportRepository.createReport(actor, reportedPostId, description);
     }
 
     public void removeReport(int reportId, String actor) {
@@ -63,6 +66,11 @@ public class ReportsFacade {
         }
 
         return reportRepository.getAllReportDTOs();
+    }
+
+    @Transactional
+    public void removePostReports(int postId) {
+        reportRepository.removePostReports(postId);
     }
 
     //TODO: change this when users facade is implemented

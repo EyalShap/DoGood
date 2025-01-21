@@ -2,6 +2,8 @@ package com.dogood.dogoodbackend.api;
 
 import com.dogood.dogoodbackend.api.volunteeringrequests.*;
 import com.dogood.dogoodbackend.domain.volunteerings.*;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -107,30 +109,64 @@ public class VolunteeringAPI {
     }
 
     @DeleteMapping("/removeGroup")
-    public Response<String> removeGroup(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+    public Response<String> removeGroup(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, HttpServletRequest request){
         String token = getToken(request);
-        return volunteeringService.removeGroup(token, userId, body.get("volunteeringId"), body.get("groupId"));
+        return volunteeringService.removeGroup(token, userId, volunteeringId, groupId);
     }
 
     @DeleteMapping("/removeLocation")
-    public Response<String> removeLocation(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+    public Response<String> removeLocation(@RequestParam String userId,  @RequestParam int volunteeringId, @RequestParam int locId, HttpServletRequest request){
         String token = getToken(request);
-        return volunteeringService.removeLocation(token, userId, body.get("volunteeringId"), body.get("locId"));
+        return volunteeringService.removeLocation(token, userId, volunteeringId, locId);
+    }
+
+    @DeleteMapping("/removeRange")
+    public Response<String> removeRange(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int rangeId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeRange(token, userId, volunteeringId, rangeId);
     }
 
     @PostMapping("/addScheduleRangeToGroup")
-    public Response<Integer> addScheduleRangeToGroup(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+    public Response<Integer> addScheduleRangeToGroup(@RequestParam String userId, @RequestBody CreateRangeRequest body, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.addScheduleRangeToGroup(token, userId,
+                body.getVolunteeringId(),
+                body.getGroupId(),
+                body.getLocId(),
+                body.getStartHour(),
+                body.getStartMinute(),
+                body.getEndHour(),
+                body.getEndMinute(),
+                body.getMinimumMinutes(),
+                body.getMaximumMinutes(),
+                body.getWeekDays(),
+                body.getOneTime());
+    }
+
+    @PostMapping("/addRestrictionToRange")
+    public Response<String> addRestrictionToRange(@RequestParam String userId, @RequestBody Map<String, Integer> body, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.addRestrictionToRange(token, userId,
                 body.get("volunteeringId"),
                 body.get("groupId"),
                 body.get("locId"),
+                body.get("rangeId"),
                 body.get("startHour"),
                 body.get("startMinute"),
                 body.get("endHour"),
                 body.get("endMinute"),
-                body.get("minimumMinutes"),
-                body.get("maximumMinutes"));
+                body.get("amount")
+        );
+    }
+
+    @DeleteMapping("/removeRestrictionFromRange")
+    public Response<String> removeRestrictionFromRange(@RequestParam String userId,
+                                                    @RequestParam int volunteeringId,
+                                                    @RequestParam int groupId,
+                                                    @RequestParam int locId,
+                                                    @RequestParam int rangeId, @RequestParam int startHour, @RequestParam int startMinute, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeRestrictionFromRange(token, userId,volunteeringId, groupId, locId, rangeId, startHour, startMinute);
     }
 
     @PatchMapping("/updateRangeWeekdays")
@@ -220,6 +256,18 @@ public class VolunteeringAPI {
         return volunteeringService.getVolunteeringLocations(token, userId, volunteeringId);
     }
 
+    @GetMapping("/getGroupLocations")
+    public Response<List<LocationDTO>> getGroupLocations(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getGroupLocations(token, userId, volunteeringId, groupId);
+    }
+
+    @GetMapping("/getVolunteeringGroups")
+    public Response<List<Integer>> getVolunteeringGroups(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringGroups(token, userId, volunteeringId);
+    }
+
     @GetMapping("/getVolunteeringVolunteers")
     public Response<Map<String,Integer>> getVolunteeringVolunteers(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
@@ -236,5 +284,59 @@ public class VolunteeringAPI {
     public Response<List<String>> getConstantCodes(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.getConstantCodes(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteerAppointments")
+    public Response<List<ScheduleAppointmentDTO>> getVolunteerAppointments(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteerAppointments(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteerAvailableRanges")
+    public Response<List<ScheduleRangeDTO>> getVolunteerAvailableRanges(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteerAvailableRanges(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteeringLocationGroupRanges")
+    public Response<List<ScheduleRangeDTO>> getVolunteeringLocationGroupRanges(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, @RequestParam int locId,HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringLocationGroupRanges(token, userId, volunteeringId, groupId, locId);
+    }
+
+    @GetMapping("/getVolunteeringHourRequests")
+    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringHourRequests(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteeringJoinRequests")
+    public Response<List<JoinRequest>> getVolunteeringJoinRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringJoinRequests(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getUserAssignedLocation")
+    public Response<Integer> getUserAssignedLocation(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getUserAssignedLocation(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteerGroup")
+    public Response<Integer> getVolunteerGroup(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteerGroup(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getUserAssignedLocationData")
+    public Response<LocationDTO> getUserAssignedLocationData(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getUserAssignedLocationData(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/userHasSettingsPermission")
+    public Response<Boolean> userHasSettingsPermission(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.userHasSettingsPermission(token, userId, volunteeringId);
     }
 }

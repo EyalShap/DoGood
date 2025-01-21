@@ -1,30 +1,38 @@
-import { useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
+import { useEffect, useState } from 'react'
+import './../css/Homepage.css'
 
 function Homepage() {
-    const navigate = useNavigate();
+    const location = useLocation();
+    const isLoginPage = location.pathname === "/";
+    const [isOpen, setIsOpen] = useState(false);
+    const [isAdmin, setIsAdmin] = useState(true);
 
-    const handleOrganizationListOnClick = () => {
-        navigate("/organizationList");
+    const handleShowMenu = () => {
+        setIsOpen(!isOpen);
     }
 
-    const handleVolunteeringPostListOnClick = () => {
-        navigate("/volunteeringPostList");
-    }
-
-    const handleManagerRequestListOnClick = () => {
-        navigate("/managerRequestsList");
-    }
-
-    const handleReportsListOnClick = () => {
-        navigate("/reportList");
+    const closeMenu = () => {
+        setIsOpen(false);
     }
 
     return (
         <div>
-            <button onClick = {handleOrganizationListOnClick}>Organizations List</button>
-            <button onClick = {handleVolunteeringPostListOnClick}>Volunteering Posts List</button>
-            <button onClick = {handleManagerRequestListOnClick}>Manager Requests List</button>
-            <button onClick = {handleReportsListOnClick}>Reports List</button>
+            {(!isLoginPage) && <div className="menu" onClick={handleShowMenu}>
+                <div className="line"></div>
+                <div className="line"></div>
+                <div className="line"></div>
+            </div>}
+
+            {isOpen && (
+                <div className="menu-options">
+                <Link to="/organizationList" onClick={closeMenu}>Organizations List</Link>
+                <Link to="/volunteeringPostList" onClick={closeMenu}>Volunteering Posts List</Link>
+                <Link to="/managerRequestsList" onClick={closeMenu}>Manager Requests List</Link>
+                {isAdmin && <Link to="/reportList" onClick={closeMenu}>Reports List</Link>}
+                <Link to="/" onClick={closeMenu}>Log out</Link>
+                </div>
+            )}
         </div>
     )
 }

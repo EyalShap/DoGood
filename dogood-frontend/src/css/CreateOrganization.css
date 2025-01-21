@@ -1,0 +1,91 @@
+/* General Form Styles */
+.create-organization-form {
+  width: 80%;
+  max-width: 600px;
+  margin: 2rem auto;
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-family: Arial, sans-serif;
+  text-align: center; /* Centers the text inside the form */
+}
+
+/* Form Heading */
+.create-organization-form h1 {
+  font-size: 1.8rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+/* Form Group Styles */
+.create-organization-form div {
+  margin-bottom: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Centers everything inside each form group */
+  gap: 0.5rem;
+}
+
+/* Labels */
+.create-organization-form label {
+  font-weight: bold;
+  font-size: 1rem;
+  color: #555;
+  text-align: center; /* Centers the label text */
+}
+
+/* Input Fields */
+.create-organization-form input {
+  width: 100%;
+  max-width: 400px;
+  height: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+  box-sizing: border-box;
+}
+
+.create-organization-form input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Error Messages */
+.create-organization-form p {
+  margin: 0;
+  color: red;
+  font-size: 0.9rem;
+  text-align: center; /* Ensures error messages are centered */
+}
+
+/* Button */
+.create-organization-form button {
+  margin-top: 1rem;
+  width: 100%;
+  max-width: 400px;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: bold;
+  background-color: #007bff;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.2s ease-in-out;
+}
+
+.create-organization-form button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .create-organization-form {
+    width: 95%;
+    padding: 1rem;
+  }
+}

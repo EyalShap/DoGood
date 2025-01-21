@@ -18,4 +18,8 @@ public interface SchedulingManager {
     public void approveUserHours(String username, int volunteeringId, Date start, Date end);
     public void denyUserHours(String username, int volunteeringId, Date start, Date end);
     public int getAmountOfAppointmentsInRestrict(int volunteeringId, int rangeId, RestrictionTuple r, boolean[] weekDays, LocalDate oneTime);
+
+    void removeAppointmentsAndRequestsForVolunteering(int volunteeringId);
+
+    void removeAppointmentsOfRange(int volunteeringId, int rID);
 }

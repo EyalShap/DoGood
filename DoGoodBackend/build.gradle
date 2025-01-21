@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '3.4.0'
 	id 'io.spring.dependency-management' version '1.1.6'
+	id 'org.hibernate.orm' version "7.0.0.Beta2"
 }
 
 group = 'com.dogood'
@@ -20,6 +21,10 @@ repositories {
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation group: 'mysql', name: 'mysql-connector-java', version: '8.0.33'
+	implementation group: 'org.hibernate', name: 'hibernate-core', version: '7.0.0.Beta3', ext: 'pom'
+	implementation group: 'jakarta.persistence', name: 'jakarta.persistence-api', version: '3.2.0'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 	implementation 'org.apache.lucene:lucene-analysis-common:9.7.0'

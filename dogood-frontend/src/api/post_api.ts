@@ -1,8 +1,10 @@
 import APIResponse from "../models/APIResponse";
 import axios from "axios";
 import { VolunteeringPostModel } from "../models/VolunteeringPostModel";
+import PastExperienceModel from "../models/PastExpreienceModel";
+import { host } from "./general";
 
-const server: string = 'http://127.0.0.1:8080/api/posts';
+const server: string = `http://${host}/api/posts`;
 
 export const createVolunteeringPost = async (title: string, description: string, volunteeringId: number): Promise<number> => {
     let username: string | null = sessionStorage.getItem("username");
@@ -449,4 +451,50 @@ export const getAllVolunteeringNames = async (): Promise<string[]> => {
     }
     let cities: string[] = response.data;
     return cities;
+}
+
+export const getPostPastExperiences = async (postId : number): Promise<PastExperienceModel[]> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getPostPastExperiences?postId=${postId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<PastExperienceModel[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let experiences: PastExperienceModel[] = response.data;
+    return experiences;
+}
+
+export const getVolunteeringName = async (volunteeringId : number): Promise<string> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getVolunteeringName?volunteeringId=${volunteeringId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let name: string = response.data;
+    return name;
 }

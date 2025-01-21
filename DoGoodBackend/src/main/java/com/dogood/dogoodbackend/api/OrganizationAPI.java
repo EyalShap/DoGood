@@ -64,6 +64,13 @@ public class OrganizationAPI {
         return organizationService.createVolunteering(token, orgId, volunteeringName, description, actor);
     }
 
+    /*@DeleteMapping("/removeVolunteering")
+    public Response<Boolean> removeVolunteering(@RequestParam int organizationId, @RequestParam int volunteeringId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.removeVolunteering(token, organizationId, volunteeringId, actor);
+    }*/
+
     @PostMapping("/sendAssignManagerRequest")
     public Response<Boolean> sendAssignManagerRequest(@RequestBody GeneralRequest assignManagerRequest, @RequestParam String newManager, HttpServletRequest request) {
         String token = getToken(request);
@@ -145,5 +152,12 @@ public class OrganizationAPI {
         String token = getToken(request);
 
         return organizationService.getOrganizationName(token, actor, orgId);
+    }
+
+    @GetMapping("/getUserVolunteerings")
+    public Response<List<Integer>> getUserVolunteerings(@RequestParam int organizationId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.getUserVolunteeerings(token, actor, organizationId);
     }
 }

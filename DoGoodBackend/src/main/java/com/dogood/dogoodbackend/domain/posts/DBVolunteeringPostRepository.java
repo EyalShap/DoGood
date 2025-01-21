@@ -1,47 +1,85 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import com.dogood.dogoodbackend.domain.organizations.Organization;
+import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
+import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import com.dogood.dogoodbackend.utils.PostErrors;
+import jakarta.transaction.Transactional;
+
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
+    private VolunteeringPostJPA jpa;
+
+    public DBVolunteeringPostRepository(VolunteeringPostJPA jpa) {
+        this.jpa = jpa;
+    }
+
+    public DBVolunteeringPostRepository() {}
+
+    public void setJPA(VolunteeringPostJPA jpa) {
+        this.jpa = jpa;
+    }
+
     @Override
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
-        //TODO
-        return 0;
+        VolunteeringPost post = new VolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);
+        jpa.save(post);
+        return post.getId();
     }
 
     @Override
     public void removeVolunteeringPost(int postId) {
-        //TODO
+        if(!jpa.existsById(postId)) {
+            throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
+        }
+        jpa.deleteById(postId);
+    }
+
+    @Override
+    @Transactional
+    public void removePostsByVolunteeringId(int volunteeringId) {
+        jpa.deleteByVolunteeringId(volunteeringId);
     }
 
     @Override
     public void editVolunteeringPost(int postId, String title, String description) {
-        //TODO
+        VolunteeringPost toEdit = getVolunteeringPost(postId); // will throw exception if does not exist
+        toEdit.edit(title, description);
+        jpa.save(toEdit);
+    }
+
+    @Override
+    public void incNumOfPeopleRequestedToJoin(int postId) {
+        VolunteeringPost toInc = getVolunteeringPost(postId); // will throw exception if does not exist
+        toInc.incNumOfPeopleRequestedToJoin();
+        jpa.save(toInc);
     }
 
     @Override
     public VolunteeringPost getVolunteeringPost(int postId) {
-        //TODO
-        return null;
+        Optional<VolunteeringPost> post = jpa.findById(postId);
+        if(!post.isPresent()) {
+            throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
+        }
+
+        return post.get();
     }
 
     @Override
     public List<VolunteeringPost> getAllVolunteeringPosts() {
-        //TODO
-        return null;
+        return jpa.findAll();
     }
 
     @Override
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId) {
-        //TODO
-        return null;
+        return jpa.findByOrganizationId(organizationId);
     }
 
     @Override
     public int getVolunteeringIdByPostId(int postId) {
-        //TODO
-        return 0;
+        return getVolunteeringPost(postId).getVolunteeringId();
     }
 
 }

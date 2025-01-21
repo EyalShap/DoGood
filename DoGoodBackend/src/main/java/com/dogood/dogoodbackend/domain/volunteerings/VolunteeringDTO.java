@@ -11,7 +11,8 @@ public class VolunteeringDTO {
     private List<String> categories;
     private List<String> imagePaths;
 
-    public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills, List<String> categories, List<String> imagePaths) {
+    public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills,
+            List<String> categories, List<String> imagePaths) {
         this.id = id;
         this.orgId = orgId;
         this.name = name;
@@ -48,4 +49,15 @@ public class VolunteeringDTO {
     public List<String> getImagePaths() {
         return imagePaths;
     }
+
+    public boolean equals(Object other){
+        if(!(other instanceof VolunteeringDTO)){
+            return false;
+        }
+        return id == ((VolunteeringDTO)other).id && orgId == ((VolunteeringDTO)other).orgId && name.equals(((VolunteeringDTO)other).name) && 
+        description.equals(((VolunteeringDTO)other).description) && name.equals(((VolunteeringDTO)other).name) && ((skills == null && ((VolunteeringDTO)other).skills == null) || skills.equals(((VolunteeringDTO)other).skills)) &&
+        ((categories == null && ((VolunteeringDTO)other).categories == null) || categories.equals(((VolunteeringDTO)other).categories)) && ((imagePaths == null && ((VolunteeringDTO)other).imagePaths == null) || imagePaths.equals(((VolunteeringDTO)other).imagePaths));
+        
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 
 import java.util.ArrayList;
@@ -22,8 +23,8 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdAlreadyExistsError(nextOrganizationId));
         }
 
-        Organization newOrganization = new Organization(nextOrganizationId, name, description, phoneNumber, email, actor);
-        organizations.put(nextOrganizationId, newOrganization);
+        Organization organization = new Organization(nextOrganizationId, name, description, phoneNumber, email, actor);
+        organizations.put(nextOrganizationId, organization);
         nextOrganizationId++;
         return nextOrganizationId - 1;
     }
@@ -41,6 +42,24 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email) {
         Organization toEdit = getOrganization(organizationId); // will throw exception if does not exist
         toEdit.editOrganization(name, description, phoneNumber, email);
+    }
+
+    @Override
+    public void setVolunteeringIds(int organizationId, List<Integer> volunteeringIds) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setVolunteeringIds(volunteeringIds);
+    }
+
+    @Override
+    public void setManagers(int organizationId, List<String> managers) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setManagers(managers);
+    }
+
+    @Override
+    public void setFounder(int organizationId, String newFounder) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setFounder(newFounder);
     }
 
     @Override

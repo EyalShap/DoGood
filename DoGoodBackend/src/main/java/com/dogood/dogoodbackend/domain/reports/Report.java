@@ -1,35 +1,57 @@
 package com.dogood.dogoodbackend.domain.reports;
 
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import java.util.Objects;
 
 import static com.dogood.dogoodbackend.utils.ValidateFields.*;
 
+@Entity
+@Table(name = "posts_report")
 public class Report {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "report_id")
     private int id;
+
+    @Column(name = "reporting_user")
     private String reportingUser;
+
+    @Column(name = "reported_post_id")
     private int reportedPostId;
+
+    @Column(name = "report_description")
     private String description;
+
+    @Column(name = "report_date")
     private LocalDate date;
 
     public Report(int id, String reportingUser, int reportedPostId, String description) {
-        String isValidOrg = isValid(id, description);
+        this.id = id;
+        setFields(reportingUser, reportedPostId, description);
+    }
+
+    public Report(String reportingUser, int reportedPostId, String description) {
+        setFields(reportingUser, reportedPostId, description);
+    }
+
+    private void setFields(String reportingUser, int reportedPostId, String description) {
+        String isValidOrg = isValid(description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
 
-        this.id = id;
         this.reportingUser = reportingUser;
         this.reportedPostId = reportedPostId;
         this.description = description;
         this.date = LocalDate.now();
     }
 
-    private String isValid(int id, String description) {
+    public Report() {}
+
+    private String isValid(String description) {
         StringBuilder res = new StringBuilder();
-        if(id < 0) {
-            res.append(String.format("Invalid id: %d.\n", id));
-        }
         if(!isValidText(description, 2,100)) {
             res.append(String.format("Invalid report description: %s.", description));
         }
@@ -37,7 +59,7 @@ public class Report {
     }
 
     public void edit(String description) {
-        String isValidOrg = isValid(id, description);
+        String isValidOrg = isValid(description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
         }
