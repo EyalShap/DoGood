@@ -166,4 +166,13 @@ public class UsersFacade {
         User user = getUser(username);
         return user.getVolunteeringsInHistory();
     }
+
+    public void removeUserOrganization(String actor, int organizationId) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(actor);
+        user.removeOrganization(organizationId);
+        repository.saveUser(user);
+    }
 }
