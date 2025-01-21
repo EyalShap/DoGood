@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import jakarta.transaction.Transactional;
 
@@ -20,11 +21,13 @@ public class VolunteeringFacade {
     private final double APPROVAL_PERCENTAGE = 0.75;
     private SchedulingFacade schedulingFacade;
     private OrganizationsFacade organizationFacade;
+    private UsersFacade usersFacade;
     private PostsFacade postsFacade;
     //private UserFacade userFacade;
 
 
-    public VolunteeringFacade(OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager) {
+    public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager) {
+        this.usersFacade = usersFacade;
         this.schedulingFacade = new SchedulingFacade(schedulingManager);
         this.organizationFacade = organizationsFacade;
         this.repository = repository;
@@ -48,13 +51,11 @@ public class VolunteeringFacade {
 
     private boolean userExists(String userId){
         loggedInCheck(userId);
-        //return userFacade.userExists(userId);
-        return true;
+        return usersFacade.userExists(userId);
     }
 
     private boolean isAdmin(String userId){
-        //return userFacade.isAdmin(userId);
-        return true;
+        return usersFacade.isAdmin(userId);
     }
 
     public int createVolunteering(String userId, int organizationId, String name, String description){

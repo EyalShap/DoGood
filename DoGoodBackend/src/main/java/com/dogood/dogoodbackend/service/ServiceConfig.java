@@ -23,12 +23,13 @@ public class ServiceConfig {
     public FacadeManager facadeManager(ApplicationContext applicationContext){
         //this will memory for now but will actually db later
         //this is singleton
-        return new FacadeManager(
+        return new FacadeManager(applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
                 new DBVolunteeringPostRepository(applicationContext.getBean(VolunteeringPostJPA.class)),
                 new DBRequestRepository(applicationContext.getBean(RequestJPA.class)),
                 new DBReportRepository(applicationContext.getBean(ReportJPA.class)),
+                new MemoryUsersRepository(),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class),

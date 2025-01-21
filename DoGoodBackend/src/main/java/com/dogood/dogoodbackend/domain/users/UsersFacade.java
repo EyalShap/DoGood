@@ -1,8 +1,10 @@
 package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 
 import java.util.Date;
+import java.util.List;
 
 public class UsersFacade {
     private UsersRepository repository;
@@ -34,7 +36,7 @@ public class UsersFacade {
             // if user with the same username exists, cannot register it again
             throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
         } catch (IllegalArgumentException e) {
-            User user = new User(username, email, name, password, phone, birthDate);
+            repository.createUser(username, email, name, password, phone, birthDate);
         }
     }
 
@@ -42,6 +44,7 @@ public class UsersFacade {
         User user = getUser(username);
         return user.isAdmin();
     }
+
 
     private User getUser(String username) {
         return repository.getUser(username);
@@ -63,3 +66,104 @@ public class UsersFacade {
             return false;
         }
     }
+
+    public void updateUserFields(String username, String password, List<String> emails, String name, String phone){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        if(password == null){
+            repository.updateUserFields(
+                    username == null ? user.getUsername() : username,
+                    emails == null ? user.getEmails() : emails,
+                    name == null ? user.getName() : name,
+                    phone == null ? user.getPhone() : phone);
+        }
+        else{
+            repository.updateUserFields(
+                    username == null ? user.getUsername() : username,
+                    emails == null ? user.getEmails() : emails,
+                    name == null ? user.getName() : name,
+                    password,
+                    phone == null ? user.getPhone() : phone);
+        }
+    }
+
+    public void updateUserSkills(String username, List<String> skills){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.updateSkills(skills);
+        repository.saveUser(user);
+    }
+
+    public void updateUserPreferences(String username, List<String> categories){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.updatePreferences(categories);
+        repository.saveUser(user);
+    }
+
+    public void addUserVolunteering(String username, int volunteeringId){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.addVolunteering(volunteeringId);
+        repository.saveUser(user);
+    }
+
+    public void addUserOrganization(String username, int organizationId){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.addOrganization(organizationId);
+        repository.saveUser(user);
+    }
+
+    public void removeUserVolunteering(String username, int volunteeringId){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.removeVolunteering(volunteeringId);
+        repository.saveUser(user);
+    }
+
+    public void addUserVolunteeringHistory(String username, VolunteeringDTO volunteeringDTO){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        user.addVolunteeringToHistory(volunteeringDTO);
+        repository.saveUser(user);
+    }
+
+    public List<String> getUserSkills(String username){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        return user.getSkills();
+    }
+
+    public List<String> getUserPreferences(String username){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        return user.getPreferredCategories();
+    }
+
+    public List<VolunteeringDTO> getUserVolunteeringHistory(String username){
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User not found");
+        }
+        User user = getUser(username);
+        return user.getVolunteeringsInHistory();
+    }
+}

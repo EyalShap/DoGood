@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.organizations.Request;
+import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,16 +13,23 @@ import java.util.List;
 @Service
 public class OrganizationService {
     private OrganizationsFacade organizationsFacade;
+    private AuthFacade authFacade;
 
     @Autowired
     public OrganizationService(FacadeManager facadeManager){
         this.organizationsFacade = facadeManager.getOrganizationsFacade();
+        this.authFacade = facadeManager.getAuthFacade();
+    }
+
+    private void checkToken(String token, String username){
+        if(!authFacade.getNameFromToken(token).equals(username)){
+            throw new IllegalArgumentException("Invalid token");
+        }
     }
 
     public Response<Integer> createOrganization(String token, String name, String description, String phoneNumber, String email, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             int orgId = organizationsFacade.createOrganization(name, description, phoneNumber, email, actor);
             return Response.createResponse(orgId);
         }
@@ -31,9 +39,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> removeOrganization(String token, int organizationId, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.removeOrganization(organizationId, actor);
             return Response.createResponse(true);
         }
@@ -43,9 +50,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> editOrganization(String token, int organizationId, String name, String description, String phoneNumber, String email, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.editOrganization(organizationId, name, description, phoneNumber, email, actor);
             return Response.createResponse(true);
         }
@@ -55,9 +61,8 @@ public class OrganizationService {
     }
 
     public Response<Integer> createVolunteering(String token, int organizationId, String volunteeringName, String volunteeringDescription, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             int volunteeringId = organizationsFacade.createVolunteering(organizationId, volunteeringName, volunteeringDescription, actor);
             return Response.createResponse(volunteeringId);
         }
@@ -66,22 +71,20 @@ public class OrganizationService {
         }
     }
 
-    /*public Response<Boolean> removeVolunteering(String token, int organizationId, int volunteeringId, String actor) {
-        //TODO: check token
-
+    public Response<Boolean> removeVolunteering(String token, int organizationId, int volunteeringId, String actor) {
         try {
+            checkToken(token, actor);
             organizationsFacade.removeVolunteering(organizationId, volunteeringId, actor);
             return Response.createResponse(true);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
-    }*/
+    }
 
     public Response<Boolean> sendAssignManagerRequest(String token, String newManager, String actor, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.sendAssignManagerRequest(newManager, actor, organizationId);
             return Response.createResponse(true);
         }
@@ -91,9 +94,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> handleAssignManagerRequest(String token, String actor, int organizationId, boolean approved) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.handleAssignManagerRequest(actor, organizationId, approved);
             return Response.createResponse(true);
         }
@@ -103,9 +105,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> resign(String token, String actor, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.resign(actor, organizationId);
             return Response.createResponse(true);
         }
@@ -115,9 +116,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> removeManager(String token, String actor, String managerToRemove, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.removeManager(actor, managerToRemove, organizationId);
             return Response.createResponse(true);
         }
@@ -127,9 +127,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> setFounder(String token, String actor, String newFounder, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             organizationsFacade.setFounder(actor, newFounder, organizationId);
             return Response.createResponse(true);
         }
@@ -139,9 +138,8 @@ public class OrganizationService {
     }
 
     public Response<List<Request>> getUserRequests(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             List<Request> requests = organizationsFacade.getUserRequests(actor);
             return Response.createResponse(requests);
         }
@@ -151,9 +149,8 @@ public class OrganizationService {
     }
 
     public Response<OrganizationDTO> getOrganization(String token, int organizationId, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             OrganizationDTO org = organizationsFacade.getOrganization(organizationId);
             return Response.createResponse(org);
         }
@@ -163,9 +160,8 @@ public class OrganizationService {
     }
 
     public Response<List<OrganizationDTO>> getAllOrganizations(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             List<OrganizationDTO> orgs = organizationsFacade.getAllOrganizations();
             return Response.createResponse(orgs);
         }
@@ -175,9 +171,8 @@ public class OrganizationService {
     }
 
     public Response<Boolean> isManager(String token, String username, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, username);
             boolean res = organizationsFacade.isManager(username, organizationId);
             return Response.createResponse(res);
         }
@@ -187,9 +182,8 @@ public class OrganizationService {
     }
 
     public Response<List<VolunteeringDTO>> getOrganizationVolunteerings(String token, String actor, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             List<VolunteeringDTO> res = organizationsFacade.getOrganizationVolunteerings(organizationId);
             return Response.createResponse(res);
         }
@@ -199,9 +193,8 @@ public class OrganizationService {
     }
 
     public Response<String> getOrganizationName(String token, String actor, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             String res = organizationsFacade.getOrganization(organizationId).getName();
             return Response.createResponse(res, null);
         }
@@ -211,9 +204,8 @@ public class OrganizationService {
     }
 
     public Response<List<Integer>> getUserVolunteeerings(String token, String actor, int organizationId) {
-        //TODO: check token
-
         try {
+            checkToken(token, actor);
             List<Integer> res = organizationsFacade.getUserVolunteerings(organizationId, actor);
             return Response.createResponse(res, null);
         }
