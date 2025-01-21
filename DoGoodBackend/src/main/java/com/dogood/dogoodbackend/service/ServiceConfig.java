@@ -6,6 +6,9 @@ import com.dogood.dogoodbackend.domain.organizations.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.DBReportRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
+import com.dogood.dogoodbackend.domain.users.MemoryUsersRepository;
+import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
@@ -43,6 +46,8 @@ public class ServiceConfig {
                 new MemoryVolunteeringPostRepository(),
                 new MemoryRequestRepository(),
                 new MemoryReportRepository(),
+                new MemoryUsersRepository(),
+                new MemorySchedulingManager(),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class),
