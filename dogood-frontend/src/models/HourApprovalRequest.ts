@@ -1,7 +1,7 @@
 type HourApprovalRequest = {
     userId: string,
-    startTime: Date,
-    endTime: Date
+    startTime: string,
+    endTime: string
 }
 
 export default HourApprovalRequest;

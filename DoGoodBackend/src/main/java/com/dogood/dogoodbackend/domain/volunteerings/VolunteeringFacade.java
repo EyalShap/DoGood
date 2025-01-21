@@ -400,6 +400,23 @@ public class VolunteeringFacade {
         repository.updateVolunteeringInDB(volunteering);
     }
 
+    public void removeRange(String userId, int volunteeringId, int rID) {
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.removeRange(rID);
+        schedulingFacade.removeAppointmentsOfRange(volunteeringId, rID);
+        repository.updateVolunteeringInDB(volunteering);
+    }
+
 
     public void removeLocation(String userId, int volunteeringId, int locId){
         if(!userExists(userId)){
@@ -413,7 +430,11 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
+        List<Integer> rangesToRemove = volunteering.getRangeIdsForLocation(locId);
         volunteering.removeLocation(locId);
+        for(Integer rangeId : rangesToRemove){
+            schedulingFacade.removeAppointmentsOfRange(volunteeringId, rangeId);
+        }
         repository.updateVolunteeringInDB(volunteering);
     }
 
@@ -649,6 +670,14 @@ public class VolunteeringFacade {
         return volunteering.getLocationDTOs();
     }
 
+    public List<LocationDTO> getGroupLocations(int volunteeringId, int groupId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getGroupLocations(groupId);
+    }
+
     public List<Integer> getVolunteeringGroups(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
         if(volunteering == null){
@@ -801,4 +830,13 @@ public class VolunteeringFacade {
         }
         return volunteering.getPastExperiences();
     }
+
+    public boolean userHasSettingsPermission(String userId, int volunteeringId) {
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return isManager(userId, volunteering.getOrganizationId());
+    }
+
 }

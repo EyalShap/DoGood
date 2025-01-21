@@ -91,4 +91,8 @@ public class SchedulingFacade {
     public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
         manager.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
     }
+
+    public void removeAppointmentsOfRange(int volunteeringId, int rID) {
+        manager.removeAppointmentsOfRange(volunteeringId, rID);
+    }
 }

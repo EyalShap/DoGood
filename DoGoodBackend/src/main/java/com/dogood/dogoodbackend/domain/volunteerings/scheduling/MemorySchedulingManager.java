@@ -219,4 +219,14 @@ public class MemorySchedulingManager implements SchedulingManager{
             appointmentsMapping.remove(volunteeringId);
         }
     }
+
+    @Override
+    public void removeAppointmentsOfRange(int volunteeringId, int rID) {
+        if(appointmentsMapping.containsKey(volunteeringId)){
+            for(String userId : appointmentsMapping.get(volunteeringId).keySet()){
+                List<ScheduleAppointment> newList = appointmentsMapping.get(volunteeringId).get(userId).stream().filter(appointment -> appointment.getRangeId() != rID).toList();
+                appointmentsMapping.get(volunteeringId).put(userId, newList);
+            }
+        }
+    }
 }

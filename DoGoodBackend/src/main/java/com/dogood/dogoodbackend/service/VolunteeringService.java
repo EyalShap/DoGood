@@ -206,6 +206,15 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> removeRange(String token, String userId, int volunteeringId, int rID){
+        try{
+            facadeManager.getVolunteeringFacade().removeRange(userId, volunteeringId, rID);
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<String> removeGroup(String token, String userId, int volunteeringId, int groupId){
         try{
             facadeManager.getVolunteeringFacade().removeGroup(userId, volunteeringId, groupId);
@@ -354,6 +363,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<List<LocationDTO>> getGroupLocations(String token, String userId, int volunteeringId, int groupId){
+        try{
+            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);
+            List<LocationDTO> dtos = facadeManager.getVolunteeringFacade().getGroupLocations(volunteeringId, groupId);
+            return Response.createResponse(dtos);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<List<Integer>> getVolunteeringGroups(String token, String userId, int volunteeringId){
         try{
             facadeManager.getVolunteeringFacade().checkViewingPermissions(userId,volunteeringId);
@@ -452,6 +471,14 @@ public class VolunteeringService {
     public Response<LocationDTO> getUserAssignedLocationData(String token, String userId, int volunteeringId){
         try{
             return Response.createResponse(facadeManager.getVolunteeringFacade().getUserAssignedLocationData(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> userHasSettingsPermission(String token, String userId, int volunteeringId) {
+        try{
+            return Response.createResponse(facadeManager.getVolunteeringFacade().userHasSettingsPermission(userId, volunteeringId));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }
