@@ -19,6 +19,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.*;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemorySchedulingManager;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.SchedulingManager;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -34,59 +35,17 @@ public class FacadeManager {
     private UsersFacade usersFacade;
     private AuthFacade authFacade;
 
-    public FacadeManager(VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
+    public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
                          RequestRepository reqRepo, ReportRepository repRepo, UsersRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt){
-        this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
-        this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
-        this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
-        this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
-        this.authFacade = new AuthFacade();
+        this.authFacade = new AuthFacade(jwtSecretKey);
         this.usersFacade = new UsersFacade(userRepo, authFacade);
+        this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
+        this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan);
+        this.postsFacade = new PostsFacade(usersFacade, volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
+        this.reportsFacade = new ReportsFacade(usersFacade, repRepo, postsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
         this.postsFacade.setReportsFacade(reportsFacade);
         this.volunteeringFacade.setPostsFacade(postsFacade);
-    }
-
-    public FacadeManager() {
-        OrganizationRepository orgRepo = new MemoryOrganizationRepository();
-        RequestRepository reqRepo = new MemoryRequestRepository();
-        VolunteeringRepository volRepo = new MemoryVolunteeringRepository();
-        SchedulingManager schedMan = new MemorySchedulingManager();
-        VolunteeringPostRepository volPostRepo = new MemoryVolunteeringPostRepository();
-        ReportRepository repRepo = new MemoryReportRepository();
-        UsersRepository userReop = new MemoryUsersRepository();
-        KeywordExtractor keyExt = new ProxyKeywordExtractor();
-
-        this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
-        this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
-        this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
-        this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
-        this.authFacade = new AuthFacade();
-        this.usersFacade = new UsersFacade(userReop, authFacade);
-
-        this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
-    }
-
-    public void createFacades(VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volPostRepo,
-                              RequestRepository reqRepo, ReportRepository repRepo, UsersRepository userRep, SchedulingManager schedMan, KeywordExtractor keyExt){
-        if(organizationsFacade == null) {
-            this.organizationsFacade = new OrganizationsFacade(orgRepo, reqRepo);
-        }
-        if(volunteeringFacade == null) {
-            this.volunteeringFacade = new VolunteeringFacade(this.organizationsFacade, volRepo, schedMan);
-        }
-        if(postsFacade == null) {
-            this.postsFacade = new PostsFacade(volPostRepo, volunteeringFacade, organizationsFacade, keyExt);
-        }
-        if(reportsFacade == null) {
-            this.reportsFacade = new ReportsFacade(repRepo, postsFacade);
-        }
-        if(authFacade == null) {
-            this.authFacade = new AuthFacade();
-        }
-        if (usersFacade == null) {
-            this.usersFacade = new UsersFacade(userRep, authFacade);
-        }
     }
 
     public VolunteeringFacade getVolunteeringFacade() {

@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
@@ -16,13 +17,15 @@ import java.util.stream.Collectors;
 
 @Transactional
 public class PostsFacade {
+    private UsersFacade usersFacade;
     private VolunteeringPostRepository volunteeringPostRepository;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
     private ReportsFacade reportsFacade;
     private KeywordExtractor keywordExtractor;
 
-    public PostsFacade(VolunteeringPostRepository volunteeringPostRepository, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor) {
+    public PostsFacade(UsersFacade usersFacade, VolunteeringPostRepository volunteeringPostRepository, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor) {
+        this.usersFacade = usersFacade;
         this.volunteeringPostRepository = volunteeringPostRepository;
         this.volunteeringFacade = volunteeringFacade;
         this.organizationsFacade = organizationsFacade;
@@ -34,7 +37,9 @@ public class PostsFacade {
     }
 
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId) {
-        //TODO: check if user exists and logged in
+        if(!userExists(posterUsername)){
+            throw new IllegalArgumentException("User " + posterUsername + " doesn't exist");
+        }
         volunteeringFacade.getVolunteeringDTO(volunteeringId); // check if volunteering exists
 
         int organizationId = volunteeringFacade.getVolunteeringOrganizationId(volunteeringId);
@@ -64,7 +69,9 @@ public class PostsFacade {
 
     @Transactional
     public void removeVolunteeringPost(int postId, String actor) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         VolunteeringPost toRemove = volunteeringPostRepository.getVolunteeringPost(postId);
 
@@ -81,7 +88,9 @@ public class PostsFacade {
 
 
     public void editVolunteeringPost(int postId, String title, String description, String actor) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         VolunteeringPost toEdit = volunteeringPostRepository.getVolunteeringPost(postId);
 
@@ -102,28 +111,36 @@ public class PostsFacade {
     }
 
     public VolunteeringPostDTO getVolunteeringPost(int postId, String actor) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         VolunteeringPost post = volunteeringPostRepository.getVolunteeringPost(postId);
         return new VolunteeringPostDTO(post);
     }
 
     public List<VolunteeringPostDTO> getAllVolunteeringPosts(String actor) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         return volunteeringPostRepository.getVolunteeringPostDTOs(allPosts);
     }
 
     public List<VolunteeringPostDTO> getOrganizationVolunteeringPosts(int organizationId, String actor) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPost> orgPosts = volunteeringPostRepository.getOrganizationVolunteeringPosts(organizationId);
         return volunteeringPostRepository.getVolunteeringPostDTOs(orgPosts);
     }
 
     public void joinVolunteeringRequest(int postId, String actor, String freeText) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         int volunteeringId = volunteeringPostRepository.getVolunteeringIdByPostId(postId);
         volunteeringFacade.requestToJoinVolunteering(actor, volunteeringId, freeText);
@@ -132,7 +149,9 @@ public class PostsFacade {
     }
 
     public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         if(search == null || search.isBlank()) {
             return volunteeringPostRepository.getVolunteeringPostDTOs();
         }
@@ -194,7 +213,9 @@ public class PostsFacade {
     }
 
     public List<VolunteeringPostDTO> sortByRelevance(String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         for(VolunteeringPostDTO post: allPosts) {
             post.setRelevance(evaluatePostRelevance(post, actor));
@@ -234,7 +255,9 @@ public class PostsFacade {
     }
 
     public List<VolunteeringPostDTO> sortByPopularity(String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .sorted(Comparator.comparingInt(post -> -1 * volunteeringPostRepository.getVolunteeringPost(post.getId()).evaluatePopularity()))
@@ -244,7 +267,9 @@ public class PostsFacade {
     }
 
     public List<VolunteeringPostDTO> sortByPostingTime(String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .sorted((post1, post2) -> post2.getPostedTime().compareTo(post1.getPostedTime()))
@@ -254,7 +279,9 @@ public class PostsFacade {
     }
 
     public List<VolunteeringPostDTO> sortByLastEditTime(String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPostDTO> sorted = allPosts.stream()
                 .sorted((post1, post2) -> post2.getLastEditedTime().compareTo(post1.getLastEditedTime()))
@@ -267,7 +294,9 @@ public class PostsFacade {
 
     //TODO: add more parameters
     public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check if user exists and logged in
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
 
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
@@ -378,24 +407,23 @@ public class PostsFacade {
         return volunteeringFacade.getVolunteeringDTO(volunteeringId).getName();
     }
 
-    // TODO: remove when users facade is implemented
-    private boolean isAdmin(String username) {
-        return false;
+    private boolean isAdmin(String user) {
+        return usersFacade.isAdmin(user);
+    }
+    private boolean userExists(String user){
+        return usersFacade.userExists(user);
     }
 
-    // TODO: remove when users facade is implemented
     private Set<String> getUserCategories(String actor) {
-        return new HashSet<>();
+        return new HashSet<>(usersFacade.getUserPreferences(actor));
     }
 
-    // TODO: remove when users facade is implemented
     private Set<String> getUserSkills(String actor) {
-        return new HashSet<>();
+        return new HashSet<>(usersFacade.getUserSkills(actor));
     }
 
-    // TODO: remove when users facade is implemented
     private List<VolunteeringDTO> getUserVolunteeringHistory(String actor) {
-        return new ArrayList<>();
+        return usersFacade.getUserVolunteeringHistory(actor);
     }
 
 

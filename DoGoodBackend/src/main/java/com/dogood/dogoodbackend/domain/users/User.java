@@ -92,10 +92,90 @@ public class User {
         return this.isAdmin;
     }
 
+    public void updateFields(List<String> emails, String name, String phoneNumber) {
+        this.emails = emails;
+        this.name = name;
+        this.phone = phoneNumber;
+    }
+
     public void updateFields(List<String> emails, String name, String password, String phoneNumber) {
         this.emails = emails;
         this.name = name;
         this.passwordHash = Cryptography.hashString(password);
         this.phone = phoneNumber;
+    }
+
+    public void updateSkills(List<String> skills) {
+        this.skills = skills;
+    }
+
+    public void updatePreferences(List<String> preferredCategories){
+        this.preferredCategories = preferredCategories;
+    }
+
+    public void addVolunteering(int volunteeringId) {
+        this.volunteeringIds.add(volunteeringId);
+    }
+
+    public void addOrganization(int organizationId) {
+        this.myOrganizationIds.add(organizationId);
+    }
+
+    public void addVolunteeringToHistory(VolunteeringDTO volunteeringDTO) {
+        this.volunteeringsInHistory.add(volunteeringDTO);
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public List<String> getEmails() {
+        return emails;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public String getPasswordHash() {
+        return passwordHash;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public Date getBirthDate() {
+        return birthDate;
+    }
+
+    public List<String> getPreferredCategories() {
+        return preferredCategories;
+    }
+
+    public List<Integer> getVolunteeringIds() {
+        return volunteeringIds;
+    }
+
+    public List<VolunteeringDTO> getVolunteeringsInHistory() {
+        return volunteeringsInHistory;
+    }
+
+    public List<Integer> getMyOrganizationIds() {
+        return myOrganizationIds;
+    }
+
+    public List<String> getSkills() {
+        return skills;
+    }
+
+    public boolean isStudent() {
+        return isStudent;
+    }
+
+    public void removeVolunteering(int volunteeringId) {
+        if(volunteeringIds.contains(volunteeringId)){
+            volunteeringIds.remove(volunteeringId);
+        }
     }
 }

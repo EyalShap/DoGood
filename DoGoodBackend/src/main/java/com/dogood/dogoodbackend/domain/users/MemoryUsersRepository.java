@@ -36,6 +36,15 @@ public class MemoryUsersRepository implements UsersRepository {
     }
 
     @Override
+    public void updateUserFields(String username, List<String> emails, String name, String phoneNumber) {
+        if (!users.containsKey(username)) {
+            throw new IllegalArgumentException("Update failed - username:" + username + "doesn't exist");
+        }
+        User user = users.get(username);
+        user.updateFields(emails, name, phoneNumber);
+    }
+
+    @Override
     public User getUser(String username) {
         if (!users.containsKey(username)) {
             throw new IllegalArgumentException("Username:" + username + "doesn't exist");
@@ -46,5 +55,10 @@ public class MemoryUsersRepository implements UsersRepository {
     @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
+    }
+
+    @Override
+    public void saveUser(User user) {
+        return;
     }
 }

@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
+import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -12,16 +13,23 @@ import java.util.Set;
 @Service
 public class PostService {
     private PostsFacade postsFacade;
+    private AuthFacade authFacade;
 
     @Autowired
     public PostService(FacadeManager facadeManager){
         this.postsFacade = facadeManager.getPostsFacade();
+        this.authFacade = facadeManager.getAuthFacade();
+    }
+
+    private void checkToken(String token, String username){
+        if(!authFacade.getNameFromToken(token).equals(username)){
+            throw new IllegalArgumentException("Invalid token");
+        }
     }
 
     public Response<Integer> createVolunteeringPost(String token, String title, String description, String actor, int volunteeringId) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             int postId = postsFacade.createVolunteeringPost(title, description, actor, volunteeringId);
             return Response.createResponse(postId);
         }
@@ -31,9 +39,8 @@ public class PostService {
     }
 
     public Response<Boolean> removeVolunteeringPost(String token, int postId, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             postsFacade.removeVolunteeringPost(postId, actor);
             return Response.createResponse(true);
         }
@@ -43,9 +50,8 @@ public class PostService {
     }
 
     public Response<Boolean> editVolunteeringPost(String token, int postId, String title, String description, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             postsFacade.editVolunteeringPost(postId, title, description, actor);
             return Response.createResponse(true);
         }
@@ -55,9 +61,8 @@ public class PostService {
     }
 
     public Response<VolunteeringPostDTO> getVolunteeringPost(String token, int postId, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             VolunteeringPostDTO post = postsFacade.getVolunteeringPost(postId, actor);
             return Response.createResponse(post);
         }
@@ -67,9 +72,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.getAllVolunteeringPosts(actor);
             return Response.createResponse(posts);
         }
@@ -79,9 +83,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(String token, int organizationId, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.getOrganizationVolunteeringPosts(organizationId, actor);
             return Response.createResponse(posts);
         }
@@ -91,9 +94,8 @@ public class PostService {
     }
 
     public Response<Boolean> joinVolunteeringRequest(String token, int postId, String actor, String freeText) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             postsFacade.joinVolunteeringRequest(postId, actor, freeText);
             return Response.createResponse(true);
         }
@@ -103,9 +105,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> searchByKeywords(String token, String search, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.searchByKeywords(search, actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -115,9 +116,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> sortByRelevance(String token, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.sortByRelevance(actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -127,9 +127,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> sortByPopularity(String token, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.sortByPopularity(actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -139,9 +138,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> sortByPostingTime(String token, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.sortByPostingTime(actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -151,9 +149,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> sortByLastEditTime(String token, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.sortByLastEditTime(actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -163,9 +160,8 @@ public class PostService {
     }
 
     public Response<List<VolunteeringPostDTO>> filterPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.filterPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPosts);
             return Response.createResponse(posts);
         }
@@ -175,9 +171,8 @@ public class PostService {
     }
 
     public Response<List<String>> getAllPostsCategories(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<String> categories = postsFacade.getAllPostsCategories();
             return Response.createResponse(categories);
         }
@@ -187,9 +182,8 @@ public class PostService {
     }
 
     public Response<List<String>> getAllPostsSkills(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<String> skills = postsFacade.getAllPostsSkills();
             return Response.createResponse(skills);
         }
@@ -199,9 +193,8 @@ public class PostService {
     }
 
     public Response<List<String>> getAllPostsCities(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<String> cities = postsFacade.getAllPostsCities();
             return Response.createResponse(cities);
         }
@@ -211,9 +204,8 @@ public class PostService {
     }
 
     public Response<List<String>> getAllOrganizationNames(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<String> orgNames = postsFacade.getAllPostsOrganizations();
             return Response.createResponse(orgNames);
         }
@@ -223,9 +215,8 @@ public class PostService {
     }
 
     public Response<List<String>> getAllVolunteeringNames(String token, String actor) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<String> volNames = postsFacade.getAllPostsVolunteerings();
             return Response.createResponse(volNames);
         }
@@ -235,9 +226,8 @@ public class PostService {
     }
 
     public Response<List<PastExperience>> getPostPastExperiences(String token, String actor, int postId) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             List<PastExperience> pastExperiences = postsFacade.getPostPastExperiences(postId);
             return Response.createResponse(pastExperiences);
         }
@@ -247,9 +237,8 @@ public class PostService {
     }
 
     public Response<String> getVolunteeringName(String token, String actor, int volunteeringId) {
-        //TODO: check token
-
         try {
+            checkToken(token,actor);
             String name = postsFacade.getVolunteeringName(volunteeringId);
             return Response.createResponse(name, null);
         }

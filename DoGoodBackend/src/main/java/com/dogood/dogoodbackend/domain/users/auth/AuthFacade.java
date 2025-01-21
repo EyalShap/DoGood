@@ -14,12 +14,16 @@ import java.util.Set;
 
 public class AuthFacade {
     public int JWT_VALIDITY_IN_MS = 1000 * 60;
-    @Value("${security.jwt.secret-key}")
     private String secretKey;
     private Set<String> invalidatedTokens;
 
-    public AuthFacade() {
+    public  AuthFacade() {
         invalidatedTokens = new HashSet<String>();
+        this.secretKey = "3cfa76ef14787c1c0ea519f8fc057b70fcd04a7420f8e8bcd0a7567c272e007b";
+    }
+    public AuthFacade(String key) {
+        invalidatedTokens = new HashSet<String>();
+        this.secretKey = key;
     }
 
     public String generateToken(String username) {
