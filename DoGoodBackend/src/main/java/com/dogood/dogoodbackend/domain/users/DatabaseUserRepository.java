@@ -60,6 +60,16 @@ public class DatabaseUserRepository implements UserRepository {
     }
 
     @Override
+    public void setAdmin(String username, boolean isAdmin) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Update failed - username: " + username + " doesn't exist");
+        }
+        user.setAdmin(isAdmin);
+        jpa.save(user);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return jpa.findAll();
     }

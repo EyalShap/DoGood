@@ -11,6 +11,7 @@ public interface UserRepository {
     public User getUser(String username);
     public List<User> getAllUsers();
     public void saveUser(User user);
+    public void setAdmin(String username, boolean isAdmin);
 
 //    public default List<UserDTO> getAllUserDTOs() {
 //        List<User> users = getAllUsers();

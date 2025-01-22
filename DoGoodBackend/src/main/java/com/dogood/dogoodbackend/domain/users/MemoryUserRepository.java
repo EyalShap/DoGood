@@ -54,6 +54,15 @@ public class MemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public void setAdmin(String username, boolean isAdmin) {
+        if (!users.containsKey(username)) {
+            throw new IllegalArgumentException("Update failed - username: " + username + " doesn't exist");
+        }
+        User user = users.get(username);
+        user.setAdmin(isAdmin);
+    }
+
+    @Override
     public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }

@@ -45,6 +45,17 @@ public class UsersFacade {
         return user.isAdmin();
     }
 
+    public void registerAdmin(String username, String password, String name, String email, String phone, Date birthDate) {
+        try {
+            User user = getUser(username);
+            // if user with the same username exists, cannot register it again
+            throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
+        } catch (IllegalArgumentException e) {
+            repository.createUser(username, email, name, password, phone, birthDate);
+            repository.setAdmin(username, true);
+        }
+    }
+
 
     private User getUser(String username) {
         return repository.getUser(username);
