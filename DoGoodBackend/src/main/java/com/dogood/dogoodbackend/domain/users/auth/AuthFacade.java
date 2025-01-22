@@ -13,7 +13,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AuthFacade {
-    public int JWT_VALIDITY_IN_MS = 1000 * 60;
+    public long JWT_VALIDITY_IN_MS = 1000 * 60 * 60 * 24; // 24 hours
     private String secretKey;
     private Set<String> invalidatedTokens;
 

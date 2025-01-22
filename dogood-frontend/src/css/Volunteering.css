@@ -227,6 +227,34 @@ button:active {
     margin-bottom: 0;
 }
 
+.popup-overlay {
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.popup-content {
+    margin: auto;
+    background: rgb(255, 255, 255);
+    width: 100%;
+    padding: 5px;
+}
+
+.pickers {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+.pickers .datetimepicker{
+    margin-top: 5px;
+}
+
+.datetimepicker button{
+    border-width: 0 !important;
+    border-style: none !important;
+    margin-left: auto;
+    width: min-content;
+}
+
 @media (max-width: 500px) {
     .volInfo {
         flex-direction: column;

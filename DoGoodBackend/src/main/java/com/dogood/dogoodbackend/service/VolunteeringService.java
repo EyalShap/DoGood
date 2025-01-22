@@ -315,6 +315,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> cancelAppointment(String token, String userId, int volunteeringId, int startHour, int startMinute){
+        try{
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().cancelAppointment(userId, volunteeringId, LocalTime.of(startHour, startMinute));
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<String> clearConstantCodes(String token, String userId, int volunteeringId){
         try{
             checkToken(token, userId);
