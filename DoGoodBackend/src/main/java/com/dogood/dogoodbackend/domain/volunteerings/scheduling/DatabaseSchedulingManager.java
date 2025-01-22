@@ -6,6 +6,7 @@ import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -98,6 +99,11 @@ public class DatabaseSchedulingManager implements SchedulingManager{
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
+        for(ApprovedHours approved : approvedHoursJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
+            if(approved.intersect(start, end)){
+                throw new UnsupportedOperationException("Approved hours for username " + username + " in this range already exist");
+            }
+        }
         hourRequestJPA.save(new HourApprovalRequests(username, volunteeringId, start, end));
     }
 
@@ -155,5 +161,14 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     @Override
     public void removeAppointmentsOfRange(int volunteeringId, int rID) {
         appointmentJPA.deleteByVolunteeringIdAndRangeId(volunteeringId, rID);
+    }
+
+    @Override
+    public void cancelAppointment(String userId, int volunteeringId, LocalTime start) {
+        try {
+            appointmentJPA.deleteById(new UserVolunteerTimeKT(userId, volunteeringId, start));
+        }catch (Exception e){
+            throw new IllegalArgumentException("There is no appointment for volunteering " + volunteeringId + " by user " + userId + " that starts at " + start);
+        }
     }
 }

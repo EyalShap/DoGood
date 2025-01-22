@@ -552,9 +552,21 @@ public class VolunteeringFacade {
         }
         ScheduleRange range = volunteering.getScheduleRange(groupId, locId, rangeId);
         schedulingFacade.makeAppointment(userId, volunteeringId, range, start, end, weekdays, oneTime);
-        repository.updateVolunteeringInDB(volunteering);
     }
 
+    public void cancelAppointment(String userId, int volunteeringId, LocalTime start){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!volunteering.hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
+        }
+        schedulingFacade.cancelAppointment(userId, volunteeringId, start);
+    }
 
     public void clearConstantCodes(String userId, int volunteeringId){
         if(!userExists(userId)){

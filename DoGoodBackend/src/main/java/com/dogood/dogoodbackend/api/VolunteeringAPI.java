@@ -208,6 +208,12 @@ public class VolunteeringAPI {
                 body.getOneTime());
     }
 
+    @DeleteMapping("/cancelAppointment")
+    public Response<String> cancelAppointment(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int startHour, @RequestParam int startMinute, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.cancelAppointment(token, userId, volunteeringId, startHour, startMinute);
+    }
+
     @DeleteMapping("/clearConstantCodes")
     public Response<String> clearConstantCodes(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);

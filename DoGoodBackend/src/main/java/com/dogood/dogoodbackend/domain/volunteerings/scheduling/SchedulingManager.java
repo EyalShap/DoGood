@@ -22,4 +22,6 @@ public interface SchedulingManager {
     void removeAppointmentsAndRequestsForVolunteering(int volunteeringId);
 
     void removeAppointmentsOfRange(int volunteeringId, int rID);
+
+    void cancelAppointment(String userId, int volunteeringId, LocalTime start);
 }

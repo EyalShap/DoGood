@@ -26,6 +26,10 @@ public class ApprovedHours {
         this.endTime = endTime;
     }
 
+    public boolean intersect(Date otherStartTime, Date otherEndTime) {
+        return !(otherStartTime.equals(this.endTime) || otherEndTime.equals(this.startTime) || otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
+    }
+
     public ApprovedHours() {}
 
     public String getUserId() {

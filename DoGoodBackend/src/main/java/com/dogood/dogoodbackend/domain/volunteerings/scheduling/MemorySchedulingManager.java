@@ -153,6 +153,13 @@ public class MemorySchedulingManager implements SchedulingManager{
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
+        if(approvedHoursMapping.containsKey(volunteeringId) && approvedHoursMapping.get(volunteeringId).containsKey(username)){
+            for(ApprovedHours approved : approvedHoursMapping.get(volunteeringId).get(username)){
+                if(approved.intersect(start, end)){
+                    throw new UnsupportedOperationException("Approved hours for username " + username + " in this range already exist");
+                }
+            }
+        }
         hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, volunteeringId, start, end));
     }
 
@@ -224,9 +231,16 @@ public class MemorySchedulingManager implements SchedulingManager{
     public void removeAppointmentsOfRange(int volunteeringId, int rID) {
         if(appointmentsMapping.containsKey(volunteeringId)){
             for(String userId : appointmentsMapping.get(volunteeringId).keySet()){
-                List<ScheduleAppointment> newList = appointmentsMapping.get(volunteeringId).get(userId).stream().filter(appointment -> appointment.getRangeId() != rID).toList();
-                appointmentsMapping.get(volunteeringId).put(userId, newList);
+                appointmentsMapping.get(volunteeringId).get(userId).removeIf(appointment -> appointment.getRangeId() == rID);
             }
+        }
+    }
+
+    @Override
+    public void cancelAppointment(String userId, int volunteeringId, LocalTime start) {
+        checkExistsAppointments(userId, volunteeringId);
+        if(!appointmentsMapping.get(volunteeringId).get(userId).removeIf(appointment -> appointment.getStartTime().equals(start))){
+            throw new IllegalArgumentException("There is no appointment for volunteering " + volunteeringId + " by user " + userId + " that starts at " + start);
         }
     }
 }

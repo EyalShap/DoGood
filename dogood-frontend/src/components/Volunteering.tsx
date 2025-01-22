@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange } from '../api/volunteering_api'
+import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, cancelAppointment, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange, requestHoursApproval } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -9,11 +9,12 @@ import { DayPilot } from '@daypilot/daypilot-lite-react';
 import Location from '../models/Location';
 
 import ScheduleRange, { RestrictionTuple } from '../models/ScheduleRange';
-import dayjs from 'dayjs';
-import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import dayjs, { Dayjs } from 'dayjs';
+import { DatePicker, DateTimePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
 import NumberInput from './NumberInput';
+import Popup from 'reactjs-popup';
 
 
 
@@ -120,6 +121,27 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
         }
     }, [appointments, startDate, ready])
 
+
+    const onCancel = async (startTime: DayPilot.Date) => {
+        try {
+            await cancelAppointment(volunteeringId, startTime.getHours(), startTime.getMinutes());
+            fetchAppointments();
+        }
+        catch (e) {
+            alert(e)
+        }
+    }
+
+    const onRequest = async (startDate: DayPilot.Date, endDate: DayPilot.Date) => {
+        try {
+            await requestHoursApproval(volunteeringId, startDate.toString(), endDate.toString());
+            alert("Request Sent Successfully!")
+        }
+        catch (e) {
+            alert(e)
+        }
+    }
+
     const isMobile = width <= 768;
 
     return (
@@ -139,6 +161,20 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
                         cellHeight={isMobile ? 15 : 30}
                         eventMoveHandling='Disabled'
                         eventResizeHandling='Disabled'
+                        contextMenu={new DayPilot.Menu(
+                            {
+                                items: [
+                                    {
+                                        text: "Cancel Appointment",
+                                        onClick: args => onCancel(args.source.start())
+                                    },
+                                    {
+                                        text: "Request Approval",
+                                        onClick: args => onRequest(args.source.start(), args.source.end())
+                                    }
+                                ]
+                            }
+                        )}
                         headerTextWrappingEnabled={true} />
                 </div></div>
         </div>
@@ -537,6 +573,38 @@ function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: numb
     )
 }
 
+function HourRequestMaker({ volunteerindId, close }: { volunteerindId: number, close: any }) {
+    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs('2024-01-01T00:00:000'));
+    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs('2024-01-01T00:00:000'));
+    const [date, setDate] = useState<Dayjs | null>(dayjs())
+
+    const onRequest = async () => {
+        try {
+            let dateString = date?.toISOString()!.split('T')[0];
+            let startString = startTime?.toISOString()!.split('T')[1];
+            let endString = endTime?.toISOString()!.split('T')[1];
+            await requestHoursApproval(volunteerindId, `${dateString}T${startString}`, `${dateString}T${endString}`);
+            alert("Request Sent Successfully!")
+            close();
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    return (
+        <div className='maker'>
+            <div className='pickers'>
+                <LocalizationProvider dateAdapter={AdapterDayjs}>
+                    <DatePicker className='datetimepicker' label="Date" value={date} onChange={newValue => setDate(newValue)} maxDate={dayjs()}/>
+                    <TimePicker ampm={false} className='datetimepicker' label="Start Time" value={startTime} onChange={(newValue) => setStartTime(newValue)}/>
+                    <TimePicker ampm={false} className='datetimepicker' label="End Time" value={endTime} onChange={(newValue) => setEndTime(newValue)} minTime={endTime!}/>
+                </LocalizationProvider>
+            </div>
+            <button onClick={onRequest}>Request</button>
+        </div>
+    )
+}
+
 function Volunteering() {
     const navigate = useNavigate();
     const [model, setModel] = useState<VolunteeringModel>({ id: -1, orgId: -1, name: "", description: "", skills: [], categories: [] });
@@ -648,11 +716,11 @@ function Volunteering() {
     }
 
     const assignUserToLocation = async (locId: number) => {
-        try{
+        try {
             await assignVolunteerToLocation(parseInt(id!), locId);
             fetchVolunteering();
             updateHasLocation();
-        }catch(e){
+        } catch (e) {
             alert(e);
         }
     }
@@ -693,6 +761,15 @@ function Volunteering() {
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
                     <button onClick={() => navigate("./appointment")}>Make An Appointment</button>
+                    <Popup trigger={<button>Request Hours Manually</button>} modal nested>
+                        {/* 
+                    // @ts-ignore */}
+                        {close => (
+                            <div className="modal">
+                                <HourRequestMaker close={close} volunteerindId={parseInt(id!)} />
+                            </div>
+                        )}
+                    </Popup>
                 </div> : <></>}
             {!hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
             {isManager && <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />}

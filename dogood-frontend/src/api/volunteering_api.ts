@@ -308,6 +308,18 @@ export const makeAppointment = async (volunteeringId: number, rangeId:number, st
     return response.data;
 }
 
+export const cancelAppointment = async (volunteeringId: number, startHour: number, startMinute: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/cancelAppointment?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}&startHour=${startHour}&startMinute=${startMinute}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const addScheduleRangeToGroup = async (volunteeringId: number, groupId: number, locId: number, minimumAppointmentMinutes: number, maximumAppointmentMinutes: number, startHour: number, startMinute: number, endHour: number, endMinute: number, oneTime: string | null, weekDays: boolean[] | null): Promise<number> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
@@ -473,6 +485,22 @@ export const addVolunteeringLocation = async (volunteeringId: number, name: stri
         }
     }
     let res = await axios.post(`http://${server}/api/volunteering/addVolunteeringLocation?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, request, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const requestHoursApproval = async (volunteeringId: number, startDate: string, endDate: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        startDate: startDate,
+        endDate: endDate
+    }
+    let res = await axios.post(`http://${server}/api/volunteering/requestHoursApproval?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, request, config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;
