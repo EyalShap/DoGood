@@ -48,7 +48,7 @@ public class AuthFacade {
     }
     public  AuthFacade() {
         invalidatedTokens = new HashSet<String>();
-        this.secretKey = "3cfa76ef14787c1c0ea519f8fc057b70fcd04a7420f8e8bcd0a7567c272e007b";
+        this.secretKey = generateSecretKey();
     }
     public AuthFacade(String key) {
         invalidatedTokens = new HashSet<String>();
