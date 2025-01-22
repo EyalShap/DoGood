@@ -1,6 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
-import com.dogood.dogoodbackend.domain.users.MemoryUsersRepository;
+import com.dogood.dogoodbackend.domain.users.MemoryUserRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
@@ -10,8 +10,6 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.MemoryScheduling
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -41,9 +39,9 @@ class OrganizationsFacadeMemoryIntegrationTest {
     void setUp() {
         this.requestRepository = new MemoryRequestRepository();
         this.organizationRepository = new MemoryOrganizationRepository();
-        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), organizationRepository, requestRepository);
+        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.organizationId = this.organizationsFacade.createOrganization(name1, description1, phoneNumber1, email1, actor1);
-        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), organizationsFacade, new MemoryVolunteeringRepository(), new MemorySchedulingManager());
+        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, new MemoryVolunteeringRepository(), new MemorySchedulingManager());
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
 
         this.organization1 = new OrganizationDTO(new Organization(organizationId, name1, description1, phoneNumber1, email1, actor1));

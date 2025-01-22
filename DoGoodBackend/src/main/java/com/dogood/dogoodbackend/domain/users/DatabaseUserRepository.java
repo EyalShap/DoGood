@@ -1,64 +1,81 @@
 package com.dogood.dogoodbackend.domain.users;
 
-import java.util.*;
+import com.dogood.dogoodbackend.jparepos.UserJPA;
 
-public class MemoryUsersRepository implements UsersRepository {
-    private Map<String, User> users;
+import java.util.Date;
+import java.util.List;
 
-    public MemoryUsersRepository() {
-        this.users = new HashMap<>();
+public class DatabaseUserRepository implements UserRepository {
+    private UserJPA jpa;
+
+    public DatabaseUserRepository(UserJPA jpa) {
+        this.jpa = jpa;
     }
 
     @Override
     public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate) {
-        if (users.containsKey(username)) {
+        if (jpa.findById(username).orElse(null) != null) {
             throw new IllegalArgumentException("Register failed - username:" + username + " already exists");
         }
         User user = new User(username, email, name, password, phoneNumber, birthDate);
-        users.put(username, user);
+        jpa.save(user);
         return user;
     }
 
     @Override
     public void removeUser(String username) {
-        if (!users.containsKey(username)) {
+        if (jpa.findById(username).orElse(null) == null) {
             throw new IllegalArgumentException("Remove user failed - username:" + username + " doesn't exist");
         }
+        jpa.deleteById(username);
     }
 
     @Override
     public void updateUserFields(String username, List<String> emails, String name, String password, String phoneNumber) {
-        if (!users.containsKey(username)) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
             throw new IllegalArgumentException("Update failed - username:" + username + "doesn't exist");
         }
-        User user = users.get(username);
         user.updateFields(emails, name, password, phoneNumber);
+        jpa.save(user);
     }
 
     @Override
     public void updateUserFields(String username, List<String> emails, String name, String phoneNumber) {
-        if (!users.containsKey(username)) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
             throw new IllegalArgumentException("Update failed - username:" + username + "doesn't exist");
         }
-        User user = users.get(username);
         user.updateFields(emails, name, phoneNumber);
+        jpa.save(user);
     }
 
     @Override
     public User getUser(String username) {
-        if (!users.containsKey(username)) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
             throw new IllegalArgumentException("Username:" + username + "doesn't exist");
         }
-        return users.get(username);
+        return user;
+    }
+
+    @Override
+    public void setAdmin(String username, boolean isAdmin) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Update failed - username: " + username + " doesn't exist");
+        }
+        user.setAdmin(isAdmin);
+        jpa.save(user);
     }
 
     @Override
     public List<User> getAllUsers() {
-        return new ArrayList<>(users.values());
+        return jpa.findAll();
     }
 
     @Override
     public void saveUser(User user) {
-        return;
+        jpa.save(user);
     }
 }

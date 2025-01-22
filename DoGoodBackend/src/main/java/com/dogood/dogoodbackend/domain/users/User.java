@@ -1,27 +1,42 @@
 package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.Id;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@Entity
 public class User {
+    @Id
     private String username;
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emails;
     private String name;
     private String passwordHash;
     private String phone;
     private Date birthDate;
 //    private File/String CV/CVpath;
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> preferredCategories;
 //    private notification preferences?
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> volunteeringIds;
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<VolunteeringDTO> volunteeringsInHistory;
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> myOrganizationIds;
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<String> skills;
     private boolean isStudent;
     private boolean isAdmin;
+
+    public User() {
+    }
 
     public User(String username, String email, String name, String password, String phone, Date birthDate) {
         if (!isValidUsername(username)) {
