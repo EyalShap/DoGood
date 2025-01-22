@@ -5,7 +5,7 @@ import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
-import com.dogood.dogoodbackend.domain.users.MemoryUsersRepository;
+import com.dogood.dogoodbackend.domain.users.MemoryUserRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.AddressTuple;
@@ -19,7 +19,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.cglib.core.Local;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -59,10 +58,10 @@ public class PostsFacadeMemoryIntegrationTest {
         this.volunteeringRepository = new MemoryVolunteeringRepository();
         this.reportRepository = new MemoryReportRepository();
 
-        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), organizationRepository, requestRepository);
-        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
-        this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
-        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUsersRepository(), new AuthFacade()), reportRepository, postsFacade);
+        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
+        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
+        this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
+        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);

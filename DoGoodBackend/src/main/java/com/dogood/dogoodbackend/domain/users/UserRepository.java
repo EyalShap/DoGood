@@ -2,9 +2,8 @@ package com.dogood.dogoodbackend.domain.users;
 
 import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
-public interface UsersRepository {
+public interface UserRepository {
     public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate);
     public void removeUser(String username);
     public void updateUserFields(String username, List<String> emails, String name, String password, String phoneNumber);

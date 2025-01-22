@@ -1,15 +1,26 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.domain.users.StringListConverter;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
+
 import java.util.List;
 
+@Embeddable
 public class VolunteeringDTO {
-    private final int id;
-    private final int orgId;
-    private final String name;
-    private final String description;
+    private int id;
+    private int orgId;
+    private String name;
+    private String description;
+    @Convert(converter = StringListConverter.class)
     private List<String> skills;
+    @Convert(converter = StringListConverter.class)
     private List<String> categories;
+    @Convert(converter = StringListConverter.class)
     private List<String> imagePaths;
+
+    public VolunteeringDTO() {
+    }
 
     public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills,
             List<String> categories, List<String> imagePaths) {

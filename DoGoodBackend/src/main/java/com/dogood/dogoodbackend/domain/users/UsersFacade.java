@@ -7,10 +7,10 @@ import java.util.Date;
 import java.util.List;
 
 public class UsersFacade {
-    private UsersRepository repository;
+    private UserRepository repository;
     private AuthFacade authFacade;
 
-    public UsersFacade(UsersRepository repository, AuthFacade authFacade) {
+    public UsersFacade(UserRepository repository, AuthFacade authFacade) {
         this.repository = repository;
         this.authFacade = authFacade;
     }
