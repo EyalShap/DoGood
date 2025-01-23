@@ -7,6 +7,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
 import jakarta.transaction.Transactional;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @Transactional
@@ -198,6 +199,9 @@ public class UsersFacade {
 
     public List<ApprovedHours> getApprovedHours(String username) {
         User user = getUser(username);
-        return volunteeringFacade.getUserApprovedHours(user.getUsername(),user.getVolunteeringIds());
+        List<Integer> allIds = new LinkedList<>();
+        allIds.addAll(user.getVolunteeringIds());
+        allIds.addAll(user.getVolunteeringsInHistory().stream().map(dto -> dto.getId()).toList());
+        return volunteeringFacade.getUserApprovedHours(user.getUsername(), allIds);
     }
 }

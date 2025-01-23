@@ -24,7 +24,7 @@ public class UserService {
     public UserService(FacadeManager facadeManager){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
-        this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
+        //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
 
 /*
         this.usersFacade.register("TheDoctor", "DOOMDOOLOOM12345", "The", "doctor@tardis.com", "052-0520520", new Date());

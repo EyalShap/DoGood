@@ -804,7 +804,7 @@ function Volunteering() {
                         )}
                     </Popup>
                 </div> : <></>}
-            {!hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
+            {!isManager && !hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
             {isManager && <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />}
         </div>
     )
