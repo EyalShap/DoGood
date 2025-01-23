@@ -7,6 +7,7 @@ import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -115,6 +116,16 @@ public class UserService {
             usersFacade.updateUserPreferences(username, categories);
             return Response.createOK();
         }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ApprovedHours>> getApprovedHours(String token, String username) {
+        try {
+            checkToken(token, username);
+            List<ApprovedHours> result = usersFacade.getApprovedHours(username);
+            return Response.createResponse(result);
+        } catch(Exception e) {
             return Response.createResponse(e.getMessage());
         }
     }

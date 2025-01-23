@@ -2,6 +2,7 @@ import axios from "axios";
 import { host } from "./general";
 import APIResponse from "../models/APIResponse";
 import User from "../models/UserModel";
+import ApprovedHours from "../models/ApprovedHoursModel";
 
 const server = `http://${host}/api/users`;
 
@@ -57,6 +58,16 @@ export const getIsAdmin = async (username: string): Promise<boolean> => {
     return response.data;
 }
 
+export const getUserApprovedHours = async (username: string): Promise<ApprovedHours[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    }
+    let res = await axios.get(`${server}/getUserApprovedHours?username=${username}`, config);
+    const response: APIResponse<ApprovedHours[]> = await res.data;
+    return response.data;
+}
+
+
 export const getUserByUsername = async(username: string): Promise<User> => {
     console.log(username);
     let res = await axios.get(`${server}/getUserByUsername?username=${username}`);
@@ -98,6 +109,7 @@ export const updateUserFields = async (
     }
     return response.data;
 };
+
 
 export const updateUserSkills = async (username:string, skills: string[]): Promise<string> => {
     const config = {

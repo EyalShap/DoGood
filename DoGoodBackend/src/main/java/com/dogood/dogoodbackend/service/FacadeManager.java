@@ -32,6 +32,7 @@ public class FacadeManager {
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
         this.postsFacade.setReportsFacade(reportsFacade);
         this.volunteeringFacade.setPostsFacade(postsFacade);
+        this.usersFacade.setVolunteeringFacade(volunteeringFacade);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {
