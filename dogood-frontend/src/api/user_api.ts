@@ -3,15 +3,17 @@ import { host } from "./general";
 import APIResponse from "../models/APIResponse";
 
 const server = `http://${host}/api/users`;
+
 type User = {
-    username: string;
-    password: string;
-    name: string;
-    email: string;
-    phone: string;
-    birthDate: string;
-    skills: string[];
-    isAdmin: boolean;
+    username: string,
+    emails: string[],
+    name: string,
+    phone: string,
+    birthDate: string,
+    preferredCategories: string[],
+    skills: string[],
+    isStudent: boolean,
+    isAdmin: boolean
 }
 
 export const login = async (username: string, password: string): Promise<string> => {
@@ -72,12 +74,13 @@ export const getUserByToken = async (): Promise<User> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     }
-    let res = await axios.post(`${server}/getUserByToken`, {}, config);
-    const response: APIResponse<string> = await res.data;
+    let res = await axios.get(`${server}/getUserByToken`, config);
+    const response: APIResponse<User> = await res.data;
     if (response.error) {
         throw response.errorString;
     }
-    return JSON.parse(response.data) as User;
+    // console.log(response.data);
+    return response.data;
 }
 
 export const updateUserFields = async (username: string, password: string, emails: string[], name: string, phone: string): Promise<string> => {

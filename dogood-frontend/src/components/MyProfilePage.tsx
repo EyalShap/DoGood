@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { getUserByToken, updateUserFields, updateUserSkills } from "../api/user_api";
 import './../css/MyProfile.css'
+
 function MyProfilePage() {
     const navigate = useNavigate();
 
@@ -23,9 +24,9 @@ function MyProfilePage() {
                 console.log(profile);
                 setUsername(profile.username);
                 setName(profile.name);
-                setEmail(profile.email);
+                setEmail(profile.emails[0]);
                 setPhone(profile.phone);
-                setBirthDate(profile.birthDate);
+                setBirthDate(new Date(profile.birthDate).toLocaleDateString());
                 setIsAdmin(profile.isAdmin);
                 const userSkills = profile.skills;
                 setSkills(userSkills.join(", "));
