@@ -2,19 +2,27 @@ package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
 import jakarta.transaction.Transactional;
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 
 @Transactional
 public class UsersFacade {
+    private VolunteeringFacade volunteeringFacade;
     private UserRepository repository;
     private AuthFacade authFacade;
 
     public UsersFacade(UserRepository repository, AuthFacade authFacade) {
         this.repository = repository;
         this.authFacade = authFacade;
+    }
+
+    public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
+        this.volunteeringFacade = volunteeringFacade;
     }
 
     public String login(String username, String password) {
@@ -187,5 +195,13 @@ public class UsersFacade {
         User user = getUser(actor);
         user.removeOrganization(organizationId);
         repository.saveUser(user);
+    }
+
+    public List<ApprovedHours> getApprovedHours(String username) {
+        User user = getUser(username);
+        List<Integer> allIds = new LinkedList<>();
+        allIds.addAll(user.getVolunteeringIds());
+        allIds.addAll(user.getVolunteeringsInHistory().stream().map(dto -> dto.getId()).toList());
+        return volunteeringFacade.getUserApprovedHours(user.getUsername(), allIds);
     }
 }

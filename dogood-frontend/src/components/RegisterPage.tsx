@@ -17,7 +17,7 @@ function RegisterPage() {
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("token", token);
             alert("Registration successful!");
-            navigate('/homepage');
+            navigate('/');
         } catch (e) {
             alert(e);
         }
