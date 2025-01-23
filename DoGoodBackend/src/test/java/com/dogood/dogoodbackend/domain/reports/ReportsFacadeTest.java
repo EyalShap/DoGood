@@ -5,6 +5,9 @@ import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostRepository;
+import com.dogood.dogoodbackend.domain.users.MemoryUserRepository;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.MemoryVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
@@ -32,11 +35,12 @@ class ReportsFacadeTest {
         this.organizationRepository = new MemoryOrganizationRepository();
         this.volunteeringRepository = new MemoryVolunteeringRepository();
         this.reportRepository = new MemoryReportRepository();
+        UsersFacade usersFacade = new UsersFacade(new MemoryUserRepository(), new AuthFacade());
 
-        this.organizationsFacade = new OrganizationsFacade(organizationRepository, requestRepository);
-        this.volunteeringFacade = new VolunteeringFacade(organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
-        this.postsFacade = new PostsFacade(volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
-        this.reportsFacade = new ReportsFacade(reportRepository, postsFacade);
+        this.organizationsFacade = new OrganizationsFacade(usersFacade,organizationRepository, requestRepository);
+        this.volunteeringFacade = new VolunteeringFacade(usersFacade,organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
+        this.postsFacade = new PostsFacade(usersFacade,volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
+        this.reportsFacade = new ReportsFacade(usersFacade,reportRepository, postsFacade);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
