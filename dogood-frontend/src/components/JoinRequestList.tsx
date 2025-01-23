@@ -6,6 +6,7 @@ import '../css/RequestList.css'
 
 function Request({ groups, model, volunteeringId, fetchRequests } : {groups: number[], model: JoinRequest, volunteeringId: number, fetchRequests: () => void}){
     const [chosenGroup, setChosenGroup] = useState(-1);
+    const navigate = useNavigate();
 
     const deny = async () => {
         try{
@@ -28,7 +29,7 @@ function Request({ groups, model, volunteeringId, fetchRequests } : {groups: num
     return (
         <div className="request">
             <div className="requestData">
-                <h1>User: {model.userId}</h1>
+                <h1 onClick={() => navigate(`/profile/${model.userId}`)} style={{textDecoration: "underline"}}>User: {model.userId}</h1>
                 <p>Request Text: {model.text}</p>
             </div>
             <div className="requestButtons">
