@@ -498,3 +498,26 @@ export const getVolunteeringName = async (volunteeringId : number): Promise<stri
     let name: string = response.data;
     return name;
 }
+
+export const getVolunteeringImages = async (volunteeringId : number): Promise<string[]> => {
+    let username: string | null = sessionStorage.getItem("username");
+    let token: string | null = sessionStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getVolunteeringImages?volunteeringId=${volunteeringId}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let images: string[] = response.data;
+    return images;
+}

@@ -141,7 +141,7 @@ public class ScheduleAppointment {
         if(weekDays != null && !weekDays[includeDateTime.getDayOfWeek().getValue()%7]){
             return false;
         }
-        return MINUTES.between(includeDateTime.toLocalTime(), startTime) <= minutesAllowed || MINUTES.between(includeDateTime.toLocalTime(), endTime) <= minutesAllowed
+        return Math.abs(MINUTES.between(includeDateTime.toLocalTime(), startTime)) <= minutesAllowed || Math.abs(MINUTES.between(includeDateTime.toLocalTime(), endTime)) <= minutesAllowed
                 || (startTime.isBefore(includeDateTime.toLocalTime()) && endTime.isAfter(includeDateTime.toLocalTime()));
     }
 

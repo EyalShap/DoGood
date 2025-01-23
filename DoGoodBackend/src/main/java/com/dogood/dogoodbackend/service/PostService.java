@@ -246,4 +246,15 @@ public class PostService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<List<String>> getVolunteeringImages(String token, String actor, int volunteeringId) {
+        try {
+            checkToken(token,actor);
+            List<String> images = postsFacade.getVolunteeringImages(volunteeringId);
+            return Response.createResponse(images);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

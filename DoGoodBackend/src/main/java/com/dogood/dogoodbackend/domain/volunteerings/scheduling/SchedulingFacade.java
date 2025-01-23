@@ -43,10 +43,6 @@ public class SchedulingFacade {
     }
 
     public void addHourApprovalRequest(String username, int volunteeringId, Date start, Date end){
-        Date now = new Date();
-        if(end.after(now)){
-            throw new IllegalArgumentException("End time cannot be in the future");
-        }
         manager.addHourApprovalRequest(username, volunteeringId, start, end);
     }
 
@@ -102,5 +98,9 @@ public class SchedulingFacade {
 
     public void cancelAppointment(String userId, int volunteeringId, LocalTime start) {
         manager.cancelAppointment(userId, volunteeringId, start);
+    }
+
+    public void userLeave(int volunteeringId, String userId) {
+        manager.userLeave(volunteeringId, userId);
     }
 }

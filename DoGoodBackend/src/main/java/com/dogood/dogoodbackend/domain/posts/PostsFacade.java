@@ -427,5 +427,7 @@ public class PostsFacade {
     }
 
 
-
+    public List<String> getVolunteeringImages(int volunteeringId) {
+        return volunteeringFacade.getVolunteeringImages(volunteeringId);
+    }
 }

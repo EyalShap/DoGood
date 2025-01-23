@@ -2,10 +2,12 @@ package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import jakarta.transaction.Transactional;
 
 import java.util.Date;
 import java.util.List;
 
+@Transactional
 public class UsersFacade {
     private UserRepository repository;
     private AuthFacade authFacade;

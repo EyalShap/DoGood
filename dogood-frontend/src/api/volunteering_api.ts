@@ -7,6 +7,7 @@ import JoinRequest from "../models/JoinRequest";
 import { host } from "./general";
 import ScheduleRange from "../models/ScheduleRange";
 import Location from "../models/Location";
+import { ApprovalType, ScanType } from "../models/ScanTypes";
 
 const server = host;
 
@@ -501,6 +502,134 @@ export const requestHoursApproval = async (volunteeringId: number, startDate: st
         endDate: endDate
     }
     let res = await axios.post(`http://${server}/api/volunteering/requestHoursApproval?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, request, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getVolunteeringScanType = async (volunteeringId: number): Promise<ScanType> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getVolunteeringScanType?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<ScanType> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getVolunteeringApprovalType = async (volunteeringId: number): Promise<ApprovalType> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getVolunteeringApprovalType?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<ApprovalType> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const updateVolunteeringScanDetails = async (volunteeringId: number, scanType: ScanType, approvalType: ApprovalType): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        scanTypes: scanType,
+        approvalType: approvalType
+    }
+    let res = await axios.patch(`http://${server}/api/volunteering/updateVolunteeringScanDetails?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, request, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const removeImageFromVolunteering = async (volunteeringId: number, image: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/removeImageFromVolunteering?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}&imagePath=${image}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const addImageToVolunteering = async (volunteeringId: number, image: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.post(`http://${server}/api/volunteering/addImageToVolunteering?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, image, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const updateVolunteeringSkills = async (volunteeringId: number, skills: string[]): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.patch(`http://${server}/api/volunteering/updateVolunteeringSkills?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, skills, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const updateVolunteeringCategories = async (volunteeringId: number, categories: string[]): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.patch(`http://${server}/api/volunteering/updateVolunteeringCategories?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, categories, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getConstantCodes = async (volunteeringId: number): Promise<string[]> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`http://${server}/api/volunteering/getConstantCodes?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const clearConstantCodes = async (volunteeringId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`http://${server}/api/volunteering/clearConstantCodes?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const finishVolunteering = async (volunteeringId: number, experience: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+    };
+    const request = {
+        id: volunteeringId,
+        text: experience
+    }
+    let res = await axios.post(`http://${server}/api/volunteering/finishVolunteering?userId=${sessionStorage.getItem('username')}`, request, config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;

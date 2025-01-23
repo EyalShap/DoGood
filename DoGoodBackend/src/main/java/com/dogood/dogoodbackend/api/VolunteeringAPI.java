@@ -48,6 +48,18 @@ public class VolunteeringAPI {
         return volunteeringService.updateVolunteeringScanDetails(token, userId, volunteeringId, body.getScanTypes(), body.getApprovalType());
     }
 
+    @GetMapping("/getVolunteeringScanType")
+    public Response<ScanTypes> getVolunteeringScanType(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringScanType(token, userId, volunteeringId);
+    }
+
+    @GetMapping("/getVolunteeringApprovalType")
+    public Response<ApprovalType> getVolunteeringApprovalType(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringApprovalType(token, userId, volunteeringId);
+    }
+
     @PostMapping("/scanCode")
     public Response<String> scanCode(@RequestParam String userId, @RequestBody String code, HttpServletRequest request){
         String token = getToken(request);
@@ -344,5 +356,17 @@ public class VolunteeringAPI {
     public Response<Boolean> userHasSettingsPermission(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.userHasSettingsPermission(token, userId, volunteeringId);
+    }
+
+    @DeleteMapping("/removeImageFromVolunteering")
+    public Response<String> removeImageFromVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String imagePath, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeImage(token, userId, volunteeringId, imagePath);
+    }
+
+    @PostMapping("/addImageToVolunteering")
+    public Response<String> addImageToVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody String imagePath, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.addImage(token, userId, volunteeringId, imagePath);
     }
 }

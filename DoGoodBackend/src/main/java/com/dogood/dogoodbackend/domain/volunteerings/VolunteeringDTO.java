@@ -1,22 +1,14 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
-import com.dogood.dogoodbackend.domain.users.StringListConverter;
-import jakarta.persistence.Convert;
-import jakarta.persistence.Embeddable;
-
 import java.util.List;
 
-@Embeddable
 public class VolunteeringDTO {
     private int id;
     private int orgId;
     private String name;
     private String description;
-    @Convert(converter = StringListConverter.class)
     private List<String> skills;
-    @Convert(converter = StringListConverter.class)
     private List<String> categories;
-    @Convert(converter = StringListConverter.class)
     private List<String> imagePaths;
 
     public VolunteeringDTO() {
@@ -61,6 +53,7 @@ public class VolunteeringDTO {
         return imagePaths;
     }
 
+    @Override
     public boolean equals(Object other){
         if(!(other instanceof VolunteeringDTO)){
             return false;

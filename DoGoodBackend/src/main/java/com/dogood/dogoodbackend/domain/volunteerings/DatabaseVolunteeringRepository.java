@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.jparepos.VolunteeringJPA;
+import jakarta.transaction.Transactional;
 
 import java.util.*;
 
@@ -56,7 +57,11 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
 
     @Override
     public void updateVolunteeringInDB(Volunteering volunteering) {
-        jpa.save(volunteering);
+        try {
+            jpa.save(volunteering);
+        }catch (Exception e) {
+            jpa.save(volunteering);
+        }
     }
 
     @Override
