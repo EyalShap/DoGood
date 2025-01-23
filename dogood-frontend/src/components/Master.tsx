@@ -1,9 +1,11 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, Navigate, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react'
-import './../css/Homepage.css'
+import './../css/Master.css'
 import { logout } from '../api/user_api';
+import { useNavigate } from 'react-router-dom';
 
-function Homepage() {
+function Master() {
+    const navigate = useNavigate();
     const location = useLocation();
     const isLoginPage = location.pathname === "/";
     const isRegisterPage = location.pathname === "/register";
@@ -28,15 +30,25 @@ function Homepage() {
             alert(e);
         }
     }
+    const navigateToMyProfile = async () => {
+        try{
+            navigate('/my-profile');
+        }catch(e){
+            alert(e);
+        }
+    }
 
     return (
         <div>
-            {(!isLoginPage) && (!isRegisterPage)&& <div className="menu" onClick={handleShowMenu}>
+            {(!isLoginPage) && (!isRegisterPage)&&<div className='side-bar-container'>
+            <div className="menu" onClick={handleShowMenu}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <div className="line"></div>
-            </div>}
-
+            </div>
+            <button onClick={navigateToMyProfile} className='side-bar-button'>
+                    My Profile
+                </button></div>}
             {isOpen && (
                 <div className="menu-options">
                 <Link to="/organizationList" onClick={closeMenu}>Organizations List</Link>
@@ -45,9 +57,10 @@ function Homepage() {
                 {isAdmin && <Link to="/reportList" onClick={closeMenu}>Reports List</Link>}
                 <Link to="/" onClick={onLogout}>Log out</Link>
                 </div>
+                
             )}
         </div>
     )
 }
 
-export default Homepage;
+export default Master;

@@ -73,7 +73,7 @@ function RegisterPage() {
                     onClick={onRegister} 
                     style={{ margin: '10px 0', padding: '10px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
-                    Register
+                Register
                 </button>
                 <a
                 onClick={() => navigate('/')} // Navigate to the login page
