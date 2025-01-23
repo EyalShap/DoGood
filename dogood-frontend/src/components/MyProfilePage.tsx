@@ -5,7 +5,6 @@ import './../css/MyProfile.css'
 
 function MyProfilePage() {
     const navigate = useNavigate();
-
     // States for user fields
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -26,7 +25,7 @@ function MyProfilePage() {
                 setName(profile.name);
                 setEmail(profile.emails[0]);
                 setPhone(profile.phone);
-                setBirthDate(new Date(profile.birthDate).toLocaleDateString());
+                setBirthDate(new Date(profile.birthDate).toISOString().split('T')[0]);
                 setIsAdmin(profile.isAdmin);
                 const userSkills = profile.skills;
                 setSkills(userSkills.join(", "));
@@ -40,8 +39,7 @@ function MyProfilePage() {
     // Handlers to update profile
     const handleProfileUpdate = async () => {
         try {
-            let emails = [email];
-            await updateUserFields(username,password,emails,name,birthDate);
+            await updateUserFields(username,password,[email],name,birthDate);
             alert("Profile updated successfully!");
         } catch (e) {
             alert("Failed to update profile: " + e);
