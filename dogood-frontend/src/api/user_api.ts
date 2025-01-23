@@ -90,7 +90,7 @@ export const updateUserFields = async (username: string, password: string, email
     return response.data;
 }
 
-export const updateUserSkill = async (skills: string[]): Promise<string> => {
+export const updateUserSkills = async (skills: string[]): Promise<string> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     };
