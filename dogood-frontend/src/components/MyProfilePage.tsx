@@ -1,10 +1,18 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserByToken, updateUserFields, updateUserSkills, updateUserPreferences,getIsAdmin } from "../api/user_api";
+import {
+    getUserByToken,
+    updateUserFields,
+    updateUserSkills,
+    updateUserPreferences,
+    getIsAdmin,
+} from "../api/user_api";
 import './../css/MyProfile.css';
+import { VolunteeringInHistory } from "../models/UserModel";
 
 function MyProfilePage() {
     const navigate = useNavigate();
+
     // States for user fields
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -12,18 +20,20 @@ function MyProfilePage() {
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [birthDate, setBirthDate] = useState("");
-    const [skillsInput, setSkillsInput] = useState(""); // Separate input for skills
-    const [skills, setSkills] = useState(""); // Displayed skills
-    const [preferencesInput, setPreferencesInput] = useState(""); // Separate input for preferences
-    const [preferences, setPreferences] = useState(""); // Displayed preferences
+    const [skillsInput, setSkillsInput] = useState("");
+    const [skills, setSkills] = useState("");
+    const [preferencesInput, setPreferencesInput] = useState("");
+    const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+
+    // Volunteering History
+    const [volunteeringsInHistory, setVolunteeringsInHistory] = useState<VolunteeringInHistory[]>([]);
 
     // Fetch user profile on load
     useEffect(() => {
         const fetchProfile = async () => {
             try {
                 const profile = await getUserByToken();
-                console.log(profile);
                 setUsername(profile.username);
                 setName(profile.name);
                 setEmail(profile.emails[0]);
@@ -34,6 +44,7 @@ function MyProfilePage() {
                 setSkillsInput(profile.skills.join(", "));
                 setPreferences(profile.preferredCategories.join(", "));
                 setPreferencesInput(profile.preferredCategories.join(", "));
+                setVolunteeringsInHistory(profile.volunteeringsInHistory);
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }
@@ -44,8 +55,7 @@ function MyProfilePage() {
     // Handlers to update profile
     const handleProfileUpdate = async () => {
         try {
-            var pass = null;
-            if(password.length > 0){ pass = password;}
+            const pass = password.length > 0 ? password : null;
             await updateUserFields(username, pass, [email], name, phone);
             alert("Profile updated successfully!");
         } catch (e) {
@@ -57,7 +67,7 @@ function MyProfilePage() {
         try {
             const updatedSkills = skillsInput.split(",").map(skill => skill.trim());
             await updateUserSkills(username, updatedSkills);
-            setSkills(updatedSkills.join(", ")); // Update displayed skills after confirmation
+            setSkills(updatedSkills.join(", "));
             alert("Skills updated successfully!");
         } catch (e) {
             alert("Failed to update skills: " + e);
@@ -68,7 +78,7 @@ function MyProfilePage() {
         try {
             const updatedPreferences = preferencesInput.split(",").map(preference => preference.trim());
             await updateUserPreferences(username, updatedPreferences);
-            setPreferences(updatedPreferences.join(", ")); // Update displayed preferences after confirmation
+            setPreferences(updatedPreferences.join(", "));
             alert("Preferences updated successfully!");
         } catch (e) {
             alert("Failed to update preferences: " + e);
@@ -82,43 +92,34 @@ function MyProfilePage() {
             <div className="profile-section">
                 <h2>Update Profile</h2>
                 <label>Username:</label>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={e => setUsername(e.target.value)}
-                    disabled
-                />
+                <input type="text" value={username} disabled />
                 <label>Password:</label>
                 <input
                     type="password"
                     placeholder="Enter new password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={(e) => setPassword(e.target.value)}
                 />
                 <label>Name:</label>
                 <input
                     type="text"
                     value={name}
-                    onChange={e => setName(e.target.value)}
+                    onChange={(e) => setName(e.target.value)}
                 />
                 <label>Email:</label>
                 <input
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
                 <label>Phone:</label>
                 <input
                     type="text"
                     value={phone}
-                    onChange={e => setPhone(e.target.value)}
+                    onChange={(e) => setPhone(e.target.value)}
                 />
                 <label>Birth Date:</label>
-                <input
-                    type="date"
-                    value={birthDate}
-                    disabled // Make birth date field non-editable
-                />
+                <input type="date" value={birthDate} disabled />
                 <button onClick={handleProfileUpdate}>Update Profile</button>
             </div>
 
@@ -126,7 +127,7 @@ function MyProfilePage() {
                 <h2>Update Skills</h2>
                 <textarea
                     value={skillsInput}
-                    onChange={e => setSkillsInput(e.target.value)}
+                    onChange={(e) => setSkillsInput(e.target.value)}
                     placeholder="Enter skills separated by commas"
                 />
                 <button onClick={handleSkillsUpdate}>Update Skills</button>
@@ -136,10 +137,42 @@ function MyProfilePage() {
                 <h2>Update Preferences</h2>
                 <textarea
                     value={preferencesInput}
-                    onChange={e => setPreferencesInput(e.target.value)}
+                    onChange={(e) => setPreferencesInput(e.target.value)}
                     placeholder="Enter preferences separated by commas"
                 />
                 <button onClick={handlePreferencesUpdate}>Update Preferences</button>
+            </div>
+
+            <div className="history-section">
+                <h2>Volunteering History</h2>
+                {volunteeringsInHistory.length > 0 ? (
+                    <table className="history-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Organization ID</th>
+                                <th>Name</th>
+                                <th>Description</th>
+                                <th>Skills</th>
+                                <th>Categories</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {volunteeringsInHistory.map((history, index) => (
+                                <tr key={index}>
+                                    <td>{history.id}</td>
+                                    <td>{history.orgId}</td>
+                                    <td>{history.name}</td>
+                                    <td>{history.description}</td>
+                                    <td>{history.skills.join(", ")}</td>
+                                    <td>{history.categories.join(", ")}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p>No volunteering history available.</p>
+                )}
             </div>
 
             <div className="status-section">

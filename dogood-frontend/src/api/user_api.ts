@@ -76,7 +76,7 @@ export const getUserByToken = async (): Promise<User> => {
     if (response.error) {
         throw response.errorString;
     }
-    // console.log(response.data);
+     console.log(response.data);
     return response.data;
 }
 

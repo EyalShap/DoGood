@@ -96,3 +96,43 @@
 .status-section button:hover {
     background-color: #0056b3;
 }
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.history-table th {
+    background-color: #4CAF50;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.history-table tbody tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.history-table img {
+    display: block;
+    margin: auto;
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 5px;
+}
+
+.history-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
