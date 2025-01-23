@@ -29,3 +29,21 @@ export const logout = async (): Promise<string> => {
     }
     return response.data;
 }
+
+export const register = async (username: string, password: string,name : string, email:string, phone:string, birthDate:string ): Promise<string> => {
+    const body = {
+        username: username,
+        password: password,
+        name: name,
+        email: email,
+        phone: phone,
+        birthDate: birthDate
+    };
+    let res = await axios.post(`${server}/register`, body);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+

@@ -17,6 +17,7 @@ import VolunteeringPost from './components/VolunteeringPost'
 import CreatePost from './components/CreatePost'
 import ReportList from './components/ReportList'
 import Homepage from './components/Homepage'
+import RegisterPage from './components/RegisterPage'
 import MakeAppointment from './components/MakeAppointment'
 import VolunteeringSettings from './components/VolunteeringSettings'
 
@@ -29,6 +30,7 @@ function App() {
       <Homepage />
       <Routes>
         <Route path="/" element={<TemporaryLoginMaker />} />
+        <Route path="/register" element={<RegisterPage />}/>
         <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
         <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
@@ -45,6 +47,7 @@ function App() {
         <Route path='/scan' element={<CodeScan/>}/>
         <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
         <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
+        
       </Routes>
     </BrowserRouter>
     </>
