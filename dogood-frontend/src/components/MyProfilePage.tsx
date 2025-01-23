@@ -6,9 +6,11 @@ import {
     updateUserSkills,
     updateUserPreferences,
     getIsAdmin,
+    getUserApprovedHours,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import { VolunteeringInHistory } from "../models/UserModel";
+import ApprovedHours from "../models/ApprovedHoursModel";
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -28,6 +30,7 @@ function MyProfilePage() {
 
     // Volunteering History
     const [volunteeringsInHistory, setVolunteeringsInHistory] = useState<VolunteeringInHistory[]>([]);
+    const [approvedHours, setApprovedHours] = useState<ApprovedHours[]>([]);
 
     // Fetch user profile on load
     useEffect(() => {
@@ -45,6 +48,7 @@ function MyProfilePage() {
                 setPreferences(profile.preferredCategories.join(", "));
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
+                setApprovedHours(await getUserApprovedHours(profile.username));
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }
@@ -172,6 +176,33 @@ function MyProfilePage() {
                     </table>
                 ) : (
                     <p>No volunteering history available.</p>
+                )}
+            </div>
+            <div className="history-section">
+                <h2>Approved hours</h2>
+                {approvedHours.length > 0 ? (
+                    <table className="history-table">
+                        <thead>
+                            <tr>
+                                <th>Volunteering id</th>
+                                <th>Date</th>
+                                <th>Start time</th>
+                                <th>End time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {approvedHours.map((hours, index) => (
+                                <tr key={index}>
+                                    <td>{hours.volunteeringId}</td>
+                                    <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
+                                    <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
+                                    <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                ) : (
+                    <p>No Approved Hours available.</p>
                 )}
             </div>
 
