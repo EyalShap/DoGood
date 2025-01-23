@@ -122,7 +122,7 @@ function MyProfilePage() {
                 <button onClick={handleProfileUpdate}>Update Profile</button>
             </div>
 
-            <div className="skills-section">
+            <div className="list-section">
                 <h2>Update Skills</h2>
                 <textarea
                     value={skillsInput}
@@ -132,7 +132,7 @@ function MyProfilePage() {
                 <button onClick={handleSkillsUpdate}>Update Skills</button>
             </div>
 
-            <div className="preferences-section">
+            <div className="list-section">
                 <h2>Update Preferences</h2>
                 <textarea
                     value={preferencesInput}

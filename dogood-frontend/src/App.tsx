@@ -21,6 +21,7 @@ import RegisterPage from './components/RegisterPage'
 import MyProfilePage from './components/MyProfilePage'
 import MakeAppointment from './components/MakeAppointment'
 import VolunteeringSettings from './components/VolunteeringSettings'
+import ProfilePage from './components/ProfilePage'
 
 
 function App() {
@@ -33,6 +34,7 @@ function App() {
       <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />}/>
         <Route path = "/my-profile" element={<MyProfilePage />}/>
+        <Route path='/profile/:id' element={<ProfilePage/>}/>
         <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
         <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>

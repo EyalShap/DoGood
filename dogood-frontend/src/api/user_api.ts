@@ -1,20 +1,9 @@
 import axios from "axios";
 import { host } from "./general";
 import APIResponse from "../models/APIResponse";
+import User from "../models/UserModel";
 
 const server = `http://${host}/api/users`;
-
-type User = {
-    username: string,
-    emails: string[],
-    name: string,
-    phone: string,
-    birthDate: string,
-    preferredCategories: string[],
-    skills: string[],
-    isStudent: boolean,
-    isAdmin: boolean
-}
 
 export const login = async (username: string, password: string): Promise<string> => {
     const body = {
@@ -69,6 +58,7 @@ export const getIsAdmin = async (username: string): Promise<boolean> => {
 }
 
 export const getUserByUsername = async(username: string): Promise<User> => {
+    console.log(username);
     let res = await axios.get(`${server}/getUserByUsername?username=${username}`);
     const response: APIResponse<User> = await res.data;
     if (response.error) {
