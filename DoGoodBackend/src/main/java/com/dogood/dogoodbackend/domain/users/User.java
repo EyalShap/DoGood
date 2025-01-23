@@ -120,6 +120,10 @@ public class User {
         this.phone = phoneNumber;
     }
 
+    public void updatePassword(String newPassword) {
+        this.passwordHash = Cryptography.hashString(newPassword);
+    }
+
     public void updateSkills(List<String> skills) {
         this.skills = skills;
     }
