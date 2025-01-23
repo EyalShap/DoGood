@@ -44,6 +44,11 @@ public class UserAPI {
         return userService.isAdmin(username);
     }
 
+    @GetMapping("/getUserByUsername")
+    public Response<User> getUserByUsername(@RequestParam String username) {
+        return userService.getUserByUsername(username);
+    }
+
     @GetMapping("/getUserByToken")
     public Response<User> getUserByToken(HttpServletRequest request) {
         return userService.getUserByToken(getToken(request));

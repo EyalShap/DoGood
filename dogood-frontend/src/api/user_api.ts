@@ -68,6 +68,15 @@ export const getIsAdmin = async (username: string): Promise<boolean> => {
     return response.data;
 }
 
+export const getUserByUsername = async(username: string): Promise<User> => {
+    let res = await axios.get(`${server}/getUserByUsername?username=${username}`);
+    const response: APIResponse<User> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const getUserByToken = async (): Promise<User> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }

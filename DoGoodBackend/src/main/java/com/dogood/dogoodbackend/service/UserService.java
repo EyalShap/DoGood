@@ -71,6 +71,14 @@ public class UserService {
         }
     }
 
+    public Response<User> getUserByUsername(String username) {
+        try{
+            return Response.createResponse(usersFacade.getUser(username));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<User> getUserByToken(String token) {
         try{
             return Response.createResponse(usersFacade.getUserByToken(token));

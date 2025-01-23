@@ -57,7 +57,7 @@ public class UsersFacade {
     }
 
 
-    private User getUser(String username) {
+    public User getUser(String username) {
         return repository.getUser(username);
     }
 
