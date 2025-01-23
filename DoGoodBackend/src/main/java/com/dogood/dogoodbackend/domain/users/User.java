@@ -27,7 +27,7 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> volunteeringIds;
     @ElementCollection(fetch = FetchType.EAGER)
-    private List<VolunteeringDTO> volunteeringsInHistory;
+    private List<VolunteeringInHistory> volunteeringsInHistory;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<Integer> myOrganizationIds;
     @ElementCollection(fetch = FetchType.EAGER)
@@ -76,7 +76,7 @@ public class User {
         this.birthDate = birthDate;
         this.preferredCategories = preferredCategories;
         this.volunteeringIds = volunteeringIds;
-        this.volunteeringsInHistory = volunteeringsInHistory;
+        this.volunteeringsInHistory = volunteeringsInHistory.stream().map(dto -> new VolunteeringInHistory(dto)).toList();
         this.myOrganizationIds = myOrganizationIds;
         this.skills = skills;
         this.isStudent = isStudent;
@@ -137,7 +137,10 @@ public class User {
     }
 
     public void addVolunteeringToHistory(VolunteeringDTO volunteeringDTO) {
-        this.volunteeringsInHistory.add(volunteeringDTO);
+        VolunteeringInHistory hist = new VolunteeringInHistory(volunteeringDTO);
+        if(!this.volunteeringsInHistory.contains(hist)) {
+            this.volunteeringsInHistory.add(hist);
+        }
     }
 
     public String getUsername() {
@@ -173,7 +176,7 @@ public class User {
     }
 
     public List<VolunteeringDTO> getVolunteeringsInHistory() {
-        return volunteeringsInHistory;
+        return volunteeringsInHistory.stream().map(hist ->hist.toDTO()).toList();
     }
 
     public List<Integer> getMyOrganizationIds() {
@@ -190,13 +193,13 @@ public class User {
 
     public void removeVolunteering(int volunteeringId) {
         if(volunteeringIds.contains(volunteeringId)){
-            volunteeringIds.remove(volunteeringId);
+            volunteeringIds.remove(Integer.valueOf(volunteeringId));
         }
     }
 
     public void removeOrganization(int organizationId) {
         if(myOrganizationIds.contains(organizationId)){
-            myOrganizationIds.remove(organizationId);
+            myOrganizationIds.remove(Integer.valueOf(organizationId));
         }
     }
 }

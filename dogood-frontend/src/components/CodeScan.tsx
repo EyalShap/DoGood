@@ -9,7 +9,7 @@ function CodeScan() {
     const onScan = async (result: string) => {
         try{
             await scanCode(result);
-            navigate("../")
+            navigate(`/volunteering/${result.split(":")[0]}`)
         }catch(e){
             alert(e)
         }

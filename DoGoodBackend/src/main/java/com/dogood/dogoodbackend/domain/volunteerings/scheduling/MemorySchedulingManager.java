@@ -243,4 +243,18 @@ public class MemorySchedulingManager implements SchedulingManager{
             throw new IllegalArgumentException("There is no appointment for volunteering " + volunteeringId + " by user " + userId + " that starts at " + start);
         }
     }
+
+    @Override
+    public void userLeave(int volunteeringId, String userId) {
+        if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
+            if(hourApprovalRequestsMapping.get(volunteeringId).containsKey(userId)){
+                hourApprovalRequestsMapping.get(volunteeringId).remove(userId);
+            }
+        }
+        if(appointmentsMapping.containsKey(volunteeringId)){
+            if(appointmentsMapping.get(volunteeringId).containsKey(userId)){
+                appointmentsMapping.get(volunteeringId).remove(userId);
+            }
+        }
+    }
 }

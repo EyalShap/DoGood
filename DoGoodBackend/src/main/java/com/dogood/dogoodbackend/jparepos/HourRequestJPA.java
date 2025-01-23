@@ -16,4 +16,5 @@ public interface HourRequestJPA extends JpaRepository<HourApprovalRequests, User
     List<HourApprovalRequests> findByUserIdAndVolunteeringId(String userId, int volunteeringId);
     List<HourApprovalRequests> findByVolunteeringId(int volunteeringId);
     Long deleteByVolunteeringId(int volunteeringId);
+    Long deleteByUserId(String userId);
 }

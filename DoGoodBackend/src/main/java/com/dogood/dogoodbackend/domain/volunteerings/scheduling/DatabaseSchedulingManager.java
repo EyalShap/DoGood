@@ -171,4 +171,10 @@ public class DatabaseSchedulingManager implements SchedulingManager{
             throw new IllegalArgumentException("There is no appointment for volunteering " + volunteeringId + " by user " + userId + " that starts at " + start);
         }
     }
+
+    @Override
+    public void userLeave(int volunteeringId, String userId) {
+        appointmentJPA.deleteByUserId(userId);
+        hourRequestJPA.deleteByUserId(userId);
+    }
 }

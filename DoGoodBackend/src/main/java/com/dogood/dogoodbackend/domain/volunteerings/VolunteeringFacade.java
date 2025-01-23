@@ -301,6 +301,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         volunteering.leaveVolunteering(userId, new PastExperience(userId, experience, new Date()));
+        schedulingFacade.userLeave(volunteeringId, userId);
         usersFacade.addUserVolunteeringHistory(userId, volunteering.getDTO());
         usersFacade.removeUserVolunteering(userId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
@@ -855,4 +856,27 @@ public class VolunteeringFacade {
         return isManager(userId, volunteering.getOrganizationId());
     }
 
+    public ScanTypes getVolunteeringScanType(String userId, int volunteeringId) {
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getScanTypes();
+    }
+
+    public ApprovalType getVolunteeringApprovalType(String userId, int volunteeringId) {
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getApprovalType();
+    }
+
+    public List<String> getVolunteeringImages(int volunteeringId) {
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        return volunteering.getImagePaths();
+    }
 }

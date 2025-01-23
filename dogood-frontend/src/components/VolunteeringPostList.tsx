@@ -289,10 +289,6 @@ function VolunteeringPostList() {
                             <div key={index} className="postItem" onClick={() => handleShowOnClick(post.id)}>
                                 <h3>{post.title}</h3>
                                 <p>{post.description}</p>
-                                <img 
-                                    src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg" 
-                                    alt="Dog" 
-                                    />
                             </div>
                         ))
                     ) : (
