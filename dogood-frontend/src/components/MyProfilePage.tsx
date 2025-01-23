@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { getUserByToken, updateUserFields, updateUserSkills } from "../api/user_api";
-import './../css/MyProfile.css'
+import { getUserByToken, updateUserFields, updateUserSkills, updateUserPreferences,getIsAdmin } from "../api/user_api";
+import './../css/MyProfile.css';
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -12,23 +12,28 @@ function MyProfilePage() {
     const [email, setEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [birthDate, setBirthDate] = useState("");
-    const [skills, setSkills] = useState("");
+    const [skillsInput, setSkillsInput] = useState(""); // Separate input for skills
+    const [skills, setSkills] = useState(""); // Displayed skills
+    const [preferencesInput, setPreferencesInput] = useState(""); // Separate input for preferences
+    const [preferences, setPreferences] = useState(""); // Displayed preferences
     const [isAdmin, setIsAdmin] = useState(false);
 
     // Fetch user profile on load
     useEffect(() => {
         const fetchProfile = async () => {
             try {
-                var profile = await getUserByToken();
+                const profile = await getUserByToken();
                 console.log(profile);
                 setUsername(profile.username);
                 setName(profile.name);
                 setEmail(profile.emails[0]);
                 setPhone(profile.phone);
                 setBirthDate(new Date(profile.birthDate).toISOString().split('T')[0]);
-                setIsAdmin(profile.isAdmin);
-                const userSkills = profile.skills;
-                setSkills(userSkills.join(", "));
+                setIsAdmin(await getIsAdmin(profile.username));
+                setSkills(profile.skills.join(", "));
+                setSkillsInput(profile.skills.join(", "));
+                setPreferences(profile.preferredCategories.join(", "));
+                setPreferencesInput(profile.preferredCategories.join(", "));
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }
@@ -39,7 +44,9 @@ function MyProfilePage() {
     // Handlers to update profile
     const handleProfileUpdate = async () => {
         try {
-            await updateUserFields(username,password,[email],name,birthDate);
+            var pass = null;
+            if(password.length > 0){ pass = password;}
+            await updateUserFields(username, pass, [email], name, phone);
             alert("Profile updated successfully!");
         } catch (e) {
             alert("Failed to update profile: " + e);
@@ -48,11 +55,23 @@ function MyProfilePage() {
 
     const handleSkillsUpdate = async () => {
         try {
-            const updatedSkills = skills.split(",").map(skill => skill.trim());
-            await updateUserSkills(updatedSkills);
+            const updatedSkills = skillsInput.split(",").map(skill => skill.trim());
+            await updateUserSkills(username, updatedSkills);
+            setSkills(updatedSkills.join(", ")); // Update displayed skills after confirmation
             alert("Skills updated successfully!");
         } catch (e) {
             alert("Failed to update skills: " + e);
+        }
+    };
+
+    const handlePreferencesUpdate = async () => {
+        try {
+            const updatedPreferences = preferencesInput.split(",").map(preference => preference.trim());
+            await updateUserPreferences(username, updatedPreferences);
+            setPreferences(updatedPreferences.join(", ")); // Update displayed preferences after confirmation
+            alert("Preferences updated successfully!");
+        } catch (e) {
+            alert("Failed to update preferences: " + e);
         }
     };
 
@@ -67,6 +86,7 @@ function MyProfilePage() {
                     type="text"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
+                    disabled
                 />
                 <label>Password:</label>
                 <input
@@ -97,7 +117,7 @@ function MyProfilePage() {
                 <input
                     type="date"
                     value={birthDate}
-                    onChange={e => setBirthDate(e.target.value)}
+                    disabled // Make birth date field non-editable
                 />
                 <button onClick={handleProfileUpdate}>Update Profile</button>
             </div>
@@ -105,11 +125,21 @@ function MyProfilePage() {
             <div className="skills-section">
                 <h2>Update Skills</h2>
                 <textarea
-                    value={skills}
-                    onChange={e => setSkills(e.target.value)}
+                    value={skillsInput}
+                    onChange={e => setSkillsInput(e.target.value)}
                     placeholder="Enter skills separated by commas"
                 />
                 <button onClick={handleSkillsUpdate}>Update Skills</button>
+            </div>
+
+            <div className="preferences-section">
+                <h2>Update Preferences</h2>
+                <textarea
+                    value={preferencesInput}
+                    onChange={e => setPreferencesInput(e.target.value)}
+                    placeholder="Enter preferences separated by commas"
+                />
+                <button onClick={handlePreferencesUpdate}>Update Preferences</button>
             </div>
 
             <div className="status-section">
@@ -120,6 +150,7 @@ function MyProfilePage() {
                 <p><strong>Phone:</strong> {phone}</p>
                 <p><strong>Birth Date:</strong> {birthDate}</p>
                 <p><strong>Skills:</strong> {skills}</p>
+                <p><strong>Preferences:</strong> {preferences}</p>
                 <p><strong>Admin:</strong> {isAdmin ? "Yes" : "No"}</p>
                 {isAdmin && (
                     <button onClick={() => navigate('/reportList')}>Go to Reports</button>

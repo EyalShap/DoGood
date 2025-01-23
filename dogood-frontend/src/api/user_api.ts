@@ -21,6 +21,7 @@ export const login = async (username: string, password: string): Promise<string>
         username: username,
         password: password
     };
+    console.log(body);
     let res = await axios.post(`${server}/login`, body);
     const response: APIResponse<string> = await res.data;
     if(response.error){
@@ -58,12 +59,9 @@ export const register = async (username: string, password: string, name : string
     return response.data;
 }
 
-export const isAdmin = async (username: string): Promise<string> => {
-    const body = {
-        username: username
-    };
-    let res = await axios.post(`${server}/isAdmin`, body);
-    const response: APIResponse<string> = await res.data;
+export const getIsAdmin = async (username: string): Promise<boolean> => {
+    let res = await axios.get(`${server}/isAdmin?username=${username}`);
+    const response: APIResponse<boolean> = await res.data;
     if (response.error) {
         throw response.errorString;
     }
@@ -85,7 +83,7 @@ export const getUserByToken = async (): Promise<User> => {
 
 export const updateUserFields = async (
     username: string,
-    password: string,
+    password: string|null,
     emails: string[],
     name: string,
     phone: string
@@ -93,7 +91,7 @@ export const updateUserFields = async (
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
     };
-    const body = { password, emails, name, phone };
+    const body = { password, name, emails, phone };
     const res = await axios.patch(`${server}/updateUserFields`, body, { ...config, params: { username } });
     const response: APIResponse<string> = res.data;
     if (response.error) {
@@ -102,14 +100,11 @@ export const updateUserFields = async (
     return response.data;
 };
 
-export const updateUserSkills = async (skills: string[]): Promise<string> => {
+export const updateUserSkills = async (username:string, skills: string[]): Promise<string> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     };
-    const body = {
-        skills: skills
-    };
-    let res = await axios.post(`${server}/updateUserSkils`, body, config);
+    let res = await axios.patch(`${server}/updateUserSkills`, skills, { ...config, params: { username } });
     const response: APIResponse<string> = await res.data;
     if (response.error) {
         throw response.errorString;
@@ -117,14 +112,11 @@ export const updateUserSkills = async (skills: string[]): Promise<string> => {
     return response.data;
 }
 
-export const updateUserPreferences = async (preferences: string[]): Promise<string> => {
+export const updateUserPreferences = async (username: string, preferences: string[]): Promise<string> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     };
-    const body = {
-        preferences: preferences
-    };
-    let res = await axios.post(`${server}/updateUserPreferences`, body, config);
+    let res = await axios.patch(`${server}/updateUserPreferences`, preferences, { ...config, params: { username }});
     const response: APIResponse<string> = await res.data;
     if (response.error) {
         throw response.errorString;
