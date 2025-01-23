@@ -6,6 +6,7 @@ import { logout } from '../api/user_api';
 function Homepage() {
     const location = useLocation();
     const isLoginPage = location.pathname === "/";
+    const isRegisterPage = location.pathname === "/register";
     const [isOpen, setIsOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(true);
 
@@ -30,7 +31,7 @@ function Homepage() {
 
     return (
         <div>
-            {(!isLoginPage) && <div className="menu" onClick={handleShowMenu}>
+            {(!isLoginPage) && (!isRegisterPage)&& <div className="menu" onClick={handleShowMenu}>
                 <div className="line"></div>
                 <div className="line"></div>
                 <div className="line"></div>

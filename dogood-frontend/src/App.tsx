@@ -6,7 +6,7 @@ import CreateVolunteering from './components/CreateVolunteering'
 import OrganizationList from './components/OrganizationList'
 import CreateOrganization from './components/CreateOrganization'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import TemporaryLoginMaker from './components/TemporaryLoginMaker';
+import LoginPage from './components/LoginPage';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
 import HourApprovalRequestList from './components/HourApprovalRequestList';
@@ -29,7 +29,7 @@ function App() {
     <BrowserRouter>
       <Homepage />
       <Routes>
-        <Route path="/" element={<TemporaryLoginMaker />} />
+      <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />}/>
         <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>

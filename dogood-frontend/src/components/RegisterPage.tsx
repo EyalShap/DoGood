@@ -13,11 +13,7 @@ function RegisterPage() {
 
     const onRegister = async () => {
         try {
-            let date = new Date(birthDate);
-            let string_date = date.toLocaleString();
-            let string = new Date(string_date).toISOString();
-            console.log(string); // this will return
-            let token = await register(username, password, name, email, phone, string);
+            let token = await register(username, password, name, email, phone, birthDate);
             sessionStorage.setItem("username", username);
             sessionStorage.setItem("token", token);
             alert("Registration successful!");
@@ -79,6 +75,12 @@ function RegisterPage() {
                 >
                     Register
                 </button>
+                <a
+                onClick={() => navigate('/')} // Navigate to the login page
+                style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                    Already have an account?
+            </a>
             </div>
         </div>
     );
