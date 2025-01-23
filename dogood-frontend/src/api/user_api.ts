@@ -83,24 +83,24 @@ export const getUserByToken = async (): Promise<User> => {
     return response.data;
 }
 
-export const updateUserFields = async (username: string, password: string, emails: string[], name: string, phone: string): Promise<string> => {
+export const updateUserFields = async (
+    username: string,
+    password: string,
+    emails: string[],
+    name: string,
+    phone: string
+): Promise<string> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
     };
-    const body = {
-        username: username,
-        password: password,
-        emails: emails,
-        name: name,
-        phone: phone
-    };
-    let res = await axios.post(`${server}/updateUserFields`, body, config);
-    const response: APIResponse<string> = await res.data;
+    const body = { password, emails, name, phone };
+    const res = await axios.patch(`${server}/updateUserFields`, body, { ...config, params: { username } });
+    const response: APIResponse<string> = res.data;
     if (response.error) {
         throw response.errorString;
     }
     return response.data;
-}
+};
 
 export const updateUserSkills = async (skills: string[]): Promise<string> => {
     const config = {
