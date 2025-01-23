@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, cancelAppointment, createNewGroup, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange, requestHoursApproval } from '../api/volunteering_api'
+import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, cancelAppointment, createNewGroup, finishVolunteering, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange, requestHoursApproval } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -134,7 +134,7 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
 
     const onRequest = async (startDate: DayPilot.Date, endDate: DayPilot.Date) => {
         try {
-            await requestHoursApproval(volunteeringId, startDate.toString(), endDate.toString());
+            await requestHoursApproval(volunteeringId, startDate.toDateLocal().toISOString(), endDate.toDateLocal().toISOString());
             alert("Request Sent Successfully!")
         }
         catch (e) {
@@ -605,6 +605,30 @@ function HourRequestMaker({ volunteerindId, close }: { volunteerindId: number, c
     )
 }
 
+function Leaver({ volunteerindId, close }: { volunteerindId: number, close: any }) {
+    const [experience, setExperience] = useState("");
+
+    const onRequest = async () => {
+        try {
+            await finishVolunteering(volunteerindId, experience);
+            alert("Goodbye!")
+            close();
+        } catch (e) {
+            alert(e)
+        }
+    }
+
+    return (
+        <div className='maker'>
+            <div className='leave'>
+                <h1>We're sad to see you go! Please leave your experience</h1>
+                <input value={experience} onChange={e => setExperience(e.target.value)}/>
+            </div>
+            <button onClick={onRequest}>Goodbye</button>
+        </div>
+    )
+}
+
 function Volunteering() {
     const navigate = useNavigate();
     const [model, setModel] = useState<VolunteeringModel>({ id: -1, orgId: -1, name: "", description: "", skills: [], categories: [] });
@@ -745,6 +769,15 @@ function Volunteering() {
                 </div> :
                 <div className='scanButtons'>
                     <button onClick={() => navigate("/scan")}>Scan QR Code</button>
+                    <Popup trigger={<button>Leave</button>} modal nested>
+                        {/* 
+                    // @ts-ignore */}
+                        {close => (
+                            <div className="modal">
+                                <Leaver close={close} volunteerindId={parseInt(id!)} />
+                            </div>
+                        )}
+                    </Popup>
                 </div>}
 
             {isManager &&

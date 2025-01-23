@@ -24,11 +24,13 @@ public class UserService {
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
         this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
+
+/*
         this.usersFacade.register("TheDoctor", "DOOMDOOLOOM12345", "The", "doctor@tardis.com", "052-0520520", new Date());
         this.usersFacade.register("EyalShapiro", "1234EYAL1234", "Eyal", "eyald@post.bgu.ac.il", "052-0520520", new Date());
         this.usersFacade.register("DanaFriedman", "1234DANA1234", "Dana", "dafr@post.bgu.ac.il", "052-0520520", new Date());
         this.usersFacade.register("NirAharoni", "1234NIR1234", "Nir", "nirahar@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("GalPinto", "galpinto", "Gal", "pintogal@post.bgu.ac.il", "052-0520520", new Date());
+        this.usersFacade.register("GalPinto", "galpinto", "Gal", "pintogal@post.bgu.ac.il", "052-0520520", new Date());*/
     }
 
     private void checkToken(String token, String username){

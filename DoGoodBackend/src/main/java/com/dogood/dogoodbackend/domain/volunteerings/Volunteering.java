@@ -269,7 +269,7 @@ public class Volunteering {
     }
 
     public List<String> getConstantCodes(){
-        return barcodeHandler.getConstantCodes().stream().map(c -> c.getCode()).collect(Collectors.toList());
+        return barcodeHandler.getConstantCodes().stream().map(c -> id + ":" + c.getCode()).collect(Collectors.toList());
     }
 
     public void approveJoinRequest(String userId, int groupId){
@@ -500,5 +500,9 @@ public class Volunteering {
         Group g = groups.get(groupId);
         List<Integer> rangeIds = g.getRangesForLocation(locId);
         return rangeIds.stream().map(rangeId -> scheduleRanges.get(rangeId).getDTO()).toList();
+    }
+
+    public List<String> getImagePaths() {
+        return new LinkedList<>(imagePaths);
     }
 }

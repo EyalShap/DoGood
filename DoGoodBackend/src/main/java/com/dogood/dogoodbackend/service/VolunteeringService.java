@@ -543,4 +543,42 @@ public class VolunteeringService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<ScanTypes> getVolunteeringScanType(String token, String userId, int volunteeringId) {
+        try{
+            checkToken(token, userId);
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringScanType(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ApprovalType> getVolunteeringApprovalType(String token, String userId, int volunteeringId) {
+        try{
+            checkToken(token, userId);
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringApprovalType(userId, volunteeringId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> addImage(String token, String userId, int volunteeringId, String imagePath) {
+        try{
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().addImageToVolunteering(userId, volunteeringId, imagePath);
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> removeImage(String token, String userId, int volunteeringId, String imagePath) {
+        try{
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().removeImageFromVolunteering(userId, volunteeringId, imagePath);
+            return Response.createOK();
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }
