@@ -40,7 +40,7 @@ function VolunteeringSettings() {
         try {
             var isAllowed = await userHasSettingsPermission(parseInt(id!));
             if (!isAllowed) {
-                navigate("/homepage");
+                navigate("/volunteeringPostList");
                 alert("You are not a manager for this volunteering");
             }
             setAllowed(isAllowed);
