@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -17,6 +18,7 @@ public class User {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emails;
     private String name;
+    @JsonIgnore
     private String passwordHash;
     private String phone;
     private Date birthDate;
@@ -118,6 +120,10 @@ public class User {
         this.name = name;
         this.passwordHash = Cryptography.hashString(password);
         this.phone = phoneNumber;
+    }
+
+    public void updatePassword(String newPassword) {
+        this.passwordHash = Cryptography.hashString(newPassword);
     }
 
     public void updateSkills(List<String> skills) {
