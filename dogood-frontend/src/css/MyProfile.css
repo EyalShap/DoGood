@@ -1,0 +1,98 @@
+.my-profile {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.my-profile h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.profile-section,
+.skills-section,
+.status-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.profile-section h2,
+.skills-section h2,
+.status-section h2 {
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.profile-section label,
+.skills-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.profile-section input,
+.skills-section textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.skills-section textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.profile-section button,
+.skills-section button,
+.status-section button {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-section button:hover,
+.skills-section button:hover,
+.status-section button:hover {
+    background-color: #45a049;
+}
+
+.status-section p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.status-section p strong {
+    color: #555;
+}
+
+.status-section button {
+    margin-top: 10px;
+    background-color: #007bff;
+}
+
+.status-section button:hover {
+    background-color: #0056b3;
+}

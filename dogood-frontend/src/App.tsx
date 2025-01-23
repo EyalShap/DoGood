@@ -18,7 +18,7 @@ import CreatePost from './components/CreatePost'
 import ReportList from './components/ReportList'
 import Master from './components/Master'
 import RegisterPage from './components/RegisterPage'
-import LoginPage2 from './components/MyProfilePage'
+import MyProfilePage from './components/MyProfilePage'
 import MakeAppointment from './components/MakeAppointment'
 import VolunteeringSettings from './components/VolunteeringSettings'
 
@@ -32,7 +32,7 @@ function App() {
       <Routes>
       <Route path="/" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />}/>
-        <Route path = "/my-profile" element={<LoginPage2 />}/>
+        <Route path = "/my-profile" element={<MyProfilePage />}/>
         <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
         <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>

@@ -3,7 +3,16 @@ import { host } from "./general";
 import APIResponse from "../models/APIResponse";
 
 const server = `http://${host}/api/users`;
-
+type User = {
+    username: string;
+    password: string;
+    name: string;
+    email: string;
+    phone: string;
+    birthDate: string;
+    skills: string[];
+    isAdmin: boolean;
+}
 
 export const login = async (username: string, password: string): Promise<string> => {
     const body = {
@@ -59,7 +68,7 @@ export const isAdmin = async (username: string): Promise<string> => {
     return response.data;
 }
 
-export const getUserByToken = async (): Promise<string> => {
+export const getUserByToken = async (): Promise<User> => {
     const config = {
         headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     }
@@ -68,7 +77,7 @@ export const getUserByToken = async (): Promise<string> => {
     if (response.error) {
         throw response.errorString;
     }
-    return response.data;
+    return JSON.parse(response.data) as User;
 }
 
 export const updateUserFields = async (username: string, password: string, emails: string[], name: string, phone: string): Promise<string> => {
