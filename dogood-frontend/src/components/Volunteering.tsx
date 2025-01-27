@@ -790,7 +790,7 @@ function Volunteering() {
                     <button onClick={() => onAddNewGroup()}>New Group</button>
                     {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart} onDrop={onDrop} deleteGroup={deleteGroup} groupId={parseInt(key)} volunteers={value} />)}
                 </div> : <></>}
-            {permissionsLoaded && !isManager ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}
+            {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
                     <button onClick={() => navigate("./appointment")}>Make An Appointment</button>
