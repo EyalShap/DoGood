@@ -551,9 +551,14 @@ export const updateVolunteeringScanDetails = async (volunteeringId: number, scan
 
 export const removeImageFromVolunteering = async (volunteeringId: number, image: string): Promise<string> => {
     const config = {
-        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+        params: {
+            userId: sessionStorage.getItem('username'),
+            volunteeringId: volunteeringId,
+            imagePath: image.replace(/"/g, "")
+        }
     };
-    let res = await axios.delete(`http://${server}/api/volunteering/removeImageFromVolunteering?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}&imagePath=${image}`, config);
+    let res = await axios.delete(`http://${server}/api/volunteering/removeImageFromVolunteering`, config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;
@@ -565,7 +570,7 @@ export const addImageToVolunteering = async (volunteeringId: number, image: stri
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }
     };
-    let res = await axios.post(`http://${server}/api/volunteering/addImageToVolunteering?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, image, config);
+    let res = await axios.post(`http://${server}/api/volunteering/addImageToVolunteering?userId=${sessionStorage.getItem('username')}&volunteeringId=${volunteeringId}`, image.replace(/"/g, ""), config);
     const response: APIResponse<string> = await res.data;
     if(response.error){
         throw response.errorString;

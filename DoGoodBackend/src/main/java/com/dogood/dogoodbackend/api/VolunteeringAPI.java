@@ -367,6 +367,6 @@ public class VolunteeringAPI {
     @PostMapping("/addImageToVolunteering")
     public Response<String> addImageToVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody String imagePath, HttpServletRequest request){
         String token = getToken(request);
-        return volunteeringService.addImage(token, userId, volunteeringId, imagePath);
+        return volunteeringService.addImage(token, userId, volunteeringId, imagePath.replaceAll("\"",""));
     }
 }
