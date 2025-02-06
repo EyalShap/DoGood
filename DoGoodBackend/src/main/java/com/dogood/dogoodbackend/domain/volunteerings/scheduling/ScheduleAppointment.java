@@ -204,6 +204,24 @@ public class ScheduleAppointment {
         return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
     }
 
+    public boolean daysMatch(LocalDate oneTime, boolean[] weekDays) {
+        if(oneTime != null){
+            if(this.oneTime != null){
+                return oneTime.isEqual(this.oneTime);
+            }
+            return this.weekDays[oneTime.getDayOfWeek().getValue()%7];
+        }
+        if(this.oneTime != null){
+            return false;
+        }
+        for(int i = 0; i < 7; i++){
+            if(weekDays[i] && !this.weekDays[i]){
+                return false;
+            }
+        }
+        return true;
+    }
+
     @PostLoad
     private void loadWeekDays(){
         if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
