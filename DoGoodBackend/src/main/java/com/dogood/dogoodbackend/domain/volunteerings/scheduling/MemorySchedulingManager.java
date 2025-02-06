@@ -210,7 +210,7 @@ public class MemorySchedulingManager implements SchedulingManager{
         List<ScheduleAppointment> appointments = getVolunteeringAppointments(volunteeringId).stream().filter(appointment -> appointment.getRangeId() == rangeId).collect(Collectors.toList());
         int count = 0;
         for(ScheduleAppointment appointment : appointments){
-            if(r.intersect(appointment.getStartTime(), appointment.getEndTime())){
+            if(appointment.daysMatch(oneTime, weekDays) && r.intersect(appointment.getStartTime(), appointment.getEndTime())){
                 count++;
             }
         }

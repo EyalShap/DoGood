@@ -30,8 +30,16 @@ public class RestrictionTuple {
         return amount;
     }
 
+    private boolean afterOrEquals(LocalTime other){
+        return other.isAfter(endTime) || other.equals(endTime);
+    }
+
+    private boolean beforeOrEquals(LocalTime other){
+        return other.isBefore(startTime) || other.equals(startTime);
+    }
+
     public boolean intersect(LocalTime otherStartTime, LocalTime otherEndTime) {
-        return !(otherStartTime.isAfter(this.endTime) || otherEndTime.isBefore(this.startTime));
+        return !(afterOrEquals(otherStartTime) || beforeOrEquals(otherEndTime));
     }
 
     public RestrictionTuple intersection(LocalTime otherStartTime, LocalTime otherEndTime) {
