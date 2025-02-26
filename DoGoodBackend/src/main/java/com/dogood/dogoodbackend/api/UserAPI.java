@@ -4,18 +4,14 @@ import com.dogood.dogoodbackend.api.userrequests.LoginRequest;
 import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
 import com.dogood.dogoodbackend.api.userrequests.UpdateUserRequest;
 import com.dogood.dogoodbackend.domain.users.User;
-import com.dogood.dogoodbackend.domain.users.VolunteeringInHistory;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.UserService;
-import com.dogood.dogoodbackend.service.VolunteeringService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
@@ -75,7 +71,7 @@ public class UserAPI {
     }
 
     @GetMapping("/getUserApprovedHours")
-    public Response<List<ApprovedHours>> getUserApprovedHours(@RequestParam String username, HttpServletRequest request) {
+    public Response<List<HourApprovalRequest>> getUserApprovedHours(@RequestParam String username, HttpServletRequest request) {
         String token = getToken(request);
         return userService.getApprovedHours(token, username);
     }

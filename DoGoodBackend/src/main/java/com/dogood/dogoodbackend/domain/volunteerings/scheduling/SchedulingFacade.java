@@ -72,11 +72,11 @@ public class SchedulingFacade {
         manager.makeAppointment(scheduleAppointment);
     }
 
-    public List<ApprovedHours> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
+    public List<HourApprovalRequest> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
         return manager.getApprovedUserHours(userId, volunteeringIds);
     }
 
-    public List<HourApprovalRequests> getHourApprovalRequests(int volunteeringId){
+    public List<HourApprovalRequest> getHourApprovalRequests(int volunteeringId){
         return manager.getVolunteeringHourApproveRequests(volunteeringId);
     }
 

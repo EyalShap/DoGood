@@ -2,7 +2,6 @@ package com.dogood.dogoodbackend.domain.volunteering.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
-import com.dogood.dogoodbackend.jparepos.ApprovedHoursJPA;
 import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,8 +23,6 @@ public class SchedulingManagerTests {
     @Autowired
     private AppointmentJPA appointmentJPA;
     @Autowired
-    private ApprovedHoursJPA approvedHoursJPA;
-    @Autowired
     private HourRequestJPA hourRequestJPA;
 
     private SchedulingManager memoryManager;
@@ -39,13 +36,12 @@ public class SchedulingManagerTests {
     @BeforeAll
     public void createManagers(){
         memoryManager = new MemorySchedulingManager();
-        databaseManager = new DatabaseSchedulingManager(hourRequestJPA, appointmentJPA, approvedHoursJPA);
+        databaseManager = new DatabaseSchedulingManager(hourRequestJPA, appointmentJPA);
     }
 
     @BeforeEach
     public void setUp() {
         appointmentJPA.deleteAll();
-        approvedHoursJPA.deleteAll();
         hourRequestJPA.deleteAll();
         memoryManager = new MemorySchedulingManager();
     }

@@ -1,8 +1,6 @@
 package com.dogood.dogoodbackend.jparepos;
 
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointment;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.UserVolunteerDateKT;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.UserVolunteerTimeKT;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +15,6 @@ public interface AppointmentJPA extends JpaRepository<ScheduleAppointment, UserV
     List<ScheduleAppointment> findByVolunteeringId(int volunteeringId);
     Long deleteByVolunteeringId(int volunteeringId);
     Long deleteByUserId(String userId);
+    Long deleteByUserIdAndVolunteeringId(String userId, int volunteeringId);
     Long deleteByVolunteeringIdAndRangeId(int volunteeringId, int rangeId);
 }

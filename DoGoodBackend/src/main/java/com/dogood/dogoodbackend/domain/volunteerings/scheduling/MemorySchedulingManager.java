@@ -6,12 +6,10 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class MemorySchedulingManager implements SchedulingManager{
-    private Map<Integer, Map<String, List<ApprovedHours>>> approvedHoursMapping;
-    private Map<Integer, Map<String, List<HourApprovalRequests>>> hourApprovalRequestsMapping;
+    private Map<Integer, Map<String, List<HourApprovalRequest>>> hourApprovalRequestsMapping;
     private Map<Integer, Map<String, List<ScheduleAppointment>>> appointmentsMapping;
 
     public MemorySchedulingManager() {
-        approvedHoursMapping =new HashMap<>();
         hourApprovalRequestsMapping =new HashMap<>();
         appointmentsMapping =new HashMap<>();
     }
@@ -21,15 +19,6 @@ public class MemorySchedulingManager implements SchedulingManager{
             throw new IllegalArgumentException("There is no mapping for volunteering with Id " + volunteeringId);
         }
         if(!appointmentsMapping.get(volunteeringId).containsKey(username)){
-            throw new IllegalArgumentException("There is no mapping for user " + username + " in volunteering " + volunteeringId);
-        }
-    }
-
-    private void checkExistsApprovals(String username, int volunteeringId){
-        if(!approvedHoursMapping.containsKey(volunteeringId)){
-            throw new IllegalArgumentException("There is no mapping for volunteering with Id " + volunteeringId);
-        }
-        if(!approvedHoursMapping.get(volunteeringId).containsKey(username)){
             throw new IllegalArgumentException("There is no mapping for user " + username + " in volunteering " + volunteeringId);
         }
     }
@@ -76,23 +65,23 @@ public class MemorySchedulingManager implements SchedulingManager{
     }
 
     @Override
-    public List<HourApprovalRequests> getUserHourApproveRequests(String username, List<Integer> volunteeringIds) {
-        List<HourApprovalRequests> requests = new LinkedList<>();
+    public List<HourApprovalRequest> getUserHourApproveRequests(String username, List<Integer> volunteeringIds) {
+        List<HourApprovalRequest> requests = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {
             checkExistsRequests(username, volunteeringId);
             requests.addAll(hourApprovalRequestsMapping.get(volunteeringId).get(username));
         }
-        return requests;
+        return requests.stream().filter(request -> !request.isApproved()).toList();
     }
 
     @Override
-    public List<ApprovedHours> getApprovedUserHours(String username, List<Integer> volunteeringIds) {
-        List<ApprovedHours> approvedHours = new LinkedList<>();
+    public List<HourApprovalRequest> getApprovedUserHours(String username, List<Integer> volunteeringIds) {
+        List<HourApprovalRequest> approvedHours = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {
-            checkExistsApprovals(username, volunteeringId);
-            approvedHours.addAll(approvedHoursMapping.get(volunteeringId).get(username));
+            checkExistsRequests(username, volunteeringId);
+            approvedHours.addAll(hourApprovalRequestsMapping.get(volunteeringId).get(username));
         }
-        return approvedHours;
+        return approvedHours.stream().filter(HourApprovalRequest::isApproved).toList();
     }
 
     @Override
@@ -109,8 +98,8 @@ public class MemorySchedulingManager implements SchedulingManager{
     }
 
     @Override
-    public List<HourApprovalRequests> getVolunteeringHourApproveRequests(int volunteeringId) {
-        List<HourApprovalRequests> requests = new LinkedList<>();
+    public List<HourApprovalRequest> getVolunteeringHourApproveRequests(int volunteeringId) {
+        List<HourApprovalRequest> requests = new LinkedList<>();
         if(!hourApprovalRequestsMapping.containsKey(volunteeringId)){
             throw new IllegalArgumentException("There is no mapping for volunteering with Id " + volunteeringId);
         }
@@ -118,7 +107,7 @@ public class MemorySchedulingManager implements SchedulingManager{
             checkExistsRequests(username, volunteeringId);
             requests.addAll(hourApprovalRequestsMapping.get(volunteeringId).get(username));
         }
-        return requests;
+        return requests.stream().filter(request -> !request.isApproved()).toList();
     }
 
     @Override
@@ -148,37 +137,19 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(end.before(start)){
             throw new IllegalArgumentException("End time cannot be before start time");
         }
-        for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
+        for(HourApprovalRequest request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
             if(request.intersect(start, end)){
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
-        if(approvedHoursMapping.containsKey(volunteeringId) && approvedHoursMapping.get(volunteeringId).containsKey(username)){
-            for(ApprovedHours approved : approvedHoursMapping.get(volunteeringId).get(username)){
-                if(approved.intersect(start, end)){
-                    throw new UnsupportedOperationException("Approved hours for username " + username + " in this range already exist");
-                }
-            }
-        }
-        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequests(username, volunteeringId, start, end));
-    }
-
-    private void addApproval(String username, int volunteeringId, Date start, Date end) {
-        if(!approvedHoursMapping.containsKey(volunteeringId)){
-            approvedHoursMapping.put(volunteeringId, new HashMap<>());
-        }
-        if(!approvedHoursMapping.get(volunteeringId).containsKey(username)){
-            approvedHoursMapping.get(volunteeringId).put(username, new LinkedList<>());
-        }
-
-        approvedHoursMapping.get(volunteeringId).get(username).add(new ApprovedHours(username, volunteeringId, start, end));
+        hourApprovalRequestsMapping.get(volunteeringId).get(username).add(new HourApprovalRequest(username, volunteeringId, start, end));
     }
 
     @Override
     public void approveUserHours(String username, int volunteeringId, Date start, Date end) {
         checkExistsRequests(username, volunteeringId);
-        HourApprovalRequests requestToApprove = null;
-        for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
+        HourApprovalRequest requestToApprove = null;
+        for(HourApprovalRequest request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
             if(request.getStartTime().equals(start) && request.getEndTime().equals(end)){
                 requestToApprove = request;
             }
@@ -186,23 +157,22 @@ public class MemorySchedulingManager implements SchedulingManager{
         if(requestToApprove == null){
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
-        addApproval(username, volunteeringId, start, end);
-        hourApprovalRequestsMapping.get(volunteeringId).get(username).remove(requestToApprove);
+        requestToApprove.approve();
     }
 
     @Override
     public void denyUserHours(String username, int volunteeringId, Date start, Date end) {
         checkExistsRequests(username, volunteeringId);
-        HourApprovalRequests requestToApprove = null;
-        for(HourApprovalRequests request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
+        HourApprovalRequest requestToDeny = null;
+        for(HourApprovalRequest request : hourApprovalRequestsMapping.get(volunteeringId).get(username)){
             if(request.getStartTime().equals(start) && request.getEndTime().equals(end)){
-                requestToApprove = request;
+                requestToDeny = request;
             }
         }
-        if(requestToApprove == null){
+        if(requestToDeny == null){
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
-        hourApprovalRequestsMapping.get(volunteeringId).get(username).remove(requestToApprove);
+        hourApprovalRequestsMapping.get(volunteeringId).get(username).remove(requestToDeny);
     }
 
     @Override
@@ -220,7 +190,19 @@ public class MemorySchedulingManager implements SchedulingManager{
     @Override
     public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
         if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
-            hourApprovalRequestsMapping.remove(volunteeringId);
+            List<String> usernamesToRemove = new LinkedList<>();
+            for(String username : hourApprovalRequestsMapping.get(volunteeringId).keySet()){
+                hourApprovalRequestsMapping.get(volunteeringId).get(username).removeIf(request -> !request.isApproved());
+                if(hourApprovalRequestsMapping.get(volunteeringId).get(username).isEmpty()){
+                    usernamesToRemove.add(username);
+                }
+            }
+            for(String username : usernamesToRemove){
+                hourApprovalRequestsMapping.get(volunteeringId).remove(username);
+            }
+            if(hourApprovalRequestsMapping.get(volunteeringId).size() == 0){
+                hourApprovalRequestsMapping.remove(volunteeringId);
+            }
         }
         if(appointmentsMapping.containsKey(volunteeringId)){
             appointmentsMapping.remove(volunteeringId);
@@ -248,7 +230,10 @@ public class MemorySchedulingManager implements SchedulingManager{
     public void userLeave(int volunteeringId, String userId) {
         if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
             if(hourApprovalRequestsMapping.get(volunteeringId).containsKey(userId)){
-                hourApprovalRequestsMapping.get(volunteeringId).remove(userId);
+                hourApprovalRequestsMapping.get(volunteeringId).get(userId).removeIf(request -> !request.isApproved());
+                if(hourApprovalRequestsMapping.get(volunteeringId).get(userId).isEmpty()){
+                    hourApprovalRequestsMapping.get(volunteeringId).remove(userId);
+                }
             }
         }
         if(appointmentsMapping.containsKey(volunteeringId)){

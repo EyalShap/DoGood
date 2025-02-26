@@ -2,17 +2,13 @@ package com.dogood.dogoodbackend.service;
 
 
 import com.dogood.dogoodbackend.domain.volunteerings.*;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatePair;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.*;
 
 import static java.lang.Thread.sleep;
@@ -64,7 +60,7 @@ public class VolunteeringService {
         facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "DanaFriedman", volId, locId2);
         int rID3 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(18,0), LocalTime.of(20,0), 60,120);
         facadeManager.getVolunteeringFacade().updateRangeOneTimeDate("TheDoctor", volId, 0, locId2, rID3, LocalDate.of(2025, 1, 14));*/
-
+/*
         this.facadeManager.getUsersFacade().register("EyalManager", "123456", "Eyal Manager", "eyalm1000@gmail.com", "0528585519", new Date());
         this.facadeManager.getUsersFacade().register("DanaManager", "123456", "Dana Manager", "dafr@post.bgu.ac.il", "0520391312", new Date());
 
@@ -73,7 +69,7 @@ public class VolunteeringService {
         this.facadeManager.getVolunteeringFacade().addImageToVolunteering("DanaManager", volId, "https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2022/07/20112512/American-Eskimo-Dog-puppy-running-outdoors.jpg");
         this.facadeManager.getPostsFacade().createVolunteeringPost("We are training puppies!", "Come join us to help train the puppies", "DanaManager", volId);
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DanaManager", volId, List.of("Training", "Animal Care"));
-        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));*/
     }
 
     private void checkToken(String token, String username){
@@ -497,7 +493,7 @@ public class VolunteeringService {
         }
     }
 
-    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(String token, String userId, int volunteeringId){
+    public Response<List<HourApprovalRequest>> getVolunteeringHourRequests(String token, String userId, int volunteeringId){
         try{
             checkToken(token, userId);
             return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringHourRequests(userId, volunteeringId));

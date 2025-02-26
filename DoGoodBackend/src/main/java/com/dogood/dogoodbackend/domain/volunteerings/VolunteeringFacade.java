@@ -721,7 +721,7 @@ public class VolunteeringFacade {
     }
 
 
-    public List<ApprovedHours> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
+    public List<HourApprovalRequest> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
         return schedulingFacade.getUserApprovedHours(userId,volunteeringIds);
     }
 
@@ -759,7 +759,7 @@ public class VolunteeringFacade {
     }
 
 
-    public List<HourApprovalRequests> getVolunteeringHourRequests(String userId, int volunteeringId){
+    public List<HourApprovalRequest> getVolunteeringHourRequests(String userId, int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");

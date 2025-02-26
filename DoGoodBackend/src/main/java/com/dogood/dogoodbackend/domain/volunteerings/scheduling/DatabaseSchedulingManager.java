@@ -1,7 +1,6 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
-import com.dogood.dogoodbackend.jparepos.ApprovedHoursJPA;
 import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
 import jakarta.transaction.Transactional;
 
@@ -14,12 +13,10 @@ import java.util.stream.Collectors;
 public class DatabaseSchedulingManager implements SchedulingManager{
     private HourRequestJPA hourRequestJPA;
     private AppointmentJPA appointmentJPA;
-    private ApprovedHoursJPA approvedHoursJPA;
 
-    public DatabaseSchedulingManager(HourRequestJPA hourRequestJPA, AppointmentJPA appointmentJPA, ApprovedHoursJPA approvedHoursJPA) {
+    public DatabaseSchedulingManager(HourRequestJPA hourRequestJPA, AppointmentJPA appointmentJPA) {
         this.hourRequestJPA = hourRequestJPA;
         this.appointmentJPA = appointmentJPA;
-        this.approvedHoursJPA = approvedHoursJPA;
     }
 
     @Override
@@ -52,21 +49,21 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     }
 
     @Override
-    public List<HourApprovalRequests> getUserHourApproveRequests(String username, List<Integer> volunteeringIds) {
-        List<HourApprovalRequests> requests = new LinkedList<>();
+    public List<HourApprovalRequest> getUserHourApproveRequests(String username, List<Integer> volunteeringIds) {
+        List<HourApprovalRequest> requests = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {
             requests.addAll(hourRequestJPA.findByUserIdAndVolunteeringId(username,volunteeringId));
         }
-        return requests;
+        return requests.stream().filter(request -> !request.isApproved()).toList();
     }
 
     @Override
-    public List<ApprovedHours> getApprovedUserHours(String username, List<Integer> volunteeringIds) {
-        List<ApprovedHours> approvedHours = new LinkedList<>();
+    public List<HourApprovalRequest> getApprovedUserHours(String username, List<Integer> volunteeringIds) {
+        List<HourApprovalRequest> approvedHours = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {
-            approvedHours.addAll(approvedHoursJPA.findByUserIdAndVolunteeringId(username,volunteeringId));
+            approvedHours.addAll(hourRequestJPA.findByUserIdAndVolunteeringId(username,volunteeringId));
         }
-        return approvedHours;
+        return approvedHours.stream().filter(HourApprovalRequest::isApproved).toList();
     }
 
     @Override
@@ -75,8 +72,8 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     }
 
     @Override
-    public List<HourApprovalRequests> getVolunteeringHourApproveRequests(int volunteeringId) {
-        return hourRequestJPA.findByVolunteeringId(volunteeringId);
+    public List<HourApprovalRequest> getVolunteeringHourApproveRequests(int volunteeringId) {
+        return hourRequestJPA.findByVolunteeringId(volunteeringId).stream().filter(request -> !request.isApproved()).toList();
     }
 
     @Override
@@ -94,27 +91,18 @@ public class DatabaseSchedulingManager implements SchedulingManager{
         if(end.before(start)){
             throw new IllegalArgumentException("End time cannot be before start time");
         }
-        for(HourApprovalRequests request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
+        for(HourApprovalRequest request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
             if(request.intersect(start, end)){
                 throw new UnsupportedOperationException("A request by username " + username + " in this range already exists");
             }
         }
-        for(ApprovedHours approved : approvedHoursJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
-            if(approved.intersect(start, end)){
-                throw new UnsupportedOperationException("Approved hours for username " + username + " in this range already exist");
-            }
-        }
-        hourRequestJPA.save(new HourApprovalRequests(username, volunteeringId, start, end));
-    }
-
-    private void addApproval(String username, int volunteeringId, Date start, Date end) {
-        approvedHoursJPA.save(new ApprovedHours(username, volunteeringId, start, end));
+        hourRequestJPA.save(new HourApprovalRequest(username, volunteeringId, start, end));
     }
 
     @Override
     public void approveUserHours(String username, int volunteeringId, Date start, Date end) {
-        HourApprovalRequests requestToApprove = null;
-        for(HourApprovalRequests request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
+        HourApprovalRequest requestToApprove = null;
+        for(HourApprovalRequest request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
             if(request.getStartTime().getTime() == start.getTime() && request.getEndTime().getTime() == end.getTime()){
                 requestToApprove = request;
             }
@@ -122,22 +110,22 @@ public class DatabaseSchedulingManager implements SchedulingManager{
         if(requestToApprove == null){
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
-        addApproval(username, volunteeringId, start, end);
-        hourRequestJPA.delete(requestToApprove);
+        requestToApprove.approve();
+        hourRequestJPA.save(requestToApprove);
     }
 
     @Override
     public void denyUserHours(String username, int volunteeringId, Date start, Date end) {
-        HourApprovalRequests requestToApprove = null;
-        for(HourApprovalRequests request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
+        HourApprovalRequest requestToDeny = null;
+        for(HourApprovalRequest request : hourRequestJPA.findByUserIdAndVolunteeringId(username, volunteeringId)){
             if(request.getStartTime().getTime() == start.getTime() && request.getEndTime().getTime() == end.getTime()){
-                requestToApprove = request;
+                requestToDeny = request;
             }
         }
-        if(requestToApprove == null){
+        if(requestToDeny == null){
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
-        hourRequestJPA.delete(requestToApprove);
+        hourRequestJPA.delete(requestToDeny);
     }
 
     @Override
@@ -154,7 +142,7 @@ public class DatabaseSchedulingManager implements SchedulingManager{
 
     @Override
     public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
-        hourRequestJPA.deleteByVolunteeringId(volunteeringId);
+        hourRequestJPA.deleteByVolunteeringIdAndApproved(volunteeringId,false);
         appointmentJPA.deleteByVolunteeringId(volunteeringId);
     }
 
@@ -174,7 +162,7 @@ public class DatabaseSchedulingManager implements SchedulingManager{
 
     @Override
     public void userLeave(int volunteeringId, String userId) {
-        appointmentJPA.deleteByUserId(userId);
-        hourRequestJPA.deleteByUserId(userId);
+        appointmentJPA.deleteByUserIdAndVolunteeringId(userId, volunteeringId);
+        hourRequestJPA.deleteByUserIdAndVolunteeringIdAndApproved(userId, volunteeringId, false);
     }
 }

@@ -30,8 +30,7 @@ public class ServiceConfig {
                 new DatabaseUserRepository(applicationContext.getBean(UserJPA.class)),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
-                        applicationContext.getBean(AppointmentJPA.class),
-                        applicationContext.getBean(ApprovedHoursJPA.class)),
+                        applicationContext.getBean(AppointmentJPA.class)),
                 new ProxyKeywordExtractor());
     }
 

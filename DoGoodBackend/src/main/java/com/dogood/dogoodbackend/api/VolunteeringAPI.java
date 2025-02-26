@@ -2,7 +2,7 @@ package com.dogood.dogoodbackend.api;
 
 import com.dogood.dogoodbackend.api.volunteeringrequests.*;
 import com.dogood.dogoodbackend.domain.volunteerings.*;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
@@ -10,8 +10,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -323,7 +321,7 @@ public class VolunteeringAPI {
     }
 
     @GetMapping("/getVolunteeringHourRequests")
-    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+    public Response<List<HourApprovalRequest>> getVolunteeringHourRequests(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.getVolunteeringHourRequests(token, userId, volunteeringId);
     }
