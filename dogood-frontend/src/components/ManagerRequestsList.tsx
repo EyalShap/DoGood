@@ -45,7 +45,7 @@ function ManagerRequestsList() {
     const handleApproveOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to approve this request?`)) {
             handleAssignManagerRequest(organizationId, true);
-            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== sessionStorage.getItem("username"));
+            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
             setRequests(newRequests);
         }
     };
@@ -53,7 +53,7 @@ function ManagerRequestsList() {
     const handleDenyOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to deny this request?`)) {
             handleAssignManagerRequest(organizationId, false);
-            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== sessionStorage.getItem("username"));
+            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
             setRequests(newRequests);
         }
     };

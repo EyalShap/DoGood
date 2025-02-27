@@ -14,8 +14,8 @@ function RegisterPage() {
     const onRegister = async () => {
         try {
             let token = await register(username, password, name, email, phone, birthDate);
-            sessionStorage.setItem("username", username);
-            sessionStorage.setItem("token", token);
+            localStorage.setItem("username", username);
+            localStorage.setItem("token", token);
             alert("Registration successful!");
             navigate('/');
         } catch (e) {

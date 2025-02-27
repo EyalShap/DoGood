@@ -46,7 +46,7 @@ function Organization() {
 
     const updatePermissions = async () => {
         try {
-            let username: string | null = sessionStorage.getItem("username");
+            let username: string | null = localStorage.getItem("username");
             if(username === null) {
                 alert("Username is null.");
             }
@@ -196,7 +196,7 @@ function Organization() {
                         phoneNumber: model.phoneNumber,
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
-                        managerUsernames: model.managerUsernames.filter((manager) => manager !== sessionStorage.getItem("username")),
+                        managerUsernames: model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username")),
                         founderUsername: model.founderUsername
                     }
                     setModel(updatedModel);
@@ -287,9 +287,9 @@ function Organization() {
                                 {manager === model.founderUsername && (
                                     <span style={{ fontWeight: 'bold' }}> (Founder)</span>
                                 )}
-                                {(sessionStorage.getItem("username") === manager && manager !== model.founderUsername) && <button onClick={handleResignOnClick}>Resign</button>}
-                                {(sessionStorage.getItem("username") === model.founderUsername && manager !== model.founderUsername) && <button onClick={() => handleRemoveManagerOnClick(manager)}>X</button>}
-                                {(sessionStorage.getItem("username") === model.founderUsername && manager !== model.founderUsername) && <button onClick={() => handleSetAsFounderOnClick(manager)}>Set As Founder</button>}
+                                {(localStorage.getItem("username") === manager && manager !== model.founderUsername) && <button onClick={handleResignOnClick}>Resign</button>}
+                                {(localStorage.getItem("username") === model.founderUsername && manager !== model.founderUsername) && <button onClick={() => handleRemoveManagerOnClick(manager)}>X</button>}
+                                {(localStorage.getItem("username") === model.founderUsername && manager !== model.founderUsername) && <button onClick={() => handleSetAsFounderOnClick(manager)}>Set As Founder</button>}
                                 
                             </li>
                         ))}
