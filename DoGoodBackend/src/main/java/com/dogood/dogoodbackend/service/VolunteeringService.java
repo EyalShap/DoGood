@@ -60,7 +60,7 @@ public class VolunteeringService {
         facadeManager.getVolunteeringFacade().assignVolunteerToLocation("TheDoctor", "DanaFriedman", volId, locId2);
         int rID3 = facadeManager.getVolunteeringFacade().addScheduleRangeToGroup("TheDoctor", volId, 0, locId2, LocalTime.of(18,0), LocalTime.of(20,0), 60,120);
         facadeManager.getVolunteeringFacade().updateRangeOneTimeDate("TheDoctor", volId, 0, locId2, rID3, LocalDate.of(2025, 1, 14));*/
-/*
+
         this.facadeManager.getUsersFacade().register("EyalManager", "123456", "Eyal Manager", "eyalm1000@gmail.com", "0528585519", new Date());
         this.facadeManager.getUsersFacade().register("DanaManager", "123456", "Dana Manager", "dafr@post.bgu.ac.il", "0520391312", new Date());
 
@@ -69,7 +69,7 @@ public class VolunteeringService {
         this.facadeManager.getVolunteeringFacade().addImageToVolunteering("DanaManager", volId, "https://s3.amazonaws.com/cdn-origin-etr.akc.org/wp-content/uploads/2022/07/20112512/American-Eskimo-Dog-puppy-running-outdoors.jpg");
         this.facadeManager.getPostsFacade().createVolunteeringPost("We are training puppies!", "Come join us to help train the puppies", "DanaManager", volId);
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DanaManager", volId, List.of("Training", "Animal Care"));
-        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));*/
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));
     }
 
     private void checkToken(String token, String username){
@@ -288,20 +288,20 @@ public class VolunteeringService {
         }
     }
 
-    public Response<String> updateRangeWeekdays(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
+    public Response<String> updateRangeWeekdays(String token, String userId, int volunteeringId, int rangeId, boolean[] weekdays){
         try{
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().updateRangeWeekdays(userId, volunteeringId, groupId, locId, rangeId, weekdays);
+            facadeManager.getVolunteeringFacade().updateRangeWeekdays(userId, volunteeringId, rangeId, weekdays);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }
     }
 
-    public Response<String> updateRangeOneTimeDate(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalDate oneTime){
+    public Response<String> updateRangeOneTimeDate(String token, String userId, int volunteeringId, int rangeId, LocalDate oneTime){
         try{
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().updateRangeOneTimeDate(userId, volunteeringId, groupId, locId, rangeId, oneTime);
+            facadeManager.getVolunteeringFacade().updateRangeOneTimeDate(userId, volunteeringId, rangeId, oneTime);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());

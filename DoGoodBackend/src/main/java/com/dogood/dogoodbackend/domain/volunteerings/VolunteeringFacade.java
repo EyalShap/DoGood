@@ -456,16 +456,7 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
-        int rangeId = volunteering.addRangeToGroup(groupId, locId, startTime, endTime, minimumMinutes, maximumMinutes);
-        if(weekDays != null){
-            if(weekDays.length != 7){
-                throw new IllegalArgumentException("Weekdays array length does not match number of weekdays");
-            }
-            volunteering.updateRangeWeekdays(groupId, locId, rangeId, weekDays);
-        }
-        if(oneTime != null){
-            volunteering.updateRangeOneTimeDate(groupId, locId, rangeId, oneTime);
-        }
+        int rangeId = volunteering.addRangeToGroup(groupId, locId, startTime, endTime, minimumMinutes, maximumMinutes, weekDays, oneTime);
         if(weekDays == null && oneTime == null){
             throw new IllegalArgumentException("Week days and One time cannot both be null");
         }
@@ -505,7 +496,7 @@ public class VolunteeringFacade {
         repository.updateVolunteeringInDB(volunteering);
     }
 
-    public void updateRangeWeekdays(String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
+    public void updateRangeWeekdays(String userId, int volunteeringId, int rangeId, boolean[] weekdays){
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
@@ -517,12 +508,12 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
-        volunteering.updateRangeWeekdays(groupId, locId, rangeId, weekdays);
+        volunteering.updateRangeWeekdays(rangeId, weekdays);
         repository.updateVolunteeringInDB(volunteering);
     }
 
 
-    public void updateRangeOneTimeDate(String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalDate oneTime){
+    public void updateRangeOneTimeDate(String userId, int volunteeringId, int rangeId, LocalDate oneTime){
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
@@ -534,7 +525,7 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
-        volunteering.updateRangeOneTimeDate(groupId, locId, rangeId, oneTime);
+        volunteering.updateRangeOneTimeDate(rangeId, oneTime);
         repository.updateVolunteeringInDB(volunteering);
     }
 

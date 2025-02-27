@@ -185,8 +185,6 @@ public class VolunteeringAPI {
         return volunteeringService.updateRangeWeekdays(token, userId,
                 body.getVolunteeringId(),
                 body.getGroupId(),
-                body.getLocId(),
-                body.getRangeId(),
                 body.getWeekdays());
     }
 
@@ -197,8 +195,6 @@ public class VolunteeringAPI {
         return volunteeringService.updateRangeOneTimeDate(token, userId,
                 body.getVolunteeringId(),
                 body.getGroupId(),
-                body.getLocId(),
-                body.getRangeId(),
                 body.getOneTime());
     }
 
