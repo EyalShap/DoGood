@@ -5,7 +5,7 @@ import RequestModel from "../models/RequestModel";
 import VolunteeringModel from "../models/VolunteeringModel";
 import { host } from "./general";
 
-const server: string = `http://${host}/api/organizations`;
+const server: string = `${host}/api/organizations`;
 
 export const createOrganization = async (name: string, description: string, email: string, phoneNumber: string): Promise<number> => {
     let username: string | null = localStorage.getItem("username");

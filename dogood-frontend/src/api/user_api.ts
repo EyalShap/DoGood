@@ -4,7 +4,7 @@ import APIResponse from "../models/APIResponse";
 import User from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
 
-const server = `http://${host}/api/users`;
+const server = `${host}/api/users`;
 
 export const login = async (username: string, password: string): Promise<string> => {
     const body = {
