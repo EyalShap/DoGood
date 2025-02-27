@@ -10,7 +10,7 @@ import Location from '../models/Location';
 
 import ScheduleRange, { RestrictionTuple } from '../models/ScheduleRange';
 import dayjs, { Dayjs } from 'dayjs';
-import { DatePicker, DateTimePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
+import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
 import NumberInput from './NumberInput';
@@ -721,7 +721,7 @@ function Volunteering() {
         }
     }
 
-    const onDragStart = (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => {
+    const onDragStart = (_e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => {
         setCurrentDragVolunteer(volunteer);
         setCurrentDragFrom(from);
     }

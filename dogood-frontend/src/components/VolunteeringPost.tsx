@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
-import VolunteeringModel from '../models/VolunteeringModel'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
 import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
-import OrganizationModel from '../models/OrganizationModel';
-import { getIsManager, getOrganization, getOrganizationName } from '../api/organization_api';
+import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
 import { createReport } from '../api/report_api';
@@ -55,7 +53,7 @@ function VolunteeringPost() {
                 setOrganizationName(organizationName);
                 
                 try {
-                    let volunteering: VolunteeringModel = await getVolunteering(model.volunteeringId);
+                    await getVolunteering(model.volunteeringId);
                     setIsVolunteer(true);
                 }
                 catch {

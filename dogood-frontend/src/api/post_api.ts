@@ -7,8 +7,8 @@ import { host } from "./general";
 const server: string = `http://${host}/api/posts`;
 
 export const createVolunteeringPost = async (title: string, description: string, volunteeringId: number): Promise<number> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -37,8 +37,8 @@ export const createVolunteeringPost = async (title: string, description: string,
 }
 
 export const removeVolunteeringPost = async (postId: number) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -57,8 +57,8 @@ export const removeVolunteeringPost = async (postId: number) => {
 }
 
 export const editVolunteeringPost = async (postId: number, title: string, description: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -83,8 +83,8 @@ export const editVolunteeringPost = async (postId: number, title: string, descri
 }
 
 export const getVolunteeringPost = async (postId: number): Promise<VolunteeringPostModel> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -106,8 +106,8 @@ export const getVolunteeringPost = async (postId: number): Promise<VolunteeringP
 }
 
 export const getAllVolunteeringPosts = async (): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -129,8 +129,8 @@ export const getAllVolunteeringPosts = async (): Promise<VolunteeringPostModel[]
 }
 
 export const getOrganizationVolunteeringPosts = async (organizationId: number): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -152,8 +152,8 @@ export const getOrganizationVolunteeringPosts = async (organizationId: number): 
 }
 
 export const joinVolunteeringRequest = async (postId: number, freeText: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -177,8 +177,8 @@ export const joinVolunteeringRequest = async (postId: number, freeText: string) 
 }
 
 export const searchByKeywords = async (search: string, postsToSearch: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -203,8 +203,8 @@ export const searchByKeywords = async (search: string, postsToSearch: Volunteeri
 }
 
 export const sortByRelevance = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -229,8 +229,8 @@ export const sortByRelevance = async (postsToSort: VolunteeringPostModel[]): Pro
 }
 
 export const sortByPopularity = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -255,8 +255,8 @@ export const sortByPopularity = async (postsToSort: VolunteeringPostModel[]): Pr
 }
 
 export const sortByPostingTime = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -281,8 +281,8 @@ export const sortByPostingTime = async (postsToSort: VolunteeringPostModel[]): P
 }
 
 export const sortByLastEditTime = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -307,8 +307,8 @@ export const sortByLastEditTime = async (postsToSort: VolunteeringPostModel[]): 
 }
 
 export const filterPosts = async (categories: string[], skills: string[], cities: string[], organizationNames: string[], voluntteringNames: string[], postsToFilter: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -339,8 +339,8 @@ export const filterPosts = async (categories: string[], skills: string[], cities
 }
 
 export const getAllPostsCategories = async (): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -362,8 +362,8 @@ export const getAllPostsCategories = async (): Promise<string[]> => {
 }
 
 export const getAllPostsSkills = async (): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -385,8 +385,8 @@ export const getAllPostsSkills = async (): Promise<string[]> => {
 }
 
 export const getAllPostsCities = async (): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -408,8 +408,8 @@ export const getAllPostsCities = async (): Promise<string[]> => {
 }
 
 export const getAllOrganizationNames = async (): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -431,8 +431,8 @@ export const getAllOrganizationNames = async (): Promise<string[]> => {
 }
 
 export const getAllVolunteeringNames = async (): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -454,8 +454,8 @@ export const getAllVolunteeringNames = async (): Promise<string[]> => {
 }
 
 export const getPostPastExperiences = async (postId : number): Promise<PastExperienceModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -477,8 +477,8 @@ export const getPostPastExperiences = async (postId : number): Promise<PastExper
 }
 
 export const getVolunteeringName = async (volunteeringId : number): Promise<string> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -500,8 +500,8 @@ export const getVolunteeringName = async (volunteeringId : number): Promise<stri
 }
 
 export const getVolunteeringImages = async (volunteeringId : number): Promise<string[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");

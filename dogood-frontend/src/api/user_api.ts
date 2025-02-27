@@ -22,7 +22,7 @@ export const login = async (username: string, password: string): Promise<string>
 
 export const logout = async (): Promise<string> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     };
     let res = await axios.post(`${server}/logout`, {}, config);
     const response: APIResponse<string> = await res.data;
@@ -60,7 +60,7 @@ export const getIsAdmin = async (username: string): Promise<boolean> => {
 
 export const getUserApprovedHours = async (username: string): Promise<ApprovedHours[]> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     }
     let res = await axios.get(`${server}/getUserApprovedHours?username=${username}`, config);
     const response: APIResponse<ApprovedHours[]> = await res.data;
@@ -80,7 +80,7 @@ export const getUserByUsername = async(username: string): Promise<User> => {
 
 export const getUserByToken = async (): Promise<User> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     }
     let res = await axios.get(`${server}/getUserByToken`, config);
     const response: APIResponse<User> = await res.data;
@@ -99,7 +99,7 @@ export const updateUserFields = async (
     phone: string
 ): Promise<string> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
     };
     const body = { password, name, emails, phone };
     const res = await axios.patch(`${server}/updateUserFields`, body, { ...config, params: { username } });
@@ -113,7 +113,7 @@ export const updateUserFields = async (
 
 export const updateUserSkills = async (username:string, skills: string[]): Promise<string> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     };
     let res = await axios.patch(`${server}/updateUserSkills`, skills, { ...config, params: { username } });
     const response: APIResponse<string> = await res.data;
@@ -125,7 +125,7 @@ export const updateUserSkills = async (username:string, skills: string[]): Promi
 
 export const updateUserPreferences = async (username: string, preferences: string[]): Promise<string> => {
     const config = {
-        headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
     };
     let res = await axios.patch(`${server}/updateUserPreferences`, preferences, { ...config, params: { username }});
     const response: APIResponse<string> = await res.data;

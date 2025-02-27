@@ -242,7 +242,7 @@ function MakeAppointment() {
 
     return (
         <div className='makeAppointment'>
-            <h1>Available appointment ranges for Group {group} at {location.name} for {sessionStorage.getItem("username")}</h1>
+            <h1>Available appointment ranges for Group {group} at {location.name} for {localStorage.getItem("username")}</h1>
             <div className='weekButtons'>
                 <button className='left weekButton' onClick={() => addWeeks(-1)}>← Last Week</button>
                 <button className='right weekButton' onClick={() => addWeeks(1)}>Next Week →</button>

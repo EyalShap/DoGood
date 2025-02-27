@@ -10,8 +10,8 @@ function LoginPage() {
     const onLogin = async () => {
         try {
             let token = await login(username, password);
-            sessionStorage.setItem("username", username);
-            sessionStorage.setItem("token", token);
+            localStorage.setItem("username", username);
+            localStorage.setItem("token", token);
             alert("Login successful!");
             navigate('/volunteeringPostList');
         } catch (e) {

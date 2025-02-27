@@ -23,8 +23,8 @@ function Master() {
     const onLogout = async () => {
         try{
             await logout();
-            sessionStorage.removeItem("username");
-            sessionStorage.removeItem("token");
+            localStorage.removeItem("username");
+            localStorage.removeItem("token");
             closeMenu();
         }catch(e){
             alert(e);

@@ -4,7 +4,7 @@ import '../css/VolunteeringSettings.css'
 import Location from "../models/Location";
 import { addImageToVolunteering, addVolunteeringLocation, clearConstantCodes, getCode, getConstantCodes, getVolunteering, getVolunteeringApprovalType, getVolunteeringLocations, getVolunteeringScanType, removeImageFromVolunteering, removeLocation, updateVolunteeringCategories, updateVolunteeringScanDetails, updateVolunteeringSkills, userHasSettingsPermission } from "../api/volunteering_api";
 import Popup from "reactjs-popup";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { ApprovalType, ScanType } from "../models/ScanTypes";
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import VolunteeringModel from "../models/VolunteeringModel";
@@ -34,7 +34,7 @@ function VolunteeringSettings() {
     const [skillToAdd, setSkillToAdd] = useState("");
     const [categoryToAdd, setCategoryToAdd] = useState("");
 
-    const { register, handleSubmit, formState: { errors }, reset } = useForm<LocationFormData>();
+    const { register, handleSubmit, formState: { errors } } = useForm<LocationFormData>();
 
     const checkPermissions = async () => {
         try {
