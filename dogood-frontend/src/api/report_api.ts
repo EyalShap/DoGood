@@ -3,7 +3,7 @@ import axios from "axios";
 import ReportModel from "../models/ReportModel";
 import { host } from "./general";
 
-const server: string = `http://${host}/api/reports`;
+const server: string = `${host}/api/reports`;
 
 export const createReport = async (reportedPostId: number, description: string): Promise<number> => {
     let username: string | null = localStorage.getItem("username");

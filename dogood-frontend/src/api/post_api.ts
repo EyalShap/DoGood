@@ -4,7 +4,7 @@ import { VolunteeringPostModel } from "../models/VolunteeringPostModel";
 import PastExperienceModel from "../models/PastExpreienceModel";
 import { host } from "./general";
 
-const server: string = `http://${host}/api/posts`;
+const server: string = `${host}/api/posts`;
 
 export const createVolunteeringPost = async (title: string, description: string, volunteeringId: number): Promise<number> => {
     let username: string | null = localStorage.getItem("username");
