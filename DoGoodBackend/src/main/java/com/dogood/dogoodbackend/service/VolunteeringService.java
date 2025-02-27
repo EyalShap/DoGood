@@ -2,17 +2,13 @@ package com.dogood.dogoodbackend.service;
 
 
 import com.dogood.dogoodbackend.domain.volunteerings.*;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatePair;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequests;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.util.*;
 
 import static java.lang.Thread.sleep;
@@ -292,20 +288,20 @@ public class VolunteeringService {
         }
     }
 
-    public Response<String> updateRangeWeekdays(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, boolean[] weekdays){
+    public Response<String> updateRangeWeekdays(String token, String userId, int volunteeringId, int rangeId, boolean[] weekdays){
         try{
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().updateRangeWeekdays(userId, volunteeringId, groupId, locId, rangeId, weekdays);
+            facadeManager.getVolunteeringFacade().updateRangeWeekdays(userId, volunteeringId, rangeId, weekdays);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }
     }
 
-    public Response<String> updateRangeOneTimeDate(String token, String userId, int volunteeringId, int groupId, int locId, int rangeId, LocalDate oneTime){
+    public Response<String> updateRangeOneTimeDate(String token, String userId, int volunteeringId, int rangeId, LocalDate oneTime){
         try{
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().updateRangeOneTimeDate(userId, volunteeringId, groupId, locId, rangeId, oneTime);
+            facadeManager.getVolunteeringFacade().updateRangeOneTimeDate(userId, volunteeringId, rangeId, oneTime);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
@@ -497,7 +493,7 @@ public class VolunteeringService {
         }
     }
 
-    public Response<List<HourApprovalRequests>> getVolunteeringHourRequests(String token, String userId, int volunteeringId){
+    public Response<List<HourApprovalRequest>> getVolunteeringHourRequests(String token, String userId, int volunteeringId){
         try{
             checkToken(token, userId);
             return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringHourRequests(userId, volunteeringId));

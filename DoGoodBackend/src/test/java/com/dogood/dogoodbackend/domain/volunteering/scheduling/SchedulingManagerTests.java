@@ -2,7 +2,6 @@ package com.dogood.dogoodbackend.domain.volunteering.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import com.dogood.dogoodbackend.jparepos.AppointmentJPA;
-import com.dogood.dogoodbackend.jparepos.ApprovedHoursJPA;
 import com.dogood.dogoodbackend.jparepos.HourRequestJPA;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,8 +23,6 @@ public class SchedulingManagerTests {
     @Autowired
     private AppointmentJPA appointmentJPA;
     @Autowired
-    private ApprovedHoursJPA approvedHoursJPA;
-    @Autowired
     private HourRequestJPA hourRequestJPA;
 
     private SchedulingManager memoryManager;
@@ -39,13 +36,12 @@ public class SchedulingManagerTests {
     @BeforeAll
     public void createManagers(){
         memoryManager = new MemorySchedulingManager();
-        databaseManager = new DatabaseSchedulingManager(hourRequestJPA, appointmentJPA, approvedHoursJPA);
+        databaseManager = new DatabaseSchedulingManager(hourRequestJPA, appointmentJPA);
     }
 
     @BeforeEach
     public void setUp() {
         appointmentJPA.deleteAll();
-        approvedHoursJPA.deleteAll();
         hourRequestJPA.deleteAll();
         memoryManager = new MemorySchedulingManager();
     }
@@ -58,15 +54,11 @@ public class SchedulingManagerTests {
         weekDays1[0] = true;
         weekDays1[1] = true;
         weekDays2[2] = true;
-        ScheduleAppointment appointment1 = new ScheduleAppointment("Jim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
-        ScheduleAppointment appointment2 = new ScheduleAppointment("Bim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
-        ScheduleAppointment appointment3 = new ScheduleAppointment("Dim", 0, 0, LocalTime.of(10,0), LocalTime.of(12,0));
-        ScheduleAppointment appointment4 = new ScheduleAppointment("Nim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
+        ScheduleAppointment appointment1 = new ScheduleAppointment("Jim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), null, weekDays1);
+        ScheduleAppointment appointment2 = new ScheduleAppointment("Bim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), null, weekDays1);
+        ScheduleAppointment appointment3 = new ScheduleAppointment("Dim", 0, 0, LocalTime.of(10,0), LocalTime.of(12,0), null, weekDays1);
+        ScheduleAppointment appointment4 = new ScheduleAppointment("Nim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), null, weekDays2);
 
-        appointment1.setWeekDays(weekDays1);
-        appointment2.setWeekDays(weekDays1);
-        appointment3.setWeekDays(weekDays1);
-        appointment4.setWeekDays(weekDays2);
         schedulingManager.makeAppointment(appointment1);
         schedulingManager.makeAppointment(appointment2);
         schedulingManager.makeAppointment(appointment3);
@@ -82,15 +74,11 @@ public class SchedulingManagerTests {
     public void givenOneTime_whenGetAmountOfAppointments_returnAmountOfAppointments(SchedulingManager schedulingManager) {
         LocalDate date1 = LocalDate.of(2025,1,1);
         LocalDate date2 = LocalDate.of(2025,1,2);
-        ScheduleAppointment appointment1 = new ScheduleAppointment("Jim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
-        ScheduleAppointment appointment2 = new ScheduleAppointment("Bim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
-        ScheduleAppointment appointment3 = new ScheduleAppointment("Dim", 0, 0, LocalTime.of(10,0), LocalTime.of(12,0));
-        ScheduleAppointment appointment4 = new ScheduleAppointment("Nim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0));
+        ScheduleAppointment appointment1 = new ScheduleAppointment("Jim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), date1, null);
+        ScheduleAppointment appointment2 = new ScheduleAppointment("Bim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), date1, null);
+        ScheduleAppointment appointment3 = new ScheduleAppointment("Dim", 0, 0, LocalTime.of(10,0), LocalTime.of(12,0), date1, null);
+        ScheduleAppointment appointment4 = new ScheduleAppointment("Nim", 0, 0, LocalTime.of(12,0), LocalTime.of(14,0), date2, null);
 
-        appointment1.setOneTime(date1);
-        appointment2.setOneTime(date1);
-        appointment3.setOneTime(date1);
-        appointment4.setOneTime(date2);
         schedulingManager.makeAppointment(appointment1);
         schedulingManager.makeAppointment(appointment2);
         schedulingManager.makeAppointment(appointment3);

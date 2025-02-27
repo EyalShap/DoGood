@@ -66,17 +66,15 @@ public class SchedulingFacade {
         }
         range.checkMinutes(start,end);
         range.checkDays(oneTime, weekDays);
-        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end);
-        scheduleAppointment.setWeekDays(weekDays);
-        scheduleAppointment.setOneTime(oneTime);
+        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end, oneTime, weekDays);
         manager.makeAppointment(scheduleAppointment);
     }
 
-    public List<ApprovedHours> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
+    public List<HourApprovalRequest> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
         return manager.getApprovedUserHours(userId, volunteeringIds);
     }
 
-    public List<HourApprovalRequests> getHourApprovalRequests(int volunteeringId){
+    public List<HourApprovalRequest> getHourApprovalRequests(int volunteeringId){
         return manager.getVolunteeringHourApproveRequests(volunteeringId);
     }
 

@@ -30,18 +30,19 @@ public class ScheduleRange {
     @ElementCollection(fetch = FetchType.EAGER)
     private List<RestrictionTuple> restrict;
 
-    private boolean sunday;
-    private boolean monday;
-    private boolean tuesday;
-    private boolean wednesday;
-    private boolean thursday;
-    private boolean friday;
-    private boolean saturday;
-
-    private transient boolean[] weekDays;
+    private byte weekDays;
     private LocalDate oneTime;
 
-    public ScheduleRange(int id, int volunteeringId, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes) {
+    public ScheduleRange(int id, int volunteeringId, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes, boolean[] weekDays, LocalDate oneTime) {
+        if(oneTime != null && weekDays != null) {
+            throw new IllegalArgumentException("Cant have both week days and one time date");
+        }
+        if(oneTime == null && weekDays == null) {
+            throw new IllegalArgumentException("Must have week days or one time");
+        }
+        if (weekDays != null && weekDays.length != 7) {
+            throw new IllegalArgumentException("weekDays.length != 7");
+        }
         this.id = id;
         this.volunteeringId = volunteeringId;
         this.startTime = startTime;
@@ -49,35 +50,55 @@ public class ScheduleRange {
         this.minimumAppointmentMinutes = minimumAppointmentMinutes;
         this.maximumAppointmentMinutes = maximumAppointmentMinutes;
         this.restrict = new LinkedList<>();
+        this.oneTime = oneTime;
+        this.weekDays = convertDayArrayToByte(weekDays);
     }
 
     public ScheduleRange() {
 
     }
 
-    public boolean[] getWeekDays() {
+    private byte convertDayArrayToByte(boolean[] weekDays){
+        if(weekDays == null){
+            return -1;
+        }
+        byte days = 0;
+        for (int i = 6; i >= 0; i--) {
+            days *= 2;
+            days += weekDays[i] ? 1 : 0;
+        }
+        return days;
+    }
+
+    private boolean[] getDayArray(){
+        if(weekDays == -1){
+            return null;
+        }
+        boolean[] dayArray = new boolean[7];
+        for (int i = 0; i < 7; i++) {
+            dayArray[i] = valueAtDay(i);
+        }
+        return dayArray;
+    }
+
+    private boolean valueAtDay(int day){
+        if(weekDays < 0){
+            return false;
+        }
+        return (weekDays >> day)%2 == 1;
+    }
+
+    public byte getWeekDays() {
         return weekDays;
     }
 
     public void setWeekDays(boolean[] weekDays) {
-        this.weekDays = weekDays;
+        if (weekDays != null && weekDays.length != 7) {
+            throw new IllegalArgumentException("weekDays.length != 7");
+        }
+        this.weekDays = convertDayArrayToByte(weekDays);
         if(weekDays != null) {
             oneTime = null;
-            sunday = weekDays[0];
-            monday = weekDays[1];
-            tuesday = weekDays[2];
-            wednesday = weekDays[3];
-            thursday = weekDays[4];
-            friday = weekDays[5];
-            saturday = weekDays[6];
-        }else{
-            sunday = false;
-            monday = false;
-            tuesday = false;
-            wednesday = false;
-            thursday = false;
-            friday = false;
-            saturday = false;
         }
     }
 
@@ -88,14 +109,7 @@ public class ScheduleRange {
     public void setOneTime(LocalDate oneTime) {
         this.oneTime = oneTime;
         if(oneTime != null){
-            weekDays = null;
-            sunday = false;
-            monday = false;
-            tuesday = false;
-            wednesday = false;
-            thursday = false;
-            friday = false;
-            saturday = false;
+            weekDays = -1;
         }
     }
 
@@ -177,13 +191,7 @@ public class ScheduleRange {
 
     public ScheduleRangeDTO getDTO(){
         List<RestrictionTuple> restrictCopy = restrict.stream().map(restrictionTuple -> new RestrictionTuple(restrictionTuple.getStartTime(), restrictionTuple.getEndTime(), restrictionTuple.getAmount())).collect(Collectors.toList());
-        boolean[] weekDaysCopy;
-        if(weekDays != null){
-            weekDaysCopy  = Arrays.copyOf(weekDays,weekDays.length);
-        }else{
-            weekDaysCopy = null;
-        }
-        return new ScheduleRangeDTO(id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, restrictCopy,weekDaysCopy,oneTime);
+        return new ScheduleRangeDTO(id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, restrictCopy,getDayArray(),oneTime);
     }
 
     public void checkMinutes(LocalTime startTime, LocalTime endTime) {
@@ -203,25 +211,18 @@ public class ScheduleRange {
         }
     }
 
-    @PostLoad
-    private void loadWeekDays(){
-        if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
-            weekDays = new boolean[]{sunday, monday, tuesday, wednesday, thursday, friday, saturday};
-        }
-    }
-
     private boolean daysMatch(LocalDate oneTime, boolean[] weekDays) {
         if(oneTime != null){
             if(this.oneTime != null){
                 return oneTime.isEqual(this.oneTime);
             }
-            return this.weekDays[oneTime.getDayOfWeek().getValue()%7];
+            return valueAtDay(oneTime.getDayOfWeek().getValue()%7);
         }
         if(this.oneTime != null){
             return false;
         }
         for(int i = 0; i < 7; i++){
-            if(weekDays[i] && !this.weekDays[i]){
+            if(weekDays[i] && !valueAtDay(i)){
                 return false;
             }
         }

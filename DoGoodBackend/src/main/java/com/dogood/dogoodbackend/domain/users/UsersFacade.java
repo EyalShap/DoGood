@@ -3,7 +3,7 @@ package com.dogood.dogoodbackend.domain.users;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import jakarta.transaction.Transactional;
 
 import java.util.Date;
@@ -197,7 +197,7 @@ public class UsersFacade {
         repository.saveUser(user);
     }
 
-    public List<ApprovedHours> getApprovedHours(String username) {
+    public List<HourApprovalRequest> getApprovedHours(String username) {
         User user = getUser(username);
         List<Integer> allIds = new LinkedList<>();
         allIds.addAll(user.getVolunteeringIds());

@@ -1,19 +1,14 @@
 package com.dogood.dogoodbackend.service;
 
-import com.dogood.dogoodbackend.domain.posts.PostsFacade;
-import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
-import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
-import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
-import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ApprovedHours;
+import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Service
 public class UserService {
@@ -120,10 +115,10 @@ public class UserService {
         }
     }
 
-    public Response<List<ApprovedHours>> getApprovedHours(String token, String username) {
+    public Response<List<HourApprovalRequest>> getApprovedHours(String token, String username) {
         try {
             checkToken(token, username);
-            List<ApprovedHours> result = usersFacade.getApprovedHours(username);
+            List<HourApprovalRequest> result = usersFacade.getApprovedHours(username);
             return Response.createResponse(result);
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());

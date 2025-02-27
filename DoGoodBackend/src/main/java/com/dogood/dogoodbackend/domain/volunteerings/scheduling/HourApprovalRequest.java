@@ -4,13 +4,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 
-import java.time.LocalTime;
 import java.util.Date;
 
 
 @Entity
 @IdClass(UserVolunteerDateKT.class)
-public class HourApprovalRequests {
+public class HourApprovalRequest {
     @Id
     private String userId;
 
@@ -20,15 +19,17 @@ public class HourApprovalRequests {
     @Id
     private Date startTime;
     private Date endTime;
+    private boolean approved;
 
-    public HourApprovalRequests(String userId, int volunteeringId, Date startTime, Date endTime) {
+    public HourApprovalRequest(String userId, int volunteeringId, Date startTime, Date endTime) {
         this.userId = userId;
         this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.approved = false;
     }
 
-    public HourApprovalRequests() {}
+    public HourApprovalRequest() {}
 
     public boolean intersect(Date otherStartTime, Date otherEndTime) {
         return !(otherStartTime.equals(this.endTime) || otherEndTime.equals(this.startTime) || otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
@@ -40,6 +41,14 @@ public class HourApprovalRequests {
 
     public int getVolunteeringId() {
         return volunteeringId;
+    }
+
+    public boolean isApproved() {
+        return approved;
+    }
+
+    public void approve(){
+        this.approved = true;
     }
 
     public Date getStartTime() {

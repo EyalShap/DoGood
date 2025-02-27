@@ -331,7 +331,7 @@ public class Volunteering {
         group.assignUserToLocation(userId, locId);
     }
 
-    public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes){
+    public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes, boolean[] weekDays, LocalDate oneTime){
         if(startTime.isAfter(endTime)){
             throw new IllegalArgumentException("Start time cannot be after end time");
         }
@@ -339,26 +339,18 @@ public class Volunteering {
             throw new IllegalArgumentException("Illegal appointment minutes range");
         }
         Group g = groups.get(groupId);
-        ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes);
+        ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, weekDays, oneTime);
         scheduleRanges.put(range.getId(), range);
         g.addScheduleToLocation(locId, range.getId());
         return range.getId();
     }
 
-    public void updateRangeWeekdays(int groupId, int locId, int rangeId, boolean[] weekdays){
-        if(!scheduleRanges.containsKey(rangeId)){
-            throw new IllegalArgumentException("No range with Id " + rangeId);
-        }
-        ScheduleRange range = scheduleRanges.get(rangeId);
-        range.setWeekDays(weekdays);
+    public void updateRangeOneTimeDate(int rangeId, LocalDate oneTime){
+        scheduleRanges.get(rangeId).setOneTime(oneTime);
     }
 
-    public void updateRangeOneTimeDate(int groupId, int locId, int rangeId, LocalDate oneTime){
-        if(!scheduleRanges.containsKey(rangeId)){
-            throw new IllegalArgumentException("No range with Id " + rangeId);
-        }
-        ScheduleRange range = scheduleRanges.get(rangeId);
-        range.setOneTime(oneTime);
+    public void updateRangeWeekdays(int rangeId, boolean[] weekDays){
+        scheduleRanges.get(rangeId).setWeekDays(weekDays);
     }
 
     public void addRestrictionToRange(int groupId, int locId, int rangeId, RestrictionTuple restriction){
