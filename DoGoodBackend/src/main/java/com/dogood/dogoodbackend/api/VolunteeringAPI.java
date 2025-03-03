@@ -6,10 +6,15 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequ
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
+import com.itextpdf.text.DocumentException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -362,5 +367,14 @@ public class VolunteeringAPI {
     public Response<String> addImageToVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody String imagePath, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.addImage(token, userId, volunteeringId, imagePath.replaceAll("\"",""));
+    }
+
+    @GetMapping(value="/getUserApprovedHoursFormatted",produces= MediaType.APPLICATION_PDF_VALUE)
+    public  @ResponseBody byte[] getUserApprovedHoursFormatted(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String israeliId, HttpServletRequest request) throws IOException, DocumentException {
+        String token = getToken(request);
+        FileInputStream fis= new FileInputStream(new File(volunteeringService.getUserApprovedHoursFormatted(token, userId, volunteeringId, israeliId)));
+        byte[] targetArray = new byte[fis.available()];
+        fis.read(targetArray);
+        return targetArray;
     }
 }

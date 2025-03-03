@@ -57,6 +57,7 @@
     height: 100px;
 }
 
+.export-section button,
 .profile-section button,
 .list-section button,
 .status-section button {
@@ -135,4 +136,14 @@
 
 .history-table tbody tr:nth-child(even) {
     background-color: #f2f2f2;
+}
+
+.export-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+    display: flex;
+    flex-direction: column;
 }

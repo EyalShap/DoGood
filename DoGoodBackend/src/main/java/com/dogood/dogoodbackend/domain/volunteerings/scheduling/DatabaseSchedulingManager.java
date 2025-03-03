@@ -67,6 +67,11 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     }
 
     @Override
+    public List<HourApprovalRequest> getApprovedUserHours(String username) {
+        return hourRequestJPA.findByUserIdAndApproved(username, true);
+    }
+
+    @Override
     public List<ScheduleAppointment> getVolunteeringAppointments(int volunteeringId) {
         return appointmentJPA.findByVolunteeringId(volunteeringId);
     }

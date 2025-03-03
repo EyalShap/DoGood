@@ -1,11 +1,17 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
+import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
+import com.dogood.dogoodbackend.pdfformats.PdfFactory;
+import com.dogood.dogoodbackend.pdfformats.University;
+import com.itextpdf.text.DocumentException;
 import jakarta.transaction.Transactional;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Date;
@@ -714,6 +720,32 @@ public class VolunteeringFacade {
 
     public List<HourApprovalRequest> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
         return schedulingFacade.getUserApprovedHours(userId,volunteeringIds);
+    }
+
+    public String getUserApprovedHoursFormatted(String userId, int volunteeringId, String israeliId) throws DocumentException, IOException {
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!volunteering.hasVolunteer(userId)){
+            throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
+        }
+        User userData = usersFacade.getUser(userId);
+        OrganizationDTO orgData = organizationFacade.getOrganization(volunteering.getOrganizationId());
+        PdfFactory factory = new PdfFactory();
+        String[] nameSplit = userData.getName().split(" "); //TODO: make this better
+        String email = userData.getEmails().get(0); //TODO: make this better
+        return factory.createFormat(University.getUniversity(email),
+                orgData.getName(),
+                nameSplit[0],
+                nameSplit.length > 1 ? nameSplit[1] : "",
+                israeliId,
+                userData.getPhone(),
+                email,
+                getUserApprovedHours(userId, List.of(volunteeringId)));
     }
 
 
