@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRange;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -8,6 +9,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 
+@Transactional
 public class SchedulingFacade {
     private SchedulingManager manager;
     public SchedulingFacade(SchedulingManager manager) {
@@ -63,17 +65,16 @@ public class SchedulingFacade {
             }
         }
         range.checkMinutes(start,end);
-        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end);
-        scheduleAppointment.setWeekDays(weekDays);
-        scheduleAppointment.setOneTime(oneTime);
+        range.checkDays(oneTime, weekDays);
+        ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end, oneTime, weekDays);
         manager.makeAppointment(scheduleAppointment);
     }
 
-    public List<ApprovedHours> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
+    public List<HourApprovalRequest> getUserApprovedHours(String userId, List<Integer> volunteeringIds){
         return manager.getApprovedUserHours(userId, volunteeringIds);
     }
 
-    public List<HourApprovalRequests> getHourApprovalRequests(int volunteeringId){
+    public List<HourApprovalRequest> getHourApprovalRequests(int volunteeringId){
         return manager.getVolunteeringHourApproveRequests(volunteeringId);
     }
 
@@ -83,5 +84,21 @@ public class SchedulingFacade {
 
     public List<ScheduleAppointmentDTO> getUserAppointments(String userId, List<Integer> volunteeringIds){
         return manager.getUserAppointments(userId, volunteeringIds).stream().map(sched -> sched.getDTO()).toList();
+    }
+
+    public void removeAppointmentsAndRequestsForVolunteering(int volunteeringId) {
+        manager.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
+    }
+
+    public void removeAppointmentsOfRange(int volunteeringId, int rID) {
+        manager.removeAppointmentsOfRange(volunteeringId, rID);
+    }
+
+    public void cancelAppointment(String userId, int volunteeringId, LocalTime start) {
+        manager.cancelAppointment(userId, volunteeringId, start);
+    }
+
+    public void userLeave(int volunteeringId, String userId) {
+        manager.userLeave(volunteeringId, userId);
     }
 }

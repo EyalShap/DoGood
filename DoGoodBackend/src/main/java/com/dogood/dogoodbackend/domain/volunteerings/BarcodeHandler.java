@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -9,9 +10,10 @@ import java.util.UUID;
 
 @Embeddable
 public class BarcodeHandler {
-    private transient List<Code> recentCodes;
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Code> recentCodes;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     private List<Code> constantCodes;
     private transient final int SECONDS_UNTIL_INVALID = 15;
 

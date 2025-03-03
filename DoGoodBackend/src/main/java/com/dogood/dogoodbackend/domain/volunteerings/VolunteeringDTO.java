@@ -3,13 +3,16 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 import java.util.List;
 
 public class VolunteeringDTO {
-    private final int id;
-    private final int orgId;
-    private final String name;
-    private final String description;
+    private int id;
+    private int orgId;
+    private String name;
+    private String description;
     private List<String> skills;
     private List<String> categories;
     private List<String> imagePaths;
+
+    public VolunteeringDTO() {
+    }
 
     public VolunteeringDTO(int id, int orgId, String name, String description, List<String> skills,
             List<String> categories, List<String> imagePaths) {
@@ -50,6 +53,7 @@ public class VolunteeringDTO {
         return imagePaths;
     }
 
+    @Override
     public boolean equals(Object other){
         if(!(other instanceof VolunteeringDTO)){
             return false;

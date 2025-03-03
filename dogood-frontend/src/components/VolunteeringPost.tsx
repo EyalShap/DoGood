@@ -1,12 +1,10 @@
 import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
-import VolunteeringModel from '../models/VolunteeringModel'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { getPostPastExperiences, getVolunteeringName, getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
-import OrganizationModel from '../models/OrganizationModel';
-import { getIsManager, getOrganization, getOrganizationName } from '../api/organization_api';
+import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
+import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
 import { createReport } from '../api/report_api';
@@ -17,6 +15,7 @@ function VolunteeringPost() {
     const navigate = useNavigate();
     const [model, setModel] = useState<VolunteeringPostModel>({id: -1, title: "", description: "", postedTime: "", lastEditedTime: "", posterUsername: "", numOfPeopleRequestedToJoin: -1, relevance: -1, volunteeringId: -1, organizationId: -1});
     const [volunteeringName, setVolunteeringName] = useState<string>('');
+    const [volunteeringImages, setVolunteeringImages] = useState<string[]>([]);
     const [isVolunteer, setIsVolunteer] = useState(true);
     const [organizationName, setOrganizationName] = useState<string>('');
     const [isManager, setIsManager] = useState(false);
@@ -54,12 +53,23 @@ function VolunteeringPost() {
                 setOrganizationName(organizationName);
                 
                 try {
-                    let volunteering: VolunteeringModel = await getVolunteering(model.volunteeringId);
+                    await getVolunteering(model.volunteeringId);
                     setIsVolunteer(true);
                 }
                 catch {
                     setIsVolunteer(false);                
                 }
+            }
+        }
+        catch(e) {
+            alert(e);
+        }
+    }
+
+    const fetchImages = async () => {
+        try {
+            if(ready) {
+                setVolunteeringImages(await getVolunteeringImages(parseInt(id!)))
             }
         }
         catch(e) {
@@ -102,6 +112,7 @@ function VolunteeringPost() {
 
     useEffect(() => {
         fetchNames();
+        fetchImages();
     }, [model, ready])
 
     useEffect(() =>{
@@ -224,10 +235,11 @@ function VolunteeringPost() {
 
             <div id="postInfo" className="postInfo">
                 <div id = "postImage" className="postImage" >
-                    <img 
-                        src="https://i.natgeofe.com/n/4f5aaece-3300-41a4-b2a8-ed2708a0a27c/domestic-dog_thumb_square.jpg" 
-                        alt="Dog" 
+                    {volunteeringImages.map(image =>
+                        <img style={{margin: "5px"}}
+                        src={image.replace(/"/g, "")} 
                         />
+                    )}
                 </div>
 
                 <div id="postInfoText" className="postInfoText">

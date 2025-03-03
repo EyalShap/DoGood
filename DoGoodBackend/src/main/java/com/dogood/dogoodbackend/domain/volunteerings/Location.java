@@ -11,7 +11,7 @@ public class Location {
     private int id;
 
     @Id
-    @Column(name="volunteeringId")
+    @Column(name = "volunteering_id", nullable = false)
     private int volunteeringId;
     private String name;
     @Embedded

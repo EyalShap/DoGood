@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
@@ -12,10 +13,11 @@ import java.util.List;
 public class OrganizationsFacade {
     private OrganizationRepository organizationRepository;
     private RequestRepository requestRepository;
-    //private UsersFacade usersFacade;
+    private UsersFacade usersFacade;
     private VolunteeringFacade volunteeringFacade;
 
-    public OrganizationsFacade(OrganizationRepository organizationRepository, RequestRepository requestRepository) {
+    public OrganizationsFacade(UsersFacade usersFacade, OrganizationRepository organizationRepository, RequestRepository requestRepository) {
+        this.usersFacade = usersFacade;
         this.organizationRepository = organizationRepository;
         this.requestRepository = requestRepository;
     }
@@ -25,14 +27,18 @@ public class OrganizationsFacade {
     }
 
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
-        //TODO: check if user exists and logged in
-
-        return organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        int id =  organizationRepository.createOrganization(name, description, phoneNumber, email, actor);
+        usersFacade.addUserOrganization(actor, id);
+        return id;
     }
 
     public void removeOrganization(int organizationId, String actor) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization toRemove = organizationRepository.getOrganization(organizationId);
 
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
@@ -45,11 +51,15 @@ public class OrganizationsFacade {
         organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
+        if(toRemove.isFounder(actor)) {
+            usersFacade.removeUserOrganization(actor, organizationId);
+        }
     }
 
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email, String actor) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization toEdit = organizationRepository.getOrganization(organizationId);
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
@@ -59,8 +69,9 @@ public class OrganizationsFacade {
     }
 
     public int createVolunteering(int organizationId, String volunteeringName, String volunteeringDescription, String actor) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(!isManager(actor, organizationId) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "create a new volunteering"));
@@ -74,8 +85,9 @@ public class OrganizationsFacade {
     }
 
     public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
 
         if(!organization.isManager(actor) && !isAdmin(actor)) {
@@ -86,8 +98,9 @@ public class OrganizationsFacade {
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(!organization.isManager(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "send assign manager request"));
@@ -107,8 +120,9 @@ public class OrganizationsFacade {
     }
 
     public void handleAssignManagerRequest(String actor, int organizationId, boolean approved) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Request request = requestRepository.getRequest(actor, organizationId);
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(approved) {
@@ -124,16 +138,18 @@ public class OrganizationsFacade {
     }
 
     public void resign(String actor, int organizationId) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
         organization.resign(actor);
         organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
     }
 
     public void removeManager(String actor, String managerToRemove, int organizationId) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
 
         if(!organization.isFounder(actor) && !isAdmin(actor)) {
@@ -145,8 +161,9 @@ public class OrganizationsFacade {
     }
 
     public void setFounder(String actor, String newFounder, int organizationId) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
 
         if(!organization.isFounder(actor) && !isAdmin(actor)) {
@@ -157,8 +174,9 @@ public class OrganizationsFacade {
     }
 
     public List<Request> getUserRequests(String actor) {
-        //TODO: check if user exists and logged in
-
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         return requestRepository.getUserRequests(actor);
     }
 
@@ -198,10 +216,10 @@ public class OrganizationsFacade {
         return volunteeringDTOS;
     }
 
-    // TODO: remove when users facade is implemented
-    public boolean isAdmin(String username) {
-        return false;
+    private boolean isAdmin(String user) {
+        return usersFacade.isAdmin(user);
     }
-
-
+    private boolean userExists(String user){
+        return usersFacade.userExists(user);
+    }
 }

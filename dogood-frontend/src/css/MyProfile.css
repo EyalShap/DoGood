@@ -1,0 +1,138 @@
+.my-profile {
+    font-family: Arial, sans-serif;
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f9f9f9;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+.my-profile h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.profile-section,
+.list-section,
+.status-section {
+    margin-bottom: 30px;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.profile-section h2,
+.list-section h2,
+.status-section h2 {
+    color: #555;
+    margin-bottom: 15px;
+    font-size: 20px;
+    border-bottom: 1px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.profile-section label,
+.list-section label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #333;
+}
+
+.profile-section input,
+.list-section textarea {
+    width: 95%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.list-section textarea {
+    resize: vertical;
+    height: 100px;
+}
+
+.profile-section button,
+.list-section button,
+.status-section button {
+    display: inline-block;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #fff;
+    background-color: #4caf50;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.profile-section button:hover,
+.list-section button:hover,
+.status-section button:hover {
+    background-color: #45a049;
+}
+
+.status-section p {
+    margin: 5px 0;
+    font-size: 14px;
+    color: #333;
+}
+
+.status-section p strong {
+    color: #555;
+}
+
+.status-section button {
+    margin-top: 10px;
+    background-color: #007bff;
+}
+
+.status-section button:hover {
+    background-color: #0056b3;
+}
+
+.history-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+    font-size: 16px;
+    text-align: left;
+    background-color: #f9f9f9;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.history-table th,
+.history-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+}
+
+.history-table th {
+    background-color: #4CAF50;
+    color: white;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.history-table tbody tr:hover {
+    background-color: #f1f1f1;
+    transition: background-color 0.3s ease;
+}
+
+.history-table img {
+    display: block;
+    margin: auto;
+    max-width: 100px;
+    max-height: 100px;
+    border-radius: 5px;
+}
+
+.history-table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}

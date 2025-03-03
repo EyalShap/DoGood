@@ -64,5 +64,10 @@
     color: green;
 }
 
+.accept:disabled{
+    border-color: rgb(123, 168, 123);
+    color: rgb(123, 168, 123);
+}
+
 @media (max-width: 500px) {
 }

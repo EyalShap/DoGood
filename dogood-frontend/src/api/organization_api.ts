@@ -3,13 +3,13 @@ import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
 import RequestModel from "../models/RequestModel";
 import VolunteeringModel from "../models/VolunteeringModel";
-import { getVolunteering } from "./volunteering_api";
+import { host } from "./general";
 
-const server: string = 'http://192.168.1.28:8080/api/organizations';
+const server: string = `${host}/api/organizations`;
 
 export const createOrganization = async (name: string, description: string, email: string, phoneNumber: string): Promise<number> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -39,8 +39,8 @@ export const createOrganization = async (name: string, description: string, emai
 }
 
 export const removeOrganization = async (organizationId: number) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -59,8 +59,8 @@ export const removeOrganization = async (organizationId: number) => {
 }
 
 export const editOrganization = async (organizationId: number, newName: string, newDescription: string, newEmail: string, newPhoneNumber: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -86,8 +86,8 @@ export const editOrganization = async (organizationId: number, newName: string, 
 }
 
 export const createVolunteering = async (organizationId: number, volunteeringName: string, volunteeringDescription: string): Promise<number> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -116,8 +116,8 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
 }
 
 /*export const removeVolunteering = async (organizationId: number, volunteeringId: number) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -139,8 +139,8 @@ export const createVolunteering = async (organizationId: number, volunteeringNam
 }*/
 
 export const sendAssignManagerRequest = async (organizationId: number, newManager: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -165,8 +165,8 @@ export const sendAssignManagerRequest = async (organizationId: number, newManage
 }
 
 export const handleAssignManagerRequest = async (organizationId: number, approved: boolean) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -191,8 +191,8 @@ export const handleAssignManagerRequest = async (organizationId: number, approve
 }
 
 export const resign = async (organizationId: number) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -213,8 +213,8 @@ export const resign = async (organizationId: number) => {
 }
 
 export const removeManager = async (organizationId: number, managerToRemove: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -235,8 +235,8 @@ export const removeManager = async (organizationId: number, managerToRemove: str
 }
 
 export const setFounder = async (organizationId: number, newFounder: string) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -261,8 +261,8 @@ export const setFounder = async (organizationId: number, newFounder: string) => 
 }
 
 export const getUserRequests = async (): Promise<RequestModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getUserRequests?actor=${username}`;
 
@@ -278,8 +278,8 @@ export const getUserRequests = async (): Promise<RequestModel[]> => {
 }
 
 export const getOrganization = async (organizationId: number): Promise<OrganizationModel> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getOrganization?orgId=${organizationId}&actor=${username}`;
     
@@ -297,8 +297,8 @@ export const getOrganization = async (organizationId: number): Promise<Organizat
 }
 
 export const getAllOrganizations = async (): Promise<OrganizationModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getAllOrganizations?actor=${username}`;
 
@@ -314,8 +314,8 @@ export const getAllOrganizations = async (): Promise<OrganizationModel[]> => {
 }
 
 export const getIsManager = async (organizationId: number): Promise<boolean> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/isManager?orgId=${organizationId}&actor=${username}`;
 
@@ -331,8 +331,8 @@ export const getIsManager = async (organizationId: number): Promise<boolean> => 
 }
 
 export const getOrganizationVolunteerings = async (organizationId: number): Promise<VolunteeringModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getOrganizationVolunteerings?orgId=${organizationId}&actor=${username}`;
 
@@ -348,8 +348,8 @@ export const getOrganizationVolunteerings = async (organizationId: number): Prom
 }
 
 export const getOrganizationName = async (organizationId: number): Promise<string> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getOrganizationName?orgId=${organizationId}&actor=${username}`;
     console.log("Request URL:", url); // Log the URL to check for issues
@@ -366,8 +366,8 @@ export const getOrganizationName = async (organizationId: number): Promise<strin
 }
 
 export const getUserVolunteerings = async (organizationId: number): Promise<number[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
     
     let url = `${server}/getUserVolunteerings?organizationId=${organizationId}&actor=${username}`;
     console.log("Request URL:", url); // Log the URL to check for issues

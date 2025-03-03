@@ -19,6 +19,7 @@ public class Group {
     @Column(name="id")
     private int id;
     @Id
+    @Column(name = "volunteering_id", nullable = false)
     private int volunteeringId;
 
     @ElementCollection
@@ -75,6 +76,13 @@ public class Group {
         }
         volunteersToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
         rangeToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
+    }
+
+    public void removeRangeIfHas(int rangeId){
+        if(rangeToLocation.containsKey(rangeId)){
+            locationToRanges.get(rangeToLocation.get(rangeId)).remove(Integer.valueOf(rangeId));
+            rangeToLocation.remove(rangeId);
+        }
     }
 
     public int getId() {
@@ -160,5 +168,12 @@ public class Group {
 
     public void setVolunteeringId(int volunteeringId) {
         this.volunteeringId = volunteeringId;
+    }
+
+    public List<Integer> getRangesForLocation(int locId) {
+        if(!locationToRanges.containsKey(locId)){
+            return new LinkedList<>();
+        }
+        return locationToRanges.get(locId);
     }
 }

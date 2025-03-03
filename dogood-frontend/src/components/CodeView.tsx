@@ -24,9 +24,13 @@ function CodeView() {
         return () => clearInterval(intervalId);
       }, []);
     return (
-        <div>
+        <div style={{
+            width: "100%",
+             display: "flex",
+             flexDirection: "column",
+             alignItems: "center"}}>
             <h1>Changing Code</h1>
-            <QRCode value={code}/>
+            <QRCode size={300} value={code}/>
         </div>
     )
 }

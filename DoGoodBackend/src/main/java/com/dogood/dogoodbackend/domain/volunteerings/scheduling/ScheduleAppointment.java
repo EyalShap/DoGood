@@ -1,8 +1,6 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
-import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRangeDTO;
 import jakarta.persistence.*;
-import org.hibernate.annotations.Type;
 
 import java.util.Arrays;
 import java.util.Date;
@@ -27,24 +25,57 @@ public class ScheduleAppointment {
     private LocalTime startTime;
     private LocalTime endTime;
 
-    private boolean sunday;
-    private boolean monday;
-    private boolean tuesday;
-    private boolean wednesday;
-    private boolean thursday;
-    private boolean friday;
-    private boolean saturday;
-
-    private transient boolean[] weekDays;
+    private byte weekDays;
 
     private LocalDate oneTime;
 
-    public ScheduleAppointment(String userId, int volunteeringId, int rangeId, LocalTime startTime, LocalTime endTime) {
+    public ScheduleAppointment(String userId, int volunteeringId, int rangeId, LocalTime startTime, LocalTime endTime, LocalDate oneTime, boolean[] weekDays) {
+        if(oneTime != null && weekDays != null) {
+            throw new IllegalArgumentException("Cant have both week days and one time date");
+        }
+        if(oneTime == null && weekDays == null) {
+            throw new IllegalArgumentException("Must have week days or one time");
+        }
+        if (weekDays != null && weekDays.length != 7) {
+            throw new IllegalArgumentException("weekDays.length != 7");
+        }
         this.userId = userId;
         this.rangeId = rangeId;
         this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
+        this.oneTime = oneTime;
+        this.weekDays = convertDayArrayToByte(weekDays);
+    }
+
+    private byte convertDayArrayToByte(boolean[] weekDays){
+        if(weekDays == null){
+            return -1;
+        }
+        byte days = 0;
+        for (int i = 6; i >= 0; i--) {
+            days *= 2;
+            days += weekDays[i] ? 1 : 0;
+        }
+        return days;
+    }
+
+    private boolean[] getDayArray(){
+        if(weekDays == -1){
+            return null;
+        }
+        boolean[] dayArray = new boolean[7];
+        for (int i = 0; i < 7; i++) {
+            dayArray[i] = valueAtDay(i);
+        }
+        return dayArray;
+    }
+
+    private boolean valueAtDay(int day){
+        if(weekDays < 0){
+            return false;
+        }
+        return (weekDays >> day)%2 == 1;
     }
 
     public ScheduleAppointment() {}
@@ -69,7 +100,7 @@ public class ScheduleAppointment {
         return endTime;
     }
 
-    public boolean[] getWeekDays() {
+    public byte getWeekDays() {
         return weekDays;
     }
 
@@ -97,39 +128,16 @@ public class ScheduleAppointment {
         if (weekDays != null && weekDays.length != 7) {
             throw new IllegalArgumentException("weekDays.length != 7");
         }
-        this.weekDays = weekDays;
-        if(weekDays != null){
+        this.weekDays = convertDayArrayToByte(weekDays);
+        if(weekDays != null) {
             oneTime = null;
-            sunday = weekDays[0];
-            monday = weekDays[1];
-            tuesday = weekDays[2];
-            wednesday = weekDays[3];
-            thursday = weekDays[4];
-            friday = weekDays[5];
-            saturday = weekDays[6];
-        }
-        if(weekDays == null){
-            sunday = false;
-            monday = false;
-            tuesday = false;
-            wednesday = false;
-            thursday = false;
-            friday = false;
-            saturday = false;
         }
     }
 
     public void setOneTime(LocalDate oneTime) {
         this.oneTime = oneTime;
         if(oneTime != null){
-            weekDays = null;
-            sunday = false;
-            monday = false;
-            tuesday = false;
-            wednesday = false;
-            thursday = false;
-            friday = false;
-            saturday = false;
+            weekDays = -1;
         }
     }
 
@@ -138,10 +146,10 @@ public class ScheduleAppointment {
         if(oneTime != null && !oneTime.isEqual(includeDateTime.toLocalDate())){
             return false;
         }
-        if(weekDays != null && !weekDays[includeDateTime.getDayOfWeek().getValue()%7]){
+        if(weekDays >= 0 && !valueAtDay(includeDateTime.getDayOfWeek().getValue()%7)){
             return false;
         }
-        return MINUTES.between(includeDateTime.toLocalTime(), startTime) <= minutesAllowed || MINUTES.between(includeDateTime.toLocalTime(), endTime) <= minutesAllowed
+        return Math.abs(MINUTES.between(includeDateTime.toLocalTime(), startTime)) <= minutesAllowed || Math.abs(MINUTES.between(includeDateTime.toLocalTime(), endTime)) <= minutesAllowed
                 || (startTime.isBefore(includeDateTime.toLocalTime()) && endTime.isAfter(includeDateTime.toLocalTime()));
     }
 
@@ -154,7 +162,7 @@ public class ScheduleAppointment {
         if(oneTime != null && !oneTime.isEqual(startDateTime.toLocalDate())){
             return false;
         }
-        if(weekDays != null && !weekDays[startDateTime.getDayOfWeek().getValue()%7]){
+        if(weekDays >= 0 && !valueAtDay(startDateTime.getDayOfWeek().getValue()%7)){
             return false;
         }
         return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed && MINUTES.between(endDateTime.toLocalTime(), endTime) <= minutesAllowed;
@@ -167,7 +175,7 @@ public class ScheduleAppointment {
                         day.getYear() != oneTime.getYear())){
             throw new UnsupportedOperationException("Given day doesn't match one time day");
         }
-        if(weekDays != null && !weekDays[day.getDayOfWeek().getValue()%7]){
+        if(weekDays >= 0 && !valueAtDay(day.getDayOfWeek().getValue()%7)){
             throw new UnsupportedOperationException("Given day doesn't match week day");
         }
         LocalDateTime startDateTime = LocalDateTime.of(day.getYear(), day.getMonth(), day.getDayOfMonth(), startTime.getHour(), startTime.getMinute());
@@ -177,37 +185,44 @@ public class ScheduleAppointment {
                 Date.from(endDateTime.atZone(ZoneId.systemDefault()).toInstant()));
     }
 
+
     public ScheduleAppointmentDTO getDTO(){
-        boolean[] weekDaysCopy;
-        if(weekDays != null){
-            weekDaysCopy  = Arrays.copyOf(weekDays,weekDays.length);
-        }else{
-            weekDaysCopy = null;
-        }
-        return new ScheduleAppointmentDTO(userId, volunteeringId, rangeId, startTime, endTime, weekDaysCopy, oneTime);
+        return new ScheduleAppointmentDTO(userId, volunteeringId, rangeId, startTime, endTime, getDayArray(), oneTime);
     }
 
     public boolean intersect(ScheduleAppointment other) {
         if(oneTime != null && other.oneTime != null) {
-            return !oneTime.isEqual(other.getOneTime()) || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+            return oneTime.isEqual(other.getOneTime()) && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
         }
-        if(weekDays != null && other.weekDays != null) {
+        if(weekDays >= 0 && other.weekDays >= 0) {
             for(int i = 0; i < 7; i++){
-                if(weekDays[i] && other.weekDays[i]){
-                    return !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+                if(valueAtDay(i) && other.valueAtDay(i)){
+                    return !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
                 }
             }
+            return false;
         }
-        if(weekDays != null){
-            return weekDays[other.getOneTime().getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+        if(weekDays >= 0){
+            return valueAtDay(other.getOneTime().getDayOfWeek().getValue()%7) && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
         }
-        return other.getWeekDays()[oneTime.getDayOfWeek().getValue()%7] || !(other.getStartTime().isAfter(this.endTime) || other.getStartTime().isBefore(this.startTime));
+        return other.valueAtDay(oneTime.getDayOfWeek().getValue()%7) && !(other.getStartTime().isAfter(this.endTime) || other.getEndTime().isBefore(this.startTime));
     }
 
-    @PostLoad
-    private void loadWeekDays(){
-        if(sunday || monday || tuesday || wednesday || thursday || friday || saturday){
-            weekDays = new boolean[]{sunday, monday, tuesday, wednesday, thursday, friday, saturday};
+    public boolean daysMatch(LocalDate oneTime, boolean[] weekDays) {
+        if(oneTime != null){
+            if(this.oneTime != null){
+                return oneTime.isEqual(this.oneTime);
+            }
+            return valueAtDay(oneTime.getDayOfWeek().getValue()%7);
         }
+        if(this.oneTime != null){
+            return false;
+        }
+        for(int i = 0; i < 7; i++){
+            if(weekDays[i] && !valueAtDay(i)){
+                return false;
+            }
+        }
+        return true;
     }
 }

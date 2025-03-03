@@ -1,0 +1,98 @@
+.makeAppointment {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; /* Centered alignment for consistency */
+    padding: 20px;
+    background: linear-gradient(135deg, #ffffff, #f9f9f9); /* Matches the gradient */
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+}
+
+.weekButtons {
+    width: 100%; /* Adjusted to be full width */
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around; /* Even spacing between buttons */
+    margin-bottom: 15px; /* Increased spacing for consistency */
+}
+
+.weekButton {
+    background: linear-gradient(135deg, #007bff, #0056b3); /* Matching button styles */
+    width: auto;
+    padding: 12px 18px; /* Consistent padding */
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.weekButton:hover {
+    background: linear-gradient(135deg, #0056b3, #00408d);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.maker {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px 0;
+}
+
+.timePicker {
+    margin: 10px 0; /* Unified spacing */
+    font-size: 1rem;
+    color: #555; /* Matches text styling */
+}
+
+.sendButton {
+    background: linear-gradient(135deg, #007bff, #0056b3); /* Matching button styles */
+    width: 50%;
+    padding: 12px 18px; /* Consistent padding */
+    color: #fff;
+    font-weight: bold;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    margin-bottom: 15px;
+}
+
+.sendButton:hover {
+    background: linear-gradient(135deg, #0056b3, #00408d);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+}
+
+.selector {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 0; /* Added spacing for consistency */
+}
+
+@media (max-width: 500px) {
+    .weekButton {
+        width: 90%; /* Increased for better usability on smaller screens */
+        padding: 10px; /* Adjusted padding */
+    }
+
+    .weekButtons {
+        flex-wrap: wrap; /* Allow wrapping for smaller screens */
+        justify-content: center;
+    }
+
+    .calender {
+        overflow-x: scroll;
+    }
+
+    .innercalender {
+        width: 1000px;
+    }
+}

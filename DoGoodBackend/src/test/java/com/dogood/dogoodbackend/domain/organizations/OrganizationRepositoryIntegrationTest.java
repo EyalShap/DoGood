@@ -2,11 +2,15 @@ package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import org.springframework.context.ApplicationContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,6 +20,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
 
+@SpringBootTest
+@ActiveProfiles("test")
 class OrganizationRepositoryIntegrationTest {
     private static MemoryOrganizationRepository memoryOrganizationRepository;
     private static DBOrganizationRepository dbOrganizationRepository;
@@ -27,16 +33,22 @@ class OrganizationRepositoryIntegrationTest {
     private final String email = "mada@gmail.com";
     private final String actor1 = "TheDoctor";
 
-
+    @Autowired
+    private ApplicationContext applicationContext;
+    private OrganizationJPA organizationJPA;
 
     @BeforeAll
     static void setUpBeforeAll() {
         memoryOrganizationRepository = new MemoryOrganizationRepository();
-        dbOrganizationRepository = new DBOrganizationRepository(null);
+        dbOrganizationRepository = new DBOrganizationRepository();
     }
 
     @BeforeEach
     void setUpBeforeEach() {
+        OrganizationJPA organizationJPA = applicationContext.getBean(OrganizationJPA.class);
+        dbOrganizationRepository.setJPA(organizationJPA);
+        organizationJPA.deleteAll();
+
         memOrgId = memoryOrganizationRepository.createOrganization(name, description, phoneNumber, email, actor1);
         dbOrgId = dbOrganizationRepository.createOrganization(name, description, phoneNumber, email, actor1);
         this.memOrganization = new Organization(memOrgId, name, description, phoneNumber, email, actor1);
@@ -52,26 +64,16 @@ class OrganizationRepositoryIntegrationTest {
         catch (Exception e) {
 
         }
-
-        try {
-            Organization organization = dbOrganizationRepository.getOrganization(dbOrgId);
-            memoryOrganizationRepository.removeOrganization(memOrgId);
-        }
-        catch (Exception e) {
-
-        }
-
     }
 
     static Stream<OrganizationRepository> repoProvider() {
-        return Stream.of(memoryOrganizationRepository);
+        return Stream.of(memoryOrganizationRepository, dbOrganizationRepository);
     }
 
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenValidFields_whenCreateOrganization_thenCreate(OrganizationRepository organizationRepository) {
         Organization organization1 = organizationRepository == memoryOrganizationRepository ? memOrganization : dbOrganization;
-
 
         List<Organization> expectedBeforeAdd = new ArrayList<>();
         expectedBeforeAdd.add(organization1);
@@ -90,8 +92,28 @@ class OrganizationRepositoryIntegrationTest {
 
     @ParameterizedTest
     @MethodSource("repoProvider")
+    void givenInvalidFields_whenCreateOrganization_thenThrowException(OrganizationRepository organizationRepository) {
+        Organization organization1 = organizationRepository == memoryOrganizationRepository ? memOrganization : dbOrganization;
+
+        List<Organization> expected = new ArrayList<>();
+        expected.add(organization1);
+
+        List<Organization> resBeforeAdd = organizationRepository.getAllOrganizations();
+        assertEquals(expected, resBeforeAdd);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> organizationRepository.createOrganization("", "Water services", "0548195544", "madk@gmail.com", actor1));
+        String expectedError = "Invalid organization name: .\n";
+
+        assertEquals(expectedError, exception.getMessage());
+
+        List<Organization> resAfterAdd = organizationRepository.getAllOrganizations();
+        assertEquals(expected, resAfterAdd);
+    }
+
+    @ParameterizedTest
+    @MethodSource("repoProvider")
     void givenExistingId_whenRemoveOrganization_thenRemove(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setOrganizationByRepo(organizationRepository);
 
         assertDoesNotThrow(() -> organizationRepository.removeOrganization(orgId));
 
@@ -104,6 +126,7 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingId_whenRemoveOrganization_thenThrowException(OrganizationRepository organizationRepository) {
+        setOrganizationByRepo(organizationRepository);
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.removeOrganization(orgId + 1);
         });
@@ -113,7 +136,7 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingOrganizationAndValidFields_whenEditOrganization_thenEdit(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setOrganizationByRepo(organizationRepository);
 
         assertDoesNotThrow(() -> organizationRepository.editOrganization(orgId, "Magen David Kachol", "water services", "0547612954", "madk@gmail.com"));
     }
@@ -121,7 +144,7 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingOrganizationAndNonValidFields_whenEditOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setOrganizationByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> organizationRepository.editOrganization(orgId, "", "", "", ""));
         StringBuilder expectedError = new StringBuilder();
@@ -137,7 +160,7 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingOrganization_whenEditOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setOrganizationByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.editOrganization(orgId + 1, "Magen David Adom", "description", "0541970256", "mada@gmail.com");
@@ -149,6 +172,7 @@ class OrganizationRepositoryIntegrationTest {
     @MethodSource("repoProvider")
     void givenExistingId_whenGetOrganization_thenNoThrownException(OrganizationRepository organizationRepository) {
         Organization expectedOrganization = organizationRepository == memoryOrganizationRepository ? memOrganization : dbOrganization;
+        setOrganizationByRepo(organizationRepository);
         final Organization[] organization = new Organization[1];
         assertDoesNotThrow(() -> organization[0] = organizationRepository.getOrganization(orgId));
         assertEquals(expectedOrganization, organization[0]);
@@ -157,7 +181,7 @@ class OrganizationRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenNonExistingId_whenGetOrganization_thenThrowException(OrganizationRepository organizationRepository) {
-        this.orgId = organizationRepository == memoryOrganizationRepository ? memOrgId : dbOrgId;
+        setOrganizationByRepo(organizationRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationRepository.getOrganization(orgId + 1);
@@ -173,5 +197,9 @@ class OrganizationRepositoryIntegrationTest {
         expected.add(expectedOrganization);
         List<Organization> res = organizationRepository.getAllOrganizations();
         assertEquals(expected, res);
+    }
+    
+    private void setOrganizationByRepo(OrganizationRepository repo) {
+        this.orgId = repo == memoryOrganizationRepository ? memOrgId : dbOrgId;
     }
 }

@@ -6,7 +6,7 @@ import CreateVolunteering from './components/CreateVolunteering'
 import OrganizationList from './components/OrganizationList'
 import CreateOrganization from './components/CreateOrganization'
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import TemporaryLoginMaker from './components/TemporaryLoginMaker';
+import LoginPage from './components/LoginPage';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
 import HourApprovalRequestList from './components/HourApprovalRequestList';
@@ -16,18 +16,25 @@ import VolunteeringPostList from './components/VolunteeringPostList'
 import VolunteeringPost from './components/VolunteeringPost'
 import CreatePost from './components/CreatePost'
 import ReportList from './components/ReportList'
-import Homepage from './components/Homepage'
+import Master from './components/Master'
+import RegisterPage from './components/RegisterPage'
+import MyProfilePage from './components/MyProfilePage'
+import MakeAppointment from './components/MakeAppointment'
+import VolunteeringSettings from './components/VolunteeringSettings'
+import ProfilePage from './components/ProfilePage'
 
 
 function App() {
-  const [count, setCount] = useState(0)
 
   return (
     <>
     <BrowserRouter>
-      <Homepage />
+      <Master />
       <Routes>
-        <Route path="/" element={<TemporaryLoginMaker />} />
+      <Route path="/" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />}/>
+        <Route path = "/my-profile" element={<MyProfilePage />}/>
+        <Route path='/profile/:id' element={<ProfilePage/>}/>
         <Route path='/reportList' element={<ReportList/>}/>
         <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
         <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
@@ -39,9 +46,12 @@ function App() {
         <Route path='/volunteering/:id/code' element={<CodeView/>}/>
         <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
         <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
+        <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
+        <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
         <Route path='/scan' element={<CodeScan/>}/>
         <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
         <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
+        
       </Routes>
     </BrowserRouter>
     </>

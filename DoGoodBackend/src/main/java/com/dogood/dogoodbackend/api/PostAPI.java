@@ -178,4 +178,11 @@ public class PostAPI {
 
         return postService.getVolunteeringName(token, actor, volunteeringId);
     }
+
+    @GetMapping("/getVolunteeringImages")
+    public Response<List<String>> getVolunteeringImages(@RequestParam int volunteeringId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getVolunteeringImages(token, actor, volunteeringId);
+    }
 }

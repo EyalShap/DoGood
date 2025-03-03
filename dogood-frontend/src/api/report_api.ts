@@ -1,16 +1,13 @@
 import APIResponse from "../models/APIResponse";
-import OrganizationModel from "../models/OrganizationModel";
 import axios from "axios";
-import RequestModel from "../models/RequestModel";
-import VolunteeringModel from "../models/VolunteeringModel";
 import ReportModel from "../models/ReportModel";
 import { host } from "./general";
 
-const server: string = `http://${host}/api/reports`;
+const server: string = `${host}/api/reports`;
 
 export const createReport = async (reportedPostId: number, description: string): Promise<number> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -37,8 +34,8 @@ export const createReport = async (reportedPostId: number, description: string):
 }
 
 export const removeReport = async (reportId: number) => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
@@ -57,8 +54,8 @@ export const removeReport = async (reportId: number) => {
 }
 
 export const getAllReports = async (): Promise<ReportModel[]> => {
-    let username: string | null = sessionStorage.getItem("username");
-    let token: string | null = sessionStorage.getItem("token");
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
 
     if(username === null) {
         throw new Error("Error");
