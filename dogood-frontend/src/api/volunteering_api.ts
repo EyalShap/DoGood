@@ -645,12 +645,18 @@ export const finishVolunteering = async (volunteeringId: number, experience: str
 export const getUserApprovedHoursFormatted = async (volunteeringId: number, israeliId: string): Promise<void> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
-        responseType: 'arraybuffer'
+        responseType: 'arraybuffer',
+        validateStatus: () => true
     };
     //@ts-ignore
     let response = await axios.get(`${server}/api/volunteering/getUserApprovedHoursFormatted?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}&israeliId=${israeliId}`, config);
-    var blob = new Blob([response.data], { type: "application/pdf" });
     
+    if(response.status === 400){
+        throw(new TextDecoder().decode(response.data))
+    }
+    
+    var blob = new Blob([response.data], { type: "application/pdf" });
+        
     const href = URL.createObjectURL(blob);
 
     const link = document.createElement('a');

@@ -10,6 +10,9 @@ import java.util.List;
 
 public class PdfFactory {
     public String createFormat(University uni, String orgName, String firstName, String lastName, String id, String phone, String email, List<HourApprovalRequest> approvedHoursList) throws DocumentException, IOException {
+        if(uni == University.ELSE){
+            throw new UnsupportedOperationException("University not supported");
+        }
         PdfFormat format;
         Files.createDirectories(Paths.get("./"+approvedHoursList.get(0).getUserId()));
         if(uni == University.BGU){

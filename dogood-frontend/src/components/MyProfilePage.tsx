@@ -100,6 +100,14 @@ function MyProfilePage() {
         }
     };
 
+    const handleExport = async () => {
+        try{
+            await getUserApprovedHoursFormatted(selectedVolunteering,id)
+        } catch(e){
+            alert("Failed to export approved hours: " + e);
+        }
+    }
+
     return (
         <div className="my-profile">
             <h1>My Profile</h1>
@@ -248,7 +256,7 @@ function MyProfilePage() {
                     {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
                     {model.volunteeringsInHistory.map(hist => <option value={hist.id}>{hist.id} ({hist.name})</option>)}
                 </select>
-                <button disabled={selectedVolunteering < 0} onClick={async () => getUserApprovedHoursFormatted(selectedVolunteering,id)}>Export</button>
+                <button disabled={selectedVolunteering < 0} onClick={handleExport}>Export</button>
             </div>}
         </div>
     );

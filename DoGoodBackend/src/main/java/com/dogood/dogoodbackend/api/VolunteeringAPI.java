@@ -8,6 +8,8 @@ import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
 import com.itextpdf.text.DocumentException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -369,12 +372,27 @@ public class VolunteeringAPI {
         return volunteeringService.addImage(token, userId, volunteeringId, imagePath.replaceAll("\"",""));
     }
 
-    @GetMapping(value="/getUserApprovedHoursFormatted",produces= MediaType.APPLICATION_PDF_VALUE)
-    public  @ResponseBody byte[] getUserApprovedHoursFormatted(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String israeliId, HttpServletRequest request) throws IOException, DocumentException {
+    @GetMapping("/getUserApprovedHoursFormatted")
+    public void getUserApprovedHoursFormatted(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String israeliId, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
         String token = getToken(request);
-        FileInputStream fis= new FileInputStream(new File(volunteeringService.getUserApprovedHoursFormatted(token, userId, volunteeringId, israeliId)));
-        byte[] targetArray = new byte[fis.available()];
-        fis.read(targetArray);
-        return targetArray;
+        Response<String> resp = volunteeringService.getUserApprovedHoursFormatted(token,userId,volunteeringId,israeliId);
+        if(resp.getError()){
+            response.setContentType("application/json");
+            response.setStatus(400);
+            response.getWriter().print(resp.getErrorString());
+            response.getWriter().flush();
+        }else{
+            File file = new File(resp.getData());
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename="+file.getName());
+
+            OutputStream outputStream = response.getOutputStream();
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            IOUtils.copy(fileInputStream, outputStream);
+            outputStream.close();
+            fileInputStream.close();
+            file.delete();
+        }
     }
 }
