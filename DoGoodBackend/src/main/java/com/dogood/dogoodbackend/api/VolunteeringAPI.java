@@ -392,7 +392,11 @@ public class VolunteeringAPI {
             IOUtils.copy(fileInputStream, outputStream);
             outputStream.close();
             fileInputStream.close();
+            File parentDir =  file.getParentFile();
             file.delete();
+            if(parentDir.isDirectory() && parentDir.list().length == 0) {
+                parentDir.delete();
+            }
         }
     }
 }
