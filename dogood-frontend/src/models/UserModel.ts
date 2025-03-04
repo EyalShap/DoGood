@@ -17,8 +17,8 @@ type User = {
     birthDate: string;
     preferredCategories: string[];
     skills: string[];
-    isStudent: boolean;
-    isAdmin: boolean;
+    admin: boolean;
+    student: boolean;
     volunteeringIds: number[];
     volunteeringsInHistory: VolunteeringInHistory[];
     myOrganizationIds: number[];

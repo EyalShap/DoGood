@@ -9,8 +9,9 @@ import {
     getUserApprovedHours,
 } from "../api/user_api";
 import './../css/MyProfile.css';
-import { VolunteeringInHistory } from "../models/UserModel";
+import User, { VolunteeringInHistory } from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
+import { getUserApprovedHoursFormatted } from "../api/volunteering_api";
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -27,10 +28,18 @@ function MyProfilePage() {
     const [preferencesInput, setPreferencesInput] = useState("");
     const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [model, setModel] = useState<User | null>(null);
 
     // Volunteering History
     const [volunteeringsInHistory, setVolunteeringsInHistory] = useState<VolunteeringInHistory[]>([]);
     const [approvedHours, setApprovedHours] = useState<ApprovedHours[]>([]);
+
+
+    // Export PDF
+    const [id, setId] = useState("");
+    const [selectedVolunteering, setSelectedVolunteering] = useState(-1);
+
+    // Volunteering Now
 
     // Fetch user profile on load
     useEffect(() => {
@@ -49,6 +58,8 @@ function MyProfilePage() {
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
                 setApprovedHours(await getUserApprovedHours(profile.username));
+                setModel(profile);
+                console.log(profile);
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }
@@ -88,6 +99,14 @@ function MyProfilePage() {
             alert("Failed to update preferences: " + e);
         }
     };
+
+    const handleExport = async () => {
+        try{
+            await getUserApprovedHoursFormatted(selectedVolunteering,id)
+        } catch(e){
+            alert("Failed to export approved hours: " + e);
+        }
+    }
 
     return (
         <div className="my-profile">
@@ -216,10 +235,29 @@ function MyProfilePage() {
                 <p><strong>Skills:</strong> {skills}</p>
                 <p><strong>Preferences:</strong> {preferences}</p>
                 <p><strong>Admin:</strong> {isAdmin ? "Yes" : "No"}</p>
+                <p><strong>Student:</strong> {model?.student ? "Yes" : "No"}</p>
                 {isAdmin && (
                     <button onClick={() => navigate('/reportList')}>Go to Reports</button>
                 )}
             </div>
+
+            {model !== null && model.student && 
+            <div className="export-section">
+                <h2>Export approved hours as PDF</h2>
+                <label>ID (Teudat Zehut):</label>
+                <input
+                    placeholder="Enter ID"
+                    value={id}
+                    onChange={(e) => setId(e.target.value)}
+                />
+                <label>Select primary volunteering to export hours from:</label>
+                <select defaultValue={-1} onChange={e => setSelectedVolunteering(parseInt(e.target.value))}>
+                    <option value={-1}></option>
+                    {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
+                    {model.volunteeringsInHistory.map(hist => <option value={hist.id}>{hist.id} ({hist.name})</option>)}
+                </select>
+                <button disabled={selectedVolunteering < 0} onClick={handleExport}>Export</button>
+            </div>}
         </div>
     );
 }
