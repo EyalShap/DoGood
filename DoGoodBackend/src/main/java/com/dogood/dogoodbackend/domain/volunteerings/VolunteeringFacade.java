@@ -1,9 +1,9 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
-import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
-import com.dogood.dogoodbackend.domain.users.User;
+import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import com.dogood.dogoodbackend.pdfformats.PdfFactory;
@@ -14,10 +14,7 @@ import jakarta.transaction.Transactional;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 @Transactional
@@ -30,13 +27,15 @@ public class VolunteeringFacade {
     private UsersFacade usersFacade;
     private PostsFacade postsFacade;
     //private UserFacade userFacade;
+    private SkillsAndCategoriesExtractor extractor;
 
 
-    public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager) {
+    public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
         this.usersFacade = usersFacade;
         this.schedulingFacade = new SchedulingFacade(schedulingManager);
         this.organizationFacade = organizationsFacade;
         this.repository = repository;
+        this.extractor = extractor;
     }
 
     private boolean isManager(String userId, int organizationId){
@@ -69,7 +68,20 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + organizationId);
         }
         Volunteering newVol = repository.addVolunteering(organizationId, name, description);
+        // hi this is Dana I added this
+        //extractSkillsAndCategories(newVol.getId(), userId, name, description);
+        // hi this is Dana this is the end of the things I added
         return newVol.getId();
+    }
+
+    // hi this is Dana I added this
+    private void extractSkillsAndCategories(int volunteeringId ,String userId, String name, String description) {
+        List<String> currentSkills = getAllVolunteeringSkills();
+        List<String> currentCategories = getAllVolunteeringCategories();List<String>[] skillsAndCategories = extractor.getSkillsAndCategories(name, description, currentSkills, currentCategories);
+        List<String> skills = skillsAndCategories[0];
+        List<String> categories = skillsAndCategories[1];
+        updateVolunteeringSkills(userId, volunteeringId, skills);
+        updateVolunteeringCategories(userId, volunteeringId, categories);
     }
 
 
@@ -97,6 +109,9 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         repository.updateVolunteering(volunteeringId, name, description);
+        // hi this is Dana I added this
+        extractSkillsAndCategories(volunteeringId, userId, name, description);
+        postsFacade.updateVolunteeringPostsKeywords(volunteeringId, userId);
     }
 
 
@@ -898,5 +913,13 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
         return volunteering.getImagePaths();
+    }
+
+    public List<String> getAllVolunteeringSkills() {
+        return null;
+    }
+
+    public List<String> getAllVolunteeringCategories() {
+        return null;
     }
 }

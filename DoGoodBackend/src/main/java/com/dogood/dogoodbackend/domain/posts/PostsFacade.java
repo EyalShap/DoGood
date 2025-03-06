@@ -40,7 +40,7 @@ public class PostsFacade {
         if(!userExists(posterUsername)){
             throw new IllegalArgumentException("User " + posterUsername + " doesn't exist");
         }
-        volunteeringFacade.getVolunteeringDTO(volunteeringId); // check if volunteering exists
+        VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(volunteeringId); // check if volunteering exists
 
         int organizationId = volunteeringFacade.getVolunteeringOrganizationId(volunteeringId);
 
@@ -50,7 +50,10 @@ public class PostsFacade {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(posterUsername, organizationName, "post about the organization's volunteering"));
         }
 
-        int postId = volunteeringPostRepository.createVolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);
+        String volunteeringName = volunteeringDTO.getName();
+        String volunteeringDescription = volunteeringDTO.getDescription();
+        Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, title, description);
+        int postId = volunteeringPostRepository.createVolunteeringPost(title, description, postKeywords, posterUsername, volunteeringId, organizationId);
         return postId;
     }
 
@@ -93,11 +96,31 @@ public class PostsFacade {
         }
 
         VolunteeringPost toEdit = volunteeringPostRepository.getVolunteeringPost(postId);
+        VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(toEdit.getVolunteeringId());
 
         if(!isAllowedToMakePostAction(actor, toEdit)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(postId, actor, "edit"));
         }
-        volunteeringPostRepository.editVolunteeringPost(postId, title, description);
+        String volunteeringName = volunteeringDTO.getName();
+        String volunteeringDescription = volunteeringDTO.getDescription();
+        Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, title, description);
+        volunteeringPostRepository.editVolunteeringPost(postId, title, description, postKeywords);
+    }
+
+    public void updateVolunteeringPostsKeywords(int volunteeringId, String actor) {
+        for(VolunteeringPostDTO post : getAllVolunteeringPosts(actor)) {
+            if(volunteeringId == post.getVolunteeringId()) {
+                String postTitle = post.getTitle();
+                String postDescription = post.getDescription();
+
+                VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId());
+                String volunteeringName = volunteeringDTO.getName();
+                String volunteeringDescription = volunteeringDTO.getDescription();
+
+                Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, postTitle, postDescription);
+                volunteeringPostRepository.editVolunteeringPost(post.getId(), postTitle, postDescription, postKeywords);
+            }
+        }
     }
 
     public boolean doesExist(int postId) {
@@ -155,9 +178,9 @@ public class PostsFacade {
         if(search == null || search.isBlank()) {
             return volunteeringPostRepository.getVolunteeringPostDTOs();
         }
-        search = search.replaceAll("[^a-zA-Z0-9 ]", "");
+        search = search.replaceAll("[^a-zA-Z0-9א-ת ]", "").replaceAll("  ", " ").toLowerCase();
 
-        Set<String> searchKeywords = keywordExtractor.getKeywords(search).stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());
+        Set<String> searchKeywords = new HashSet<>(Arrays.asList(search.split(" ")));
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
         for(VolunteeringPostDTO post : allPosts) {
@@ -174,17 +197,20 @@ public class PostsFacade {
         int volunteeringId = post.getVolunteeringId();
         VolunteeringDTO volunteering = volunteeringFacade.getVolunteeringDTO(volunteeringId);
 
-        Set<String> postKeywords = keywordExtractor.getKeywords(cleanString(post.getTitle()) + " " + cleanString(post.getDescription()));
+        //Set<String> postKeywords = keywordExtractor.getKeywords(cleanString(post.getTitle()) + " " + cleanString(post.getDescription()));
+        Set<String> postKeywords = post.getKeywords();
         Set<String> volunteeringKeywords = getVolunteeringKeywords(volunteering);
 
         postKeywords.addAll(volunteeringKeywords);
+        postKeywords = postKeywords.stream().map(String::toLowerCase).collect(Collectors.toSet());
         return postKeywords;
     }
 
     private Set<String> getVolunteeringKeywords(VolunteeringDTO volunteering) {
         int volunteeringId = volunteering.getId();
 
-        Set<String> volunteeringKeywords = keywordExtractor.getKeywords(cleanString(volunteering.getName()) + " " + cleanString(volunteering.getDescription()));
+        //Set<String> volunteeringKeywords = keywordExtractor.getKeywords(cleanString(volunteering.getName()) + " " + cleanString(volunteering.getDescription()));
+        Set<String> volunteeringKeywords = new HashSet<>();
         List<String> volunteeringCategories = volunteeringFacade.getVolunteeringCategories(volunteeringId);
         List<String> volunteeringSkills = volunteeringFacade.getVolunteeringSkills(volunteeringId);
 
@@ -336,6 +362,9 @@ public class PostsFacade {
     }
 
     public List<String> getAllPostsCategories() {
+        //TODO
+        //return volunteeringFacade.getAllVolunteeringCategories();
+
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         Set<String> allCategories = new HashSet<>();
 
@@ -349,6 +378,9 @@ public class PostsFacade {
     }
 
     public List<String> getAllPostsSkills() {
+        //TODO
+        //return volunteeringFacade.getAllVolunteeringSkills();
+
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         Set<String> allSkills = new HashSet<>();
 
