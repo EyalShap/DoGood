@@ -69,7 +69,7 @@ public class VolunteeringFacade {
         }
         Volunteering newVol = repository.addVolunteering(organizationId, name, description);
         // hi this is Dana I added this
-        extractSkillsAndCategories(newVol.getId(), userId, name, description);
+        //extractSkillsAndCategories(newVol.getId(), userId, name, description);
         // hi this is Dana this is the end of the things I added
         return newVol.getId();
     }
