@@ -1,6 +1,6 @@
 package com.dogood.dogoodbackend.service;
 
-import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
+import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
 import com.dogood.dogoodbackend.domain.organizations.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
@@ -21,6 +21,8 @@ public class ServiceConfig {
     public FacadeManager facadeManager(ApplicationContext applicationContext){
         //this will memory for now but will actually db later
         //this is singleton
+        String geminiKey = applicationContext.getEnvironment().getProperty("gemini.key");
+        AI ai = new Gemini(geminiKey);
         return new FacadeManager(applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
@@ -31,7 +33,8 @@ public class ServiceConfig {
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class)),
-                new ProxyKeywordExtractor());
+                new AIKeywordExtractor(ai),
+                new AISkillsAndCategoriesExtractor(ai));
     }
 
     /*@Bean

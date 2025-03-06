@@ -11,6 +11,7 @@ public interface SchedulingManager {
     public ScheduleAppointment getUserAppointmentInRange(String username, int volunteeringId, Date include, int minutesAllowed);
     public List<HourApprovalRequest> getUserHourApproveRequests(String username, List<Integer> volunteeringIds);
     public List<HourApprovalRequest> getApprovedUserHours(String username, List<Integer> volunteeringIds);
+    public List<HourApprovalRequest> getApprovedUserHours(String username);
     public List<ScheduleAppointment> getVolunteeringAppointments(int volunteeringId);
     public List<HourApprovalRequest> getVolunteeringHourApproveRequests(int volunteeringId);
     public void makeAppointment(ScheduleAppointment appointment);

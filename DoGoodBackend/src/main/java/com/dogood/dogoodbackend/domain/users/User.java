@@ -98,7 +98,7 @@ public class User {
     }
 
     private static boolean checkStudentEmail(String email) {
-        return true; // TODO: implement by format
+        return email.endsWith("ac.il"); // TODO: make this better
     }
 
     public void setAdmin(boolean isAdmin) {

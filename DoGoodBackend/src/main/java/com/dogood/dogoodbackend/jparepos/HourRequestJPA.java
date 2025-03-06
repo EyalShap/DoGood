@@ -13,6 +13,7 @@ import java.util.List;
 public interface HourRequestJPA extends JpaRepository<HourApprovalRequest, UserVolunteerDateKT> {
     List<HourApprovalRequest> findByUserIdAndVolunteeringId(String userId, int volunteeringId);
     List<HourApprovalRequest> findByVolunteeringId(int volunteeringId);
+    List<HourApprovalRequest> findByUserIdAndApproved(String userId, boolean approved);
     Long deleteByVolunteeringId(int volunteeringId);
     Long deleteByUserId(String userId);
     Long deleteByVolunteeringIdAndApproved(int volunteeringId, boolean approved);

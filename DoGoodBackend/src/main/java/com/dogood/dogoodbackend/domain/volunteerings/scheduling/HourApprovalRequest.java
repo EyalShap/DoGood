@@ -35,6 +35,12 @@ public class HourApprovalRequest {
         return !(otherStartTime.equals(this.endTime) || otherEndTime.equals(this.startTime) || otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
     }
 
+    public int getTotalHours(){
+        long secs = (this.endTime.getTime() - this.startTime.getTime()) / 1000;
+        int hours = (int)(secs / 3600);
+        return hours;
+    }
+
     public String getUserId() {
         return userId;
     }

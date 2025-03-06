@@ -16,12 +16,12 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
-    public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
+    public int createVolunteeringPost(String title, String description, Set<String> keywords, String posterUsername, int volunteeringId, int organizationId) {
         if(posts.containsKey(nextPostId)) {
             throw new IllegalArgumentException(PostErrors.makePostIdAlreadyExistsError(nextPostId));
         }
 
-        VolunteeringPost post = new VolunteeringPost(nextPostId, title, description, posterUsername, volunteeringId, organizationId);
+        VolunteeringPost post = new VolunteeringPost(nextPostId, title, description, keywords, posterUsername, volunteeringId, organizationId);
         posts.put(nextPostId, post);
         nextPostId++;
         return nextPostId - 1;
@@ -46,9 +46,9 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
-    public void editVolunteeringPost(int postId, String title, String description) {
+    public void editVolunteeringPost(int postId, String title, String description, Set<String> keywords) {
         VolunteeringPost toEdit = getVolunteeringPost(postId); // will throw exception if does not exist
-        toEdit.edit(title, description);
+        toEdit.edit(title, description, keywords);
     }
 
     @Override

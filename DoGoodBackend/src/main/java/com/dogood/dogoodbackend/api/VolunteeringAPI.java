@@ -6,10 +6,18 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequ
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
+import com.itextpdf.text.DocumentException;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.apache.tomcat.util.http.fileupload.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -362,5 +370,33 @@ public class VolunteeringAPI {
     public Response<String> addImageToVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody String imagePath, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.addImage(token, userId, volunteeringId, imagePath.replaceAll("\"",""));
+    }
+
+    @GetMapping("/getUserApprovedHoursFormatted")
+    public void getUserApprovedHoursFormatted(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String israeliId, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
+        String token = getToken(request);
+        Response<String> resp = volunteeringService.getUserApprovedHoursFormatted(token,userId,volunteeringId,israeliId);
+        if(resp.getError()){
+            response.setContentType("application/json");
+            response.setStatus(400);
+            response.getWriter().print(resp.getErrorString());
+            response.getWriter().flush();
+        }else{
+            File file = new File(resp.getData());
+            response.setContentType("application/pdf");
+            response.setHeader("Content-Disposition", "attachment; filename="+file.getName());
+
+            OutputStream outputStream = response.getOutputStream();
+            FileInputStream fileInputStream = new FileInputStream(file);
+
+            IOUtils.copy(fileInputStream, outputStream);
+            outputStream.close();
+            fileInputStream.close();
+            File parentDir =  file.getParentFile();
+            file.delete();
+            if(parentDir.isDirectory() && parentDir.list().length == 0) {
+                parentDir.delete();
+            }
+        }
     }
 }
