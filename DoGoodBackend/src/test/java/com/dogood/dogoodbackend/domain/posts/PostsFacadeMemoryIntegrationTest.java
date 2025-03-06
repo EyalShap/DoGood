@@ -59,7 +59,7 @@ public class PostsFacadeMemoryIntegrationTest {
         this.reportRepository = new MemoryReportRepository();
 
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
-        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager());
+        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
         this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
         this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade);
 
@@ -211,7 +211,7 @@ public class PostsFacadeMemoryIntegrationTest {
 
     @Test
     void givenExistingId_whenGetVolunteeringPost_thenReturnVolunteeringPost() {
-        VolunteeringPost expected = new VolunteeringPost(postId, title1, description1, actor1, volunteeringId1, organizationId1);
+        VolunteeringPost expected = new VolunteeringPost(postId, title1, description1, null, actor1, volunteeringId1, organizationId1);
 
         LocalDateTime date = LocalDateTime.of(2025, 1, 1, 10, 0);
         try (MockedStatic<LocalDateTime> mocked = mockStatic(LocalDateTime.class)) {
@@ -238,8 +238,8 @@ public class PostsFacadeMemoryIntegrationTest {
         try (MockedStatic<LocalDateTime> mocked = mockStatic(LocalDateTime.class)) {
             mocked.when(LocalDateTime::now).thenReturn(date);
 
-            expected.add(new VolunteeringPostDTO(new VolunteeringPost(postId, title1, description1, actor1, volunteeringId1, organizationId1)));
-            expected.add(new VolunteeringPostDTO(new VolunteeringPost(newPostId, title2, description2, actor1, volunteeringId1, organizationId1)));
+            expected.add(new VolunteeringPostDTO(new VolunteeringPost(postId, title1, description1, null, actor1, volunteeringId1, organizationId1)));
+            expected.add(new VolunteeringPostDTO(new VolunteeringPost(newPostId, title2, description2, null, actor1, volunteeringId1, organizationId1)));
         }
         assertEquals(expected, postsFacade.getAllVolunteeringPosts(actor1));
     }
@@ -251,7 +251,7 @@ public class PostsFacadeMemoryIntegrationTest {
         try (MockedStatic<LocalDateTime> mocked = mockStatic(LocalDateTime.class)) {
             mocked.when(LocalDateTime::now).thenReturn(date);
 
-            expected.add(new VolunteeringPostDTO(new VolunteeringPost(postId, title1, description1, actor1, volunteeringId1, organizationId1)));
+            expected.add(new VolunteeringPostDTO(new VolunteeringPost(postId, title1, description1, null, actor1, volunteeringId1, organizationId1)));
         }
         assertEquals(expected, postsFacade.getOrganizationVolunteeringPosts(organizationId1, actor1));
     }
@@ -461,9 +461,9 @@ public class PostsFacadeMemoryIntegrationTest {
     private List<VolunteeringPostDTO> createPostsForSearchAndPost() {
         this.volunteeringId2 = volunteeringFacade.createVolunteering(actor1, organizationId1, "Cherry", "Lemon");
 
-        VolunteeringPostDTO post1 = new VolunteeringPostDTO(new VolunteeringPost(postId + 1, "Banana", "Apple, Tomato: Carrot", actor1, volunteeringId1, organizationId1));
-        VolunteeringPostDTO post2 = new VolunteeringPostDTO(new VolunteeringPost(postId + 2, "Carrot", "Orange, Banana[Cherry", actor1, volunteeringId2, organizationId1));
-        VolunteeringPostDTO post3 = new VolunteeringPostDTO(new VolunteeringPost(postId + 3, "Cherry", "Apple, Lettuce+Carrot", actor1, volunteeringId1, organizationId1));
+        VolunteeringPostDTO post1 = new VolunteeringPostDTO(new VolunteeringPost(postId + 1, "Banana", "Apple, Tomato: Carrot", null, actor1, volunteeringId1, organizationId1));
+        VolunteeringPostDTO post2 = new VolunteeringPostDTO(new VolunteeringPost(postId + 2, "Carrot", "Orange, Banana[Cherry", null, actor1, volunteeringId2, organizationId1));
+        VolunteeringPostDTO post3 = new VolunteeringPostDTO(new VolunteeringPost(postId + 3, "Cherry", "Apple, Lettuce+Carrot", null, actor1, volunteeringId1, organizationId1));
 
         postsFacade.createVolunteeringPost("Banana", "Apple, Tomato: Carrot", actor1, volunteeringId1);
         postsFacade.createVolunteeringPost("Carrot", "Orange, Banana[Cherry", actor1, volunteeringId2);

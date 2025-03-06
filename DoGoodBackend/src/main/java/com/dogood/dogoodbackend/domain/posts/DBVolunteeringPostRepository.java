@@ -8,6 +8,7 @@ import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     private VolunteeringPostJPA jpa;
@@ -23,8 +24,8 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     }
 
     @Override
-    public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
-        VolunteeringPost post = new VolunteeringPost(title, description, posterUsername, volunteeringId, organizationId);
+    public int createVolunteeringPost(String title, String description, Set<String> keywords, String posterUsername, int volunteeringId, int organizationId) {
+        VolunteeringPost post = new VolunteeringPost(title, description, keywords, posterUsername, volunteeringId, organizationId);
         jpa.save(post);
         return post.getId();
     }
@@ -44,9 +45,9 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     }
 
     @Override
-    public void editVolunteeringPost(int postId, String title, String description) {
+    public void editVolunteeringPost(int postId, String title, String description, Set<String> keywords) {
         VolunteeringPost toEdit = getVolunteeringPost(postId); // will throw exception if does not exist
-        toEdit.edit(title, description);
+        toEdit.edit(title, description, keywords);
         jpa.save(toEdit);
     }
 

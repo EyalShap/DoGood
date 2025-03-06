@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Set;
 
 public abstract class PostDTO {
     private int id;
@@ -12,12 +13,13 @@ public abstract class PostDTO {
     private String posterUsername;
     private int numOfPeopleRequestedToJoin;
     private int relevance;
+    private Set<String> keywords;
 
     public PostDTO() {
 
     }
 
-    public PostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance) {
+    public PostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance, Set<String> keywords) {
         this.id = id;
         this.title = title;
         this.description = description;
@@ -26,6 +28,7 @@ public abstract class PostDTO {
         this.posterUsername = posterUsername;
         this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
         this.relevance = relevance;
+        this.keywords = keywords;
     }
 
     public PostDTO(Post post) {
@@ -37,6 +40,7 @@ public abstract class PostDTO {
         this.posterUsername = post.getPosterUsername();
         this.numOfPeopleRequestedToJoin = post.getNumOfPeopleRequestedToJoin();
         this.relevance = post.getRelevance();
+        this.keywords = post.getKeywords();
     }
 
     public int getId() {
@@ -101,5 +105,13 @@ public abstract class PostDTO {
 
     public void setRelevance(int relevance) {
         this.relevance = relevance;
+    }
+
+    public Set<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<String> keywords) {
+        this.keywords = keywords;
     }
 }

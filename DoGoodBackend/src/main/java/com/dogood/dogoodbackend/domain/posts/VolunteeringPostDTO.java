@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
+import java.util.Set;
 
 public class VolunteeringPostDTO extends PostDTO{
     private int volunteeringId;
@@ -12,8 +13,8 @@ public class VolunteeringPostDTO extends PostDTO{
 
     }
 
-    public VolunteeringPostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance, int volunteeringId, int organizationId) {
-        super(id, title, description, postedTime, lastEditedTime, posterUsername,numOfPeopleRequestedToJoin, relevance);
+    public VolunteeringPostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance, int volunteeringId, int organizationId, Set<String> keywords) {
+        super(id, title, description, postedTime, lastEditedTime, posterUsername,numOfPeopleRequestedToJoin, relevance, keywords);
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
     }

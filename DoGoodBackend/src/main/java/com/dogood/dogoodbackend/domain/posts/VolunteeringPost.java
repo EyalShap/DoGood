@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "volunteering_posts")
@@ -15,14 +16,14 @@ public class VolunteeringPost extends Post{
     @Column(name = "organization_id")
     private int organizationId;
 
-    public VolunteeringPost(int id, String title, String description, String posterUsername, int volunteeringId, int organizationId) {
-        super(id, title, description, posterUsername);
+    public VolunteeringPost(int id, String title, String description, Set<String> keywords, String posterUsername, int volunteeringId, int organizationId) {
+        super(id, title, description, posterUsername, keywords);
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
     }
 
-    public VolunteeringPost(String title, String description, String posterUsername, int volunteeringId, int organizationId) {
-        super(title, description, posterUsername);
+    public VolunteeringPost(String title, String description, Set<String> keywords, String posterUsername, int volunteeringId, int organizationId) {
+        super(title, description, posterUsername, keywords);
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
     }

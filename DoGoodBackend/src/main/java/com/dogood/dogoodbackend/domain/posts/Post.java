@@ -41,16 +41,21 @@ public abstract class Post {
     @Transient
     private int relevance;
 
-    public Post(int id, String title, String description, String posterUsername) {
+    @ElementCollection
+    @CollectionTable(name = "post_keywords", joinColumns = @JoinColumn(name = "post_id"))
+    @Column(name = "keyword")
+    private Set<String> keywords;
+
+    public Post(int id, String title, String description, String posterUsername, Set<String> keywords) {
         this.id = id;
-        setFields(title, description, posterUsername);
+        setFields(title, description, posterUsername, keywords);
     }
 
-    public Post(String title, String description, String posterUsername) {
-        setFields(title, description, posterUsername);
+    public Post(String title, String description, String posterUsername, Set<String> keywords) {
+        setFields(title, description, posterUsername, keywords);
     }
 
-    private void setFields(String title, String description, String posterUsername) {
+    private void setFields(String title, String description, String posterUsername, Set<String> keywords) {
         String isValidOrg = isValid(title, description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
@@ -63,6 +68,7 @@ public abstract class Post {
         this.posterUsername = posterUsername;
         this.numOfPeopleRequestedToJoin = 0;
         this.relevance = -1;
+        this.keywords = keywords;
     }
 
     public Post() {}
@@ -81,7 +87,7 @@ public abstract class Post {
         return res.toString();
     }
 
-    public void edit(String title, String description) {
+    public void edit(String title, String description, Set<String> keywords) {
         String isValidOrg = isValid(title, description);
         if(isValidOrg.length() > 0) {
             throw new IllegalArgumentException(isValidOrg);
@@ -90,6 +96,7 @@ public abstract class Post {
         this.title = title;
         this.description = description;
         this.lastEditedTime = LocalDateTime.now();
+        this.keywords = keywords;
     }
 
     public int getId() {
@@ -130,6 +137,14 @@ public abstract class Post {
 
     public void incNumOfPeopleRequestedToJoin() {
         numOfPeopleRequestedToJoin++;
+    }
+
+    public Set<String> getKeywords() {
+        return keywords;
+    }
+
+    public void setKeywords(Set<String> keywords) {
+        this.keywords = keywords;
     }
 
     public int evaluatePopularity() {
