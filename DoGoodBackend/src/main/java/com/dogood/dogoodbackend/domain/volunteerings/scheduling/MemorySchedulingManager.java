@@ -85,6 +85,17 @@ public class MemorySchedulingManager implements SchedulingManager{
     }
 
     @Override
+    public List<HourApprovalRequest> getApprovedUserHours(String username) {
+        List<HourApprovalRequest> approvedHours = new LinkedList<>();
+        for(Integer volunteeringId : hourApprovalRequestsMapping.keySet()) {
+            if(hourApprovalRequestsMapping.get(volunteeringId).containsKey(username)) {
+                approvedHours.addAll(hourApprovalRequestsMapping.get(volunteeringId).get(username));
+            }
+        }
+        return approvedHours.stream().filter(HourApprovalRequest::isApproved).toList();
+    }
+
+    @Override
     public List<ScheduleAppointment> getVolunteeringAppointments(int volunteeringId) {
         List<ScheduleAppointment> appointments = new LinkedList<>();
         if(!appointmentsMapping.containsKey(volunteeringId)){
