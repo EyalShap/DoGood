@@ -21,7 +21,7 @@ public abstract class Post {
     private int id;
 
     @Column(name = "post_title")
-    private String title;
+    protected String title;
 
     @Column(name = "post_description")
     private String description;
@@ -33,10 +33,7 @@ public abstract class Post {
     private LocalDateTime lastEditedTime; // nicer in the UI
 
     @Column(name = "post_poster_username")
-    private String posterUsername;
-
-    @Column(name = "post_num_of_join_requests")
-    private int numOfPeopleRequestedToJoin; //this is to calculate popularity, TODO: something better in beta version
+    protected String posterUsername;
 
     @Transient
     private int relevance;
@@ -66,7 +63,6 @@ public abstract class Post {
         this.postedTime = LocalDateTime.now();
         this.lastEditedTime = this.postedTime;
         this.posterUsername = posterUsername;
-        this.numOfPeopleRequestedToJoin = 0;
         this.relevance = -1;
         this.keywords = keywords;
     }
@@ -123,20 +119,12 @@ public abstract class Post {
         return lastEditedTime;
     }
 
-    public int getNumOfPeopleRequestedToJoin() {
-        return numOfPeopleRequestedToJoin;
-    }
-
     public int getRelevance() {
         return relevance;
     }
 
     public void setRelevance(int relevance) {
         this.relevance = relevance;
-    }
-
-    public void incNumOfPeopleRequestedToJoin() {
-        numOfPeopleRequestedToJoin++;
     }
 
     public Set<String> getKeywords() {
@@ -147,17 +135,5 @@ public abstract class Post {
         this.keywords = keywords;
     }
 
-    public int evaluatePopularity() {
-        /*if(Glinda) {
-            return Integer.MAX_VALUE;
-        }
-        // will be betaba in beta version
-        else if(Elphaba) {
-            return Integer.MIN_VALUE;
-        }
-        return 0; */
-
-        return numOfPeopleRequestedToJoin;
-    }
 
 }

@@ -55,8 +55,8 @@ class VolunteeringPostRepositoryUnitTest {
         dbVolunteeringPostRepository.setJPA(volunteeringPostJPA);
         volunteeringPostJPA.deleteAll();
 
-        memPostId1 = memoryVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
-        dbPostId1 = dbVolunteeringPostRepository.createVolunteeringPost("Title", "Description", "TheDoctor", 0, 0);
+        memPostId1 = memoryVolunteeringPostRepository.createVolunteeringPost("Title", "Description", null, "TheDoctor", 0, 0);
+        dbPostId1 = dbVolunteeringPostRepository.createVolunteeringPost("Title", "Description", null,"TheDoctor", 0, 0);
     }
 
     @AfterEach
@@ -127,7 +127,7 @@ class VolunteeringPostRepositoryUnitTest {
     void givenExistingPostAndValidFields_whenEditVolunteeringPost_thenEdit(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
-        assertDoesNotThrow(() -> volunteeringPostRepository.editVolunteeringPost(postId1, "Title", "description"));
+        assertDoesNotThrow(() -> volunteeringPostRepository.editVolunteeringPost(postId1, "Title", "description", null));
     }
 
     @ParameterizedTest
@@ -135,7 +135,7 @@ class VolunteeringPostRepositoryUnitTest {
     void givenExistingPostAndNonValidFields_whenEditVolunteeringPost_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
-        assertThrows(IllegalArgumentException.class, () -> volunteeringPostRepository.editVolunteeringPost(postId1, "", ""));
+        assertThrows(IllegalArgumentException.class, () -> volunteeringPostRepository.editVolunteeringPost(postId1, "", "", null));
     }
 
     @ParameterizedTest
@@ -144,7 +144,7 @@ class VolunteeringPostRepositoryUnitTest {
         setIdByRepo(volunteeringPostRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.editVolunteeringPost(postId1 + 1, "title", "description");
+            volunteeringPostRepository.editVolunteeringPost(postId1 + 1, "title", "description", null);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1 + 1), exception.getMessage());
     }

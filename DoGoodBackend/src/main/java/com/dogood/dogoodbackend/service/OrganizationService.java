@@ -2,7 +2,8 @@ package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
-import com.dogood.dogoodbackend.domain.organizations.Request;
+import com.dogood.dogoodbackend.domain.requests.Request;
+import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import org.springframework.beans.factory.annotation.Autowired;

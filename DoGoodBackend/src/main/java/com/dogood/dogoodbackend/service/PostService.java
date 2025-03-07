@@ -1,6 +1,8 @@
 package com.dogood.dogoodbackend.service;
 
+import com.dogood.dogoodbackend.domain.posts.PostDTO;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
+import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
@@ -104,10 +106,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> searchByKeywords(String token, String search, String actor, List<VolunteeringPostDTO> allPosts) {
+    public Response<List<? extends PostDTO>> searchByKeywords(String token, String search, String actor, List<PostDTO> allPosts, boolean volunteering) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.searchByKeywords(search, actor, allPosts);
+            List<? extends PostDTO> posts = postsFacade.searchByKeywords(search, actor, allPosts, volunteering);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -137,10 +139,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> sortByPostingTime(String token, String actor, List<VolunteeringPostDTO> allPosts) {
+    public Response<List<PostDTO>> sortByPostingTime(String token, String actor, List<PostDTO> allPosts) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.sortByPostingTime(actor, allPosts);
+            List<PostDTO> posts = postsFacade.sortByPostingTime(actor, allPosts);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -148,10 +150,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> sortByLastEditTime(String token, String actor, List<VolunteeringPostDTO> allPosts) {
+    public Response<List<PostDTO>> sortByLastEditTime(String token, String actor, List<PostDTO> allPosts) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.sortByLastEditTime(actor, allPosts);
+            List<PostDTO> posts = postsFacade.sortByLastEditTime(actor, allPosts);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -252,6 +254,105 @@ public class PostService {
             checkToken(token,actor);
             List<String> images = postsFacade.getVolunteeringImages(volunteeringId);
             return Response.createResponse(images);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Integer> createVolunteerPost(String token, String actor, String title, String description) {
+        try {
+            checkToken(token,actor);
+            int id = postsFacade.createVolunteerPost(title, description, actor);
+            return Response.createResponse(id);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeVolunteerPost(String token, String actor, int postId) {
+        try {
+            checkToken(token,actor);
+            postsFacade.removeVolunteerPost(actor, postId);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> editVolunteerPost(String token, String actor, int postId, String title, String description) {
+        try {
+            checkToken(token,actor);
+            postsFacade.editVolunteerPost(postId, title, description, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> sendAddRelatedUserRequest(String token, String actor, int postId, String username) {
+        try {
+            checkToken(token,actor);
+            postsFacade.sendAddRelatedUserRequest(postId, username, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> handleAddRelatedUserRequest(String token, String actor, int postId, boolean approved) {
+        try {
+            checkToken(token,actor);
+            postsFacade.handleAddRelatedUserRequest(postId, actor, approved);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeRelatedUser(String token, String actor, int postId, String username) {
+        try {
+            checkToken(token,actor);
+            postsFacade.removeRelatedUser(postId, username, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> addImage(String token, String actor, int postId, String path) {
+        try {
+            checkToken(token,actor);
+            postsFacade.addImage(postId, path, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeImage(String token, String actor, int postId, String path) {
+        try {
+            checkToken(token,actor);
+            postsFacade.removeImage(postId, path, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<VolunteerPostDTO>> getAllVolunteerPosts(String token, String actor) {
+        try {
+            checkToken(token,actor);
+            List<VolunteerPostDTO> posts = postsFacade.getAllVolunteerPosts();
+            return Response.createResponse(posts);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());

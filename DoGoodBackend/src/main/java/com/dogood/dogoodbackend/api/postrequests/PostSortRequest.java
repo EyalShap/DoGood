@@ -1,12 +1,13 @@
-package com.dogood.dogoodbackend.api.volunteeringrequests;
+package com.dogood.dogoodbackend.api.postrequests;
 
+import com.dogood.dogoodbackend.domain.posts.PostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 
 import java.util.List;
 
-public class SortRequest {
+public class PostSortRequest {
     private String actor;
-    private List<VolunteeringPostDTO> allPosts;
+    private List<PostDTO> allPosts;
 
     public String getActor() {
         return actor;
@@ -16,11 +17,11 @@ public class SortRequest {
         this.actor = actor;
     }
 
-    public List<VolunteeringPostDTO> getAllPosts() {
+    public List<PostDTO> getAllPosts() {
         return allPosts;
     }
 
-    public void setAllPosts(List<VolunteeringPostDTO> allPosts) {
+    public void setAllPosts(List<PostDTO> allPosts) {
         this.allPosts = allPosts;
     }
 }

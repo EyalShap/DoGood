@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
+import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostRepository;
@@ -31,14 +32,15 @@ class ReportsFacadeTest {
     @BeforeEach
     void setUp() {
         this.volunteeringPostRepository = new MemoryVolunteeringPostRepository();
-        this.requestRepository = new MemoryRequestRepository();
+        //this.requestRepository = new MemoryRequestRepository();
+        this.requestRepository = null;
         this.organizationRepository = new MemoryOrganizationRepository();
         this.volunteeringRepository = new MemoryVolunteeringRepository();
         this.reportRepository = new MemoryReportRepository();
 
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
-        this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
+        //this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
         this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade);
 
         this.postsFacade.setReportsFacade(reportsFacade);

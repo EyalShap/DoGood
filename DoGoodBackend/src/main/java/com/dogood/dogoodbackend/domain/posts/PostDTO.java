@@ -2,16 +2,17 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
-public abstract class PostDTO {
+public class PostDTO {
     private int id;
     private String title;
     private String description;
     private LocalDateTime postedTime;
     private LocalDateTime lastEditedTime; // nicer in the UI
     private String posterUsername;
-    private int numOfPeopleRequestedToJoin;
     private int relevance;
     private Set<String> keywords;
 
@@ -19,14 +20,13 @@ public abstract class PostDTO {
 
     }
 
-    public PostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance, Set<String> keywords) {
+    public PostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int relevance, Set<String> keywords) {
         this.id = id;
         this.title = title;
         this.description = description;
         this.postedTime = postedTime;
         this.lastEditedTime = lastEditedTime;
         this.posterUsername = posterUsername;
-        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
         this.relevance = relevance;
         this.keywords = keywords;
     }
@@ -38,7 +38,6 @@ public abstract class PostDTO {
         this.postedTime = post.getPostedTime();
         this.lastEditedTime = post.getLastEditedTime();
         this.posterUsername = post.getPosterUsername();
-        this.numOfPeopleRequestedToJoin = post.getNumOfPeopleRequestedToJoin();
         this.relevance = post.getRelevance();
         this.keywords = post.getKeywords();
     }
@@ -65,10 +64,6 @@ public abstract class PostDTO {
 
     public String getPosterUsername() {
         return posterUsername;
-    }
-
-    public int getNumOfPeopleRequestedToJoin() {
-        return numOfPeopleRequestedToJoin;
     }
 
     public int getRelevance() {
@@ -99,10 +94,6 @@ public abstract class PostDTO {
         this.posterUsername = posterUsername;
     }
 
-    public void setNumOfPeopleRequestedToJoin(int numOfPeopleRequestedToJoin) {
-        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
-    }
-
     public void setRelevance(int relevance) {
         this.relevance = relevance;
     }
@@ -113,5 +104,13 @@ public abstract class PostDTO {
 
     public void setKeywords(Set<String> keywords) {
         this.keywords = keywords;
+    }
+
+    public List<String> getSkills(PostsFacade postsFacade) {
+        return new ArrayList<>();
+    }
+
+    public List<String> getCategories(PostsFacade postsFacade) {
+        return new ArrayList<>();
     }
 }

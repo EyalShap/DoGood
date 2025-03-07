@@ -1,7 +1,8 @@
 type RequestModel = {
     assigneeUsername: string,
     assignerUsername: string,
-    organizationId: number
+    objectId: number,
+    requestObject: number
 }
 
 export default RequestModel;

@@ -2,27 +2,31 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 
 public class VolunteeringPostDTO extends PostDTO{
     private int volunteeringId;
     private int organizationId;
+    private int numOfPeopleRequestedToJoin;
 
     public VolunteeringPostDTO() {
 
     }
 
-    public VolunteeringPostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int numOfPeopleRequestedToJoin, int relevance, int volunteeringId, int organizationId, Set<String> keywords) {
-        super(id, title, description, postedTime, lastEditedTime, posterUsername,numOfPeopleRequestedToJoin, relevance, keywords);
+    public VolunteeringPostDTO(int id, String title, String description, LocalDateTime postedTime, LocalDateTime lastEditedTime, String posterUsername, int relevance, int volunteeringId, int organizationId, int numOfPeopleRequestedToJoin, Set<String> keywords) {
+        super(id, title, description, postedTime, lastEditedTime, posterUsername, relevance, keywords);
         this.volunteeringId = volunteeringId;
         this.organizationId = organizationId;
+        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
     }
 
     public VolunteeringPostDTO(VolunteeringPost post) {
         super(post);
         this.volunteeringId = post.getVolunteeringId();
         this.organizationId = post.getOrganizationId();
+        this.numOfPeopleRequestedToJoin = post.getNumOfPeopleRequestedToJoin();
     }
 
     public int getVolunteeringId() {
@@ -39,6 +43,24 @@ public class VolunteeringPostDTO extends PostDTO{
 
     public void setOrganizationId(int organizationId) {
         this.organizationId = organizationId;
+    }
+
+    public int getNumOfPeopleRequestedToJoin() {
+        return numOfPeopleRequestedToJoin;
+    }
+
+    public void setNumOfPeopleRequestedToJoin(int numOfPeopleRequestedToJoin) {
+        this.numOfPeopleRequestedToJoin = numOfPeopleRequestedToJoin;
+    }
+
+    @Override
+    public List<String> getSkills(PostsFacade postsFacade) {
+        return postsFacade.getVolunteeringSkills(volunteeringId);
+    }
+
+    @Override
+    public List<String> getCategories(PostsFacade postsFacade) {
+        return postsFacade.getVolunteeringCategories(volunteeringId);
     }
 
     @Override
