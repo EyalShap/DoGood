@@ -635,5 +635,5 @@ public class PostsFacade {
     public List<String> getVolunteeringCategories(int volunteeringId) {
         return volunteeringFacade.getVolunteeringCategories(volunteeringId);
     }
-    
+
 }
