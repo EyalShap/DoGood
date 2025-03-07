@@ -53,11 +53,11 @@ class VolunteeringPostRepositoryIntegrationTest {
         dbVolunteeringPostRepository.setJPA(volunteeringPostJPA);
         volunteeringPostJPA.deleteAll();
 
-        this.memPostId = memoryVolunteeringPostRepository.createVolunteeringPost(title, description, actor1, volunteeringId, organizationId);
-        this.memVolunteeringPost = new VolunteeringPost(memPostId, title, description, actor1, volunteeringId, organizationId);
+        this.memPostId = memoryVolunteeringPostRepository.createVolunteeringPost(title, description, null, actor1, volunteeringId, organizationId);
+        this.memVolunteeringPost = new VolunteeringPost(memPostId, title, description, null, actor1, volunteeringId, organizationId);
 
-        this.dbPostId = dbVolunteeringPostRepository.createVolunteeringPost(title, description, actor1, volunteeringId, organizationId);
-        this.dbVolunteeringPost = new VolunteeringPost(dbPostId, title, description, actor1, volunteeringId, organizationId);
+        this.dbPostId = dbVolunteeringPostRepository.createVolunteeringPost(title, description, null, actor1, volunteeringId, organizationId);
+        this.dbVolunteeringPost = new VolunteeringPost(dbPostId, title, description, null, actor1, volunteeringId, organizationId);
     }
 
     @AfterEach
@@ -93,8 +93,8 @@ class VolunteeringPostRepositoryIntegrationTest {
         List<VolunteeringPost> resBeforeAdd = volunteeringPostRepository.getAllVolunteeringPosts();
         assertEquals(expectedBeforeAdd, resBeforeAdd);
 
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", actor1, 1, 2);
-        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", actor1, 1, 2);
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", null, actor1, 1, 2);
+        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", null, actor1, 1, 2);
         List<VolunteeringPost> expectedAfterAdd = new ArrayList<>();
         expectedAfterAdd.add(post1);
         expectedAfterAdd.add(post2);
@@ -132,9 +132,9 @@ class VolunteeringPostRepositoryIntegrationTest {
     void givenExistingPostAndValidFields_whenEditVolunteeringPost_thenEdit(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
-        assertDoesNotThrow(() -> volunteeringPostRepository.editVolunteeringPost(postId, "Title", "description"));
+        assertDoesNotThrow(() -> volunteeringPostRepository.editVolunteeringPost(postId, "Title", "description", null));
 
-        VolunteeringPost expected = new VolunteeringPost(postId, "Title", "description", actor1, volunteeringId, organizationId);
+        VolunteeringPost expected = new VolunteeringPost(postId, "Title", "description", null, actor1, volunteeringId, organizationId);
         assertEquals(expected, volunteeringPostRepository.getVolunteeringPost(postId));
     }
 
@@ -145,7 +145,7 @@ class VolunteeringPostRepositoryIntegrationTest {
         VolunteeringPost post = volunteeringPostRepository == memoryVolunteeringPostRepository ? memVolunteeringPost : dbVolunteeringPost;
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.editVolunteeringPost(postId, "", "");
+            volunteeringPostRepository.editVolunteeringPost(postId, "", "", null);
         });
         StringBuilder expected = new StringBuilder();
         expected.append("Invalid post title: .\n").append("Invalid post description: .\n");
@@ -160,7 +160,7 @@ class VolunteeringPostRepositoryIntegrationTest {
         setIdByRepo(volunteeringPostRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.editVolunteeringPost(postId + 1, "title", "description");
+            volunteeringPostRepository.editVolunteeringPost(postId + 1, "title", "description", null);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());
     }
@@ -199,8 +199,8 @@ class VolunteeringPostRepositoryIntegrationTest {
     @ParameterizedTest
     @MethodSource("repoProvider")
     void givenOrganizationId_whenGetOrganizationVolunteeringPosts_thenReturn(VolunteeringPostRepository volunteeringPostRepository) {
-        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", actor1, 1, 1);
-        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", actor1, 1, 1);
+        this.postId2 = volunteeringPostRepository.createVolunteeringPost("Blah", "Blah", null, actor1, 1, 1);
+        VolunteeringPost post2 = new VolunteeringPost(this.postId2, "Blah", "Blah", null, actor1, 1, 1);
 
         List<VolunteeringPost> res1 = volunteeringPostRepository.getOrganizationVolunteeringPosts(0);
         List<VolunteeringPost> res2 = volunteeringPostRepository.getOrganizationVolunteeringPosts(1);

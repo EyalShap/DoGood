@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.requests.Request;
+import com.dogood.dogoodbackend.domain.requests.RequestObject;
+import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.users.MemoryUserRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
@@ -37,7 +40,8 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        this.requestRepository = new MemoryRequestRepository();
+        //this.requestRepository = new MemoryRequestRepository();
+        this.requestRepository = null;
         this.organizationRepository = new MemoryOrganizationRepository();
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.organizationId = this.organizationsFacade.createOrganization(name1, description1, phoneNumber1, email1, actor1);
@@ -265,21 +269,21 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @Test
     void givenManagerAssigningNonManager_whenSendAssignManagerRequest_thenSendRequest() {
-        assertEquals(0, requestRepository.getUserRequests(actor2).size());
+        assertEquals(0, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
         organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
-        assertEquals(1, requestRepository.getUserRequests(actor2).size());
+        assertEquals(1, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
     }
 
     @Test
     void givenNonManagerPreformingAction_whenSendAssignManagerRequest_thenThrowException() {
-        assertEquals(0, requestRepository.getUserRequests("New Manager").size());
+        assertEquals(0, requestRepository.getUserRequests("New Manager", RequestObject.ORGANIZATION).size());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationsFacade.sendAssignManagerRequest("New Manager", actor2, organizationId);
         });
 
         assertEquals(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor2, name1, "send assign manager request"), exception.getMessage());
-        assertEquals(0, requestRepository.getUserRequests("New Manager").size());
+        assertEquals(0, requestRepository.getUserRequests("New Manager", RequestObject.ORGANIZATION).size());
     }
 
     @Test
@@ -297,47 +301,47 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @Test
     void givenManagerAssigned_whenSendAssignManagerRequest_thenThrowException() {
-        assertEquals(0, requestRepository.getUserRequests(actor1).size());
+        assertEquals(0, requestRepository.getUserRequests(actor1, RequestObject.ORGANIZATION).size());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationsFacade.sendAssignManagerRequest(actor1, actor1, organizationId);
         });
 
         assertEquals(OrganizationErrors.makeUserIsAlreadyAManagerError(actor1, name1), exception.getMessage());
-        assertEquals(0, requestRepository.getUserRequests(actor1).size());
+        assertEquals(0, requestRepository.getUserRequests(actor1, RequestObject.ORGANIZATION).size());
     }
 
     @Test
     void givenDoubleRequest_whenSendAssignManagerRequest_thenSendRequest() {
-        assertEquals(0, requestRepository.getUserRequests(actor2).size());
+        assertEquals(0, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
         organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
-        assertEquals(1, requestRepository.getUserRequests(actor2).size());
+        assertEquals(1, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
         });
 
         assertEquals(OrganizationErrors.makeAssignManagerRequestAlreadyExistsError(actor2, organizationId), exception.getMessage());
-        assertEquals(1, requestRepository.getUserRequests(actor2).size());
+        assertEquals(1, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
     }
 
     @Test
     void givenAcceptingRequest_whenHandleAssignManagerRequest_thenAddManager() {
         organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
-        assertEquals(1, requestRepository.getUserRequests(actor2).size());
+        assertEquals(1, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
 
         organizationsFacade.handleAssignManagerRequest(actor2, organizationId, true);
-        assertEquals(0, requestRepository.getUserRequests(actor2).size());
+        assertEquals(0, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
         assertTrue(organizationsFacade.isManager(actor2, organizationId));
     }
 
     @Test
     void givenDenyingRequest_whenHandleAssignManagerRequest_thenDoNothing() {
         organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
-        assertEquals(1, requestRepository.getUserRequests(actor2).size());
+        assertEquals(1, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
 
         organizationsFacade.handleAssignManagerRequest(actor2, organizationId, false);
-        assertEquals(0, requestRepository.getUserRequests(actor2).size());
+        assertEquals(0, requestRepository.getUserRequests(actor2, RequestObject.ORGANIZATION).size());
         assertFalse(organizationsFacade.isManager(actor2, organizationId));
     }
 
@@ -526,7 +530,7 @@ class OrganizationsFacadeMemoryIntegrationTest {
 
     @Test
     void givenPendingRequest_getUserRequests_thenReturnList() {
-        List<Request> expected = List.of(new Request(actor2, actor1, organizationId));
+        List<Request> expected = List.of(new Request(actor2, actor1, organizationId, RequestObject.ORGANIZATION));
         organizationsFacade.sendAssignManagerRequest(actor2, actor1, organizationId);
         assertEquals(expected, organizationsFacade.getUserRequests(actor2));
     }

@@ -3,6 +3,7 @@ import axios from "axios";
 import { VolunteeringPostModel } from "../models/VolunteeringPostModel";
 import PastExperienceModel from "../models/PastExpreienceModel";
 import { host } from "./general";
+import { PostModel } from "../models/PostModel";
 
 const server: string = `${host}/api/posts`;
 
@@ -176,7 +177,7 @@ export const joinVolunteeringRequest = async (postId: number, freeText: string) 
     }
 }
 
-export const searchByKeywords = async (search: string, postsToSearch: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
+export const searchByKeywords = async (search: string, postsToSearch: PostModel[], volunteering: boolean): Promise<PostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 
@@ -185,20 +186,26 @@ export const searchByKeywords = async (search: string, postsToSearch: Volunteeri
     }
 
     let url = `${server}/searchByKeywords?search=${search}`;
+    console.log(url)
 
     const config = {
-        headers: { Authorization: `Bearer ${token}` }
+        headers: { 
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/json"
+        }
     };
     const request = {
         actor: username,
-        allPosts: postsToSearch
+        allPosts: postsToSearch,
+        volunteering: volunteering
     }
+    console.log(request)
     let res = await axios.post(url, request, config);
-    const response: APIResponse<VolunteeringPostModel[]> = await res.data;
+    const response: APIResponse<PostModel[]> = await res.data;
     if(response.error){
         throw response.errorString;
     }
-    let posts: VolunteeringPostModel[] = response.data;
+    let posts: PostModel[] = response.data;
     return posts;
 }
 
@@ -254,7 +261,7 @@ export const sortByPopularity = async (postsToSort: VolunteeringPostModel[]): Pr
     return posts;
 }
 
-export const sortByPostingTime = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
+export const sortByPostingTime = async (postsToSort: PostModel[]): Promise<PostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 
@@ -272,15 +279,15 @@ export const sortByPostingTime = async (postsToSort: VolunteeringPostModel[]): P
         allPosts: postsToSort
     }
     let res = await axios.post(url, request, config);
-    const response: APIResponse<VolunteeringPostModel[]> = await res.data;
+    const response: APIResponse<PostModel[]> = await res.data;
     if(response.error){
         throw response.errorString;
     }
-    let posts: VolunteeringPostModel[] = response.data;
+    let posts: PostModel[] = response.data;
     return posts;
 }
 
-export const sortByLastEditTime = async (postsToSort: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
+export const sortByLastEditTime = async (postsToSort: PostModel[]): Promise<PostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 
@@ -298,11 +305,11 @@ export const sortByLastEditTime = async (postsToSort: VolunteeringPostModel[]): 
         allPosts: postsToSort
     }
     let res = await axios.post(url, request, config);
-    const response: APIResponse<VolunteeringPostModel[]> = await res.data;
+    const response: APIResponse<PostModel[]> = await res.data;
     if(response.error){
         throw response.errorString;
     }
-    let posts: VolunteeringPostModel[] = response.data;
+    let posts: PostModel[] = response.data;
     return posts;
 }
 

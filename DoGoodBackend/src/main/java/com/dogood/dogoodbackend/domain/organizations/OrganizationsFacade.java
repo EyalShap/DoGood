@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.requests.Request;
+import com.dogood.dogoodbackend.domain.requests.RequestObject;
+import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
@@ -47,7 +50,7 @@ public class OrganizationsFacade {
         //for(int volunteeringId : toRemove.getVolunteeringIds()) {
         //    volunteeringFacade.removeVolunteering(actor, volunteeringId);
         //}
-        requestRepository.removeOrganizationRequests(organizationId);
+        requestRepository.removeObjectRequests(organizationId, RequestObject.ORGANIZATION);
         organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
@@ -113,7 +116,7 @@ public class OrganizationsFacade {
                 throw new IllegalArgumentException(OrganizationErrors.makeUserIsVolunteerInTheOrganizationError(newManager, organization.getName()));
             }
         }
-        requestRepository.createRequest(newManager, actor, organizationId);
+        requestRepository.createRequest(newManager, actor, organizationId, RequestObject.ORGANIZATION);
 
         //TODO: change when users facade is implemented
         //usersFacade.notify(newManager, ....);
@@ -123,13 +126,13 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Request request = requestRepository.getRequest(actor, organizationId);
+        Request request = requestRepository.getRequest(actor, organizationId, RequestObject.ORGANIZATION);
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(approved) {
             organization.addManager(actor);
             organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
         }
-        requestRepository.deleteRequest(actor, organizationId);
+        requestRepository.deleteRequest(actor, organizationId, RequestObject.ORGANIZATION);
 
         String approvedStr = approved ? "approved" : "denied";
         String message = String.format("%s has %s your assign as manager request.", actor, approvedStr);
@@ -177,7 +180,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        return requestRepository.getUserRequests(actor);
+        return requestRepository.getUserRequests(actor, RequestObject.ORGANIZATION);
     }
 
     public OrganizationDTO getOrganization(int organizationId) {

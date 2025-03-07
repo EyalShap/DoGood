@@ -1,7 +1,11 @@
 package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
+import com.dogood.dogoodbackend.domain.requests.Request;
+import com.dogood.dogoodbackend.domain.requests.RequestObject;
+import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
@@ -17,24 +21,33 @@ import java.util.stream.Collectors;
 
 @Transactional
 public class PostsFacade {
-    private UsersFacade usersFacade;
     private VolunteeringPostRepository volunteeringPostRepository;
+    private VolunteerPostRepository volunteerPostRepository;
+    private UsersFacade usersFacade;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
     private ReportsFacade reportsFacade;
     private KeywordExtractor keywordExtractor;
+    private SkillsAndCategoriesExtractor skillsAndCategoriesExtractor;
+    private RequestRepository requestRepository;
 
-    public PostsFacade(UsersFacade usersFacade, VolunteeringPostRepository volunteeringPostRepository, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor) {
-        this.usersFacade = usersFacade;
+    public PostsFacade(VolunteeringPostRepository volunteeringPostRepository, VolunteerPostRepository volunteerPostRepository, UsersFacade usersFacade, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor, SkillsAndCategoriesExtractor skillsAndCategoriesExtractor, RequestRepository requestRepository) {
         this.volunteeringPostRepository = volunteeringPostRepository;
+        this.volunteerPostRepository = volunteerPostRepository;
+        this.usersFacade = usersFacade;
         this.volunteeringFacade = volunteeringFacade;
         this.organizationsFacade = organizationsFacade;
         this.keywordExtractor = keywordExtractor;
+        this.skillsAndCategoriesExtractor = skillsAndCategoriesExtractor;
+        this.requestRepository = requestRepository;
     }
 
     public void setReportsFacade(ReportsFacade reportsFacade) {
         this.reportsFacade = reportsFacade;
     }
+
+    // ----------------------------------------------------
+    // ---------------- VOLUNTEERING POSTS ----------------
 
     public int createVolunteeringPost(String title, String description, String posterUsername, int volunteeringId) {
         if(!userExists(posterUsername)){
@@ -52,7 +65,7 @@ public class PostsFacade {
 
         String volunteeringName = volunteeringDTO.getName();
         String volunteeringDescription = volunteeringDTO.getDescription();
-        Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, title, description);
+        Set<String> postKeywords = keywordExtractor.getVolunteeringPostKeywords(volunteeringName, volunteeringDescription, title, description);
         int postId = volunteeringPostRepository.createVolunteeringPost(title, description, postKeywords, posterUsername, volunteeringId, organizationId);
         return postId;
     }
@@ -79,7 +92,7 @@ public class PostsFacade {
         VolunteeringPost toRemove = volunteeringPostRepository.getVolunteeringPost(postId);
 
         if(!isAllowedToMakePostAction(actor, toRemove)) {
-            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(postId, actor, "remove"));
+            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.title, actor, "remove"));
         }
         reportsFacade.removePostReports(postId);
         volunteeringPostRepository.removeVolunteeringPost(postId);
@@ -88,7 +101,6 @@ public class PostsFacade {
     public void removePostsByVolunteeringId(int volunteeringId) {
         volunteeringPostRepository.removePostsByVolunteeringId(volunteeringId);
     }
-
 
     public void editVolunteeringPost(int postId, String title, String description, String actor) {
         if(!userExists(actor)){
@@ -99,11 +111,11 @@ public class PostsFacade {
         VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(toEdit.getVolunteeringId());
 
         if(!isAllowedToMakePostAction(actor, toEdit)) {
-            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(postId, actor, "edit"));
+            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toEdit.title, actor, "edit"));
         }
         String volunteeringName = volunteeringDTO.getName();
         String volunteeringDescription = volunteeringDTO.getDescription();
-        Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, title, description);
+        Set<String> postKeywords = keywordExtractor.getVolunteeringPostKeywords(volunteeringName, volunteeringDescription, title, description);
         volunteeringPostRepository.editVolunteeringPost(postId, title, description, postKeywords);
     }
 
@@ -117,7 +129,7 @@ public class PostsFacade {
                 String volunteeringName = volunteeringDTO.getName();
                 String volunteeringDescription = volunteeringDTO.getDescription();
 
-                Set<String> postKeywords = keywordExtractor.getKeywords(volunteeringName, volunteeringDescription, postTitle, postDescription);
+                Set<String> postKeywords = keywordExtractor.getVolunteeringPostKeywords(volunteeringName, volunteeringDescription, postTitle, postDescription);
                 volunteeringPostRepository.editVolunteeringPost(post.getId(), postTitle, postDescription, postKeywords);
             }
         }
@@ -171,7 +183,7 @@ public class PostsFacade {
         volunteeringPostRepository.incNumOfPeopleRequestedToJoin(postId);
     }
 
-    public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
+    /*public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
@@ -193,7 +205,7 @@ public class PostsFacade {
         return result;
     }
 
-    private Set<String> getPostKeywords(VolunteeringPostDTO post) {
+    private Set<String> getVolunteeringPostKeywords(VolunteeringPostDTO post) {
         int volunteeringId = post.getVolunteeringId();
         VolunteeringDTO volunteering = volunteeringFacade.getVolunteeringDTO(volunteeringId);
 
@@ -205,6 +217,8 @@ public class PostsFacade {
         postKeywords = postKeywords.stream().map(String::toLowerCase).collect(Collectors.toSet());
         return postKeywords;
     }
+
+
 
     private Set<String> getVolunteeringKeywords(VolunteeringDTO volunteering) {
         int volunteeringId = volunteering.getId();
@@ -222,7 +236,7 @@ public class PostsFacade {
         }
 
         return volunteeringKeywords;
-    }
+    }*/
 
     private int countCommons(Set<String> s1, Set<String> s2) {
         int matching = 0;
@@ -280,6 +294,23 @@ public class PostsFacade {
         return match;
     }
 
+    private Set<String> getVolunteeringKeywords(VolunteeringDTO volunteering) {
+        int volunteeringId = volunteering.getId();
+
+        Set<String> volunteeringKeywords = new HashSet<>();
+        List<String> volunteeringCategories = getVolunteeringCategories(volunteeringId);
+        List<String> volunteeringSkills = getVolunteeringSkills(volunteeringId);
+
+        if(volunteeringCategories != null) {
+            volunteeringKeywords.addAll(volunteeringCategories);
+        }
+        if(volunteeringSkills != null) {
+            volunteeringKeywords.addAll(volunteeringSkills);
+        }
+
+        return volunteeringKeywords;
+    }
+
     public List<VolunteeringPostDTO> sortByPopularity(String actor, List<VolunteeringPostDTO> allPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
@@ -292,31 +323,7 @@ public class PostsFacade {
         return sorted;
     }
 
-    public List<VolunteeringPostDTO> sortByPostingTime(String actor, List<VolunteeringPostDTO> allPosts) {
-        if(!userExists(actor)){
-            throw new IllegalArgumentException("User " + actor + " doesn't exist");
-        }
 
-        List<VolunteeringPostDTO> sorted = allPosts.stream()
-                .sorted((post1, post2) -> post2.getPostedTime().compareTo(post1.getPostedTime()))
-                .collect(Collectors.toList());
-
-        return sorted;
-    }
-
-    public List<VolunteeringPostDTO> sortByLastEditTime(String actor, List<VolunteeringPostDTO> allPosts) {
-        if(!userExists(actor)){
-            throw new IllegalArgumentException("User " + actor + " doesn't exist");
-        }
-
-        List<VolunteeringPostDTO> sorted = allPosts.stream()
-                .sorted((post1, post2) -> post2.getLastEditedTime().compareTo(post1.getLastEditedTime()))
-                .collect(Collectors.toList());
-
-        return sorted;
-    }
-
-    //TODO: sort by location in beta version
 
     //TODO: add more parameters
     public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
@@ -458,8 +465,175 @@ public class PostsFacade {
         return usersFacade.getUserVolunteeringHistory(actor);
     }
 
-
     public List<String> getVolunteeringImages(int volunteeringId) {
         return volunteeringFacade.getVolunteeringImages(volunteeringId);
     }
+
+    // -------------------------------------------------
+    // ---------------- VOLUNTEER POSTS ----------------
+
+    public int createVolunteerPost(String title, String description, String posterUsername) {
+        if(!userExists(posterUsername)){
+            throw new IllegalArgumentException("User " + posterUsername + " doesn't exist");
+        }
+
+        Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
+        List<String>[] postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
+        List<String> postSkills = postSkillsAndCategories[0];
+        List<String> postCategories = postSkillsAndCategories[1];
+        int postId = volunteerPostRepository.createVolunteerPost(title, description, postKeywords, posterUsername, postSkills, postCategories);
+        return postId;
+    }
+
+    public void removeVolunteerPost(String actor, int postId) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        VolunteerPost toRemove = volunteerPostRepository.getVolunteerPost(postId);
+
+        if(!toRemove.getPosterUsername().equals(actor)) {
+            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.getTitle(), actor, "remove"));
+        }
+        volunteerPostRepository.removeVolunteerPost(postId);
+        reportsFacade.removePostReports(postId);
+    }
+
+    public void editVolunteerPost(int postId, String title, String description, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        VolunteerPost toEdit = volunteerPostRepository.getVolunteerPost(postId);
+
+        if(!toEdit.getPosterUsername().equals(actor)) {
+            throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toEdit.getTitle(), actor, "edit"));
+        }
+
+        Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
+        volunteerPostRepository.editVolunteerPost(postId, title, description, postKeywords);
+    }
+
+    public void sendAddRelatedUserRequest(int postId, String username, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        requestRepository.createRequest(username, actor, postId, RequestObject.VOLUNTEER_POST);
+    }
+
+    public void handleAddRelatedUserRequest(int postId, String actor, boolean approved) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        Request request = requestRepository.getRequest(actor, postId, RequestObject.VOLUNTEER_POST);
+        if(approved) {
+            volunteerPostRepository.addRelatedUser(postId, actor);
+        }
+        requestRepository.deleteRequest(actor, postId, RequestObject.VOLUNTEER_POST);
+
+        String approvedStr = approved ? "approved" : "denied";
+        String message = String.format("%s has %s your request to join post.", actor, approvedStr);
+        //TODO: change when users facade is implemented
+        //usersFacade.notify(request.getAssignerUsername(), message);
+    }
+
+    public void removeRelatedUser(int postId, String username, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        volunteerPostRepository.removeRelatedUser(postId, username, actor);
+    }
+
+    public void addImage(int postId, String path, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        volunteerPostRepository.addImage(postId, path, actor);
+    }
+
+    public void removeImage(int postId, String path, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        volunteerPostRepository.removeImage(postId, path, actor);
+    }
+
+    public List<VolunteerPostDTO> getAllVolunteerPosts() {
+        return volunteerPostRepository.getVolunteerPostDTOs();
+    }
+
+    // --------------------------------------------------------------
+    // ---------------- GENERIC SEARCH, SORT, FILTER ----------------
+
+    public List<? extends PostDTO> searchByKeywords(String search, String actor, List<PostDTO> allPosts, boolean volunteering) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(search == null || search.isBlank()) {
+            return volunteering ? volunteeringPostRepository.getVolunteeringPostDTOs() : volunteerPostRepository.getVolunteerPostDTOs();
+        }
+        search = search.replaceAll("[^a-zA-Z0-9א-ת ]", "").replaceAll("  ", " ").toLowerCase();
+
+        Set<String> searchKeywords = new HashSet<>(Arrays.asList(search.split(" ")));
+        List<PostDTO> result = new ArrayList<>();
+
+        for(PostDTO post : allPosts) {
+            Set<String> postKeywords = getPostKeywords(post);
+            postKeywords = postKeywords.stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());;
+            int common = countCommons(searchKeywords, postKeywords);
+            if(common >= 1) {
+                result.add(post);
+            }
+        }
+        return result;
+    }
+
+    public Set<String> getPostKeywords(PostDTO postDTO) {
+        Set<String> postKeywords = postDTO.getKeywords();
+        Set<String> skills = new HashSet<>(postDTO.getSkills(this));
+        Set<String> categories = new HashSet<>(postDTO.getCategories(this));
+
+        postKeywords.addAll(skills);
+        postKeywords.addAll(categories);
+        postKeywords = postKeywords.stream().map(String::toLowerCase).collect(Collectors.toSet());
+        return postKeywords;
+    }
+
+    public List<PostDTO> sortByPostingTime(String actor, List<PostDTO> allPosts) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        List<PostDTO> sorted = allPosts.stream()
+                .sorted((post1, post2) -> post2.getPostedTime().compareTo(post1.getPostedTime()))
+                .collect(Collectors.toList());
+
+        return sorted;
+    }
+
+    public List<PostDTO> sortByLastEditTime(String actor, List<PostDTO> allPosts) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        List<PostDTO> sorted = allPosts.stream()
+                .sorted((post1, post2) -> post2.getLastEditedTime().compareTo(post1.getLastEditedTime()))
+                .collect(Collectors.toList());
+
+        return sorted;
+    }
+
+    //TODO: sort by location in beta version
+
+    // wrapping volunteering facade function so I can use it from Post
+    public List<String> getVolunteeringSkills(int volunteeringId) {
+        return volunteeringFacade.getVolunteeringSkills(volunteeringId);
+    }
+
+    // wrapping volunteering facade function so I can use it from Post
+    public List<String> getVolunteeringCategories(int volunteeringId) {
+        return volunteeringFacade.getVolunteeringCategories(volunteeringId);
+    }
+
 }
