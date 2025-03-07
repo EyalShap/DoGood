@@ -1,8 +1,8 @@
 package com.dogood.dogoodbackend.api;
 
-import com.dogood.dogoodbackend.api.postrequests.CreateVolunteeringPostRequest;
-import com.dogood.dogoodbackend.api.postrequests.FilterPostsRequest;
-import com.dogood.dogoodbackend.api.volunteeringrequests.SortRequest;
+import com.dogood.dogoodbackend.api.postrequests.*;
+import com.dogood.dogoodbackend.domain.posts.PostDTO;
+import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.service.PostService;
@@ -83,38 +83,38 @@ public class PostAPI {
     }
 
     @PostMapping("/searchByKeywords")
-    public Response<List<VolunteeringPostDTO>> searchByKeywords(@RequestParam String search, @RequestBody SortRequest sortRequest, HttpServletRequest request) {
+    public Response<List<? extends PostDTO>> searchByKeywords(@RequestParam String search, @RequestBody SearchPostRequest searchPostRequest, HttpServletRequest request) {
         String token = getToken(request);
 
-        return postService.searchByKeywords(token, search, sortRequest.getActor(), sortRequest.getAllPosts());
+        return postService.searchByKeywords(token, search, searchPostRequest.getActor(), searchPostRequest.getAllPosts(), searchPostRequest.isVolunteering());
     }
 
     @PostMapping("/sortByRelevance")
-    public Response<List<VolunteeringPostDTO>> sortByRelevance(@RequestBody SortRequest sortRequest, HttpServletRequest request) {
+    public Response<List<VolunteeringPostDTO>> sortByRelevance(@RequestBody VolunteeringPostSortRequest sortRequest, HttpServletRequest request) {
         String token = getToken(request);
 
         return postService.sortByRelevance(token, sortRequest.getActor(), sortRequest.getAllPosts());
     }
 
     @PostMapping("/sortByPopularity")
-    public Response<List<VolunteeringPostDTO>> sortByPopularity(@RequestBody SortRequest sortRequest, HttpServletRequest request) {
+    public Response<List<VolunteeringPostDTO>> sortByPopularity(@RequestBody VolunteeringPostSortRequest sortRequest, HttpServletRequest request) {
         String token = getToken(request);
 
         return postService.sortByPopularity(token, sortRequest.getActor(), sortRequest.getAllPosts());
     }
 
     @PostMapping("/sortByPostingTime")
-    public Response<List<VolunteeringPostDTO>> sortByPostingTime(@RequestBody SortRequest sortRequest, HttpServletRequest request) {
+    public Response<List<PostDTO>> sortByPostingTime(@RequestBody PostSortRequest sortRequest, HttpServletRequest request) {
         String token = getToken(request);
 
         return postService.sortByPostingTime(token, sortRequest.getActor(), sortRequest.getAllPosts());
     }
 
     @PostMapping("/sortByLastEditTime")
-    public Response<List<VolunteeringPostDTO>> sortByLastEditTime(@RequestBody SortRequest sortRequest, HttpServletRequest request) {
+    public Response<List<PostDTO>> sortByLastEditTime(@RequestBody PostSortRequest sortRequest, HttpServletRequest request) {
         String token = getToken(request);
 
-        return postService.sortByPostingTime(token, sortRequest.getActor(), sortRequest.getAllPosts());
+        return postService.sortByLastEditTime(token, sortRequest.getActor(), sortRequest.getAllPosts());
     }
 
     @PostMapping("/filterPosts")
@@ -184,5 +184,80 @@ public class PostAPI {
         String token = getToken(request);
 
         return postService.getVolunteeringImages(token, actor, volunteeringId);
+    }
+
+    @PostMapping("/createVolunteerPost")
+    public Response<Integer> createVolunteerPost(@RequestBody CreateVolunteeringPostRequest createVolunteerPostRequest, HttpServletRequest request) {
+        String token = getToken(request);
+
+        String title = createVolunteerPostRequest.getTitle();
+        String description = createVolunteerPostRequest.getDescription();
+        String actor = createVolunteerPostRequest.getActor();
+        return postService.createVolunteerPost(token, actor, title, description);
+    }
+
+    @DeleteMapping("/removeVolunteerPost")
+    public Response<Boolean> removeVolunteerPost(@RequestParam int postId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.removeVolunteerPost(token, actor, postId);
+    }
+
+    @PutMapping("/editVolunteerPost")
+    public Response<Boolean> editVolunteerPost(@RequestParam int postId, @RequestBody CreateVolunteeringPostRequest createVolunteeringPostRequest, HttpServletRequest request) {
+        String token = getToken(request);
+
+        String title = createVolunteeringPostRequest.getTitle();
+        String description = createVolunteeringPostRequest.getDescription();
+        String actor = createVolunteeringPostRequest.getActor();
+        return postService.editVolunteerPost(token, actor, postId, title, description);
+    }
+
+    @PostMapping("/sendAddRelatedUserRequest")
+    public Response<Boolean> sendAddRelatedUserRequest(@RequestBody GeneralRequest assignManagerRequest, @RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+
+        int postId = assignManagerRequest.getId();
+        String actor = assignManagerRequest.getActor();
+        return postService.sendAddRelatedUserRequest(token, actor, postId, username);
+    }
+
+    @PostMapping("/handleAddRelatedUserRequest")
+    public Response<Boolean> handleAddRelatedUserRequest(@RequestBody GeneralRequest handleManagerRequest, @RequestParam boolean approved, HttpServletRequest request) {
+        String token = getToken(request);
+
+        int postId = handleManagerRequest.getId();
+        String actor = handleManagerRequest.getActor();
+        return postService.handleAddRelatedUserRequest(token, actor, postId, approved);
+    }
+
+    @DeleteMapping("/removeRelatedUser")
+    public Response<Boolean> removeRelatedUser(@RequestParam int postId, @RequestParam String actor, @RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.removeRelatedUser(token, actor, postId, username);
+    }
+
+    @PostMapping("/addImage")
+    public Response<Boolean> addImage(@RequestBody GeneralRequest assignManagerRequest, @RequestParam String path, HttpServletRequest request) {
+        String token = getToken(request);
+
+        int postId = assignManagerRequest.getId();
+        String actor = assignManagerRequest.getActor();
+        return postService.addImage(token, actor, postId, path);
+    }
+
+    @DeleteMapping("/removeImage")
+    public Response<Boolean> removeImage(@RequestParam int postId, @RequestParam String actor, @RequestParam String path, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.removeImage(token, actor, postId, path);
+    }
+
+    @GetMapping("/getAllVolunteerPosts")
+    public Response<List<VolunteerPostDTO>> getAllVolunteerPosts(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getAllVolunteerPosts(token, actor);
     }
 }

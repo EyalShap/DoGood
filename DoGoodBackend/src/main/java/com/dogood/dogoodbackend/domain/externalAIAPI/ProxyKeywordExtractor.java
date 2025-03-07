@@ -14,8 +14,18 @@ public class ProxyKeywordExtractor implements KeywordExtractor{
     }
 
     @Override
-    public Set<String> getKeywords(String volunteeringName, String volunteeringDescription, String postTitle, String postDescription) {
+    public Set<String> getVolunteeringPostKeywords(String volunteeringName, String volunteeringDescription, String postTitle, String postDescription) {
         String str = volunteeringName + " " + volunteeringDescription + " " + postTitle + " " + postDescription;
+        return getKeywords(str);
+    }
+
+    @Override
+    public Set<String> getVolunteerPostKeywords(String postTitle, String postDescription) {
+        String str = postTitle + " " + postDescription;
+        return getKeywords(str);
+    }
+
+    private Set<String> getKeywords(String str) {
         String[] split = str.split("\\s+");
         Set<String> keywords = Arrays.stream(split)
                 .filter(word -> !stopwords.contains(word))

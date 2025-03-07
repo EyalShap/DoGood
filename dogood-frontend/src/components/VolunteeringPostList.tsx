@@ -62,7 +62,7 @@ function VolunteeringPostList() {
 
     const handleSearchOnClick = async () => {
         try {
-            let res : VolunteeringPostModel[] = await searchByKeywords(search, posts);
+            let res : VolunteeringPostModel[] = await searchByKeywords(search, posts, true) as VolunteeringPostModel[];
             setPosts(res);
         }
         catch(e) {
@@ -83,11 +83,11 @@ function VolunteeringPostList() {
             setPosts(sorted);
         }
         else if(selectedFunction === 'posting time') {
-            let sorted: VolunteeringPostModel[] = await sortByPostingTime(posts);
+            let sorted: VolunteeringPostModel[] = await sortByPostingTime(posts) as VolunteeringPostModel[];
             setPosts(sorted);
         }
         else if(selectedFunction === 'last edit time') {
-            let sorted: VolunteeringPostModel[] = await sortByLastEditTime(posts);
+            let sorted: VolunteeringPostModel[] = await sortByLastEditTime(posts) as VolunteeringPostModel[];
             setPosts(sorted);
         }
     };

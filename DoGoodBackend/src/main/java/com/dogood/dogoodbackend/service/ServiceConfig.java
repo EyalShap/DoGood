@@ -2,11 +2,11 @@ package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
-import com.dogood.dogoodbackend.domain.organizations.DBRequestRepository;
+import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
+import com.dogood.dogoodbackend.domain.posts.DBVolunteerPostRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.DBReportRepository;
 import com.dogood.dogoodbackend.domain.users.DatabaseUserRepository;
-import com.dogood.dogoodbackend.domain.users.MemoryUserRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
@@ -27,6 +27,7 @@ public class ServiceConfig {
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
                 new DBVolunteeringPostRepository(applicationContext.getBean(VolunteeringPostJPA.class)),
+                new DBVolunteerPostRepository(applicationContext.getBean(VolunteerPostJPA.class)),
                 new DBRequestRepository(applicationContext.getBean(RequestJPA.class)),
                 new DBReportRepository(applicationContext.getBean(ReportJPA.class)),
                 new DatabaseUserRepository(applicationContext.getBean(UserJPA.class)),

@@ -17,11 +17,11 @@ function ManagerRequestsList() {
 
             for (let request of requests) {
                 try {
-                    const name = await getOrganizationName(request.organizationId);
+                    const name = await getOrganizationName(request.objectId);
                     
                     setOrganizationNames((prevNames) => ({
                         ...prevNames,
-                        [request.organizationId]: name,
+                        [request.objectId]: name,
                     }));
                 } catch (e) {
                     alert(e);
@@ -45,7 +45,7 @@ function ManagerRequestsList() {
     const handleApproveOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to approve this request?`)) {
             handleAssignManagerRequest(organizationId, true);
-            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
+            let newRequests = requests.filter((request) => request.objectId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
             setRequests(newRequests);
         }
     };
@@ -53,7 +53,7 @@ function ManagerRequestsList() {
     const handleDenyOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to deny this request?`)) {
             handleAssignManagerRequest(organizationId, false);
-            let newRequests = requests.filter((request) => request.organizationId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
+            let newRequests = requests.filter((request) => request.objectId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
             setRequests(newRequests);
         }
     };
@@ -67,14 +67,14 @@ function ManagerRequestsList() {
                     requests.map((request, index) => (
                         <div key={index} className="requestItem">
                             <div id = "info">
-                                <h3>Organization name: {organizationNames[request.organizationId]}</h3>
+                                <h3>Organization name: {organizationNames[request.objectId]}</h3>
                                 <p>Sent by: {request.assignerUsername}</p>
                             </div>
 
                             <div id = "buttons"> 
-                                <button onClick={() => handleShowOnClick(request.organizationId)}>Show Organization</button>
-                                <button onClick={() => handleApproveOnClick(request.organizationId)}>V</button>
-                                <button onClick={() => handleDenyOnClick(request.organizationId)}>X</button>
+                                <button onClick={() => handleShowOnClick(request.objectId)}>Show Organization</button>
+                                <button onClick={() => handleApproveOnClick(request.objectId)}>V</button>
+                                <button onClick={() => handleDenyOnClick(request.objectId)}>X</button>
                             </div>
                         </div>
                     ))

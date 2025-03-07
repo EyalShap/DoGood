@@ -18,7 +18,7 @@ public interface VolunteeringPostRepository {
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId);
     public int getVolunteeringIdByPostId(int postId);
 
-        public default List<VolunteeringPostDTO> getVolunteeringPostDTOs(List<VolunteeringPost> posts) {
+    public default List<VolunteeringPostDTO> getVolunteeringPostDTOs(List<VolunteeringPost> posts) {
         List<VolunteeringPostDTO> volunteeringPostDTO = posts.stream()
                 .map(post -> new VolunteeringPostDTO(post))
                 .collect(Collectors.toList());

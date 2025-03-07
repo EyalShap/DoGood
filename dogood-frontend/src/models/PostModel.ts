@@ -5,7 +5,7 @@ export interface PostModel {
     postedTime: string;
     lastEditedTime: string; 
     posterUsername: string;
-    numOfPeopleRequestedToJoin: number;
     relevance: number;
+    keywords: string[];
 }
 
