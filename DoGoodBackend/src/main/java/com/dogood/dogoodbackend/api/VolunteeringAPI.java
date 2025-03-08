@@ -306,6 +306,12 @@ public class VolunteeringAPI {
         return volunteeringService.getConstantCodes(token, userId, volunteeringId);
     }
 
+    @GetMapping("/getVolunteeringWarnings")
+    public Response<List<String>> getVolunteeringWarnings(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringWarnings(token, userId, volunteeringId);
+    }
+
     @GetMapping("/getVolunteerAppointments")
     public Response<List<ScheduleAppointmentDTO>> getVolunteerAppointments(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);

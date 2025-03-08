@@ -614,6 +614,18 @@ export const getConstantCodes = async (volunteeringId: number): Promise<string[]
     return response.data;
 }
 
+export const getVolunteeringWarnings = async (volunteeringId: number): Promise<string[]> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getVolunteeringWarnings?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const clearConstantCodes = async (volunteeringId: number): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
