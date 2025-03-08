@@ -1,7 +1,31 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
-import { addRestrictionToRange, addScheduleRangeToGroup, assignVolunteerToLocation, cancelAppointment, createNewGroup, finishVolunteering, getGroupLocations, getIsManager, getUserAssignedLocation, getVolunteerAppointments, getVolunteerGroup, getVolunteering, getVolunteeringGroups, getVolunteeringLocationGroupRanges, getVolunteeringLocations, getVolunteeringVolunteers, moveVolunteerGroup, removeGroup, removeRange, removeRestrictionFromRange, requestHoursApproval } from '../api/volunteering_api'
+import {
+    addRestrictionToRange,
+    addScheduleRangeToGroup,
+    assignVolunteerToLocation,
+    cancelAppointment,
+    createNewGroup,
+    finishVolunteering,
+    getGroupLocations,
+    getIsManager,
+    getUserAssignedLocation,
+    getVolunteerAppointments,
+    getVolunteerGroup,
+    getVolunteering,
+    getVolunteeringGroups,
+    getVolunteeringLocationGroupRanges,
+    getVolunteeringLocations,
+    getVolunteeringVolunteers,
+    getVolunteeringWarnings,
+    moveVolunteerGroup,
+    removeGroup,
+    removeRange,
+    removeRestrictionFromRange,
+    requestHoursApproval
+} from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
@@ -638,6 +662,7 @@ function Volunteering() {
     const [ready, setReady] = useState(false);
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
     const [hasLocation, setHasLocation] = useState(false)
+    const [warnings, setWarnings] = useState<string[]>([]);
     const [rerenderManager, setRenenderManager] = useState(3);
 
     const [currentDragVolunteer, setCurrentDragVolunteer] = useState("");
@@ -683,6 +708,15 @@ function Volunteering() {
         }
     }
 
+    const fetchWarnings = async () => {
+        try{
+            setWarnings(await getVolunteeringWarnings(parseInt(id!)))
+        } catch(e){
+            //send to error page
+            alert(e)
+        }
+    }
+
     useEffect(() => {
         fetchVolunteering();
     }, [])
@@ -695,6 +729,9 @@ function Volunteering() {
     useEffect(() => {
         if (permissionsLoaded && !isManager) {
             updateHasLocation();
+        }
+        if (permissionsLoaded && isManager){
+            fetchWarnings();
         }
     }, [isManager, permissionsLoaded])
 
@@ -764,8 +801,14 @@ function Volunteering() {
                     </div> : <></>}
             </div>
             {isManager ?
+                <div className='warnings'>
+                    {warnings.map(warning =>
+                        <p className='warning'>{warning}</p>)}
+                </div> : <></>}
+            {isManager ?
                 <div className='scanButtons'>
                     <button onClick={() => navigate("./code")}>Show Changing QR Code</button>
+                    <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
                 </div> :
                 <div className='scanButtons'>
                     <button onClick={() => navigate("/scan")}>Scan QR Code</button>
@@ -778,11 +821,6 @@ function Volunteering() {
                             </div>
                         )}
                     </Popup>
-                </div>}
-
-            {isManager &&
-                <div className='postVolunteering'>
-                    <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
                 </div>}
 
             {isManager ?

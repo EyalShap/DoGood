@@ -448,6 +448,19 @@ public class Volunteering {
         return volunteerToGroup.get(volunteerId);
     }
 
+    public List<String> getWarnings(){
+        List<String> warnings = new LinkedList<>();
+        if(locations.isEmpty()){
+            warnings.add("You don't have any locations defined. You can define locations in Settings.");
+        }
+        for(Group g : groups.values()){
+            if(!g.canMakeAppointments()){
+                warnings.add("There are no defined schedules for group " + g.getId() + ".");
+            }
+        }
+        return warnings;
+    }
+
     @PostLoad
     private void load(){
         volunteerToGroup = new HashMap<>();

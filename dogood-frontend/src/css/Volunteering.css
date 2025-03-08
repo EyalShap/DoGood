@@ -5,6 +5,7 @@
     flex-direction: row;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    margin-bottom: 0px;
 }
 
 .volInfoText {
@@ -30,6 +31,34 @@
     font-weight: bold;
     color: #333;
     margin-left: auto;
+}
+
+.warnings {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.warning {
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 20px;
+    background: rgba(255,0,0,0.5);
+    color: #800000;
+    font-weight: bold;
+    width: 80%;
+    border-radius: 12px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    text-shadow:1px 1px 10px rgba(218, 0, 0, 0.6);
+    transition: 1s
+}
+
+.warning:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(150, 0, 0, 0.4);
 }
 
 .volInfoButtons button {
@@ -92,7 +121,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin-top: 20px;
+    margin-top: 0;
     padding: 10px;
     background: #fcfcfc;
     border-radius: 8px;
@@ -162,10 +191,17 @@
     .volInfo {
         flex-direction: column;
         align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .volInfoButtons {
+        width: 100%;
+        padding: 10px;
     }
 
     .volInfoButtons button {
-        width: 80%;
+        width: 100%;
         padding: 10px;
     }
 

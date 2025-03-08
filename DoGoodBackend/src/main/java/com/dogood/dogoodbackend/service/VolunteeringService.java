@@ -605,6 +605,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<List<String>> getVolunteeringWarnings(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            List<String> codes = facadeManager.getVolunteeringFacade().getVolunteeringWarnings(userId, volunteeringId);
+            return Response.createResponse(codes);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<List<ScheduleAppointmentDTO>> getVolunteerAppointments(String token, String userId, int volunteeringId) {
         try {
             checkToken(token, userId);

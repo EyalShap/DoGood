@@ -831,6 +831,20 @@ public class VolunteeringFacade {
         return volunteering.getConstantCodes();
     }
 
+    public List<String> getVolunteeringWarnings(String userId, int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId() + " of volunteering " + volunteeringId);
+        }
+        List<String> warnings = volunteering.getWarnings();
+        if(!postsFacade.hasPosts(volunteeringId)){
+            warnings.add("Volunteering isn't published. Use \"Post Volunteering\" so users can find and join your volunteering.");
+        }
+        return warnings;
+    }
 
     public void checkViewingPermissions(String userId, int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);

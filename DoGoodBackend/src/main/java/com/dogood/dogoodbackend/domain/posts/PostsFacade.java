@@ -636,4 +636,13 @@ public class PostsFacade {
         return volunteeringFacade.getVolunteeringCategories(volunteeringId);
     }
 
+    public boolean hasPosts(int volunteeringId) {
+        //TODO: do this more efficiently
+        for(VolunteeringPost p : volunteeringPostRepository.getAllVolunteeringPosts()){
+            if(p.getVolunteeringId() == volunteeringId){
+                return true;
+            }
+        }
+        return false;
+    }
 }
