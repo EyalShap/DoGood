@@ -227,6 +227,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> generateSkillsAndCategories(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().generateSkillsAndCategories(userId, volunteeringId);
+            return Response.createOK();
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<String> updateVolunteering(String token, String userId, int volunteeringId, String name, String description) {
         try {
             checkToken(token, userId);

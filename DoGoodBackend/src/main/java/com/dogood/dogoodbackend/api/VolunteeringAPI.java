@@ -36,6 +36,12 @@ public class VolunteeringAPI {
         return volunteeringService.updateVolunteering(token, userId, volunteeringId, body.get("name"), body.get("description"));
     }
 
+    @PatchMapping("/generateSkillsAndCategories")
+    public Response<String> generateSkillsAndCategories(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.generateSkillsAndCategories(token, userId, volunteeringId);
+    }
+
     @PatchMapping("/updateVolunteeringSkills")
     public Response<String> updateVolunteeringSkills(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody List<String> skills, HttpServletRequest request){
         String token = getToken(request);

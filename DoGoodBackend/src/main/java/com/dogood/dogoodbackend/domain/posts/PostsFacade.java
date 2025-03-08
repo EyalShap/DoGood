@@ -478,9 +478,11 @@ public class PostsFacade {
         }
 
         Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
-        List<String>[] postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
-        List<String> postSkills = postSkillsAndCategories[0];
-        List<String> postCategories = postSkillsAndCategories[1];
+        //List<String>[] postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
+        //List<String> postSkills = postSkillsAndCategories[0];
+        //List<String> postCategories = postSkillsAndCategories[1];
+        List<String> postSkills = new LinkedList<>();
+        List<String> postCategories = new LinkedList<>();
         int postId = volunteerPostRepository.createVolunteerPost(title, description, postKeywords, posterUsername, postSkills, postCategories);
         return postId;
     }

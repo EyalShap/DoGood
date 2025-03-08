@@ -10,19 +10,17 @@ import com.dogood.dogoodbackend.domain.users.DatabaseUserRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class ServiceConfig {
-
     @Bean
     public FacadeManager facadeManager(ApplicationContext applicationContext){
         //this will memory for now but will actually db later
         //this is singleton
-        String geminiKey = applicationContext.getEnvironment().getProperty("gemini.key");
-        AI ai = new Gemini(geminiKey);
         return new FacadeManager(applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
@@ -34,8 +32,8 @@ public class ServiceConfig {
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class)),
-                new AIKeywordExtractor(ai),
-                new AISkillsAndCategoriesExtractor(ai));
+                new AIKeywordExtractor(applicationContext.getBean(Gemini.class)),
+                new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)));
     }
 
     /*@Bean
