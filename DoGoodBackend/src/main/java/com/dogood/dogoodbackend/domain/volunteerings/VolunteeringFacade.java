@@ -85,7 +85,6 @@ public class VolunteeringFacade {
         SkillsAndCategories skag = extractor.getSkillsAndCategories(volunteering.getName(), volunteering.getDescription(), new HashSet<>(getAllVolunteeringSkills()), new HashSet<>(getAllVolunteeringCategories()));
         repository.updateVolunteeringSkills(volunteeringId, skag.getSkills());
         repository.updateVolunteeringCategories(volunteeringId, skag.getCategories());
-        postsFacade.updateVolunteeringPostsKeywords(volunteeringId, userId);
     }
 
 
@@ -126,7 +125,6 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         repository.updateVolunteeringSkills(volunteeringId, skills);
-        postsFacade.updateVolunteeringPostsKeywords(volunteeringId, userId);
     }
 
 
@@ -139,7 +137,6 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         repository.updateVolunteeringCategories(volunteeringId, categories);
-        postsFacade.updateVolunteeringPostsKeywords(volunteeringId, userId);
     }
 
 
