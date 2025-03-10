@@ -2,7 +2,7 @@ package com.dogood.dogoodbackend.api.reportquests;
 
 public class CreateReportRequest {
     private String actor;
-    private int reportedPostId;
+    private int reportedId;
     private String description;
 
     public String getActor() {
@@ -13,12 +13,12 @@ public class CreateReportRequest {
         this.actor = actor;
     }
 
-    public int getReportedPostId() {
-        return reportedPostId;
+    public int getReportedId() {
+        return reportedId;
     }
 
-    public void setReportedPostId(int reportedPostId) {
-        this.reportedPostId = reportedPostId;
+    public void setReportedId(int reportedId) {
+        this.reportedId = reportedId;
     }
 
     public String getDescription() {

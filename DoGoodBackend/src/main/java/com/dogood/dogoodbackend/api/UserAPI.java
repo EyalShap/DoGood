@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
@@ -74,5 +75,11 @@ public class UserAPI {
     public Response<List<HourApprovalRequest>> getUserApprovedHours(@RequestParam String username, HttpServletRequest request) {
         String token = getToken(request);
         return userService.getApprovedHours(token, username);
+    }
+
+    @GetMapping("/leaderboard")
+    public Response<Map<String, Double>> leaderboard(@RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.leaderboard(token, username);
     }
 }

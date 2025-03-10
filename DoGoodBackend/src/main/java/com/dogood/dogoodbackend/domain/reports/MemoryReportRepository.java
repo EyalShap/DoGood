@@ -2,78 +2,66 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.utils.ReportErrors;
 
+import java.time.LocalDate;
 import java.util.*;
 
 
 public class MemoryReportRepository implements ReportRepository{
-    private Map<Integer, Report> reports;
-    private int nextReportId;
+    private Map<ReportKey, Report> reports;
 
     public MemoryReportRepository() {
         this.reports = new HashMap<>();
-        this.nextReportId = 0;
     }
 
     @Override
-    public int createReport(String reportingUser, int reportedPostId, String description) {
-        if(reports.containsKey(nextReportId)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportIdAlreadyExistsError(nextReportId));
+    public Report createReport(String reportingUser, String description, String reportedId, ReportObject reportObject) {
+        Report newReport = new Report(reportingUser, description, reportedId, reportObject);
+        ReportKey reportKey = new ReportKey(reportingUser, newReport.getDate(), reportedId, reportObject);
+
+        if(reports.containsKey(reportKey)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportAlreadyExistsError(reportKey));
         }
 
-        Report newReport = new Report(nextReportId, reportingUser, reportedPostId, description);
-
-        // trying to prevent a vicious ddos attack????????????
-        if(isDuplicateReport(newReport)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportContentAlreadyExistsError());
-        }
-
-        reports.put(nextReportId, newReport);
-        nextReportId++;
-        return nextReportId - 1;
-    }
-
-    private boolean isDuplicateReport(Report newReport) {
-        // assuming each user can report a specific post only once a day
-        for(Report report : reports.values()) {
-            if(newReport.getReportingUser().equals(report.getReportingUser()) && newReport.getReportedPostId() == report.getReportedPostId() && newReport.getDate().isEqual(report.getDate())) {
-                return true;
-            }
-        }
-        return false;
+        reports.put(reportKey, newReport);
+        return newReport;
     }
 
     @Override
-    public void removeReport(int reportId) {
-        if(!reports.containsKey(reportId)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
+    public void removeReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
+        ReportKey reportKey = new ReportKey(reportingUser, date, reportedId, reportObject);
+        if(!reports.containsKey(reportKey)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportKey));
         }
-        reports.remove(reportId);
+        reports.remove(reportKey);
     }
 
     @Override
-    public void removePostReports(int postId) {
-        Set<Integer> reportIds = new HashSet<>(reports.keySet());
-        for(int reportId : reportIds) {
-            if(reports.get(reportId).getReportedPostId() == postId) {
-                reports.remove(reportId);
+    public void removeObjectReports(String reportedId, ReportObject reportObject) {
+        Set<ReportKey> reportsKeys = reports.keySet();
+        for(ReportKey key : reportsKeys) {
+            Report report = reports.get(key);
+            if(report.getReportObject() == reportObject && report.getReportedId().equals(reportedId)) {
+                reports.remove(key);
             }
         }
     }
 
     @Override
-    public void editReport(int reportId, String description) {
-        if(!reports.containsKey(reportId)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
+    public void editReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject, String description) {
+        ReportKey reportKey = new ReportKey(reportingUser, date, reportedId, reportObject);
+        if(!reports.containsKey(reportKey)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportKey));
         }
-        reports.get(reportId).edit(description);
+        reports.get(reportKey).edit(description);
     }
 
     @Override
-    public Report getReport(int reportId) {
-        if(!reports.containsKey(reportId)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
+    public Report getReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
+        ReportKey reportKey = new ReportKey(reportingUser, date, reportedId, reportObject);
+        if(!reports.containsKey(reportKey)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportKey));
         }
-        return reports.get(reportId);
+        return reports.get(reportKey);
     }
 
     @Override
@@ -83,7 +71,6 @@ public class MemoryReportRepository implements ReportRepository{
 
     @Override
     public void clear() {
-        this.nextReportId = 0;
         reports = new HashMap<>();
     }
 }

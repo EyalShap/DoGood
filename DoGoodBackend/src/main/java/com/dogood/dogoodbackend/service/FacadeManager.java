@@ -33,9 +33,11 @@ public class FacadeManager {
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt);
         this.postsFacade = new PostsFacade(volunteeringPostRepo, volunteerPostRepo, usersFacade, volunteeringFacade, organizationsFacade, keyExt, skillsCatExt, reqRepo);
-        this.reportsFacade = new ReportsFacade(usersFacade, repRepo, postsFacade);
+        this.reportsFacade = new ReportsFacade(usersFacade, repRepo, postsFacade, volunteeringFacade, organizationsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
         this.postsFacade.setReportsFacade(reportsFacade);
+        this.volunteeringFacade.setReportFacade(reportsFacade);
+        this.organizationsFacade.setReportFacade(reportsFacade);
         this.volunteeringFacade.setPostsFacade(postsFacade);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
     }

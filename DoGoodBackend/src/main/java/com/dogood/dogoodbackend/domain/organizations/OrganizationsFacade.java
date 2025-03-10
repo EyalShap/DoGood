@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
@@ -18,6 +19,7 @@ public class OrganizationsFacade {
     private RequestRepository requestRepository;
     private UsersFacade usersFacade;
     private VolunteeringFacade volunteeringFacade;
+    private ReportsFacade reportsFacade;
 
     public OrganizationsFacade(UsersFacade usersFacade, OrganizationRepository organizationRepository, RequestRepository requestRepository) {
         this.usersFacade = usersFacade;
@@ -27,6 +29,10 @@ public class OrganizationsFacade {
 
     public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
         this.volunteeringFacade = volunteeringFacade;
+    }
+
+    public void setReportFacade(ReportsFacade reportsFacade) {
+        this.reportsFacade = reportsFacade;
     }
 
     public int createOrganization(String name, String description, String phoneNumber, String email, String actor) {
@@ -47,9 +53,9 @@ public class OrganizationsFacade {
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toRemove.getName(), "remove the organization"));
         }
-        //for(int volunteeringId : toRemove.getVolunteeringIds()) {
-        //    volunteeringFacade.removeVolunteering(actor, volunteeringId);
-        //}
+        for(int volunteeringId : toRemove.getVolunteeringIds()) {
+            volunteeringFacade.removeVolunteering(actor, volunteeringId);
+        }
         requestRepository.removeObjectRequests(organizationId, RequestObject.ORGANIZATION);
         organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
@@ -57,6 +63,7 @@ public class OrganizationsFacade {
         if(toRemove.isFounder(actor)) {
             usersFacade.removeUserOrganization(actor, organizationId);
         }
+        reportsFacade.removeOrganizationReports(organizationId);
     }
 
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email, String actor) {

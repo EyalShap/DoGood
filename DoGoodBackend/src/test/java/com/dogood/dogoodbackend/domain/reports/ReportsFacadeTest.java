@@ -1,6 +1,5 @@
 package com.dogood.dogoodbackend.domain.reports;
 
-import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.posts.MemoryVolunteeringPostRepository;
@@ -41,7 +40,7 @@ class ReportsFacadeTest {
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
         //this.postsFacade = new PostsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringPostRepository, volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor());
-        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade);
+        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade, null, null);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
@@ -49,7 +48,7 @@ class ReportsFacadeTest {
         this.organizationId = this.organizationsFacade.createOrganization("Organization", "Description", "0547960995", "org@gmail.com", actor);
         this.volunteeringId = this.volunteeringFacade.createVolunteering(actor, organizationId, "Volunteering", "Description");
         this.postId = this.postsFacade.createVolunteeringPost("Title", "Description", actor, volunteeringId);
-        this.reportId = this.reportsFacade.createReport(actor, postId, "Description");
+        //this.reportId = this.reportsFacade.createVolunteeringPostReport(actor, postId, "Description");
     }
 
     @Test

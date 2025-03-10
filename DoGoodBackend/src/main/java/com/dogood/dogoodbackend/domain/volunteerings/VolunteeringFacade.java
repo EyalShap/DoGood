@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
@@ -30,6 +31,7 @@ public class VolunteeringFacade {
     private PostsFacade postsFacade;
     //private UserFacade userFacade;
     private SkillsAndCategoriesExtractor extractor;
+    private ReportsFacade reportsFacade;
 
 
     public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
@@ -38,6 +40,10 @@ public class VolunteeringFacade {
         this.organizationFacade = organizationsFacade;
         this.repository = repository;
         this.extractor = extractor;
+    }
+
+    public void setReportFacade(ReportsFacade reportsFacade) {
+        this.reportsFacade = reportsFacade;
     }
 
     private boolean isManager(String userId, int organizationId){
@@ -99,6 +105,7 @@ public class VolunteeringFacade {
         postsFacade.removePostsByVolunteeringId(volunteeringId);
         schedulingFacade.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
         organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId);
+        reportsFacade.removeVolunteeringReports(volunteeringId);
     }
 
 
