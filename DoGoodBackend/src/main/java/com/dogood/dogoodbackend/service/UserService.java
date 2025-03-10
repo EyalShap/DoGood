@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class UserService {
@@ -119,6 +120,16 @@ public class UserService {
         try {
             checkToken(token, username);
             List<HourApprovalRequest> result = usersFacade.getApprovedHours(username);
+            return Response.createResponse(result);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Map<String, Double>> leaderboard(String token, String username) {
+        try {
+            checkToken(token, username);
+            Map<String, Double> result = usersFacade.leaderboard();
             return Response.createResponse(result);
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());

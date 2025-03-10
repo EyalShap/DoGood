@@ -94,7 +94,7 @@ public class PostsFacade {
         if(!isAllowedToMakePostAction(actor, toRemove)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.title, actor, "remove"));
         }
-        reportsFacade.removePostReports(postId);
+        reportsFacade.removeVolunteeringPostReports(postId);
         volunteeringPostRepository.removeVolunteeringPost(postId);
     }
 
@@ -135,9 +135,19 @@ public class PostsFacade {
         }
     }
 
-    public boolean doesExist(int postId) {
+    public boolean doesVolunteeringPostExist(int postId) {
         try {
             volunteeringPostRepository.getVolunteeringPost(postId);
+            return true;
+        }
+        catch (Exception e) {
+            return false;
+        }
+    }
+
+    public boolean doesVolunteerPostExist(int postId) {
+        try {
+            volunteerPostRepository.getVolunteerPost(postId);
             return true;
         }
         catch (Exception e) {
@@ -498,7 +508,7 @@ public class PostsFacade {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.getTitle(), actor, "remove"));
         }
         volunteerPostRepository.removeVolunteerPost(postId);
-        reportsFacade.removePostReports(postId);
+        reportsFacade.removeVolunteerPostReports(postId);
     }
 
     public void editVolunteerPost(int postId, String title, String description, String actor) {

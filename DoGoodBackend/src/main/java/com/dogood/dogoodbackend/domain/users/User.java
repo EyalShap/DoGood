@@ -36,6 +36,7 @@ public class User {
     private List<String> skills;
     private boolean isStudent;
     private boolean isAdmin;
+    private boolean leaderboard;
 
     public User() {
     }
@@ -61,6 +62,7 @@ public class User {
         this.skills = new ArrayList<>();
         this.isStudent = checkStudentEmail(email);
         this.isAdmin = false;
+        this.leaderboard = true;
     }
 
     public User(String username, List<String> emails, String name, String password, String phone, Date birthDate, List<String> preferredCategories, List<Integer> volunteeringIds, List<VolunteeringDTO> volunteeringsInHistory, List<Integer> myOrganizationIds, List<String> skills, boolean isStudent, boolean isAdmin) {
@@ -207,5 +209,13 @@ public class User {
         if(myOrganizationIds.contains(organizationId)){
             myOrganizationIds.remove(Integer.valueOf(organizationId));
         }
+    }
+
+    public boolean getLeaderboard() {
+        return this.leaderboard;
+    }
+
+    public void setLeaderboard(boolean leaderboard) {
+        this.leaderboard = leaderboard;
     }
 }

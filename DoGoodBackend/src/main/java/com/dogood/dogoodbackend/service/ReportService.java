@@ -1,12 +1,13 @@
 package com.dogood.dogoodbackend.service;
 
-import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.reports.ReportDTO;
+import com.dogood.dogoodbackend.domain.reports.ReportObject;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Service
@@ -25,21 +26,65 @@ public class ReportService {
             throw new IllegalArgumentException("Invalid token");
         }
     }
-    public Response<Integer> createReport(String token, String actor, int reportedPostId, String description) {
+    public Response<ReportDTO> createVolunteeringPostReport(String token, String actor, int reportedPostId, String description) {
         try {
             checkToken(token, actor);
-            int reportId = reportsFacade.createReport(actor, reportedPostId, description);
-            return Response.createResponse(reportId);
+            ReportDTO report = reportsFacade.createVolunteeringPostReport(actor, reportedPostId, description);
+            return Response.createResponse(report);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
     }
 
-    public Response<Boolean> removeReport(String token, int reportId, String actor) {
+    public Response<ReportDTO> createVolunteerPostReport(String token, String actor, int reportedPostId, String description) {
         try {
             checkToken(token, actor);
-            reportsFacade.removeReport(reportId, actor);
+            ReportDTO report = reportsFacade.createVolunteerPostReport(actor, reportedPostId, description);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> createVolunteeringReport(String token, String actor, int reportedVolunteeringId, String description) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.createVolunteeringReport(actor, reportedVolunteeringId, description);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> createOrganizationReport(String token, String actor, int reportedOrganizationId, String description) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.createOrganizationReport(actor, reportedOrganizationId, description);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> createUserReport(String token, String actor, String reportedUserId, String description) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.createUserReport(actor, reportedUserId, description);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeVolunteeringPostReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.removeVolunteeringReport(reportingUser, date, reportedId, actor);
             return Response.createResponse(true);
         }
         catch (Exception e) {
@@ -47,10 +92,10 @@ public class ReportService {
         }
     }
 
-    public Response<Boolean> editReport(String token, int reportId, String actor, String description) {
+    public Response<Boolean> removeVolunteerPostReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
         try {
             checkToken(token, actor);
-            reportsFacade.editReport(reportId, actor, description);
+            reportsFacade.removeVolunteerPostReport(reportingUser, date, reportedId, actor);
             return Response.createResponse(true);
         }
         catch (Exception e) {
@@ -58,10 +103,98 @@ public class ReportService {
         }
     }
 
-    public Response<ReportDTO> getReport(String token, int reportId, String actor) {
+    public Response<Boolean> removeVolunteeringReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
         try {
             checkToken(token, actor);
-            ReportDTO report = reportsFacade.getReport(reportId, actor);
+            reportsFacade.removeVolunteeringReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeOrganizationReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.removeOrganizationReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> removeUserReport(String token, String reportingUser, LocalDate date, String reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.removeUserReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> editReport(String token, String reportingUser, LocalDate date, String reportedId, ReportObject reportObject, String actor, String description) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.editReport(reportingUser, date, reportedId, reportObject, actor, description);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> getVolunteeringPostReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.getVolunteeringPostReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> getVolunteerPostReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.getVolunteerPostReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> getVolunteeringReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.getVolunteeringReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> getOrganizationReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.getOrganizationReport(reportingUser, date, reportedId, actor);
+            return Response.createResponse(report);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<ReportDTO> getUserReport(String token, String reportingUser, LocalDate date, String reportedId, String actor) {
+        try {
+            checkToken(token, actor);
+            ReportDTO report = reportsFacade.getUserReport(reportingUser, date, reportedId, actor);
             return Response.createResponse(report);
         }
         catch (Exception e) {

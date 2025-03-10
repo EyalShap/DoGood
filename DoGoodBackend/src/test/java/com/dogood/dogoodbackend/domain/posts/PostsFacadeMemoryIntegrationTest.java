@@ -2,7 +2,6 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.ProxyKeywordExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
-import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.reports.MemoryReportRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportRepository;
@@ -64,7 +63,7 @@ public class PostsFacadeMemoryIntegrationTest {
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
         this.postsFacade = new PostsFacade(volunteeringPostRepository, null, new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor(), null, null);
-        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade);
+        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade, null, null);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
@@ -208,8 +207,8 @@ public class PostsFacadeMemoryIntegrationTest {
 
     @Test
     void doesExist() {
-        assertTrue(postsFacade.doesExist(postId));
-        assertFalse(postsFacade.doesExist(postId + 1));
+        assertTrue(postsFacade.doesVolunteeringPostExist(postId));
+        assertFalse(postsFacade.doesVolunteeringPostExist(postId + 1));
     }
 
     @Test
