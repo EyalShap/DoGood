@@ -578,6 +578,18 @@ export const addImageToVolunteering = async (volunteeringId: number, image: stri
     return response.data;
 }
 
+export const generateSkillsAndCategories = async (volunteeringId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.patch(`${server}/api/volunteering/generateSkillsAndCategories?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, {},config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const updateVolunteeringSkills = async (volunteeringId: number, skills: string[]): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -607,6 +619,18 @@ export const getConstantCodes = async (volunteeringId: number): Promise<string[]
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
     };
     let res = await axios.get(`${server}/api/volunteering/getConstantCodes?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getVolunteeringWarnings = async (volunteeringId: number): Promise<string[]> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getVolunteeringWarnings?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
     const response: APIResponse<string[]> = await res.data;
     if(response.error){
         throw response.errorString;

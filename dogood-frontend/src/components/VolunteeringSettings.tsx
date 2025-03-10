@@ -2,7 +2,24 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import '../css/VolunteeringSettings.css'
 import Location from "../models/Location";
-import { addImageToVolunteering, addVolunteeringLocation, clearConstantCodes, getCode, getConstantCodes, getVolunteering, getVolunteeringApprovalType, getVolunteeringLocations, getVolunteeringScanType, removeImageFromVolunteering, removeLocation, updateVolunteeringCategories, updateVolunteeringScanDetails, updateVolunteeringSkills, userHasSettingsPermission } from "../api/volunteering_api";
+import {
+    addImageToVolunteering,
+    addVolunteeringLocation,
+    clearConstantCodes,
+    generateSkillsAndCategories,
+    getCode,
+    getConstantCodes,
+    getVolunteering,
+    getVolunteeringApprovalType,
+    getVolunteeringLocations,
+    getVolunteeringScanType,
+    removeImageFromVolunteering,
+    removeLocation,
+    updateVolunteeringCategories,
+    updateVolunteeringScanDetails,
+    updateVolunteeringSkills,
+    userHasSettingsPermission
+} from "../api/volunteering_api";
 import Popup from "reactjs-popup";
 import { useForm } from "react-hook-form";
 import { ApprovalType, ScanType } from "../models/ScanTypes";
@@ -75,6 +92,16 @@ function VolunteeringSettings() {
             setSkills(vol.skills);
             setImages(vol.imagePaths ? vol.imagePaths.map(path => path.replace(/"/g, "")) : [])
             setCategories(vol.categories);
+        } catch (e) {
+            //send to error page
+            alert(e)
+        }
+    }
+
+    const generate = async () => {
+        try {
+            await generateSkillsAndCategories(parseInt(id!));
+            fetchLists();
         } catch (e) {
             //send to error page
             alert(e)
@@ -263,9 +290,10 @@ function VolunteeringSettings() {
 // @ts-ignore */}
                     {close => (
                         <div className="modal">
-                            <form className="create-location-form" onSubmit={handleSubmit(async (data) => addLocation(data, close))}>
+                            <form className="create-location-form"
+                                  onSubmit={handleSubmit(async (data) => addLocation(data, close))}>
                                 <h1>Add Location</h1>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     <label htmlFor="name">Location Name:</label>
                                     <input
                                         id="name"
@@ -281,9 +309,9 @@ function VolunteeringSettings() {
                                             }
                                         })}
                                     />
-                                    {errors.name && <p style={{ color: 'red' }}>{errors.name.message}</p>}
+                                    {errors.name && <p style={{color: 'red'}}>{errors.name.message}</p>}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     <label htmlFor="city">City:</label>
                                     <input
                                         id="city"
@@ -299,10 +327,10 @@ function VolunteeringSettings() {
                                             }
                                         })}
                                     />
-                                    {errors.city && <p style={{ color: 'red' }}>{errors.city.message}</p>}
+                                    {errors.city && <p style={{color: 'red'}}>{errors.city.message}</p>}
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     <label htmlFor="street">Street:</label>
                                     <input
                                         id="street"
@@ -314,10 +342,10 @@ function VolunteeringSettings() {
                                             }
                                         })}
                                     />
-                                    {errors.street && <p style={{ color: 'red' }}>{errors.street.message}</p>}
+                                    {errors.street && <p style={{color: 'red'}}>{errors.street.message}</p>}
                                 </div>
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     <label htmlFor="address">Address:</label>
                                     <input
                                         id="address"
@@ -329,7 +357,7 @@ function VolunteeringSettings() {
                                             }
                                         })}
                                     />
-                                    {errors.address && <p style={{ color: 'red' }}>{errors.address.message}</p>}
+                                    {errors.address && <p style={{color: 'red'}}>{errors.address.message}</p>}
                                 </div>
                                 <button type="submit">Add Location</button>
                             </form>
@@ -346,8 +374,11 @@ function VolunteeringSettings() {
                             <button onClick={() => onRemoveSkill(skill)} className="xremove">X</button>
                         </div>)}
                 </div>
-                <input onChange={e => setSkillToAdd(e.target.value)} value={skillToAdd} />
+                <input onChange={e => setSkillToAdd(e.target.value)} value={skillToAdd}/>
                 <button onClick={onAddSkill}>Add Skill</button>
+            </div>
+            <div className="container">
+                <button onClick={generate}>Generate Skills and Categories with AI</button>
             </div>
             <div className="container">
                 <h1>Volunteeering Categories:</h1>
@@ -358,7 +389,7 @@ function VolunteeringSettings() {
                             <button onClick={() => onRemoveCategory(category)} className="xremove">X</button>
                         </div>)}
                 </div>
-                <input onChange={e => setCategoryToAdd(e.target.value)} value={categoryToAdd} />
+                <input onChange={e => setCategoryToAdd(e.target.value)} value={categoryToAdd}/>
                 <button onClick={onAddCategory}>Add Category</button>
             </div>
             <div className="container">
@@ -366,11 +397,11 @@ function VolunteeringSettings() {
                 <div className="photos">
                     {images.map(image =>
                         <div className="photo">
-                            <img src={image} />
+                            <img src={image}/>
                             <button onClick={() => onRemoveImage(image)} className="xremove">X</button>
                         </div>)}
                 </div>
-                <input onChange={e => setImageToAdd(e.target.value)} value={imageToAdd} />
+                <input onChange={e => setImageToAdd(e.target.value)} value={imageToAdd}/>
                 <button onClick={onAddImage}>Add Image</button>
             </div>
             <div className="container">
@@ -381,9 +412,9 @@ function VolunteeringSettings() {
                         value={scanType}
                         onChange={e => setScanType(e.target.value as ScanType)}
                         name="radio-buttons-group">
-                        <FormControlLabel value="NO_SCAN" control={<Radio />} label="Disable Scanning" />
-                        <FormControlLabel value="ONE_SCAN" control={<Radio />} label="One Scan" />
-                        <FormControlLabel value="DOUBLE_SCAN" control={<Radio />} label="Scan At the Start and End" />
+                        <FormControlLabel value="NO_SCAN" control={<Radio/>} label="Disable Scanning"/>
+                        <FormControlLabel value="ONE_SCAN" control={<Radio/>} label="One Scan"/>
+                        <FormControlLabel value="DOUBLE_SCAN" control={<Radio/>} label="Scan At the Start and End"/>
                     </RadioGroup>
                 </FormControl>
                 {scanType != "NO_SCAN" &&
@@ -393,8 +424,9 @@ function VolunteeringSettings() {
                             value={approvalType}
                             onChange={e => setApprovalType(e.target.value as ApprovalType)}
                             name="radio-buttons-group">
-                            <FormControlLabel value="MANUAL" control={<Radio />} label="Request Hours Approval" />
-                            <FormControlLabel value="AUTO_FROM_SCAN" control={<Radio />} label="Automatically Approve Hours" />
+                            <FormControlLabel value="MANUAL" control={<Radio/>} label="Request Hours Approval"/>
+                            <FormControlLabel value="AUTO_FROM_SCAN" control={<Radio/>}
+                                              label="Automatically Approve Hours"/>
                         </RadioGroup>
                     </FormControl>}
                 <button onClick={sendScanDetails}>Confirm</button>
@@ -404,7 +436,8 @@ function VolunteeringSettings() {
                 <div className="codes">
                     {codes.map((code, index) =>
                         <div className="code">
-                            <QRCodeCanvas size={250} id={`qr${index}`} value={code} marginSize={5} style={{ margin: "5px" }} />
+                            <QRCodeCanvas size={250} id={`qr${index}`} value={code} marginSize={5}
+                                          style={{margin: "5px"}}/>
                             <button onClick={() => qrLink(`qr${index}`)}>Download</button>
                         </div>)}
                 </div>

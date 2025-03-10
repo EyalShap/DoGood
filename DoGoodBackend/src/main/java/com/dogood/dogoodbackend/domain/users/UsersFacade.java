@@ -6,9 +6,8 @@ import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import jakarta.transaction.Transactional;
 
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Transactional
 public class UsersFacade {
@@ -203,5 +202,34 @@ public class UsersFacade {
         allIds.addAll(user.getVolunteeringIds());
         allIds.addAll(user.getVolunteeringsInHistory().stream().map(dto -> dto.getId()).toList());
         return volunteeringFacade.getUserApprovedHours(user.getUsername(), allIds);
+    }
+
+    public Map<String, Double> leaderboard() {
+        List<User> allUsers = repository.getAllUsers();
+        Map<String, Double> leaderboardMap = new HashMap<>();
+
+        for(User user : allUsers) {
+            if(user.getLeaderboard()) {
+                List<HourApprovalRequest> hours = volunteeringFacade.getUserApprovedHours(user.getUsername(), user.getVolunteeringIds());
+                double totalUserHours = hours.stream().mapToDouble(HourApprovalRequest::getTotalHours).sum();
+                leaderboardMap.put(user.getUsername(), totalUserHours);
+            }
+        }
+        Map<String, Double> sortedLeaderboard = leaderboardMap.entrySet()
+                .stream()
+                .sorted(Map.Entry.comparingByValue()) // Ascending order
+                .collect(Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (e1, e2) -> e1, // Merge function (not needed here)
+                        LinkedHashMap::new // Preserve order
+                ));
+        return sortedLeaderboard;
+    }
+
+    public void setLeaderboard(String username, boolean leaderboard) {
+        User user = repository.getUser(username);
+        user.setLeaderboard(leaderboard);
+        repository.saveUser(user);
     }
 }

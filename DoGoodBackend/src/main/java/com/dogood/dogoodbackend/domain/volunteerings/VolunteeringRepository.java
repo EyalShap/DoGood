@@ -2,9 +2,11 @@ package com.dogood.dogoodbackend.domain.volunteerings;
 
 import java.util.Collection;
 import java.util.Date;
+import java.util.List;
 
 public interface VolunteeringRepository {
     public Volunteering getVolunteering(int volunteeringId);
+    public List<Volunteering> getAllVolunteerings();
     public Volunteering addVolunteering(int organizationId, String name, String description);
     public void updateVolunteering(int volunteeringId, String name, String description);
     public void updateVolunteeringSkills(int volunteeringId, Collection<String> skills);

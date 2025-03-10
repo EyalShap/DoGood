@@ -9,6 +9,7 @@ import jakarta.transaction.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 public class DBReportRepository implements ReportRepository{
     private ReportJPA jpa;
@@ -24,55 +25,40 @@ public class DBReportRepository implements ReportRepository{
     }
 
     @Override
-    public int createReport(String reportingUser, int reportedPostId, String description) {
-        Report report = new Report(reportingUser, reportedPostId, description);
-
-        if(isDuplicateReport(report)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportContentAlreadyExistsError());
-        }
-
+    public Report createReport(String reportingUser, String reportedId, String description, ReportObject reportObject) {
+        Report report = new Report(reportingUser, description, reportedId, reportObject);
         jpa.save(report);
-        return report.getId();
+        return report;
     }
 
-    private boolean isDuplicateReport(Report newReport) {
-        // assuming each user can report a specific post only once a day
-        for(Report report : getAllReports()) {
-            if(newReport.getReportingUser().equals(report.getReportingUser()) && newReport.getReportedPostId() == report.getReportedPostId() && newReport.getDate().isEqual(report.getDate())) {
-                return true;
-            }
+    @Override
+    public void removeReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
+        ReportKey key = new ReportKey(reportingUser, date, reportedId, reportObject);
+        if(!jpa.existsById(key)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(key));
         }
-        return false;
+        jpa.deleteById(key);
     }
 
     @Override
-    public void removeReport(int reportId) {
-        if(!jpa.existsById(reportId)) {
-            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
-        }
-        jpa.deleteById(reportId);
+    public void removeObjectReports(String reportedId, ReportObject reportObject) {
+        jpa.deleteByReportedIdAndReportObject(reportedId, reportObject);
     }
 
     @Override
-    @Transactional
-    public void removePostReports(int postId) {
-        jpa.deleteByReportedPostId(postId);
+    public void editReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject, String description) {
+        Report report = getReport(reportingUser, date, reportedId, reportObject);
+        report.edit(description);
+        jpa.save(report);
     }
 
     @Override
-    public void editReport(int reportId, String description) {
-        Report toEdit = getReport(reportId);
-        toEdit.edit(description);
-        jpa.save(toEdit);
-    }
-
-    @Override
-    public Report getReport(int reportId) {
-        Optional<Report> report = jpa.findById(reportId);
+    public Report getReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
+        ReportKey key = new ReportKey(reportingUser, date, reportedId, reportObject);
+        Optional<Report> report = jpa.findById(key);
         if(!report.isPresent()) {
-            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(reportId));
+            throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(key));
         }
-
         return report.get();
     }
 

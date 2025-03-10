@@ -20,6 +20,11 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
     }
 
     @Override
+    public List<Volunteering> getAllVolunteerings() {
+        return jpa.findAll();
+    }
+
+    @Override
     public Volunteering addVolunteering(int organizationId, String name, String description) {
         Volunteering volunteering = new Volunteering(organizationId, name, description, new BarcodeHandler());
         jpa.save(volunteering);

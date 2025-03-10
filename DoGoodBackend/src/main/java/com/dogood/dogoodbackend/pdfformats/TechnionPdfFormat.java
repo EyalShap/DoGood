@@ -117,7 +117,9 @@ public class TechnionPdfFormat implements PdfFormat{
         addText(DATE_X, y, date, over);
         addText(STARTHOUR_X, y, start, over);
         addText(ENDHOUR_X, y, end, over);
-        addText(TOTAL_X, y, ""+approvedHours.getTotalHours(), over);
+        double totalHours = approvedHours.getTotalHours();
+        String totalHoursString = Math.floor(totalHours) == totalHours ? ""+(int)totalHours : String.format("%.01f", totalHours);
+        addText(TOTAL_X, y, totalHoursString, over);
         current_row++;
         return this;
     }

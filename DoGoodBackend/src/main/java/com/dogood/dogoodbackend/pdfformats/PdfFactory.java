@@ -22,11 +22,12 @@ public class PdfFactory {
         }else{
             format = new HaifaPdfFormat((approvedHoursList.get(0).getUserId()));
         }
-        int sumHours = 0;
+        double sumHours = 0;
         for(HourApprovalRequest hours : approvedHoursList){
             sumHours += hours.getTotalHours();
         }
-        format.addFirstName(firstName).addLastName(lastName).addId(id).addPhoneNumber(phone).addOrgName(orgName).addEmail(email).addSumHours(""+sumHours);
+        String sumHoursString = Math.floor(sumHours) == sumHours ? ""+(int)sumHours : String.format("%.01f", sumHours);
+        format.addFirstName(firstName).addLastName(lastName).addId(id).addPhoneNumber(phone).addOrgName(orgName).addEmail(email).addSumHours(sumHoursString);
         for(HourApprovalRequest hours : approvedHoursList){
             format.addApprovedHours(hours);
         }

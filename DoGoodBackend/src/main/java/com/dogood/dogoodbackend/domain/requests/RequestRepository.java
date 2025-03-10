@@ -7,7 +7,7 @@ import java.util.List;
 public interface RequestRepository {
     public Request createRequest(String assigneeUsername, String assignerUsername, int objectId, RequestObject requestObject);
     public void deleteRequest(String assigneeUsername, int objectId, RequestObject requestObject);
-    public com.dogood.dogoodbackend.domain.requests.Request getRequest(String assigneeUsername, int objectId, RequestObject requestObject);
+    public Request getRequest(String assigneeUsername, int objectId, RequestObject requestObject);
     public List<Request> getUserRequests(String username, RequestObject requestObject);
     public void removeObjectRequests(int objectId, RequestObject requestObject);
 }

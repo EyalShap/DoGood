@@ -1,10 +1,12 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategories;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
@@ -28,8 +30,8 @@ public class VolunteeringFacade {
     private OrganizationsFacade organizationFacade;
     private UsersFacade usersFacade;
     private PostsFacade postsFacade;
-    //private UserFacade userFacade;
     private SkillsAndCategoriesExtractor extractor;
+    private ReportsFacade reportsFacade;
 
 
     public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
@@ -38,6 +40,10 @@ public class VolunteeringFacade {
         this.organizationFacade = organizationsFacade;
         this.repository = repository;
         this.extractor = extractor;
+    }
+
+    public void setReportFacade(ReportsFacade reportsFacade) {
+        this.reportsFacade = reportsFacade;
     }
 
     private boolean isManager(String userId, int organizationId){
@@ -70,20 +76,21 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + organizationId);
         }
         Volunteering newVol = repository.addVolunteering(organizationId, name, description);
-        // hi this is Dana I added this
-        //extractSkillsAndCategories(newVol.getId(), userId, name, description);
-        // hi this is Dana this is the end of the things I added
         return newVol.getId();
     }
 
-    // hi this is Dana I added this
-    private void extractSkillsAndCategories(int volunteeringId ,String userId, String name, String description) {
-        List<String> currentSkills = getAllVolunteeringSkills();
-        List<String> currentCategories = getAllVolunteeringCategories();List<String>[] skillsAndCategories = extractor.getSkillsAndCategories(name, description, currentSkills, currentCategories);
-        List<String> skills = skillsAndCategories[0];
-        List<String> categories = skillsAndCategories[1];
-        updateVolunteeringSkills(userId, volunteeringId, skills);
-        updateVolunteeringCategories(userId, volunteeringId, categories);
+
+    public void generateSkillsAndCategories(String userId, int volunteeringId) {
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        SkillsAndCategories skag = extractor.getSkillsAndCategories(volunteering.getName(), volunteering.getDescription(), new HashSet<>(getAllVolunteeringSkills()), new HashSet<>(getAllVolunteeringCategories()));
+        repository.updateVolunteeringSkills(volunteeringId, skag.getSkills());
+        repository.updateVolunteeringCategories(volunteeringId, skag.getCategories());
     }
 
 
@@ -99,6 +106,7 @@ public class VolunteeringFacade {
         postsFacade.removePostsByVolunteeringId(volunteeringId);
         schedulingFacade.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
         organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId);
+        reportsFacade.removeVolunteeringReports(volunteeringId);
     }
 
 
@@ -111,8 +119,6 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         repository.updateVolunteering(volunteeringId, name, description);
-        // hi this is Dana I added this
-        extractSkillsAndCategories(volunteeringId, userId, name, description);
         postsFacade.updateVolunteeringPostsKeywords(volunteeringId, userId);
     }
 
@@ -831,6 +837,20 @@ public class VolunteeringFacade {
         return volunteering.getConstantCodes();
     }
 
+    public List<String> getVolunteeringWarnings(String userId, int volunteeringId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId() + " of volunteering " + volunteeringId);
+        }
+        List<String> warnings = volunteering.getWarnings();
+        if(!postsFacade.hasPosts(volunteeringId)){
+            warnings.add("Volunteering isn't published. Use \"Post Volunteering\" so users can find and join your volunteering.");
+        }
+        return warnings;
+    }
 
     public void checkViewingPermissions(String userId, int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
@@ -918,10 +938,18 @@ public class VolunteeringFacade {
     }
 
     public List<String> getAllVolunteeringSkills() {
-        return null;
+        List<String> all = new LinkedList<>();
+        for(Volunteering v : repository.getAllVolunteerings()){
+            all.addAll(v.getSkills());
+        }
+        return all;
     }
 
     public List<String> getAllVolunteeringCategories() {
-        return null;
+        List<String> all = new LinkedList<>();
+        for(Volunteering v : repository.getAllVolunteerings()){
+            all.addAll(v.getCategories());
+        }
+        return all;
     }
 }

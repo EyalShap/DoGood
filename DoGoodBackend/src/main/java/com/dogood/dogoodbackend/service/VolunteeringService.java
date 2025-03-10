@@ -227,6 +227,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> generateSkillsAndCategories(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().generateSkillsAndCategories(userId, volunteeringId);
+            return Response.createOK();
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<String> updateVolunteering(String token, String userId, int volunteeringId, String name, String description) {
         try {
             checkToken(token, userId);
@@ -599,6 +609,16 @@ public class VolunteeringService {
         try {
             checkToken(token, userId);
             List<String> codes = facadeManager.getVolunteeringFacade().getConstantCodes(userId, volunteeringId);
+            return Response.createResponse(codes);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<String>> getVolunteeringWarnings(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            List<String> codes = facadeManager.getVolunteeringFacade().getVolunteeringWarnings(userId, volunteeringId);
             return Response.createResponse(codes);
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());

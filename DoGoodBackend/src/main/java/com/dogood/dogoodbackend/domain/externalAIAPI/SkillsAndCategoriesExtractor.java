@@ -4,5 +4,5 @@ import java.util.List;
 import java.util.Set;
 
 public interface SkillsAndCategoriesExtractor {
-    public List<String>[] getSkillsAndCategories(String name, String description, List<String> currentSkills, List<String> currentCategories);
+    public SkillsAndCategories getSkillsAndCategories(String name, String description, Set<String> currentSkills, Set<String> currentCategories);
 }

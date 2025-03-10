@@ -5,10 +5,7 @@ import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Entity
@@ -36,7 +33,6 @@ public class Group {
     @MapKeyColumn(name="range_id")
     @Column(name="loc_id")
     private Map<Integer, Integer> rangeToLocation;
-    private transient Map<Integer, List<Integer>> locationToRanges;
 
     public Group(int id, int volunteeringId) {
         this.id = id;
@@ -44,7 +40,6 @@ public class Group {
         this.users = new LinkedList<>();
         this.volunteersToLocation = new HashMap<>();
         this.rangeToLocation = new HashMap<>();
-        this.locationToRanges = new HashMap<>();
     }
 
     public Group() {
@@ -71,16 +66,13 @@ public class Group {
     }
 
     public void removeLocationIfhas(int locId){
-        if(locationToRanges.containsKey(locId)){
-            locationToRanges.remove(locId);
-        }
+
         volunteersToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
         rangeToLocation.entrySet().removeIf(entry -> entry.getValue() == locId);
     }
 
     public void removeRangeIfHas(int rangeId){
         if(rangeToLocation.containsKey(rangeId)){
-            locationToRanges.get(rangeToLocation.get(rangeId)).remove(Integer.valueOf(rangeId));
             rangeToLocation.remove(rangeId);
         }
     }
@@ -97,15 +89,7 @@ public class Group {
         return volunteersToLocation;
     }
 
-    public Map<Integer, List<Integer>> getLocationToRanges() {
-        return locationToRanges;
-    }
-
     public void addScheduleToLocation(int locId, int rangeId){
-        if(!locationToRanges.containsKey(locId)){
-            locationToRanges.put(locId, new LinkedList<>());
-        }
-        locationToRanges.get(locId).add(rangeId);
         rangeToLocation.put(rangeId, locId);
     }
 
@@ -123,7 +107,7 @@ public class Group {
         if(!volunteersToLocation.containsKey(userId)){
             throw new IllegalArgumentException("User was not assigned a location");
         }
-        return locationToRanges.get(volunteersToLocation.get(userId));
+        return rangeToLocation.keySet().stream().filter(rangeId -> rangeToLocation.get(rangeId)==volunteersToLocation.get(userId)).collect(Collectors.toList());
     }
 
     public GroupDTO getDTO(){
@@ -134,8 +118,11 @@ public class Group {
             volunteersToLocationCopy.put(userId, volunteersToLocation.get(userId));
         }
 
-        for(int locId : locationToRanges.keySet()){
-            locationToRangesCopy.put(locId, new LinkedList<>(locationToRanges.get(locId)));
+        for(int rangeId : rangeToLocation.keySet()){
+            if(!locationToRangesCopy.containsKey(rangeToLocation.get(rangeId))){
+                locationToRangesCopy.put(rangeToLocation.get(rangeId), new LinkedList<>());
+            }
+            locationToRangesCopy.get(rangeToLocation.get(rangeId)).add(rangeId);
         }
         return new GroupDTO(id, new LinkedList<>(users), volunteersToLocationCopy, locationToRangesCopy);
     }
@@ -151,17 +138,6 @@ public class Group {
         return volunteeringId;
     }
 
-    @PostLoad
-    private void reverseMap(){
-        this.locationToRanges = new HashMap<>();
-        for(Map.Entry<Integer, Integer> entry : rangeToLocation.entrySet()){
-            if(!locationToRanges.containsKey(entry.getValue())){
-                locationToRanges.put(entry.getValue(), new LinkedList<>());
-            }
-            locationToRanges.get(entry.getValue()).add(entry.getKey());
-        }
-    }
-
     public Map<Integer, Integer> getRangeToLocation() {
         return rangeToLocation;
     }
@@ -171,9 +147,21 @@ public class Group {
     }
 
     public List<Integer> getRangesForLocation(int locId) {
-        if(!locationToRanges.containsKey(locId)){
-            return new LinkedList<>();
+        return rangeToLocation.keySet().stream().filter(rangeId -> rangeToLocation.get(rangeId)==locId).collect(Collectors.toList());
+    }
+
+    public boolean canMakeAppointments() {
+        return !rangeToLocation.isEmpty();
+    }
+
+    public Map<Integer, List<Integer>> getLocationToRanges() {
+        Map<Integer, List<Integer>> locationToRanges = new HashMap<>();
+        for(int rangeId : rangeToLocation.keySet()){
+            if(!locationToRanges.containsKey(rangeToLocation.get(rangeId))){
+                locationToRanges.put(rangeToLocation.get(rangeId), new LinkedList<>());
+            }
+            locationToRanges.get(rangeToLocation.get(rangeId)).add(rangeId);
         }
-        return locationToRanges.get(locId);
+        return locationToRanges;
     }
 }

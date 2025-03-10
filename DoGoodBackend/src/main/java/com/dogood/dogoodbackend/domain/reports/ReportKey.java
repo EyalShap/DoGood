@@ -1,34 +1,26 @@
 package com.dogood.dogoodbackend.domain.reports;
 
+import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import jakarta.persistence.Column;
-import jakarta.persistence.Id;
+import jakarta.persistence.Embeddable;
 
 import java.time.LocalDate;
 
-public class ReportDTO {
+@Embeddable
+public class ReportKey {
     private String reportingUser;
-    private String description;
     private LocalDate date;
     private String reportedId;
     private ReportObject reportObject;
 
-    public ReportDTO() {}
-
-    public ReportDTO(String reportingUser, String description, LocalDate date, String reportedId, ReportObject reportObject) {
+    public ReportKey(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
         this.reportingUser = reportingUser;
-        this.description = description;
         this.date = date;
         this.reportedId = reportedId;
         this.reportObject = reportObject;
     }
 
-    public ReportDTO(Report report) {
-        this.reportingUser = report.getReportingUser();
-        this.description = report.getDescription();
-        this.date = report.getDate();
-        this.reportedId = report.getReportedId();
-        this.reportObject = report.getReportObject();
-    }
+    public ReportKey() {}
 
     public String getReportingUser() {
         return reportingUser;
@@ -36,14 +28,6 @@ public class ReportDTO {
 
     public void setReportingUser(String reportingUser) {
         this.reportingUser = reportingUser;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
     }
 
     public LocalDate getDate() {
