@@ -1,0 +1,59 @@
+package com.dogood.dogoodbackend.api;
+
+import com.dogood.dogoodbackend.domain.chat.MessageDTO;
+import com.dogood.dogoodbackend.service.ChatService;
+import com.dogood.dogoodbackend.service.Response;
+import com.fasterxml.jackson.databind.JsonNode;
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Map;
+
+import static com.dogood.dogoodbackend.utils.GetToken.getToken;
+
+@RestController
+@CrossOrigin
+@RequestMapping("/api/volunteering")
+public class ChatAPI {
+
+    @Autowired
+    ChatService chatService;
+
+    @PostMapping("/sendVolunteeringMessage")
+    public Response<Integer> sendVolunteeringMessage(@RequestBody JsonNode body, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.sendVolunteeringMessage(token, body.get("username").asText(), body.get("content").asText(), body.get("volunteeringId").asInt());
+    }
+
+    @PostMapping("/sendPrivateMessage")
+    public Response<Integer> sendPrivateMessage(@RequestBody JsonNode body, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.sendPrivateMessage(token, body.get("username").asText(), body.get("content").asText(), body.get("receiverId").asText());
+    }
+
+    @DeleteMapping("/deleteMessage")
+    public Response<String> deleteMessage(@RequestParam String username, @RequestParam int messageId, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.deleteMessage(token, username, messageId);
+    }
+
+    @PatchMapping("/editMessage")
+    public Response<String> editMessage(@RequestBody JsonNode body, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.editMessage(token, body.get("username").asText(), body.get("messageId").asInt(), body.get("newContent").asText());
+    }
+
+    @GetMapping("/getPrivateChatMessages")
+    public Response<List<MessageDTO>> getPrivateChatMessages(@RequestParam String username, @RequestParam String receiverId, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.getPrivateChatMessages(token, username, receiverId);
+    }
+
+    @GetMapping("/getVolunteeringChatMessages")
+    public Response<List<MessageDTO>> getVolunteeringChatMessages(@RequestParam String username, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.getVolunteeringChatMessages(token, username, volunteeringId);
+    }
+}

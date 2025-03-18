@@ -62,6 +62,24 @@ public class ChatFacadeTests {
     }
 
     @Test
+    public void givenMessageSender_whenEditMessage_thenEditMessage(){
+        int id = chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
+        chatFacade.editMessage("Eyal", id, "Hola");
+        Message m = jpa.findById(id).orElse(null);
+        Assertions.assertNotNull(m);
+        Assertions.assertEquals("Hola", m.getContent());
+    }
+
+    @Test
+    public void givenNotMessageSender_whenEditMessage_thenThrowException(){
+        int id = chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
+        Assertions.assertThrows(IllegalCallerException.class, ()->chatFacade.editMessage("Dana", id, "Hola"));
+        Message m = jpa.findById(id).orElse(null);
+        Assertions.assertNotNull(m);
+        Assertions.assertEquals("Hello!", m.getContent());
+    }
+
+    @Test
     public void givenMessageSender_whenGetMessages_thenIsSenderTrue(){
         chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
         chatFacade.sendPrivateMessage("Dana","Hello World!", "Eyal");
