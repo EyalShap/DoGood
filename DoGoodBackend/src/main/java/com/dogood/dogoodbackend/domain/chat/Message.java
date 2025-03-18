@@ -59,6 +59,6 @@ public class Message {
     }
 
     public MessageDTO getDtoForUser(String username){
-        return new MessageDTO(id,content,timeSent,senderId.equals(username));
+        return new MessageDTO(id,senderId,content,timeSent,senderId.equals(username));
     }
 }

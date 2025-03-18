@@ -15,7 +15,7 @@ import static com.dogood.dogoodbackend.utils.GetToken.getToken;
 
 @RestController
 @CrossOrigin
-@RequestMapping("/api/volunteering")
+@RequestMapping("/api/chat")
 public class ChatAPI {
 
     @Autowired
