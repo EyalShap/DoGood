@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.service;
 
+import com.dogood.dogoodbackend.domain.chat.ChatFacade;
+import com.dogood.dogoodbackend.domain.chat.MessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
@@ -24,9 +26,10 @@ public class FacadeManager {
     private ReportsFacade reportsFacade;
     private UsersFacade usersFacade;
     private AuthFacade authFacade;
+    private ChatFacade chatFacade;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt){
+                         RequestRepository reqRepo, ReportRepository repRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository){
         this.authFacade = new AuthFacade(jwtSecretKey);
         this.usersFacade = new UsersFacade(userRepo, authFacade);
 
@@ -40,6 +43,7 @@ public class FacadeManager {
         this.organizationsFacade.setReportFacade(reportsFacade);
         this.volunteeringFacade.setPostsFacade(postsFacade);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
+        this.chatFacade = new ChatFacade(volunteeringFacade, messageRepository);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {
@@ -64,5 +68,9 @@ public class FacadeManager {
 
     public UsersFacade getUsersFacade() {
         return usersFacade;
+    }
+
+    public ChatFacade getChatFacade() {
+        return chatFacade;
     }
 }
