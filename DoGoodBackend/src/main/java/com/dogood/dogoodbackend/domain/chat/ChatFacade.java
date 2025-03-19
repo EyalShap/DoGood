@@ -1,22 +1,28 @@
 package com.dogood.dogoodbackend.domain.chat;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
+import com.dogood.dogoodbackend.socket.ChatSocketSender;
 
 import java.util.List;
 
 public class ChatFacade {
     private MessageRepository repository;
     private VolunteeringFacade volunteeringFacade;
+    private ChatSocketSender chatSocketSender;
 
     public ChatFacade(VolunteeringFacade volunteeringFacade, MessageRepository repository) {
         this.repository = repository;
         this.volunteeringFacade = volunteeringFacade;
     }
 
+    public void setChatSocketSender(ChatSocketSender chatSocketSender) {
+        this.chatSocketSender = chatSocketSender;
+    }
+
     public int sendVolunteeringMessage(String username, String content, int volunteeringId){
         volunteeringFacade.checkViewingPermissions(username, volunteeringId);
         Message m = repository.createMessage(content,username,""+volunteeringId,ReceiverType.VOLUNTEERING);
-        // socket
+        chatSocketSender.sendMessageVolunteering(m.getDtoForUser(""),volunteeringId);
         return m.getId();
     }
 
@@ -34,14 +40,20 @@ public class ChatFacade {
         if(!message.getSenderId().equals(username)){
             throw new IllegalCallerException("Only message sender can delete a message");
         }
+        String receiverId = message.getReceiverId();
+        ReceiverType receiverType = message.getReceiverType();
         repository.deleteMessage(messageId);
+        chatSocketSender.deleteMessage(messageId,receiverId,receiverType);
     }
     public void editMessage(String username, int messageId, String newContent){
         Message message = repository.getMessage(messageId);
         if(!message.getSenderId().equals(username)){
             throw new IllegalCallerException("Only message sender can edit a message");
         }
+        String receiverId = message.getReceiverId();
+        ReceiverType receiverType = message.getReceiverType();
         repository.editMessage(messageId, newContent);
+        chatSocketSender.editMessage(messageId,receiverId,newContent,receiverType);
     }
     public List<MessageDTO> getVolunteeringChatMessages(String username, int volunteeringId){
         volunteeringFacade.checkViewingPermissions(username, volunteeringId);

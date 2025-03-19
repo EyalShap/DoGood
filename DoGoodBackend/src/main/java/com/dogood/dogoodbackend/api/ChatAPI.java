@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.api;
 import com.dogood.dogoodbackend.domain.chat.MessageDTO;
 import com.dogood.dogoodbackend.service.ChatService;
 import com.dogood.dogoodbackend.service.Response;
+import com.dogood.dogoodbackend.socket.ChatSocketSender;
 import com.fasterxml.jackson.databind.JsonNode;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

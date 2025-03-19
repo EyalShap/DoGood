@@ -3,6 +3,8 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.chat.Message;
 import com.dogood.dogoodbackend.domain.chat.MessageDTO;
 import com.dogood.dogoodbackend.domain.chat.ReceiverType;
+import com.dogood.dogoodbackend.socket.ChatSocketSender;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,8 +13,10 @@ import java.util.List;
 public class ChatService {
     private FacadeManager facadeManager;
 
-    public ChatService(FacadeManager facadeManager) {
+    @Autowired
+    public ChatService(FacadeManager facadeManager, ChatSocketSender chatSocketSender) {
         this.facadeManager = facadeManager;
+        this.facadeManager.getChatFacade().setChatSocketSender(chatSocketSender);
     }
 
     private void checkToken(String token, String username) {

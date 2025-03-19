@@ -1,12 +1,15 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalTime;
 
 @Embeddable
 public class RestrictionTuple {
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime startTime;
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime endTime;
     private int amount;
 

@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.chat;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.jparepos.MessageJPA;
+import com.dogood.dogoodbackend.socket.ChatSocketSender;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,7 @@ import java.util.List;
 public class ChatFacadeTests {
     private ChatFacade chatFacade;
     private VolunteeringFacade volunteeringFacade;
+    private ChatSocketSender chatSocketSender;
 
     @Autowired
     private MessageJPA jpa;
@@ -25,7 +27,9 @@ public class ChatFacadeTests {
     public void setUp() {
         jpa.deleteAll();
         this.volunteeringFacade = Mockito.mock(VolunteeringFacade.class);
+        this.chatSocketSender = Mockito.mock(ChatSocketSender.class);
         this.chatFacade = new ChatFacade(volunteeringFacade, new DatabaseMessageRepository(jpa));
+        this.chatFacade.setChatSocketSender(chatSocketSender);
     }
 
     @Test

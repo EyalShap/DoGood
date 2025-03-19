@@ -77,7 +77,7 @@ public class VolunteeringService {
         ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DanaManager", volId, List.of("Training", "Animal Care"));
         ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));
 
-
+/*
         // Step 1: Register Managers
         this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
         this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date());
@@ -208,7 +208,7 @@ public class VolunteeringService {
         int volId20 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Pet Adoption Events", "Assist at events to match pets with families", "AliceManager");
         //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId20, List.of("Event Planning", "Communication"));
         //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId20, List.of("Animals", "Community"));
-        this.facadeManager.getPostsFacade().createVolunteeringPost("Help at Adoption Events!", "Join us to find forever homes for our furry friends.", "AliceManager", volId20);
+        this.facadeManager.getPostsFacade().createVolunteeringPost("Help at Adoption Events!", "Join us to find forever homes for our furry friends.", "AliceManager", volId20);*/
     }
 
     private void checkToken(String token, String username) {

@@ -17,6 +17,7 @@ import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.SchedulingManager;
+import com.dogood.dogoodbackend.socket.ChatSocketSender;
 import org.springframework.beans.factory.annotation.Autowired;
 
 public class FacadeManager {
