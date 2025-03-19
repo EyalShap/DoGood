@@ -75,7 +75,7 @@ function VolunteeringChat() {
     useEffect(() => {
         fetchMessages();
         const client = new Client({
-            brokerURL: host+"/ws-message",
+            brokerURL: host+"/api/ws-message",
             connectHeaders: {
                 "Authorization": localStorage.getItem("token")!
             },
