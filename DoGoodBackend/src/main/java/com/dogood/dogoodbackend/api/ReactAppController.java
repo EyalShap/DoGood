@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 public class ReactAppController {
 
     //@RequestMapping(value = { "/", "/{x:[\\w\\-]+}", "/{x:^(?!api$).*$}/*/{y:[\\w\\-]+}","/error"  })
-    /*public String getIndex(HttpServletRequest request) {
+    public String getIndex(HttpServletRequest request) {
         return "/index.html";
-    }*/
+    }
 
 }
