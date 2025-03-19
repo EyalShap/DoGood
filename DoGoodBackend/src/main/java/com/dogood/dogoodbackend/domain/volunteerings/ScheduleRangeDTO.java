@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -9,12 +10,15 @@ import java.util.List;
 
 public class ScheduleRangeDTO {
     private final int id;
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime startTime;
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime endTime;
     private int minimumAppointmentMinutes;
     private int maximumAppointmentMinutes;
     private List<RestrictionTuple> restrict;
     private boolean[] weekDays;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate oneTime;
 
     public ScheduleRangeDTO(int id, LocalTime startTime, LocalTime endTime, int minimumAppointmentMinutes, int maximumAppointmentMinutes, List<RestrictionTuple> restrict, boolean[] weekDays, LocalDate oneTime) {

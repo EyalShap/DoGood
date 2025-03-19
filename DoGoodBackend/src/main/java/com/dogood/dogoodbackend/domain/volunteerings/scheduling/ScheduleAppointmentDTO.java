@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.volunteerings.scheduling;
 
 import com.dogood.dogoodbackend.domain.volunteerings.ScheduleRangeDTO;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,9 +18,12 @@ public class ScheduleAppointmentDTO {
     private String userId;
     private int rangeId;
     private int volunteeringId;
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime startTime;
+    @JsonFormat(pattern="HH:mm:ss")
     private LocalTime endTime;
     private boolean[] weekDays;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate oneTime;
 
     public ScheduleAppointmentDTO(String userId, int volunteeringId, int rangeId, LocalTime startTime, LocalTime endTime, boolean[] weekDays, LocalDate oneTime) {

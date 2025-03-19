@@ -807,17 +807,19 @@ function Volunteering() {
                 </div> : <></>}
             {isManager ?
                 <div className='scanButtons'>
+                    <button onClick={() => navigate("./chat")}>Chat</button>
                     <button onClick={() => navigate("./code")}>Show Changing QR Code</button>
                     <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
                 </div> :
                 <div className='scanButtons'>
+                    <button onClick={() => navigate("./chat")}>Chat</button>
                     <button onClick={() => navigate("/scan")}>Scan QR Code</button>
                     <Popup trigger={<button>Leave</button>} modal nested>
                         {/* 
                     // @ts-ignore */}
                         {close => (
                             <div className="modal">
-                                <Leaver close={close} volunteerindId={parseInt(id!)} />
+                                <Leaver close={close} volunteerindId={parseInt(id!)}/>
                             </div>
                         )}
                     </Popup>
@@ -825,7 +827,7 @@ function Volunteering() {
 
             {isManager ?
                 <div className="volunteers">
-                    <button onClick={() => onAddNewGroup()}>New Group</button>
+                <button onClick={() => onAddNewGroup()}>New Group</button>
                     {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart} onDrop={onDrop} deleteGroup={deleteGroup} groupId={parseInt(key)} volunteers={value} />)}
                 </div> : <></>}
             {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}

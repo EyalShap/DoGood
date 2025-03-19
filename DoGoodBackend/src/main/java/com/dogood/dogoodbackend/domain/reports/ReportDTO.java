@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.reports;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 
@@ -8,6 +9,7 @@ import java.time.LocalDate;
 public class ReportDTO {
     private String reportingUser;
     private String description;
+    @JsonFormat(pattern="yyyy-MM-dd")
     private LocalDate date;
     private String reportedId;
     private ReportObject reportObject;
