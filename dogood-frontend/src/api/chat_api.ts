@@ -34,3 +34,15 @@ export const getVolunteeringChatMessages = async (volunteeringId: number): Promi
     }
     return response.data;
 }
+
+export const deleteMessage = async (messageId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`${server}/deleteMessage?username=${localStorage.getItem("username")}&messageId=${messageId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}

@@ -16,10 +16,12 @@
 
 .message {
     color: white;
-    width: 20%;
+    width: fit-content;
+    max-width: 50%;
     padding: 15px;
     border-radius: 10px;
     margin: 5px;
+
 }
 
 .senderRow {
@@ -40,6 +42,8 @@
 
 .messageContent {
     margin-top: 0;
+    font-size: 20px;
+    font-family: "Calibri Light", serif;
 }
 
 .messageSender {
@@ -85,4 +89,19 @@
     border-style: solid;
     border-color: black;
     border-radius: 10px;
+}
+
+.messageOptions {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+}
+
+.messageOptions button {
+    background-color: transparent;
+    color: darkred;
+    font-weight: bolder;
+    border-width: 0;
+    margin: 0;
+    font-size: 15px;
 }
