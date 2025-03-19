@@ -225,4 +225,15 @@ public class ScheduleAppointment {
         }
         return true;
     }
+
+    public boolean matchStart(Date start, int minutesAllowed) {
+        LocalDateTime startDateTime = start.toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime();
+        if(oneTime != null && !oneTime.isEqual(startDateTime.toLocalDate())){
+            return false;
+        }
+        if(weekDays >= 0 && !valueAtDay(startDateTime.getDayOfWeek().getValue()%7)){
+            return false;
+        }
+        return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed;
+    }
 }

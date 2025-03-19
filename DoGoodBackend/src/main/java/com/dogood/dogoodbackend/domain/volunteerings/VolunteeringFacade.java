@@ -5,7 +5,6 @@ import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtracto
 import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
-import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
@@ -211,12 +210,19 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("Invalid code");
         }
         Date first = repository.getFirstVolunteerScan(volunteeringId, userId);
+        Date second = new Date();
+        if(first != null && (second.getTime() - first.getTime()) >= TimeUnit.DAYS.toMillis(1)){
+            first = null;
+        }
         DatePair p = null;
         boolean approvalOk = true;
         if(first == null){
             if(volunteering.getScanTypes() == ScanTypes.ONE_SCAN){
                 p = schedulingFacade.convertSingleTimeToAppointmentRange(userId, volunteeringId, new Date(), MINUTES_ALLOWED);
             }else{
+                if(!schedulingFacade.getHasAppointmentAtRoughStart(userId, volunteeringId,second,MINUTES_ALLOWED)){
+                    throw new UnsupportedOperationException("User " + userId + " does not have an appointment for volunteering " + volunteeringId + " starting now");
+                }
                 repository.recordFirstVolunteerScan(volunteeringId, userId);
                 return;
             }
@@ -224,7 +230,6 @@ public class VolunteeringFacade {
             if(volunteering.getScanTypes() != ScanTypes.DOUBLE_SCAN){
                 throw new UnsupportedOperationException("Volunteering " + volunteeringId + " does not support double scans");
             }
-            Date second = new Date();
             p = schedulingFacade.convertRoughRangeToAppointmentRange(userId, volunteeringId, first, second, MINUTES_ALLOWED);
             repository.removeFirstVolunteerScan(volunteeringId, userId);
             long timeDid = TimeUnit.MILLISECONDS.toMinutes(second.getTime() - first.getTime());
