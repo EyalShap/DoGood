@@ -17,6 +17,7 @@
     "@mui/material": "^6.3.1",
     "@mui/x-date-pickers": "^7.23.6",
     "@stomp/stompjs": "^7.0.1",
+    "@supabase/supabase-js": "^2.49.1",
     "@yudiel/react-qr-scanner": "^2.1.0",
     "axios": "^1.7.9",
     "date-fns": "^4.1.0",
