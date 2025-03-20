@@ -26,6 +26,7 @@ import { ApprovalType, ScanType } from "../models/ScanTypes";
 import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mui/material";
 import VolunteeringModel from "../models/VolunteeringModel";
 import { QRCodeCanvas } from "qrcode.react";
+import {supabase} from "../api/general.ts";
 
 interface LocationFormData {
     name: string;
@@ -47,9 +48,10 @@ function VolunteeringSettings() {
     const [categories, setCategories] = useState<string[]>([])
     const [scanType, setScanType] = useState<ScanType>("NO_SCAN");
     const [approvalType, setApprovalType] = useState<ApprovalType>("MANUAL");
-    const [imageToAdd, setImageToAdd] = useState("");
     const [skillToAdd, setSkillToAdd] = useState("");
     const [categoryToAdd, setCategoryToAdd] = useState("");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
 
     const { register, handleSubmit, formState: { errors } } = useForm<LocationFormData>();
 
@@ -215,15 +217,34 @@ function VolunteeringSettings() {
 
     const onAddImage = async () => {
         try {
-            await addImageToVolunteering(parseInt(id!), imageToAdd);
-            setImages(images.concat([imageToAdd]));
-            setImageToAdd("");
+            let {data,error} =
+                await supabase.storage.from("volunteering-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+            if(data == null || error !== null){
+                alert(error)
+                console.log(error)
+            }else {
+                let filePath = data!.path;
+                let response = await supabase.storage.from("volunteering-photos").getPublicUrl(filePath);
+                let url = response.data.publicUrl;
+                await addImageToVolunteering(parseInt(id!), url);
+                setImages(images.concat([url]));
+                setSelectedFile(null)
+                setKey(prevState => 1-prevState)
+            }
         }
         catch (e) {
             //send to error page
             alert(e);
         }
     };
+
+    const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedFile(e.target.files![0])
+    }
 
     const onGenerateCode = async () => {
         try {
@@ -401,8 +422,8 @@ function VolunteeringSettings() {
                             <button onClick={() => onRemoveImage(image)} className="xremove">X</button>
                         </div>)}
                 </div>
-                <input onChange={e => setImageToAdd(e.target.value)} value={imageToAdd}/>
-                <button onClick={onAddImage}>Add Image</button>
+                <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
+                <button onClick={onAddImage}>Upload!</button>
             </div>
             <div className="container">
                 <h1>Volunteer Scanning:</h1>
