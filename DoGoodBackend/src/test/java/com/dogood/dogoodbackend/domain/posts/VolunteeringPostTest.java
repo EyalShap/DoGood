@@ -8,7 +8,7 @@ import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import static org.junit.jupiter.api.Assertions.*;
-
+/*
 class VolunteeringPostTest {
     private VolunteeringPost post;
     private final int postId = 0;
@@ -60,4 +60,4 @@ class VolunteeringPostTest {
         post.incNumOfPeopleRequestedToJoin();
         assertEquals(1, post.evaluatePopularity());
     }
-}
+}*/

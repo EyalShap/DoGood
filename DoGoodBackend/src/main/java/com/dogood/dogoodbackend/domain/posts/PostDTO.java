@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.domain.posts;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -10,7 +12,9 @@ public class PostDTO {
     private int id;
     private String title;
     private String description;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime postedTime;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
     private LocalDateTime lastEditedTime; // nicer in the UI
     private String posterUsername;
     private int relevance;

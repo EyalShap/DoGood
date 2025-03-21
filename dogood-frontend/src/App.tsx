@@ -25,6 +25,7 @@ import ProfilePage from './components/ProfilePage'
 import Homepage from './components/Homepage'
 import LeaderboardMap from './components/LeaderboardMap'
 import VolunteerPost from './components/VolunteerPost'
+import VolunteeringChat from "./components/VolunteeringChat.tsx";
 
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
         <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
         <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
         <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
+        <Route path='/volunteering/:id/chat' element={<VolunteeringChat/>}/>
         <Route path='/scan' element={<CodeScan/>}/>
         <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
         <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>

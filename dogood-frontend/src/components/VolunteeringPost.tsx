@@ -36,6 +36,7 @@ function VolunteeringPost() {
             if(id !== undefined) {
                 let post: VolunteeringPostModel = await getVolunteeringPost(parseInt(id));
                 setModel(post);
+                console.log(post);
                 setReady(true);
             }
             else {
