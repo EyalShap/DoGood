@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react'
 import './../css/Master.css'
 import { logout } from '../api/user_api';
 import { useNavigate } from 'react-router-dom';
+import Header from './Header';
+import Footer from './Footer';
 
 function Master() {
     const navigate = useNavigate();
@@ -39,8 +41,8 @@ function Master() {
     }
 
     return (
-        <div>
-            {(!isLoginPage) && (!isRegisterPage)&&<div className='side-bar-container'>
+        <div className='mainContainer'>
+            {/*{(!isLoginPage) && (!isRegisterPage)&&<div className='side-bar-container'>
             <div className="menu" onClick={handleShowMenu}>
                 <div className="line"></div>
                 <div className="line"></div>
@@ -58,7 +60,9 @@ function Master() {
                 <Link to="/" onClick={onLogout}>Log out</Link>
                 </div>
                 
-            )}
+            )}*/}
+            {!isLoginPage && <Header isAdmin={isAdmin}></Header>}
+
         </div>
     )
 }

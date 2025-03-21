@@ -1,0 +1,26 @@
+  #browseButton:hover {
+    background-color: #008b8b;
+  }
+   
+   /* Recommended Title */
+  .recommendedDesc {
+    font-size: 2rem;
+    text-align: center;
+    color: black;
+    margin-bottom: 20px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .recommendedDesc {
+      font-size: 1.5rem;
+    }
+  }
+  
+  @media (max-width: 480px) {
+
+    .recommendedDesc {
+      font-size: 1.2rem;
+    }
+  }
+  

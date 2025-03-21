@@ -5,7 +5,7 @@ import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import java.util.List;
 import java.util.Set;
 
-public class FilterPostsRequest {
+public class FilterVolunteeringPostsRequest {
     private Set<String> categories;
     private Set<String> skills;
     private Set<String> cities;

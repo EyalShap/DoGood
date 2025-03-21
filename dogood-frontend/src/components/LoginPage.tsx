@@ -13,7 +13,7 @@ function LoginPage() {
             localStorage.setItem("username", username);
             localStorage.setItem("token", token);
             alert("Login successful!");
-            navigate('/volunteeringPostList');
+            navigate('/homepage');
         } catch (e) {
             alert(e);
         }

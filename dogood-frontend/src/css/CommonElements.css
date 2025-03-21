@@ -1,0 +1,102 @@
+/* General page styling */
+.generalPageDiv {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    box-sizing: border-box;
+    min-height: 100vh;
+    background-color: #f9f9f9; /* Light background for a clean look */
+  }
+  
+  /* Header Section */
+  .headers {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  
+  /* Main Title */
+  .bigHeader {
+    font-family: 'Lobster', cursive;
+    font-size: 3.5rem;
+    margin: 0;
+    color: black;
+    line-height: 1.2;
+  }
+
+  /* Sub Title */
+  .smallHeader {  
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    margin: 0;
+    color: black;
+    max-width: 800px;
+    line-height: 1.4;
+    font-weight: 300;
+  }
+  
+  /* Call to Action Button */
+  .orangeCircularButton {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #037b7b;
+    color: white;
+    border: none;
+    padding: 10px 20px; /* Smaller padding */
+    font-size: 0.9rem; /* Smaller text */
+    border-radius: 20px; /* Optional: adjust for better proportion */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 400;
+    
+  }
+  
+  .orangeCircularButton:hover {
+    background-color: #008b8b;
+  }
+  
+  /* Recommended Volunteering Section */
+  .generalList {
+    font-family: 'Montserrat', sans-serif;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: auto; /* Pushes it to the bottom if enough space */
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .bigHeader {
+      font-size: 2.2rem;
+    }
+  
+    .smallHeader {
+      font-size: 0.9rem;
+      font-weight: 100;
+    }
+  
+    .orangeCircularButton {
+      padding: 12px 24px;
+      font-size: 0.9rem;
+    }
+
+  }
+  
+  @media (max-width: 480px) {
+    .bigHeader {
+      font-size: 1.8rem;
+    }
+  
+    .smallHeader {
+      font-size: 1.2rem;
+    }
+  
+    .orangeCircularButton {
+      padding: 10px 20px;
+      font-size: 0.85rem;
+    }
+
+  }
+  

@@ -164,6 +164,15 @@ public class PostsFacade {
         return new VolunteeringPostDTO(post);
     }
 
+    public VolunteerPostDTO getVolunteerPost(int postId, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        return new VolunteerPostDTO(post);
+    }
+
     public List<VolunteeringPostDTO> getAllVolunteeringPosts(String actor) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
@@ -333,10 +342,8 @@ public class PostsFacade {
         return sorted;
     }
 
-
-
     //TODO: add more parameters
-    public List<VolunteeringPostDTO> filterPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
+    public List<VolunteeringPostDTO> filterVolunteeringPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
@@ -378,6 +385,36 @@ public class PostsFacade {
         return result;
     }
 
+    public List<VolunteerPostDTO> filterVolunteerPosts(Set<String> categories, Set<String> skills, String actor, List<VolunteerPostDTO> allPosts) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        List<VolunteerPostDTO> result = new ArrayList<>();
+
+        for(VolunteerPostDTO post : allPosts) {
+            Set<String> volunteeringCategories = new HashSet<>(post.getCategories());
+            Set<String> volunteeringSkills = new HashSet<>(post.getSkills());
+
+            boolean matchByCategory = true;
+            boolean matchBySkill = true;
+
+            if(categories.size() > 0) {
+                volunteeringCategories.retainAll(categories);
+                matchByCategory = volunteeringCategories.size() >= 1;
+            }
+            if(skills.size() > 0) {
+                volunteeringSkills.retainAll(skills);
+                matchBySkill = volunteeringSkills.size() >= 1;
+            }
+
+            if(matchByCategory && matchBySkill) {
+                result.add(post);
+            }
+        }
+        return result;
+    }
+
     public List<String> getAllPostsCategories() {
         //TODO
         //return volunteeringFacade.getAllVolunteeringCategories();
@@ -405,6 +442,38 @@ public class PostsFacade {
             List<String> volunteeringSkills = volunteeringFacade.getVolunteeringSkills(post.getVolunteeringId());
             if(volunteeringSkills != null) {
                 allSkills.addAll(volunteeringSkills);
+            }
+        }
+        return new ArrayList<>(allSkills);
+    }
+
+    public List<String> getAllVolunteerPostsCategories() {
+        //TODO
+        //return volunteeringFacade.getAllVolunteeringCategories();
+
+        List<VolunteerPost> allPosts = volunteerPostRepository.getAllVolunteerPosts();
+        Set<String> allCategories = new HashSet<>();
+
+        for(VolunteerPost post : allPosts) {
+            List<String> volunteeringCategories = post.getCategories(this);
+            if(volunteeringCategories != null) {
+                allCategories.addAll(volunteeringCategories);
+            }
+        }
+        return new ArrayList<>(allCategories);
+    }
+
+    public List<String> getAllVolunteerPostsSkills() {
+        //TODO
+        //return volunteeringFacade.getAllVolunteeringSkills();
+
+        List<VolunteerPost> allPosts = volunteerPostRepository.getAllVolunteerPosts();
+        Set<String> allSkills = new HashSet<>();
+
+        for(VolunteerPost post : allPosts) {
+            List<String> volunteeringCategories = post.getSkills(this);
+            if(volunteeringCategories != null) {
+                allSkills.addAll(volunteeringCategories);
             }
         }
         return new ArrayList<>(allSkills);
@@ -656,5 +725,12 @@ public class PostsFacade {
             }
         }
         return false;
+    }
+
+    public List<Request> getUserRequests(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        return requestRepository.getUserRequests(actor, RequestObject.VOLUNTEER_POST);
     }
 }

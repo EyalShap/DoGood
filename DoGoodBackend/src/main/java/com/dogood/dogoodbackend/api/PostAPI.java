@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.api.postrequests.*;
 import com.dogood.dogoodbackend.domain.posts.PostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
+import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.service.PostService;
 import com.dogood.dogoodbackend.service.Response;
@@ -57,6 +58,13 @@ public class PostAPI {
         String token = getToken(request);
 
         return postService.getVolunteeringPost(token, postId, actor);
+    }
+
+    @GetMapping("/getVolunteerPost")
+    public Response<VolunteerPostDTO> getVolunteerPost(@RequestParam int postId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getVolunteerPost(token, postId, actor);
     }
 
     @GetMapping("/getAllVolunteeringPosts")
@@ -117,8 +125,8 @@ public class PostAPI {
         return postService.sortByLastEditTime(token, sortRequest.getActor(), sortRequest.getAllPosts());
     }
 
-    @PostMapping("/filterPosts")
-    public Response<List<VolunteeringPostDTO>> filterPosts(@RequestBody FilterPostsRequest filterPostsRequest, HttpServletRequest request) {
+    @PostMapping("/filterVolunteeringPosts")
+    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(@RequestBody FilterVolunteeringPostsRequest filterPostsRequest, HttpServletRequest request) {
         String token = getToken(request);
 
         Set<String> categories = filterPostsRequest.getCategories();
@@ -127,7 +135,17 @@ public class PostAPI {
         Set<String> orgNames = filterPostsRequest.getOrganizationNames();
         Set<String> volNames = filterPostsRequest.getVolunteeringNames();
         String actor = filterPostsRequest.getActor();
-        return postService.filterPosts(token, categories, skills, cities, orgNames, volNames, actor, filterPostsRequest.getAllPosts());
+        return postService.filterVolunteeringPosts(token, categories, skills, cities, orgNames, volNames, actor, filterPostsRequest.getAllPosts());
+    }
+
+    @PostMapping("/filterVolunteerPosts")
+    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(@RequestBody FilterVolunteerPostsRequest filterPostsRequest, HttpServletRequest request) {
+        String token = getToken(request);
+
+        Set<String> categories = filterPostsRequest.getCategories();
+        Set<String> skills = filterPostsRequest.getSkills();
+        String actor = filterPostsRequest.getActor();
+        return postService.filterVolunteerPosts(token, categories, skills, actor, filterPostsRequest.getAllPosts());
     }
 
     @GetMapping("/getAllPostsCategories")
@@ -142,6 +160,20 @@ public class PostAPI {
         String token = getToken(request);
 
         return postService.getAllPostsSkills(token, actor);
+    }
+
+    @GetMapping("/getAllVolunteerPostsCategories")
+    public Response<List<String>> getAllVolunteerPostsCategories(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getAllVolunteerPostsCategories(token, actor);
+    }
+
+    @GetMapping("/getAllVolunteerPostsSkills")
+    public Response<List<String>> getAllVolunteerPostsSkills(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getAllVolunteerPostsSkills(token, actor);
     }
 
     @GetMapping("/getAllPostsCities")
@@ -259,5 +291,12 @@ public class PostAPI {
         String token = getToken(request);
 
         return postService.getAllVolunteerPosts(token, actor);
+    }
+
+    @GetMapping("/getVolunteerPostRequests")
+    public Response<List<Request>> getVolunteerPostRequests(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getUserRequests(token, actor);
     }
 }

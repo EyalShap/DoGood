@@ -1,0 +1,47 @@
+/* Style for the table */
+table {
+    width: 40%;
+    border-collapse: collapse;
+    border-radius: 10px;
+    border: 1px solid #000000;
+
+}
+
+/* Style for table headers and cells */
+th, td {
+    padding: 12px;
+    text-align: center; /* Center the text */
+}
+
+/* Set fixed width for columns */
+th, td {
+    width: 50%;  /* Fix the width of the columns to 50% each */
+}
+
+/* Optional: Style for table header background */
+th {
+    background-color: #037b7b;
+    
+    color: #ffffff;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.5rem;
+    
+}
+
+thead {
+    border: 1px solid #000000;
+}
+
+/* Optional: Hover effect for rows */
+tr:hover {
+    background-color: #f1f1f1;
+}
+
+td {
+    background: #ebeaea;
+}
+
+.leaderboardItem {
+    font-family: 'Montserrat', sans-serif;
+}
+

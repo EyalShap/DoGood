@@ -1,0 +1,89 @@
+.header {
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 20px;
+    background-color: #008b8b;
+    color: #fff;
+  }
+  
+  .logo {
+    color: white; /* Fill color */
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+  }
+
+  .logo:hover {
+    text-decoration: underline;
+  }
+  
+  .nav {
+    display: flex;
+  }
+  
+  .menuList {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .menuListItem {
+    margin-left: 30px;
+  }
+  
+  .navLink {
+    color: #fff;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 300;
+  }
+  
+  .navLink:hover {
+    text-decoration: underline;
+  }
+  
+  .profileImage {
+    width: 40px; /* Adjust size as needed */
+    height: 40px;
+    border-radius: 50%; /* Makes it circular */
+    object-fit: cover; /* Ensures the image covers the entire circle */
+    border: 2px solid #fff; /* Optional: white border around */
+    cursor: pointer;
+  }
+
+.profileLink {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.dropdownMenu {
+  position: absolute;
+  top: 50px; /* Distance below profile image */
+  right: 0;
+  background-color: white;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 150px;
+  z-index: 100;
+  padding: 10px 0;
+}
+
+.dropdownItem {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.dropdownItem:hover {
+  background-color: #f5f5f5;
+}
+
