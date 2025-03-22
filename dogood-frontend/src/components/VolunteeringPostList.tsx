@@ -1,16 +1,27 @@
 import { useEffect, useState } from 'react'
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { filterPosts, getAllOrganizationNames, getAllPostsCategories, getAllPostsCities, getAllPostsSkills, getAllVolunteeringNames, getAllVolunteeringPosts, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
+import { filterVolunteeringPosts, filterVolunteerPosts, getAllOrganizationNames, getAllPostsCities, getAllVolunteeringNames, getAllVolunteeringPosts, getAllVolunteeringPostsCategories, getAllVolunteeringPostsSkills, getAllVolunteerPosts, getAllVolunteerPostsCategories, getAllVolunteerPostsSkills, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPostList.css'
+import MultipleSelectDropdown from './MultipleSelectDropdown';
+import Select from 'react-select';
+import { SingleValue } from 'react-select';
+import ListWithPlus from './ListWithPlus';
+import { ListItem } from './ListWithArrows';
+import { PostModel } from '../models/PostModel';
+import { VolunteerPostModel } from '../models/VolunteerPostModel';
+import { Switch } from '@mui/material';
 
 function VolunteeringPostList() {
     const navigate = useNavigate();
-
-    const [posts, setPosts] = useState<VolunteeringPostModel[]>([]);
-    const [allPosts, setAllPosts] = useState<VolunteeringPostModel[]>([]);
+    const[isVolunteeringPosts, setIsVolunteeringPosts] = useState<boolean>(true);
+    const [posts, setPosts] = useState<PostModel[]>([]);
+    const [allVolunteeringPosts, setAllVolunteeringPosts] = useState<VolunteeringPostModel[]>([]);
+    const [allVolunteerPosts, setAllVolunteerPosts] = useState<VolunteerPostModel[]>([]);
+    const [postsListItems, setPostsListItems] = useState<ListItem[]>([]);
+    const [allPostsListItems, setAllPostsListItems] = useState<ListItem[]>([]);
     const [search, setSearch] = useState("");
-    const[sortFunction, setSortFunction] = useState("");
+    const[sortFunction, setSortFunction] = useState<SingleValue<{ value: string; label: string }>>(null);
     const[allCategories, setAllCategories] = useState<string[]>([]);
     const[allSkills, setAllSkills] = useState<string[]>([]);
     const[allCities, setAllCities] = useState<string[]>([]);
@@ -24,24 +35,59 @@ function VolunteeringPostList() {
 
     const fetchPosts = async () => {
         try {
-            let allPosts = await sortByRelevance(await getAllVolunteeringPosts());
-            setAllPosts(allPosts);
-            setPosts(allPosts);
+            if(isVolunteeringPosts) {
+                let fetchedPosts: VolunteeringPostModel[] = [];
 
-            let allCategories = await getAllPostsCategories();
-            setAllCategories(allCategories);
+                if(allVolunteeringPosts.length !== 0) {
+                    fetchedPosts = allVolunteeringPosts;
+                }
+                else {
+                    fetchedPosts = await sortByRelevance(await getAllVolunteeringPosts());
+                    setAllVolunteeringPosts(fetchedPosts);
+                }
+                setPosts(fetchedPosts);
 
-            let allSkills = await getAllPostsSkills();
-            setAllSkills(allSkills);
+                let listItems = convertToListItems(fetchedPosts);
+                setAllPostsListItems(listItems);
+                setPostsListItems(listItems);
 
-            let allCities = await getAllPostsCities();
-            setAllCities(allCities);
+                let allCategories = await getAllVolunteeringPostsCategories();
+                setAllCategories(allCategories);
 
-            let allOrganizationNames = await getAllOrganizationNames();
-            setAllOrganizationNames(allOrganizationNames);
+                let allSkills = await getAllVolunteeringPostsSkills();
+                setAllSkills(allSkills);
 
-            let allVolunteeringNames = await getAllVolunteeringNames();
-            setAllVolunteeringNames(allVolunteeringNames);
+                let allCities = await getAllPostsCities();
+                setAllCities(allCities);
+
+                let allOrganizationNames = await getAllOrganizationNames();
+                setAllOrganizationNames(allOrganizationNames);
+
+                let allVolunteeringNames = await getAllVolunteeringNames();
+                setAllVolunteeringNames(allVolunteeringNames);
+            }
+            else {
+                let fetchedPosts: VolunteerPostModel[] = [];
+                if(allVolunteerPosts.length !== 0) {
+                    fetchedPosts = allVolunteerPosts;
+                }
+                else {
+                    fetchedPosts = await getAllVolunteerPosts();
+                    setAllVolunteerPosts(fetchedPosts);
+                }
+                setPosts(fetchedPosts);
+                let listItems = convertToListItems(fetchedPosts);
+                setAllPostsListItems(listItems);
+                setPostsListItems(listItems);
+
+                let allCategories = await getAllVolunteerPostsCategories();
+                setAllCategories(allCategories);
+
+                let allSkills = await getAllVolunteerPostsSkills();
+                setAllSkills(allSkills);
+            }
+            
+            
         } catch (e) {
             // send to error page
             alert(e);
@@ -50,251 +96,177 @@ function VolunteeringPostList() {
 
     useEffect(() => {
         fetchPosts();
-    }, [])
-
-    const handleShowOnClick = (postId: number) => {
-        navigate(`/volunteeringPost/${postId}`);
-    }
+    }, [isVolunteeringPosts])
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         setSearch(event.target.value);
     };
 
+    const convertToListItems = (posts: PostModel[]) => {
+        const listItems: ListItem[] = posts.map((post) => ({
+            id: post.id,
+            image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+            title: post.title,  
+            description: post.description, // assuming 'summary' is a short description
+        }));
+        return listItems;
+    }
+
     const handleSearchOnClick = async () => {
         try {
-            let res : VolunteeringPostModel[] = await searchByKeywords(search, posts, true) as VolunteeringPostModel[];
+            let res : PostModel[] = await searchByKeywords(search, posts, true);
             setPosts(res);
+            setPostsListItems(convertToListItems(res));
         }
         catch(e) {
             alert(e);
         }
     }
 
-    const handleSelectionChange = async (event: React.ChangeEvent<HTMLSelectElement>) => {
-        const selectedFunction = event.target.value;
-        setSortFunction(selectedFunction);
+    const handleSelectionChange = async (selectedOption: SingleValue<{ value: string; label: string }>) => {
+        setSortFunction(selectedOption);
         
-        if(selectedFunction === 'relevance') {
-            let sorted: VolunteeringPostModel[] = await sortByRelevance(posts);
+        if(selectedOption === null || selectedOption.value === 'relevance') {
+            let sorted: VolunteeringPostModel[] = await sortByRelevance(posts as VolunteeringPostModel[]);
             setPosts(sorted);
+            setPostsListItems(convertToListItems(sorted));
         }
-        else if(selectedFunction === 'popularity') {
-            let sorted: VolunteeringPostModel[] = await sortByPopularity(posts);
+        else if(selectedOption.value === 'popularity') {
+            let sorted: VolunteeringPostModel[] = await sortByPopularity(posts as VolunteeringPostModel[]);
             setPosts(sorted);
+            setPostsListItems(convertToListItems(sorted));
         }
-        else if(selectedFunction === 'posting time') {
-            let sorted: VolunteeringPostModel[] = await sortByPostingTime(posts) as VolunteeringPostModel[];
+        else if(selectedOption.value === 'posting time') {
+            let sorted: PostModel[] = await sortByPostingTime(posts);
             setPosts(sorted);
+            setPostsListItems(convertToListItems(sorted));
         }
-        else if(selectedFunction === 'last edit time') {
-            let sorted: VolunteeringPostModel[] = await sortByLastEditTime(posts) as VolunteeringPostModel[];
+        else if(selectedOption.value === 'last edit time') {
+            let sorted: PostModel[] = await sortByLastEditTime(posts);
             setPosts(sorted);
+            setPostsListItems(convertToListItems(sorted));
         }
     };
 
-    const handleCategoriesCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkedCategory = event.target.value;
-        let newSelectedCategories = selectedCategories;
-        if(event.target.checked){
-            newSelectedCategories = [...selectedCategories, checkedCategory];
-            
-        }
-        else{
-            newSelectedCategories = selectedCategories.filter(category => category !== checkedCategory);
-        }
-        setSelectedCategories(newSelectedCategories);
-        await filter(newSelectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
-    }
-
-    const handleSkillsCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkedSkill = event.target.value;
-        let newSelectedSkills = selectedSkills;
-        if(event.target.checked){
-            newSelectedSkills = [...selectedSkills, checkedSkill];
-            
-        }
-        else{
-            newSelectedSkills = selectedSkills.filter(skill => skill !== checkedSkill);
-        }
-        setSelectedSkills(newSelectedSkills);
-        await filter(selectedCategories, newSelectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
-    }
-
-    const handleCitiesCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkedCity = event.target.value;
-        let newSelectedCities = selectedCities;
-        if(event.target.checked){
-            newSelectedCities = [...selectedCities, checkedCity];
-            
-        }
-        else{
-            newSelectedCities = selectedCities.filter(city => city !== checkedCity);
-        }
-        setSelectedCities(newSelectedCities);
-        await filter(selectedCategories, selectedSkills, newSelectedCities, selectedOrganizationNames, selectedVolunteeringNames);
-    }
-
-    const handleOrganizationNamesCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkedName = event.target.value;
-        let newSelectedNames = selectedOrganizationNames;
-        if(event.target.checked){
-            newSelectedNames = [...selectedOrganizationNames, checkedName];
-        }
-        else{
-            newSelectedNames = selectedOrganizationNames.filter(name => name !== checkedName);
-        }
-        setSelectedOrganizationNames(newSelectedNames);
-        await filter(selectedCategories, selectedSkills, selectedCities, newSelectedNames, selectedVolunteeringNames);
-    }
-
-    const handleVolunteeringNamesCheckboxChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-        const checkedName = event.target.value;
-        let newSelectedNames = selectedVolunteeringNames;
-        if(event.target.checked){
-            newSelectedNames = [...selectedVolunteeringNames, checkedName];
-        }
-        else{
-            newSelectedNames = selectedVolunteeringNames.filter(name => name !== checkedName);
-        }
-        setSelectedVolunteeringNames(newSelectedNames);
-        await filter(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, newSelectedNames);
-    }
-
     const filter = async(categories: string[], skills: string[], cities: string[], organizationNames: string[], volunteeringNames: string[]) => {
-        if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0) {
-            let filtered = allPosts;
-            setPosts(filtered);
+        let filtered : PostModel[] = [];
+        if(isVolunteeringPosts) {
+            if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0) {
+                filtered = allVolunteeringPosts;
+            }
+            else {
+                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, posts as VolunteeringPostModel[]);
+            }
         }
         else {
-            let filtered = await filterPosts(categories, skills, cities, organizationNames, volunteeringNames, posts);
-            setPosts(filtered);
+            if(categories.length === 0 && skills.length === 0) {
+                filtered = allVolunteerPosts;
+            }
+            else {
+                filtered = await filterVolunteerPosts(categories, skills, posts as VolunteerPostModel[]);
+            }
         }
+        setPosts(filtered);
+        setPostsListItems(convertToListItems(filtered));
+    }
+
+    const handleSelectedCategoriesChange = async (selectedValues: string[]) => {
+        setSelectedCategories(selectedValues);
+        await filter(selectedValues, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
+    };
+
+    const handleSelectedSkillsChange = async (selectedValues: string[]) => {
+        setSelectedSkills(selectedValues);
+        await filter(selectedCategories, selectedValues, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
+    };
+
+    const handleSelectedCitiesChange = async (selectedValues: string[]) => {
+        setSelectedCities(selectedValues);
+        await filter(selectedCategories, selectedSkills, selectedValues, selectedOrganizationNames, selectedVolunteeringNames);
+    };
+
+    const handleSelectedOrganizationsChange = async (selectedValues: string[]) => {
+        setSelectedOrganizationNames(selectedValues);
+        await filter(selectedCategories, selectedSkills, selectedCities, selectedValues, selectedVolunteeringNames);
+    };
+
+    const handleSelectedVolunteeringsChange = async (selectedValues: string[]) => {
+        setSelectedVolunteeringNames(selectedValues);
+        await filter(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedValues);
+    };
+
+    const sortingOptions = 
+        isVolunteeringPosts ? 
+            [
+                { value: 'relevance', label: 'Relevance' },
+                { value: 'popularity', label: 'Popularity' },
+                { value: 'posting time', label: 'Posting time' },
+                { value: 'last edit time', label: 'Last edit time' },
+            ] 
+            :
+            [
+                { value: 'posting time', label: 'Posting time' },
+                { value: 'last edit time', label: 'Last edit time' },
+            ];
+
+    const toggleSwitch = () => {
+        setIsVolunteeringPosts(!isVolunteeringPosts);
+    }
+
+    const handleCreateNewVolunteerPostOnClick = () => {
+        navigate('/createVolunteerPost/-1');
     }
 
     return (
-        <div >
+        <div className='generalPageDiv'>
             <div className="Posts">
-                <h1 id = "header">Posts</h1>
+                <div className='headers'>
+                <h1 className = "bigHeader">Your Opportunity To Volunteer</h1>
 
+
+                <div className="switch-container">
+                    <label className="switch-label">Volunteer Posts</label>
+                    <Switch className='switch' defaultChecked onChange={toggleSwitch}/>
+                    <label className="switch-label">Volunteering Posts</label>
+                </div>
+
+                {!isVolunteeringPosts && <button className='orangeCircularButton' onClick={handleCreateNewVolunteerPostOnClick}>Create New Volunteer Post</button>}
+
+                
+                </div>
                 <div className="search">
                         
-                        <input id = "searchTextbox"
+                    <input id = "searchTextbox"
                         type="text"
                         value={search}
                         onChange={handleSearchChange}
                         placeholder = "Search..."
-                        />
+                    />
 
-                    <button id = "searchButton" onClick={handleSearchOnClick}>Search</button>
+                    <button className='orangeCircularButton' onClick={handleSearchOnClick}>Search</button>
 
-                    <select id = "sortTypeSelection" onChange={handleSelectionChange} value={sortFunction}>
-                        <option value = "">Sort by</option>
-                        <option value = "relevance">Relevance</option>
-                        <option value = "popularity">Popularity</option>
-                        <option value = "posting time">Posting time</option>
-                        <option value = "last edit time">Last edit time</option>
-                    </select>
+                    <Select className='sortDropDown'
+                        value={sortFunction}
+                        onChange={handleSelectionChange}
+                        options={sortingOptions}
+                        placeholder="Sort By"
+                    />
+                    
                 </div>
 
-                
-
-                <div className = "filterByCategory" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <label>Filter by category: </label>
-                {allCategories.map((category) => (
-                    <div key={category}>
-                    <label>
-                        <input
-                        type="checkbox"
-                        value={category}
-                        checked={selectedCategories.includes(category)}
-                        onChange={handleCategoriesCheckboxChange}
-                        />
-                        {category}
-                    </label>
-                    </div>
-                ))}
-                </div>
-
-                <div className = "filterBySkill" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <label>Filter by skill: </label>
-                {allSkills.map((skill) => (
-                    <div key={skill}>
-                    <label>
-                        <input
-                        type="checkbox"
-                        value={skill}
-                        checked={selectedSkills.includes(skill)}
-                        onChange={handleSkillsCheckboxChange}
-                        />
-                        {skill}
-                    </label>
-                    </div>
-                ))}
-                </div>
-
-                <div className = "filterByCity" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <label>Filter by city: </label>
-                {allCities.map((city) => (
-                    <div key={city}>
-                    <label>
-                        <input
-                        type="checkbox"
-                        value={city}
-                        checked={selectedCities.includes(city)}
-                        onChange={handleCitiesCheckboxChange}
-                        />
-                        {city}
-                    </label>
-                    </div>
-                ))}
-                </div>
-
-                <div className = "filterByOrganizationName" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <label>Filter by organization name: </label>
-                {allOrganizationNames.map((name) => (
-                    <div key={name}>
-                    <label>
-                        <input
-                        type="checkbox"
-                        value={name}
-                        checked={selectedOrganizationNames.includes(name)}
-                        onChange={handleOrganizationNamesCheckboxChange}
-                        />
-                        {name}
-                    </label>
-                    </div>
-                ))}
-                </div>
-
-                <div className = "filterByVolunteeringName" style = {{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
-                <label>Filter by volunteering name: </label>
-                {allVolunteeringNames.map((name) => (
-                    <div key={name}>
-                    <label>
-                        <input
-                        type="checkbox"
-                        value={name}
-                        checked={selectedVolunteeringNames.includes(name)}
-                        onChange={handleVolunteeringNamesCheckboxChange}
-                        />
-                        {name}
-                    </label>
-                    </div>
-                ))}
+                <div className = "filter">
+                    <MultipleSelectDropdown label={'Categories'} options={allCategories} onChange={handleSelectedCategoriesChange}></MultipleSelectDropdown>
+                    <MultipleSelectDropdown label={'Skills'} options={allSkills} onChange={handleSelectedSkillsChange}></MultipleSelectDropdown>
+                    {isVolunteeringPosts && <MultipleSelectDropdown label={'Cities'} options={allCities} onChange={handleSelectedCitiesChange}></MultipleSelectDropdown>}
+                    {isVolunteeringPosts && <MultipleSelectDropdown label={'Organizations'} options={allOrganizationNames} onChange={handleSelectedOrganizationsChange}></MultipleSelectDropdown>}
+                    {isVolunteeringPosts && <MultipleSelectDropdown label={'Volunteerings'} options={allVolunteeringNames} onChange={handleSelectedVolunteeringsChange}></MultipleSelectDropdown>}
                 </div>
                 
-                <div id = "postList">
-                    {posts.length > 0 ? (
-                        posts.map((post, index) => (
-                            <div key={index} className="postItem" onClick={() => handleShowOnClick(post.id)}>
-                                <h3>{post.title}</h3>
-                                <p>{post.description}</p>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No volunteering posts available.</p>
-                    )}
-                </div>
+                {postsListItems.length > 0 ? 
+                    <ListWithPlus data={postsListItems} limit = {9} navigateTo={isVolunteeringPosts ? 'volunteeringPost' : 'volunteerPost'}></ListWithPlus>
+                    :
+                    <p>No posts available.</p>
+                }
 
             </div>
         </div>

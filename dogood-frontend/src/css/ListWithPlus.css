@@ -1,0 +1,75 @@
+.listWithPlus {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));  
+    /*gap: 20px;  Space between cards */
+    width: 100%;
+    /*padding: 20px 0;*/
+    box-sizing: border-box;
+    margin-top: 20px;
+  }
+
+  .plusListComponent {
+    display: flex;
+    flex-direction: column; /* Stack children vertically */
+    align-items: center;    /* Center horizontally */
+    justify-content: flex-start; /* Align items to top */
+    position: relative;
+    width: 100%;
+    max-width: 900px;
+    margin: auto;
+  }
+  
+  .plusList {
+    display: flex;
+    gap: 20px; /* Adjust this value to control the space between items */
+    overflow: hidden;
+  }
+  
+  .plusListItem {
+    background: #ffffff;
+    text-align: left;
+    padding: 10px;
+    cursor: pointer;
+    margin-right: 20px;
+    margin-bottom: 20px; /* Add space below each item */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .plusListItem:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
+    transform: translateY(-4px); /* Lift effect */
+  }
+  
+  .plusListItemImg {
+    width: 100%; /* Make the width 100% of the parent */
+    position: relative; /* Make it possible to position the image inside */
+    background-size: cover; /* Ensure the image covers the container */
+    background-position: center; /* Center the image in the container */
+    background-repeat: no-repeat; /* Prevent the image from repeating */
+    aspect-ratio: 1; /* Ensure height is equal to width */
+    object-fit: cover; /* Prevent the image from stretching */
+    border-radius: 0px;
+  }
+  
+  .plusListItemHeader {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 10px 0;
+  }
+  
+  .plusListItemDesc {
+    font-size: 16px;
+    color: #555;
+  }
+
+  .plusButton {
+    border: none;
+    padding: 10px;
+    cursor: pointer;
+    background-image: url('https://www.svgrepo.com/show/2087/plus.svg');
+    background-size: contain;
+    background-color: transparent; /* Remove any background color */
+    width: 50px;
+    height: 50px;
+  }
+  

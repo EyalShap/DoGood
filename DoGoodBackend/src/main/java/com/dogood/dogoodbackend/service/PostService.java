@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.domain.posts.PostDTO;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
+import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -72,6 +73,18 @@ public class PostService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<VolunteerPostDTO> getVolunteerPost(String token, int postId, String actor) {
+        try {
+            checkToken(token,actor);
+            VolunteerPostDTO post = postsFacade.getVolunteerPost(postId, actor);
+            return Response.createResponse(post);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
 
     public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(String token, String actor) {
         try {
@@ -161,10 +174,21 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> filterPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
+    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.filterPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPosts);
+            List<VolunteeringPostDTO> posts = postsFacade.filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPosts);
+            return Response.createResponse(posts);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(String token, Set<String> categories, Set<String> skills, String actor, List<VolunteerPostDTO> allPosts) {
+        try {
+            checkToken(token,actor);
+            List<VolunteerPostDTO> posts = postsFacade.filterVolunteerPosts(categories, skills, actor, allPosts);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -187,6 +211,28 @@ public class PostService {
         try {
             checkToken(token,actor);
             List<String> skills = postsFacade.getAllPostsSkills();
+            return Response.createResponse(skills);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<String>> getAllVolunteerPostsCategories(String token, String actor) {
+        try {
+            checkToken(token,actor);
+            List<String> categories = postsFacade.getAllVolunteerPostsCategories();
+            return Response.createResponse(categories);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<String>> getAllVolunteerPostsSkills(String token, String actor) {
+        try {
+            checkToken(token,actor);
+            List<String> skills = postsFacade.getAllVolunteerPostsSkills();
             return Response.createResponse(skills);
         }
         catch (Exception e) {
@@ -353,6 +399,17 @@ public class PostService {
             checkToken(token,actor);
             List<VolunteerPostDTO> posts = postsFacade.getAllVolunteerPosts();
             return Response.createResponse(posts);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<Request>> getUserRequests(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<Request> requests = postsFacade.getUserRequests(actor);
+            return Response.createResponse(requests);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());

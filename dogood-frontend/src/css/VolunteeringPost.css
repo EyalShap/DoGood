@@ -42,33 +42,7 @@ img {
     max-width: 600px;
 }
 
-/* Buttons */
-#actions {
-    margin-top: 20px;
-    display: flex;
-    flex-direction: row; /* Arrange buttons in a row */
-    gap: 15px; /* Keep spacing between buttons */
-    justify-content: center; /* Center buttons */
-}
 
-#actions button {
-    padding: 10px 20px; /* Make the button smaller */
-    font-size: 1rem; /* Reduce the font size */
-    color: #fff;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    width: auto; /* Allow buttons to shrink to fit content */
-    max-width: none; /* Remove max-width constraint */
-}
-
-#actions button:hover {
-    background: linear-gradient(135deg, #0056b3, #00408d);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
 
 /* Textareas */
 textarea {
@@ -84,14 +58,14 @@ textarea {
 #volunteeringAndOrganization {
     display: flex;
     gap: 20px;
-    justify-content: center;
+    justify-content: space-between;  /* Ensures equal spacing between items */
     margin-top: 20px;
     width: 100%;
 }
 
-#volunteeringBox,
-#organizationBox {
-    flex: 1;
+.volunteeringOrganizationBox {
+    flex: 0 1 400px;  /* This sets the base size for the boxes and prevents them from stretching */
+    max-width: 400px; /* Optional: Set a maximum width to ensure they don't stretch too much */
     border: 1px solid #ddd;
     border-radius: 8px;
     background: linear-gradient(135deg, #ffffff, #f9f9f9);
@@ -102,19 +76,24 @@ textarea {
     text-align: center;
 }
 
-#volunteeringBox:hover,
-#organizationBox:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    background: #f0f8ff;
+.volunteeringOrganizationBox:hover {
+transform: translateY(-4px); /* Lift effect */
+}
+
+.volunteeringOrganizationBoxHeader {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.3rem;
+    color: #333;
+    margin: 0;
+    font-weight: 600;
 }
 
 #postVolunteering,
 #postOrganization {
+    font-family: 'Montserrat', sans-serif;
     font-size: 1.3rem;
     color: #333;
     margin: 0;
-    font-weight: bold;
 }
 
 /* Volunteers Past Experiences */
@@ -127,9 +106,13 @@ textarea {
 }
 
 #pastExperiences h1 {
-    font-size: 2rem;
-    color: #222;
-    margin-bottom: 15px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    margin: 0;
+    color: black;
+    max-width: 800px;
+    line-height: 1.4;
+    font-weight: 300;
 }
 
 #pastExperiences .pastExperienceItem {
@@ -221,3 +204,114 @@ textarea {
         font-size: 1.6rem;
     }
 }
+
+/* InfoButton.css */
+.info-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .info-button {
+    font-size: 20px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #3b3b3b;
+    color: white;
+    border-radius: 45%;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 14px;
+    font-weight: 600;
+  }
+  
+
+  .info-tooltip {
+    visibility: visible;
+    opacity: 1;
+    position: absolute;
+    top: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #d8e5eb;
+    color: #000000;
+    text-align: center;
+    padding: 5px;
+    border-radius: 5px;
+    z-index: 10;
+    font-size: 14px;
+    transition: opacity 0.3s ease;
+    width: 350px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .info-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+  }
+  
+  
+  .popup-window {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* Center the window */
+    width: 350px;
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+    z-index: 10;
+    border: 2px solid #ddd;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+    background-color: #c8d8e6;
+    color: rgb(0, 0, 0);
+    border-radius: 10px 10px 0 0;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .popup-title {
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .cancelButton {
+    background: none;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    color: black;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .popup-body {
+    padding: 20px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    justify-content: center; /* Optionally center the items vertically */
+    align-items: center;
+    gap: 10px;
+  }
+  
+  textarea {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    resize: none;
+    font-family: 'Montserrat', sans-serif;
+  }
+  

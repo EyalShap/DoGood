@@ -8,20 +8,17 @@ body {
     box-sizing: border-box;
 }
 
-/* Main container for posts */
-.Posts {
-    max-width: 1100px;
-    margin: 30px auto;
-    padding: 25px;
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
 
 /* Styling for all sections in posts to be in a different row */
-.search, .filterByCategory, .filterBySkill, .filterByCity, .filterByOrganizationName, .filterByVolunteeringName {
-    width: 100%;
-    margin-bottom: 20px; /* Add some space between rows */
+.search {
+    display: flex;
+    margin-bottom: 20px;
+    margin-top: 20px;
+    justify-content: space-evenly; /* Spread items with equal space on all sides */
+    align-items: center; /* Center items vertically (optional) */
+    padding: 10px;
+    background: #ecf4f9;
+    border-radius: 10px;
 }
 
 /* Post items */
@@ -162,36 +159,24 @@ body {
     }
 }
 
-#searchButton {
-    margin-top: 10px;
-    padding: 10px 16px;
-    font-size: 1rem;
-    color: #fff;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 
-}
 
 #searchTextbox {
     height: 41px; 
     padding: 10px 16px;
     font-size: 1rem; 
     border: 1px solid #ccc; 
-    border-radius: 8px; 
+    border-radius: 4px; 
     box-sizing: border-box;
-    width: 70%;
-    margin: 20px;
+    width: 60%;
+    font-family: 'Montserrat', sans-serif;
 }
 
 #search {
     display: flex;
 }
 
-#header {
+.bigHeader {
     text-align: center;
 }
 
@@ -218,3 +203,43 @@ body {
     border-color: #007bff; 
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); 
 }
+
+.filter {
+    display: flex;
+    justify-content: space-evenly; /* Spread items with equal space on all sides */
+    align-items: center; /* Center items vertically (optional) */
+    padding: 10px;
+    background: #ecf4f9;
+    border-radius: 10px;
+  }
+
+/* ---------- Container styling ---------- */
+.sortDropDown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+    width: 100%;
+    max-width: 200px; /* Optional: limit the width */
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .switch-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  
+  .switch-label {
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  .switch {
+    position: relative;
+    width: 80px;
+    height: 40px;
+    border-radius: 20px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+  }

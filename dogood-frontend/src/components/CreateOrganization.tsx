@@ -5,6 +5,7 @@ import { createOrganization, editOrganization, getOrganization } from '../api/or
 import { useNavigate } from 'react-router-dom';
 import OrganizationModel from '../models/OrganizationModel';
 import './../css/CreateOrganization.css'
+import './../css/CommonElements.css'
 
 interface OrganizationFormData {
   name: string;
@@ -73,81 +74,81 @@ function CreateOrganization() {
     }, [id])
 
     return (
-      <form className = "create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
-        <h1>{edit? "Edit Organization" : "Create Organization"}</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label htmlFor="name">Organization Name:</label>
-          <input
-            id="name"
-            defaultValue={edit? organization?.name : ''}
-            {...register('name', { 
-              required: 'Organization name is required',
-              minLength: {
-                value: 3,
-                message: 'Must be at least 3 characters'
-              },
-              maxLength: {
-                value: 50,
-                message: 'Cannot exceed 50 characters'
-              }
-            })}
-          />
-          {errors.name && <p style={{ color: 'red' }}>{errors.name.message}</p>}
-        </div>
+      <form className="create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
+        <div className="form-container">
+          <div className='createHeaders'>
+            <h1 className="bigHeader">{edit ? "Edit Organization" : "Create Organization"}</h1>
+            <h2 className="smallHeader">{edit ? "Edit " : "Start "}your organization now and make your vision a reality - build a community that shares your passion</h2>
+          </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label htmlFor="description">Organization Description:</label>
-          <input
-            id="description"
-            defaultValue={edit? organization?.description : ''}
-            {...register('description', { 
-              required: 'Organization description is required',
-              minLength: {
-                value: 2,
-                message: 'Must be at least 2 characters'
-              },
-              maxLength: {
-                value: 300,
-                message: 'Cannot exceed 300 characters'
-              }
-            })}
-          />
-          {errors.description && <p style={{ color: 'red' }}>{errors.description.message}</p>}
-        </div>
+          <div className="form-fields">
+            <div className="form-group">
+              <label className="smallHeader" htmlFor="name">Name:</label>
+              <input
+                id="name"
+                defaultValue={edit ? organization?.name : ''}
+                {...register('name', { 
+                  required: 'Organization name is required',
+                  minLength: { value: 3, message: 'Must be at least 3 characters' },
+                  maxLength: { value: 50, message: 'Cannot exceed 50 characters' }
+                })}
+              />
+              {errors.name && <p>{errors.name.message}</p>}
+            </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label htmlFor="email">Organization Email:</label>
-          <input
-            id="email"
-            defaultValue={edit? organization?.email : ''}
-            {...register('email', { 
-              required: 'Organization email is required',
-              pattern: {
-                value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: 'Invalid email address'
-              }
-            })}
-          />
-          {errors.email && <p style={{ color: 'red' }}>{errors.email.message}</p>}
-        </div>
+            <div className="form-group">
+              <label className="smallHeader" htmlFor="description">Description:</label>
+              <input
+                id="description"
+                defaultValue={edit ? organization?.description : ''}
+                {...register('description', { 
+                  required: 'Organization description is required',
+                  minLength: { value: 2, message: 'Must be at least 2 characters' },
+                  maxLength: { value: 300, message: 'Cannot exceed 300 characters' }
+                })}
+              />
+              {errors.description && <p>{errors.description.message}</p>}
+            </div>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <label htmlFor="phoneNumber">Organization Phone Number:</label>
-          <input
-            id="phoneNumber"
-            defaultValue={edit? organization?.phoneNumber : ''}
-            {...register('phoneNumber', { 
-              required: 'Organization phone number is required',
-              pattern: {
-                value: /^(\+972|0)5\d-?\d{7}$/,
-                message: 'Invalid phone number'
-              }
-            })}
-          />
-          {errors.phoneNumber && <p style={{ color: 'red' }}>{errors.phoneNumber.message}</p>}
+            <div className="form-group">
+              <label className="smallHeader" htmlFor="email">Email:</label>
+              <input 
+                id="email"
+                defaultValue={edit ? organization?.email : ''}
+                {...register('email', { 
+                  required: 'Organization email is required',
+                  pattern: {
+                    value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+                    message: 'Invalid email address'
+                  }
+                })}
+              />
+              {errors.email && <p>{errors.email.message}</p>}
+            </div>
+
+            <div className="form-group">
+              <label className="smallHeader" htmlFor="phoneNumber">Phone Number:</label>
+              <input
+                id="phoneNumber"
+                defaultValue={edit ? organization?.phoneNumber : ''}
+                {...register('phoneNumber', { 
+                  required: 'Organization phone number is required',
+                  pattern: {
+                    value: /^(\+972|0)5\d-?\d{7}$/,
+                    message: 'Invalid phone number'
+                  }
+                })}
+              />
+              {errors.phoneNumber && <p>{errors.phoneNumber.message}</p>}
+            </div>
+
+            <button className='orangeCircularButton' type="submit">
+              {edit ? 'Save Changes' : 'Create Organization'}
+            </button>
+          </div>
         </div>
-        <button type="submit">{edit ? 'Save Changes' : 'Create Organization'}</button>
       </form>
+
     );
 }
 

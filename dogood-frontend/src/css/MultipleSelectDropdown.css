@@ -1,0 +1,68 @@
+/* ---------- Container styling ---------- */
+.dropdown {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin: 16px 0;
+    width: 100%;
+    max-width: 150px; /* Optional: limit the width */
+    font-family: 'Montserrat', sans-serif;
+  }
+  
+  /* ---------- Label styling ---------- */
+  .dropdownTitle {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 4px;
+  }
+  
+  /* ---------- React Select wrapper ---------- */
+  .actualDropdown {
+    font-size: 14px;
+    max-height: 42px;
+  }
+  
+  /* ---------- Control styling (input/search bar) ---------- */
+  .actualDropdown .react-select__control {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    min-height: 42px; /* Fixed height */
+    max-height: 42px; /* Prevent from growing */
+    overflow: hidden; /* Hide anything that overflows */
+    padding: 2px;
+    transition: border-color 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+    display: flex;
+    align-items: center; /* Center contents vertically */
+    background-color: white;
+    box-sizing: border-box;
+    height: 42px;
+  }
+  
+  /* ---------- Focus & hover states ---------- */
+  .actualDropdown .react-select__control:hover {
+    border-color: #007bff;
+  }
+  
+  .actualDropdown .react-select__control--is-focused {
+    border-color: #007bff;
+    box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
+  }
+  
+  /* ---------- Dropdown indicator (arrow) ---------- */
+  .actualDropdown .react-select__indicator {
+    color: #007bff;
+    padding: 4px;
+  }
+  
+  .actualDropdown .react-select__value-container {
+    overflow-x: auto; /* horizontal scroll */
+    overflow-y: hidden; /* no vertical growth */
+    flex-wrap: nowrap; /* prevent wrapping to new lines */
+    padding: 0 8px;
+    display: flex;
+    align-items: center;
+    height: 100%; /* Match parent height */
+    box-sizing: border-box;
+  }
+  
+  

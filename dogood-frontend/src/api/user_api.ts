@@ -3,6 +3,7 @@ import { host } from "./general";
 import APIResponse from "../models/APIResponse";
 import User from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
+import {Leaderboard} from "../models/Leaderboard";
 
 const server = `${host}/api/users`;
 
@@ -135,3 +136,11 @@ export const updateUserPreferences = async (username: string, preferences: strin
     return response.data;
 }
 
+export const leaderboard = async (): Promise<Leaderboard> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.get(`${server}/leaderboard?username=${localStorage.getItem('username')}`, config);
+    const response: APIResponse<Leaderboard> = await res.data;
+    return response.data;
+}

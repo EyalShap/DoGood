@@ -1,5 +1,5 @@
 /* General styles */
-body {
+/*body {
   font-family: 'Roboto', Arial, sans-serif;
   margin: 0;
   padding: 0;
@@ -17,7 +17,6 @@ body {
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Organization name and description */
 .orgInfoText h1 {
   font-size: 2.8rem;
   color: #222;
@@ -33,7 +32,6 @@ body {
   line-height: 1.6;
 }
 
-/* Contact section */
 .orgInfoContact {
   margin: 20px 0;
   padding: 15px;
@@ -62,161 +60,236 @@ body {
 
 .orgInfoContact a:hover {
   text-decoration: underline;
+}*/
+.contact {
+  font-family: 'Montserrat', sans-serif;
+  display: flex;
+  flex-direction: column; /* Stack email and phone sections vertically */
+  gap: 20px; /* Space between email and phone sections */
+  padding: 20px; /* Add padding around the content */
+  background-color: #fff; /* White background for the box */
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1); /* Shadow around the box */
+  width: 300px; /* Set width for the container */
+  margin: 0 auto; /* Center the box */
 }
 
-/* Buttons */
-.orgInfoButtons button,
-.volunteerings button,
-.managers button {
-  margin: 5px;
-  padding: 12px 18px;
-  font-size: 1rem;
-  color: #fff;
-  background: linear-gradient(135deg, #007bff, #0056b3);
-  border: none;
+.email, .phone {
+  display: flex;
+  align-items: center; /* Align the image and text vertically */
+  gap: 10px; /* Space between image and text */
+  padding: 10px; /* Padding inside each section */
+  border-radius: 10px; /* Rounded corners for each section */
+  background-color: #f5f5f5; /* Light background for each section */
+}
+
+.email img, .phone img {
+  width: 30px; /* Adjust image size as needed */
+  height: 30px;
+}
+
+.email a, .phone p {
+  font-size: 16px; /* Adjust text size */
+  margin: 0; /* Remove default margin for links and paragraphs */
+  color: #333; /* Text color */
+}
+
+.actionsMenu {
+  position: relative; /* Make this container the reference point for the dropdown */
+}
+
+.actionDropdownMenu {
+  position: absolute;
+  top: 50px; /* Adjust based on the image's size */
+  left: 0; /* Make sure the menu aligns with the left of the image */
+  background-color: white;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  min-width: 200px; /* Wider width for the menu */
+  z-index: 100;
+  padding: 10px 0; /* Slightly more padding for better spacing */
 }
 
-.orgInfoButtons button:hover,
-.volunteerings button:hover,
-.managers button:hover {
-  background: linear-gradient(135deg, #0056b3, #00408d);
-  box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
-}
-
-.orgInfoButtons {
-  text-align: center;
-  margin: 20px 0;
-}
-
-/* Volunteerings */
-.volunteerings {
-  text-align: center;
-  margin-top: 30px;
-}
-
-.volunteerings h2 {
-  font-size: 2rem;
-  color: #222;
-  margin-bottom: 15px;
-  text-align: center;
-}
-
-.volunteerings .volunteeringItem {
-  padding: 20px;
-  margin: 15px 0;
-  border-radius: 10px;
-  background: #ffffff;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.volunteerings .volunteeringItem h3 {
-  font-size: 1.5rem;
+.actionDropdownItem {
+  font-family: 'Montserrat', sans-serif;
+  display: block;
+  padding: 10px 20px; /* Increase padding for more comfortable click area */
   color: #333;
-  margin-bottom: 10px;
+  text-decoration: none;
+  font-size: 14px; /* Larger font size */
+  cursor: pointer;
 }
 
-.volunteerings .volunteeringItem p {
-  font-size: 1.1rem;
-  color: #555;
-  margin-bottom: 10px;
-  line-height: 1.5;
+.actionDropdownItem:hover {
+  background-color: #f5f5f5;
 }
 
-/* Managers */
-.managers h2 {
-  font-size: 2rem;
-  color: #222;
-  margin-top: 40px;
-  text-align: center;
+.dotsMenu {
+  width: 40px; /* Adjust size as needed */
+  height: 40px;
+  object-fit: cover; /* Ensures the image covers the entire circle */
+  cursor: pointer;
+  box-shadow: none;
 }
 
-.managers ul {
-  list-style: none;
-  padding: 0;
+.blob-image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.blob-image-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 150%; /* Adjust the width */
+  height: 100%;
+  background-color: orange;
+  border-radius: 50%;
+  z-index: -1; 
+  transform: scale(1.2);
+}
+
+.orgImage {
+  display: block;
+  position: relative;
+  z-index: 1; /* Ensure the image stays on top */
+  width: 300px;
+  height: auto;
+  border-radius: 0px;
+}
+
+
+.listContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  margin: auto;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+
+  margin-top: 30px;
+  padding: 20px;
+
+  text-align: center; /* Center text */
+}
+
+  .listHeader {  
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    margin: 0;
+    color: black;
+    max-width: 800px;
+    line-height: 1.4;
+    font-weight: 300;
+  }
+
+.managersList {
+  display: flex;
+  flex-direction: row;
+  justify-content: center; /* Vertical center */
+  align-items: center; /* Horizontal center */
+  text-align: center; /* Center text */
+  overflow: hidden;
+  font-family: 'Montserrat', sans-serif;
+    width: 100%;
+    max-width: 1200px;
+    margin-top: auto; /* Pushes it to the bottom if enough space */
+
+  gap: 20px; /* Consistent gap between items */
+  padding: 0 10px; /* Optional: padding to prevent sticking to edges */
+
+  margin: 40px auto 0 auto; /* Center horizontally */
+  box-sizing: border-box; /* Include padding in width */
+
+}
+
+.managersListItem { 
+  background: #f5f5f5;
+  text-align: center; /* Optional, centers text */
+  padding: 10px;
+  width: 30%;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column; /* Stack items vertically */
+  align-items: center; /* Optional, centers items horizontally */
+
+}
+
+.managersListItem:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
+  transform: translateY(-4px); /* Lift effect */
+}
+
+.managerProfilePic {
+  width: 50%; /* Make the width 100% of the parent */
+  position: relative; /* Make it possible to position the image inside */
+  background-size: cover; /* Ensure the image covers the container */
+  background-position: center; /* Center the image in the container */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  aspect-ratio: 1; /* Ensure height is equal to width */
+  object-fit: cover; /* Prevent the image from stretching */
+  border-radius: 50%;
+}
+
+.managerName {
+  font-size: 18px;
+  margin: 10px 0;
+  font-weight: bold;
+}
+
+.isFounder {
+  font-size: 15px;
+  margin: 10px 0;
+}
+
+/* === FLEX CONTAINER FOR HEADER === */
+.orgHeaderContainer {
+  display: flex;
+  justify-content: space-between; /* Push image to left and info to right */
+  align-items: center; /* Center vertically */
+  gap: 40px; /* Space between image and info */
+  padding: 20px;
+  margin: 0 auto;
+  max-width: 1200px;
+  flex-wrap: wrap; /* Make responsive */
+}
+
+/* === IMAGE CONTAINER === */
+.orgImageContainer {
+  flex: 1; /* Take up space proportionally */
+  min-width: 300px;
+  max-width: 500px;
+}
+
+.orgImage {
+  width: 100%;
+  height: auto;
+  border-radius: 20px;
+  object-fit: cover;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* === ORGANIZATION INFO TEXT === */
+.orgInfoText {
+  flex: 1.2;
+  min-width: 300px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* Vertical center */
+  align-items: center; /* Horizontal center */
+  text-align: center; /* Center text */
+  height: 100%; /* Take available height */
+}
+
+
+
+/* === CONTACTS STYLE (reuse your existing styles or adapt) === */
+.contact {
   margin-top: 15px;
 }
 
-.managers li {
-  font-size: 1.2rem;
-  margin-bottom: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #ffffff;
-  padding: 15px;
-  border-radius: 8px;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-
-.managers li span {
-  color: #555;
-  font-weight: bold;
-  font-size: 0.95rem;
-}
-
-.managers input[type="text"] {
-  margin-top: 10px;
-  padding: 10px;
-  font-size: 1rem;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  width: 100%;
-}
-
-/* Responsive styles */
-@media (max-width: 768px) {
-  .orgInfo {
-    padding: 20px;
-  }
-
-  .orgInfoText h1 {
-    font-size: 2rem;
-  }
-
-  .orgInfoText p {
-    font-size: 1.1rem;
-  }
-
-  .orgInfoContact h2 {
-    font-size: 1.5rem;
-  }
-
-
-  .managers li {
-    font-size: 1rem;
-    padding: 12px;
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
-  .managers li button {
-    margin-top: 10px;
-    width: 100%;
-    text-align: center;
-    font-size: 0.85rem;
-    padding: 8px;
-  }
-}
-
-@media (max-width: 480px) {
-  .orgInfoText h1 {
-    font-size: 1.8rem;
-  }
-
-  .orgInfoContact h2 {
-    font-size: 1.2rem;
-  }
-
-  .orgInfoButtons button {
-    font-size: 0.85rem;
-    padding: 10px;
-  }
-
-
-
-}

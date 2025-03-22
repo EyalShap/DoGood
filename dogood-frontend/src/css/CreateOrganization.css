@@ -1,57 +1,12 @@
-/* General Form Styles */
-.create-organization-form {
-  width: 80%;
-  max-width: 600px;
-  margin: 2rem auto;
-  padding: 1.5rem;
-  background-color: #f9f9f9;
-  border-radius: 10px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  font-family: Arial, sans-serif;
-  text-align: center; /* Centers the text inside the form */
-}
-
-/* Form Heading */
-.create-organization-form h1 {
-  font-size: 1.8rem;
-  margin-bottom: 1.5rem;
-  color: #333;
-}
-
-/* Form Group Styles */
-.create-organization-form div {
-  margin-bottom: 1.5rem;
+.form-container {
   display: flex;
-  flex-direction: column;
-  align-items: center; /* Centers everything inside each form group */
-  gap: 0.5rem;
-}
-
-/* Labels */
-.create-organization-form label {
-  font-weight: bold;
-  font-size: 1rem;
-  color: #555;
-  text-align: center; /* Centers the label text */
-}
-
-/* Input Fields */
-.create-organization-form input {
+  justify-content: space-between; /* Optional, for spacing */
+  align-items: flex-start;
   width: 100%;
-  max-width: 400px;
-  height: 2.5rem;
-  padding: 0.5rem;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  font-size: 1rem;
-  outline: none;
-  transition: border-color 0.2s ease-in-out;
-  box-sizing: border-box;
-}
+  max-width: 1100px;
+  margin: 2rem auto;
+  gap: 4rem;
 
-.create-organization-form input:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
 /* Error Messages */
@@ -60,32 +15,70 @@
   color: red;
   font-size: 0.9rem;
   text-align: center; /* Ensures error messages are centered */
+  font-family: 'Montserrat', sans-serif;
 }
 
-/* Button */
-.create-organization-form button {
-  margin-top: 1rem;
+
+/* Right column for form fields */
+.form-fields {
+  flex: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem; /* space between input fields */
+  align-items: center; /* Centers all elements horizontally inside .form-fields */
+  justify-content: center; /* Centers all elements vertically inside .form-fields */
+  background-color: #e0e0e0;
+  border: 1px solid #000000;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+/* Individual form group */
+.form-group {
+  
+  width: 90%;
+}
+
+/* Input fields styling */
+.create-organization-form input {
   width: 100%;
-  max-width: 400px;
-  padding: 0.75rem;
-  font-size: 1rem;
-  font-weight: bold;
-  background-color: #007bff;
-  color: #fff;
-  border: none;
+  max-width: 500px;
+  height: 2.5rem;
+  padding: 0.5rem;
+  border: 0px solid #ccc;
+  border-bottom: 3px solid #ccc;
   border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.2s ease-in-out;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
 }
 
-.create-organization-form button:hover {
-  background-color: #0056b3;
+.create-organization-form input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
-/* Responsive Design */
+/* Responsive Design for smaller screens */
 @media (max-width: 768px) {
-  .create-organization-form {
-    width: 95%;
-    padding: 1rem;
+  .form-container {
+    
+    align-items: center;
   }
+
+  .form-fields {
+    width: 100%;
+  }
+}
+
+.form-fields button {
+  width: auto; /* Or a specific width like 200px */
+}
+
+.createHeaders {
+  padding-top: 150px;
+  max-width: 450px;
+  text-align: center;
+  gap: 30px;
 }

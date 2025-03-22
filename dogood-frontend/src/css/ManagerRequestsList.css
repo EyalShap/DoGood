@@ -1,121 +1,81 @@
-/* General styles */
-body {
-    font-family: 'Roboto', Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    background-color: #f5f5f5;
-    color: #333;
-    box-sizing: border-box;
-  }
-  
-  .Requests {
-    max-width: 1100px;
-    margin: 30px auto;
-    padding: 25px;
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-  }
-  
-  /* Header */
-  .Requests h2 {
-    font-size: 2.8rem;
-    color: #222;
-    margin-bottom: 15px;
-    text-align: center;
-  }
-  
+
+.requests {
+  max-width: 1100px;
+  margin: 30px auto;
+  padding: 25px;
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  justify-content: space-between;
+  align-items: stretch; /* Ensures same height */
+}
+
+.requestsList {
+  flex: 1; /* Both lists take equal width */
+  background: linear-gradient(135deg, #ffffff, #f9f9f9);
+  border-radius: 12px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+  /* Remove height: 100%; to allow natural dynamic height */
+  display: flex; /* Optional: if you want internal content centering */
+  flex-direction: column; /* Optional: if you need vertical stacking inside */
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  padding: 20px;
+}
+
   /* Request Item */
   .requestItem {
     padding: 20px;
     margin: 15px 0;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
+    background: #f0f0f0;
     display: flex;
     justify-content: space-between; 
     align-items: center;
+    border: 1px solid #000000;
+    width: 80%;
   }
   
+.requestHeader {
+  font-family: 'Montserrat', sans-serif;
+  cursor: pointer;
+}
 
-  .requestItem h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 10px;
-  }
-  
-  .requestItem p {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 10px;
-    line-height: 1.5;
-  }
-  
-  /* Buttons */
-  .requestItem button {
-    margin: 5px;
-    padding: 12px 18px;
-    font-size: 1rem;
-    color: #fff;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    height: 40px;
-  }
+.requestHeader:hover {
+  text-decoration: underline;
+}
 
-  
+.requestSender {
+  font-family: 'Montserrat', sans-serif;
+}
+
   /* No requests available */
   #noRequests {
     font-size: 1.2rem;
     text-align: center;
+    font-family: 'Montserrat', sans-serif;
   }
   
-  /* Responsive styles */
-  @media (max-width: 768px) {
-    .Requests {
-      padding: 20px;
-    }
-  
-    .Requests h2 {
-      font-size: 2rem;
-    }
-  
-    .requestItem h3 {
-      font-size: 1.3rem;
-    }
-  
-    .requestItem p {
-      font-size: 1rem;
-    }
-  
-    .requestItem button {
-      font-size: 0.85rem;
-      padding: 10px;
-    }
-  }
-  
-  @media (max-width: 480px) {
-    .Requests h2 {
-      font-size: 1.8rem;
-    }
-  
-    .requestItem h3 {
-      font-size: 1.2rem;
-    }
-  
-    .requestItem p {
-      font-size: 0.9rem;
-    }
-  
-    .requestItem button {
-      font-size: 0.85rem;
-      padding: 10px;
-    }
-  }
+ .buttons {
+  display: flex; /* Optional: if you want internal content centering */
+  flex-direction: column; /* Optional: if you need vertical stacking inside */
+  justify-content: center; /* Center vertically */
+  align-items: center; /* Center horizontally */
+  height: 100%;
+  gap: 10px;
+  padding: 10px;
+ }
+
+ .requestButton {
+  width: 90%;
+  display: flex;             /* Use Flexbox for centering content */
+  justify-content: center;   /* Horizontally center the text */
+  align-items: center;       /* Vertically center the text */
+  padding: 10px 20px;        /* Optional: control padding around the text */
+  text-align: center;  
+ }
+
+ .listHeader {
+  font-size: 2.5rem;
+ }
 
   

@@ -7,15 +7,16 @@ import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, get
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
+import './../css/CommonElements.css'
 import { createReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
-
+import ListWithArrows, { ListItem } from './ListWithArrows';
 
 function VolunteeringPost() {
     const navigate = useNavigate();
-    const [model, setModel] = useState<VolunteeringPostModel>({id: -1, title: "", description: "", postedTime: "", lastEditedTime: "", posterUsername: "", numOfPeopleRequestedToJoin: -1, relevance: -1, volunteeringId: -1, organizationId: -1});
+    const [model, setModel] = useState<VolunteeringPostModel>({id: -1, title: "", description: "", postedTime: "", lastEditedTime: "", posterUsername: "", numOfPeopleRequestedToJoin: -1, relevance: -1, volunteeringId: -1, organizationId: -1, keywords: []});
     const [volunteeringName, setVolunteeringName] = useState<string>('');
-    const [volunteeringImages, setVolunteeringImages] = useState<string[]>([]);
+    const [volunteeringImages, setVolunteeringImages] = useState<ListItem[]>([]);
     const [isVolunteer, setIsVolunteer] = useState(true);
     const [organizationName, setOrganizationName] = useState<string>('');
     const [isManager, setIsManager] = useState(false);
@@ -26,6 +27,8 @@ function VolunteeringPost() {
     const [reportDescription, setReportDescription] = useState("");
     const [pastExperiences, setPastExperiences] = useState<PastExperienceModel[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [isHovered, setIsHovered] = useState(false);
+    const [dropdownOpen, setDropdownOpen] = useState(false);
     let { id } = useParams();
     
     const fetchVolunteeringPost = async () => {
@@ -70,7 +73,17 @@ function VolunteeringPost() {
     const fetchImages = async () => {
         try {
             if(ready) {
-                setVolunteeringImages(await getVolunteeringImages(parseInt(id!)))
+                let images = await getVolunteeringImages(parseInt(id!));
+                if(images.length === 0) {
+                    images = ['https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 'https://pettownsendvet.com/wp-content/uploads/2023/01/iStock-1052880600.jpg', 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp'];
+                }
+                const listItems: ListItem[] = images.map((image) => ({
+                    id: "",
+                    image: image, 
+                    title: "",  
+                    description: "", // assuming 'summary' is a short description
+                }));
+                setVolunteeringImages(listItems);
             }
         }
         catch(e) {
@@ -145,12 +158,12 @@ function VolunteeringPost() {
         setShowReportDescription(true);
     }
 
-    const handleJoinFreeTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setJoinFreeText(event.target.value);
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
     };
 
-    const handleReportDescriptionChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-        setReportDescription(event.target.value);
+    const closeDropdown = () => {
+        setDropdownOpen(false);
     };
 
     const handleSubmitOnClick = async () => {
@@ -229,77 +242,106 @@ function VolunteeringPost() {
 
     return (
         <div id="postPage" className="postPage">
-            <div id = "postHeader">
-                <h1 id="postTitle">{model.title}</h1>
-                <p id="postDescription">{model.description}</p>
+            <div className='headers'>
+                <h1 className='bigHeader'>{model.title}</h1>
+                <p className='smallHeader'>{model.description}</p>
             </div>
 
             <div id="postInfo" className="postInfo">
-                <div id = "postImage" className="postImage" >
-                    {volunteeringImages.map(image =>
-                        <img style={{margin: "5px"}}
-                        src={image.replace(/"/g, "")} 
-                        />
+                <ListWithArrows data={volunteeringImages} limit={1} navigateTo={""}></ListWithArrows>
+
+                <div className="info-container">
+                    <button
+                        className="info-button"
+                        onMouseEnter={() => setIsHovered(true)} // Show on hover
+                        onMouseLeave={() => setIsHovered(false)} // Hide when hover ends
+                    >
+                        i
+                    </button>
+                    {isHovered && (
+                        <div className="info-tooltip">
+                        <p id="postPosterUsername">Posted by: {model.posterUsername}</p>
+                        <p id="postPostedTime">Posted on: {fixDate(model.postedTime, true)}</p>
+                        <p id="postLastEditedTime">Last edited on: {fixDate(model.lastEditedTime, true)}</p>
+                        <p id="postNumOfPeopleRequested">Number of people requested to join so far: {model.numOfPeopleRequestedToJoin}</p>
+
+                        </div>
                     )}
                 </div>
 
-                <div id="postInfoText" className="postInfoText">
-                    <p id="postPosterUsername">Posted by: {model.posterUsername}</p>
-                    <p id="postPostedTime">Posted on: {fixDate(model.postedTime, true)}</p>
-                    <p id="postLastEditedTime">Last edited on: {fixDate(model.lastEditedTime, true)}</p>
-                    <p id="postNumOfPeopleRequested">Number of people requested to join so far: {model.numOfPeopleRequestedToJoin}</p>
-                </div>
+                <button className='orangeCircularButton' onClick={handleJoinVolunteeringOnClick}>I Want To Join</button>
+    
+                    {showJoinFreeText && (
+                        <div className="popup-window">
+                            <div className="popup-header">
+                            <span className="popup-title">Join Volunteering</span>
+                            <button className="cancelButton" onClick={handleCancelOnClick}>
+                                X
+                            </button>
+                            </div>
+                            <div className="popup-body">
+                                <textarea placeholder="Why do you want to join the volunteering?..."></textarea>
+                                <button className="orangeCircularButton" onClick={handleSubmitOnClick}>
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+            
             </div>
+            
             <div id="volunteeringAndOrganization">
                     <div 
-                        id="volunteeringBox" 
+                        className="volunteeringOrganizationBox" 
                         onClick={handleShowVolunteeringOnClick}
                         style={{ pointerEvents: isVolunteer ? 'auto' : 'none' }}
                         >
-                        <p id="postVolunteering">Volunteering: {volunteeringName}</p>
+                        <p className='volunteeringOrganizationBoxHeader'>Volunteering</p>
+                        <p id="postVolunteering">{volunteeringName}</p>
                     </div>
-                    <div id="organizationBox" onClick={handleShowOrganizationOnClick}>
-                        <p id="postOrganization">Organization: {organizationName}</p>
+                    <div className="volunteeringOrganizationBox" onClick={handleShowOrganizationOnClick}>
+                        <p className='volunteeringOrganizationBoxHeader'>Organization</p>
+                        <p id="postOrganization">{organizationName}</p>
                     </div>
+                </div>
+
+                <div className="actionsMenu">
+                    <img
+                        src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
+                        alt="Profile"
+                        className="dotsMenu"
+                        onClick={toggleDropdown}
+                    />
+                    {dropdownOpen && (
+                        <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
+                            {isManager && <p className="actionDropdownItem" onClick = {handleEditPostOnClick}>Edit</p>}
+                            {isManager && <p className="actionDropdownItem" onClick = {handleRemovePostOnClick}>Remove</p>}
+                            <p className="actionDropdownItem" onClick = {handleReportOnClick}>Report</p>
+                            {showReportDescription && (
+                                <div className="popup-window">
+                                    <div className="popup-header">
+                                    <span className="popup-title">Report</span>
+                                    <button className="cancelButton" onClick={handleCancelReportOnClick}>
+                                        X
+                                    </button>
+                                    </div>
+                                    <div className="popup-body">
+                                        <textarea placeholder="What went wrong?..."></textarea>
+                                        <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 
-                <div id="actions" className="actions">
-                    <button id="joinVolunteeringButton" onClick={handleJoinVolunteeringOnClick}>Join Volunteering</button>
-    
-                    {showJoinFreeText && (
-                        <div id="joinFreeTextContainer">
-                            <textarea
-                                id="joinFreeText"
-                                value={joinFreeText}
-                                onChange={handleJoinFreeTextChange}
-                                placeholder="Enter your message here..."
-                            />
-                        </div>
-                    )}
-                    {showJoinFreeText && <button id="submitJoinRequestButton" onClick={handleSubmitOnClick}>Submit Request</button>}
-                    {showJoinFreeText && <button id="cancelJoinRequestButton" onClick={handleCancelOnClick}>Cancel</button>}
-    
-                    <button id="reportButton" onClick={handleReportOnClick}>Report</button>
-    
-                    {showReportDescription && (
-                        <div id="reportDescriptionContainer">
-                            <textarea
-                                id="reportDescription"
-                                value={reportDescription}
-                                onChange={handleReportDescriptionChange}
-                                placeholder="Enter your report here..."
-                            />
-                        </div>
-                    )}
-                    {showReportDescription && <button id="submitReportButton" onClick={handleSubmitReportOnClick}>Submit Report</button>}
-                    {showReportDescription && <button id="cancelReportButton" onClick={handleCancelReportOnClick}>Cancel</button>}
-    
-                    {isManager && <button id="editPostButton" onClick={handleEditPostOnClick}>Edit Post</button>}
-                    {isManager && <button id="removePostButton" onClick={handleRemovePostOnClick}>Remove Post</button>}
-                </div>
+                
     
                 <div id="pastExperiences" className="pastExperiences">
-                    <h1 id="pastExperiencesHeader">Volunteers Past Experiences:</h1>
+                    <h1 id="pastExperiencesHeader">Volunteers Past Experiences</h1>
                     {pastExperiences.length > 0 ? (
                         <div id="pastExperienceItem" className="pastExperienceItem">
                             <button id="prevExperienceButton" onClick={handlePrev}>&lt;</button>
@@ -316,7 +358,7 @@ function VolunteeringPost() {
                 </div>
         </div>
     )
-    
 }
+
 
 export default VolunteeringPost;
