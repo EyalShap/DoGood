@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { register } from "../api/user_api";
 
-function RegisterPage() {
-    const navigate = useNavigate();
+function RegisterPage({ changeState } : { changeState:  React.Dispatch<React.SetStateAction<boolean>>}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
@@ -16,8 +15,7 @@ function RegisterPage() {
             let token = await register(username, password, name, email, phone, birthDate);
             localStorage.setItem("username", username);
             localStorage.setItem("token", token);
-            alert("Registration successful!");
-            navigate('/');
+            changeState(false);
         } catch (e) {
             alert(e);
         }
@@ -76,7 +74,7 @@ function RegisterPage() {
                 Register
                 </button>
                 <a
-                onClick={() => navigate('/')} // Navigate to the login page
+                onClick={() => changeState(false)} // Navigate to the login page
                 style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                     Already have an account?

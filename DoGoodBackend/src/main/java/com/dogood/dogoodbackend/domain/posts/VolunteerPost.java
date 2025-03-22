@@ -30,6 +30,10 @@ public class VolunteerPost extends Post {
     @Column(name = "categories")
     private List<String> categories;
 
+    public VolunteerPost() {
+
+    }
+
     public VolunteerPost(int id, String title, String description, Set<String> keywords, String posterUsername, List<String> skills,  List<String> categories) {
         super(id, title, description, posterUsername, keywords);
         setFields(skills, categories);

@@ -1,0 +1,75 @@
+.listComponent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+}
+
+.list {
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+  width: max-content; /* Wrap to fit children */
+}
+
+.listItem {
+  background: #f5f5f5;
+  text-align: left;
+  padding: 10px;
+  width: 250px; /* Fixed width */
+  cursor: pointer;
+  flex-shrink: 0; /* Don't shrink to fit */
+}
+
+.listItem:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
+  transform: translateY(-4px); /* Lift effect */
+}
+
+.listItemImg {
+  width: 100%; /* Make the width 100% of the parent */
+  position: relative; /* Make it possible to position the image inside */
+  background-size: cover; /* Ensure the image covers the container */
+  background-position: center; /* Center the image in the container */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
+  aspect-ratio: 1; /* Ensure height is equal to width */
+  object-fit: cover; /* Prevent the image from stretching */
+  border-radius: 0px;
+}
+
+.listItemHeader {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.listItemDesc {
+  font-size: 14px;
+  color: #555;
+}
+
+.leftArrow, .rightArrow {
+  border: none;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  background-image: url('https://www.iconpacks.net/icons/2/free-arrow-left-icon-3099-thumb.png');
+  background-size: contain;
+  background-color: transparent; /* Remove any background color */
+  width: 50px;
+  height: 50px;
+}
+
+.leftArrow {
+  transform: translateY(-50%);
+  left: -40px;
+}
+
+.rightArrow {
+  transform: translateY(-50%) scaleX(-1);
+  right: -40px;
+}

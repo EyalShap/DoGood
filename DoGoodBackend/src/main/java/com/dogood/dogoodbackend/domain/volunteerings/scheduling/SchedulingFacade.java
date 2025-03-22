@@ -16,13 +16,22 @@ public class SchedulingFacade {
         this.manager = manager;
     }
 
+    public boolean getHasAppointmentAtRoughStart(String username, int volunteeringId, Date start, int minutesAllowed){
+        List<ScheduleAppointment> scheduleAppointments = manager.getUserAppointments(username, List.of(volunteeringId));
+        for (ScheduleAppointment scheduleAppointment : scheduleAppointments) {
+            if(scheduleAppointment.matchStart(start, minutesAllowed)){
+                return true;
+            }
+        }
+        return false;
+    }
+
     public DatePair convertRoughRangeToAppointmentRange(String username, int volunteeringId, Date start, Date end, int minutesAllowed){
         ScheduleAppointment appointment = getUserAppointmentInRange(username, volunteeringId, start, end, minutesAllowed);
         if(appointment == null){
             throw new IllegalArgumentException("Appointment not found for the specified scan times in volunteering " + volunteeringId + " for user " + username + ", please request manually");
         }
-        DatePair p = appointment.getDefiniteRange(start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-        return p;
+        return appointment.getDefiniteRange(start.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
     }
 
     public DatePair convertSingleTimeToAppointmentRange(String username, int volunteeringId, Date single, int minutesAllowed){
@@ -30,8 +39,7 @@ public class SchedulingFacade {
         if(appointment == null){
             throw new IllegalArgumentException("Appointment not found for the specified scan times in volunteering " + volunteeringId + " for user " + username + ", please request manually");
         }
-        DatePair p = appointment.getDefiniteRange(single.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
-        return p;
+        return appointment.getDefiniteRange(single.toInstant().atZone(ZoneId.systemDefault()).toLocalDate());
     }
 
     public ScheduleAppointment getUserAppointmentInRange(String username, int volunteeringId, Date start, Date end, int minutesAllowed){

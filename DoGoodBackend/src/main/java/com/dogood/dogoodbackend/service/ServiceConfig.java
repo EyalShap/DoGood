@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.service;
 
+import com.dogood.dogoodbackend.domain.chat.DatabaseMessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
 import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
@@ -19,7 +20,6 @@ import org.springframework.context.annotation.Configuration;
 public class ServiceConfig {
     @Bean
     public FacadeManager facadeManager(ApplicationContext applicationContext){
-        //this will memory for now but will actually db later
         //this is singleton
         return new FacadeManager(applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
@@ -33,7 +33,8 @@ public class ServiceConfig {
                         applicationContext.getBean(HourRequestJPA.class),
                         applicationContext.getBean(AppointmentJPA.class)),
                 new AIKeywordExtractor(applicationContext.getBean(Gemini.class)),
-                new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)));
+                new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)),
+                new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)));
     }
 
     /*@Bean

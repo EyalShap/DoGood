@@ -264,7 +264,7 @@ export const getUserRequests = async (): Promise<RequestModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
     
-    let url = `${server}/getUserRequests?actor=${username}`;
+    let url = `${server}/getUserAssignManagerRequests?actor=${username}`;
 
     const config = {
         headers: { Authorization: `Bearer ${token}` }

@@ -112,8 +112,8 @@ public class OrganizationAPI {
         return organizationService.setFounder(token, actor, newFounder, orgId);
     }
 
-    @GetMapping("/getUserRequests")
-    public Response<List<Request>> getUserRequests(@RequestParam String actor, HttpServletRequest request) {
+    @GetMapping("/getUserAssignManagerRequests")
+    public Response<List<Request>> getUserAssignManagerRequests(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
 
         return organizationService.getUserRequests(token, actor);
