@@ -1,5 +1,5 @@
 /* Style for the table */
-table {
+.leaderboard table {
     width: 40%;
     border-collapse: collapse;
     border-radius: 10px;
@@ -8,36 +8,36 @@ table {
 }
 
 /* Style for table headers and cells */
-th, td {
+.leaderboard th, .leaderboard td {
     padding: 12px;
     text-align: center; /* Center the text */
 }
 
 /* Set fixed width for columns */
-th, td {
+.leaderboard th, .leaderboard td {
     width: 50%;  /* Fix the width of the columns to 50% each */
 }
 
 /* Optional: Style for table header background */
-th {
+.leaderboard th {
     background-color: #037b7b;
-    
+
     color: #ffffff;
     font-family: 'Montserrat', sans-serif;
     font-size: 1.5rem;
-    
+
 }
 
-thead {
+.leaderboard thead {
     border: 1px solid #000000;
 }
 
 /* Optional: Hover effect for rows */
-tr:hover {
+.leaderboard tr:hover {
     background-color: #f1f1f1;
 }
 
-td {
+.leaderboard td {
     background: #ebeaea;
 }
 

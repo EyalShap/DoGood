@@ -29,12 +29,12 @@
     margin: 15px 0;
     background: #f0f0f0;
     display: flex;
-    justify-content: space-between; 
+    justify-content: space-between;
     align-items: center;
     border: 1px solid #000000;
     width: 80%;
   }
-  
+
 .requestHeader {
   font-family: 'Montserrat', sans-serif;
   cursor: pointer;
@@ -54,7 +54,7 @@
     text-align: center;
     font-family: 'Montserrat', sans-serif;
   }
-  
+
  .buttons {
   display: flex; /* Optional: if you want internal content centering */
   flex-direction: column; /* Optional: if you need vertical stacking inside */
@@ -71,11 +71,10 @@
   justify-content: center;   /* Horizontally center the text */
   align-items: center;       /* Vertically center the text */
   padding: 10px 20px;        /* Optional: control padding around the text */
-  text-align: center;  
+  text-align: center;
  }
 
  .listHeader {
   font-size: 2.5rem;
  }
 
-  

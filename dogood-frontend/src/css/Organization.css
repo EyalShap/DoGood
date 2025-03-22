@@ -147,7 +147,7 @@
   height: 100%;
   background-color: orange;
   border-radius: 50%;
-  z-index: -1; 
+  z-index: -1;
   transform: scale(1.2);
 }
 
@@ -178,7 +178,7 @@
   text-align: center; /* Center text */
 }
 
-  .listHeader {  
+  .listHeader {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.6rem;
     margin: 0;
@@ -208,7 +208,7 @@
 
 }
 
-.managersListItem { 
+.managersListItem {
   background: #f5f5f5;
   text-align: center; /* Optional, centers text */
   padding: 10px;

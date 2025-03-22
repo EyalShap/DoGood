@@ -28,7 +28,7 @@ function LeaderboardMap() {
                 <h1 className='bigHeader'>Do Good's Leaderboard</h1>
                 <h2 className='smallHeader'>Challenge your friends and climb to the top to become the ultimate volunteer!</h2>
             </div>
-            <table>
+            <table className="leaderboard">
                 <thead>
                     <tr className='leaderboardHeaders'>
                         <th>Username</th>
