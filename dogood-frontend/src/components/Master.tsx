@@ -9,7 +9,6 @@ import Footer from './Footer';
 function Master() {
     const navigate = useNavigate();
     const location = useLocation();
-    const isLoginPage = location.pathname === "/";
     const isRegisterPage = location.pathname === "/register";
     const [isOpen, setIsOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(true);
@@ -61,7 +60,7 @@ function Master() {
                 </div>
                 
             )}*/}
-            {!isLoginPage && <Header isAdmin={isAdmin}></Header>}
+            {/*!isLoginPage && <Header isAdmin={isAdmin}></Header>*/}
 
         </div>
     )

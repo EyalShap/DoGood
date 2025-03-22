@@ -26,6 +26,7 @@ const Header: React.FC<Props> = ({ isAdmin }) => {
         await logout();
         localStorage.removeItem("username");
         localStorage.removeItem("token");
+        window.dispatchEvent(new Event('storage'))
         closeMenu();
       }
       catch(e){
@@ -34,7 +35,7 @@ const Header: React.FC<Props> = ({ isAdmin }) => {
     }
 
     const onLogo = async () => {
-      navigate(`/homepage`);
+      navigate(`/`);
     }
     
     return (

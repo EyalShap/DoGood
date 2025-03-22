@@ -8,20 +8,20 @@
     max-width: 150px; /* Optional: limit the width */
     font-family: 'Montserrat', sans-serif;
   }
-  
+
   /* ---------- Label styling ---------- */
   .dropdownTitle {
     font-size: 16px;
     color: #333;
     margin-bottom: 4px;
   }
-  
+
   /* ---------- React Select wrapper ---------- */
   .actualDropdown {
     font-size: 14px;
     max-height: 42px;
   }
-  
+
   /* ---------- Control styling (input/search bar) ---------- */
   .actualDropdown .react-select__control {
     border: 1px solid #ccc;
@@ -37,23 +37,23 @@
     box-sizing: border-box;
     height: 42px;
   }
-  
+
   /* ---------- Focus & hover states ---------- */
   .actualDropdown .react-select__control:hover {
     border-color: #007bff;
   }
-  
+
   .actualDropdown .react-select__control--is-focused {
     border-color: #007bff;
     box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.2);
   }
-  
+
   /* ---------- Dropdown indicator (arrow) ---------- */
   .actualDropdown .react-select__indicator {
     color: #007bff;
     padding: 4px;
   }
-  
+
   .actualDropdown .react-select__value-container {
     overflow-x: auto; /* horizontal scroll */
     overflow-y: hidden; /* no vertical growth */
@@ -64,5 +64,4 @@
     height: 100%; /* Match parent height */
     box-sizing: border-box;
   }
-  
-  
+

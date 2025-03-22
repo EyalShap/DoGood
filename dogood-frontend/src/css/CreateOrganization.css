@@ -35,7 +35,7 @@
 
 /* Individual form group */
 .form-group {
-  
+
   width: 90%;
 }
 
@@ -63,7 +63,7 @@
 /* Responsive Design for smaller screens */
 @media (max-width: 768px) {
   .form-container {
-    
+
     align-items: center;
   }
 

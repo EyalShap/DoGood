@@ -5,17 +5,17 @@
     text-align: center;
     color: white;
   }
-  
+
   .social-container {
     display: flex;
     justify-content: center;
     gap: 20px;
   }
-  
+
   .social-link {
     text-decoration: none;
   }
-  
+
   .social-icon {
     border-radius: 50%;
     background-color: #fff;
@@ -25,9 +25,8 @@
     height: 40px; /* Set a height */
     object-fit: cover; /* Ensures the image fits nicely inside the circular border */
   }
-  
+
   .social-icon:hover {
     background-color: #ff6f61; /* Hover color */
     transform: scale(1.1); /* Zoom effect on hover */
   }
-  

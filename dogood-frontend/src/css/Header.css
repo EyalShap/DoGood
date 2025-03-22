@@ -7,7 +7,7 @@
     background-color: #008b8b;
     color: #fff;
   }
-  
+
   .logo {
     color: white; /* Fill color */
     font-size: 24px;
@@ -18,11 +18,11 @@
   .logo:hover {
     text-decoration: underline;
   }
-  
+
   .nav {
     display: flex;
   }
-  
+
   .menuList {
     display: flex;
     list-style-type: none;
@@ -31,22 +31,22 @@
     align-items: center;
     gap: 20px;
   }
-  
+
   .menuListItem {
     margin-left: 30px;
   }
-  
+
   .navLink {
     color: #fff;
     text-decoration: none;
     font-size: 16px;
     font-weight: 300;
   }
-  
+
   .navLink:hover {
     text-decoration: underline;
   }
-  
+
   .profileImage {
     width: 40px; /* Adjust size as needed */
     height: 40px;
