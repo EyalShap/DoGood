@@ -209,6 +209,8 @@ public class VolunteeringService {
         //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId20, List.of("Event Planning", "Communication"));
         //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId20, List.of("Animals", "Community"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Help at Adoption Events!", "Join us to find forever homes for our furry friends.", "AliceManager", volId20);
+
+        this.facadeManager.getPostsFacade().createVolunteerPost("Hiii", "HI", "AliceManager");
     }
 
     private void checkToken(String token, String username) {

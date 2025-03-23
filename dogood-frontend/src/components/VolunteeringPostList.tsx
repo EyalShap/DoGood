@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { filterVolunteeringPosts, filterVolunteerPosts, getAllOrganizationNames, getAllPostsCities, getAllVolunteeringNames, getAllVolunteeringPosts, getAllVolunteeringPostsCategories, getAllVolunteeringPostsSkills, getAllVolunteerPosts, getAllVolunteerPostsCategories, getAllVolunteerPostsSkills, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
+import { filterVolunteeringPosts, filterVolunteerPosts, getAllOrganizationNames, getAllPostsCities, getAllVolunteeringNames, getAllVolunteeringPosts, getAllVolunteeringPostsCategories, getAllVolunteeringPostsSkills, getAllVolunteerPosts, getAllVolunteerPostsCategories, getAllVolunteerPostsSkills, getVolunteeringImages, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPostList.css'
 import MultipleSelectDropdown from './MultipleSelectDropdown';
@@ -32,6 +32,7 @@ function VolunteeringPostList() {
     const[selectedCities, setSelectedCities] = useState<string[]>([]);
     const[selectedOrganizationNames, setSelectedOrganizationNames] = useState<string[]>([]);
     const[selectedVolunteeringNames, setSelectedVolunteeringNames] = useState<string[]>([]);
+    const [postImages, setPostImages] = useState<Map<number, string>>(new Map());
 
     const fetchPosts = async () => {
         try {
@@ -46,6 +47,16 @@ function VolunteeringPostList() {
                     setAllVolunteeringPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
+
+                const imagesArray = await Promise.all(
+                    fetchedPosts.map(post => getVolunteeringImages(post.volunteeringId))
+                );
+        
+                fetchedPosts.forEach((post, index) => {
+                    const images = imagesArray[index];
+                    const firstImage = images.length > 0 ? images[0] : '/src/assets/defaultVolunteeringDog.webp';
+                    postImages.set(post.id, firstImage);
+                });
 
                 let listItems = convertToListItems(fetchedPosts);
                 setAllPostsListItems(listItems);
@@ -76,6 +87,12 @@ function VolunteeringPostList() {
                     setAllVolunteerPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
+        
+                fetchedPosts.forEach((post, index) => {
+                    const firstImage = post.images.length > 0 ? post.images[0] : '/src/assets/defaultVolunteerPostDog.jpg';
+                    postImages.set(post.id, firstImage);
+                });
+
                 let listItems = convertToListItems(fetchedPosts);
                 setAllPostsListItems(listItems);
                 setPostsListItems(listItems);
@@ -105,7 +122,7 @@ function VolunteeringPostList() {
     const convertToListItems = (posts: PostModel[]) => {
         const listItems: ListItem[] = posts.map((post) => ({
             id: post.id,
-            image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+            image: postImages.get(post.id) ?? '/src/assets/defaultVolunteeringDog.webp', 
             title: post.title,  
             description: post.description, // assuming 'summary' is a short description
         }));

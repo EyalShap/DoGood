@@ -5,7 +5,7 @@ const Footer: React.FC = () => {
   return (
     <footer className="footer">
       <div className="social-container">
-        <a href="https://www.instagram.com" target="_blank" rel="noopener noreferrer" className="social-link">
+        <a href="/easterEgg" target="_blank" rel="noopener noreferrer" className="social-link">
           <img src='https://banner2.cleanpng.com/20180409/zjw/avgxtga41.webp' alt="Instagram" className="social-icon" />
         </a>
         <a href="https://www.facebook.com" target="_blank" rel="noopener noreferrer" className="social-link">

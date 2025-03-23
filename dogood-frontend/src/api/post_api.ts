@@ -794,3 +794,46 @@ export const handleJoinVolunteerPostRequest = async (postId: number, approved: b
         throw response.errorString;
     }
 }
+
+export const addImageToVolunteerPost = async (postId: number, image: string) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/addImage?postId=${postId}&actor=${username}`;
+
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    console.log(config);
+
+    let res = await axios.post(url, image.replace(/"/g, ""), config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const removeImageFromVolunteerPost = async (postId: number, image: string) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/removeImage?postId=${postId}&path=${image.replace(/"/g, "")}&actor=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.delete(url, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}

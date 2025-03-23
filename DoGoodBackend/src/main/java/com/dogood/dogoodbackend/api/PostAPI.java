@@ -271,11 +271,9 @@ public class PostAPI {
     }
 
     @PostMapping("/addImage")
-    public Response<Boolean> addImage(@RequestBody GeneralRequest assignManagerRequest, @RequestParam String path, HttpServletRequest request) {
+    public Response<Boolean> addImage(@RequestParam int postId, @RequestParam String actor, @RequestBody String path, HttpServletRequest request) {
         String token = getToken(request);
 
-        int postId = assignManagerRequest.getId();
-        String actor = assignManagerRequest.getActor();
         return postService.addImage(token, actor, postId, path);
     }
 

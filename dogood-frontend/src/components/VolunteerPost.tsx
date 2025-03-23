@@ -3,7 +3,7 @@ import './../css/Volunteering.css'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
+import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
@@ -12,6 +12,7 @@ import { createReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { VolunteerPostModel } from '../models/VolunteerPostModel';
+import { supabase } from '../api/general';
 
 function VolunteerPost() {
     const navigate = useNavigate();
@@ -25,6 +26,8 @@ function VolunteerPost() {
     const [reportDescription, setReportDescription] = useState("");
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
     let { id } = useParams();
     
     const fetchVolunteerPost = async () => {
@@ -33,20 +36,17 @@ function VolunteerPost() {
                 let post: VolunteerPostModel = await getVolunteerPost(parseInt(id));
                 setModel(post);
 
-                let listItems: ListItem[] = model.images.map((img) => ({
+                let images = model.images;
+                if(!Array.isArray(images) || images.length === 0) {
+                    images = ['/src/assets/defaultVolunteerPostDog.jpg'];
+                }
+                 
+                let listItems: ListItem[] = images.map((img) => ({
                     id: "",
                     image: img, 
                     title: "",  
                     description: "", // assuming 'summary' is a short description
                 }));
-                if(listItems.length === 0) {
-                    listItems = [{
-                        id: "",
-                        image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
-                        title: "",  
-                        description: "", // assuming 'summary' is a short description
-                    }]
-                }
                 
                 setPostImages(listItems);
                 console.log(localStorage.getItem("username"));
@@ -146,6 +146,58 @@ function VolunteerPost() {
         }
     }
 
+    const onRemoveImage = async (image: string) => {
+        try {
+            await removeImageFromVolunteerPost(model.id, `"${image}"`);
+            let updatedModel: VolunteerPostModel = {
+                ...model, 
+                images: model.images.filter(img => image !== img)
+            }
+            setModel(updatedModel);
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+    
+    const onAddImage = async () => {
+        try {
+            let {data,error} =
+                await supabase.storage.from("volunteer-post-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+                if(data == null || error !== null){
+                    alert(error)
+                    console.log(error)
+                }else {
+                    let filePath = data!.path;
+                    let response = await supabase.storage.from("volunteer-post-photos").getPublicUrl(filePath);
+                    let url = response.data.publicUrl;
+                    await addImageToVolunteerPost(model.id, url);
+                    
+                    let updatedModel: VolunteerPostModel = {
+                        ...model,  // Spread the existing properties of model
+                        images: Array.isArray(model.images) ? [...model.images, url] : [url],  // Safely update images
+                    };
+                    setModel(updatedModel);
+
+                    setSelectedFile(null)
+                    setKey(prevState => 1-prevState)
+                }
+            }
+            catch (e) {
+                //send to error page
+                alert(e);
+            }
+        };
+    
+        const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedFile(e.target.files![0])
+        }
+        
     return (
         <div id="postPage" className="postPage">
             <div className='headers'>
@@ -155,6 +207,19 @@ function VolunteerPost() {
 
             <div id="postInfo" className="postInfo">
                 <ListWithArrows data={postImages} limit={1} navigateTo={""}></ListWithArrows>
+
+                <div className="volunteerPostImages">
+                <h1>Photos:</h1>
+                <div className="photos">
+                    {model.images && model.images.map(image =>
+                        <div className="photo">
+                            <img src={image}/>
+                            <button onClick={() => onRemoveImage(image)} className="xremove">X</button>
+                        </div>)}
+                </div>
+                <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
+                <button onClick={onAddImage}>Upload!</button>
+            </div>
 
                 <div className="info-container">
                     <button

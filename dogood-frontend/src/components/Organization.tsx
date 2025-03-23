@@ -2,17 +2,19 @@ import OrganizationModel from '../models/OrganizationModel';
 import { useEffect, useState } from 'react'
 import './../css/Organization.css'
 import './../css/CommonElements.css'
-import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings } from '../api/organization_api'
+import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings, removeImageFromOrganization, addImageToOrganization } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import Volunteering from './Volunteering';
 import { getVolunteering } from '../api/volunteering_api';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { getUserByUsername } from '../api/user_api';
+import { getVolunteeringImages } from '../api/post_api';
+import { supabase } from '../api/general';
 
 function Organization() {
     const navigate = useNavigate();
-    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: ""});
+    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: "", imagePaths: []});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
     const [userVolunteerings, setUserVolunteerings] = useState<number[]>([]);
@@ -22,10 +24,13 @@ function Organization() {
     const [showAddManager, setShowAddManager] = useState(false);
     const [addManagerText, setAddManagerText] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
     
     const fetchOrganization = async () => {
         try{
             let found = await getOrganization(parseInt(id!));
+            console.log(found);
             setModel(found);
 
             let managerIds = model.managerUsernames;
@@ -34,7 +39,7 @@ function Organization() {
 
             const managersItems: ListItem[] = users.map((user) => ({
                 id: user.username,
-                image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+                image: '/src/assets/defaultProfilePic.jpg', 
                 title: user.name,  
                 description: "",
             }));
@@ -50,9 +55,13 @@ function Organization() {
         try {
             const volunteeringDetails = await getOrganizationVolunteerings(model.id);
 
-            const listItems: ListItem[] = volunteeringDetails.map((volunteering) => ({
+            const imagesArray = await Promise.all(
+                volunteeringDetails.map(volunteering => getVolunteeringImages(volunteering.id))
+            );
+
+            const listItems: ListItem[] = volunteeringDetails.map((volunteering, index) => ({
                 id: volunteering.id,
-                image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+                image: imagesArray[index].length > 0 ? imagesArray[index][0] : '/src/assets/defaultVolunteeringDog.webp', 
                 title: volunteering.name,  
                 description: volunteering.description, // assuming 'summary' is a short description
             }));
@@ -169,7 +178,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== managerToRemove),
-                        founderUsername: model.founderUsername
+                        founderUsername: model.founderUsername,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -196,7 +206,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames,
-                        founderUsername: newFounder
+                        founderUsername: newFounder,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -227,7 +238,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username")),
-                        founderUsername: model.founderUsername
+                        founderUsername: model.founderUsername,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -274,6 +286,65 @@ function Organization() {
     const closeDropdown = () => {
         setDropdownOpen(false);
     };
+
+    const onRemoveImage = async (image: string) => {
+        try {
+            await removeImageFromOrganization(model.id, `"${image}"`);
+            let updatedModel: OrganizationModel = {
+                id: model.id,
+                name: model.name,
+                description: model.description,
+                phoneNumber: model.phoneNumber,
+                email: model.email,
+                volunteeringIds: model.volunteeringIds,
+                managerUsernames: model.managerUsernames,
+                founderUsername: model.founderUsername,
+                imagePaths: model.imagePaths.filter(img => image !== img)
+            }
+            setModel(updatedModel);
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+    
+    const onAddImage = async () => {
+        try {
+            let {data,error} =
+                await supabase.storage.from("organization-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+                if(data == null || error !== null){
+                    alert(error)
+                    console.log(error)
+                }else {
+                    let filePath = data!.path;
+                    let response = await supabase.storage.from("organization-photos").getPublicUrl(filePath);
+                    let url = response.data.publicUrl;
+                    await addImageToOrganization(model.id, url);
+                    
+                    let updatedModel: OrganizationModel = {
+                        ...model,  // Spread the existing properties of model
+                        imagePaths: Array.isArray(model.imagePaths) ? [...model.imagePaths, url] : [url],  // Safely update images
+                    };
+                    setModel(updatedModel);
+
+                    setSelectedFile(null)
+                    setKey(prevState => 1-prevState)
+                }
+            }
+            catch (e) {
+                //send to error page
+                alert(e);
+            }
+        };
+    
+        const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedFile(e.target.files![0])
+        }
     
     return (
         <div className='generalPageDiv'>
@@ -367,6 +438,19 @@ function Organization() {
                             </div>
                         </div>
                 }
+            </div>
+
+            <div className="organizationImages">
+                <h1>Photos:</h1>
+                <div className="photos">
+                    {model.imagePaths && model.imagePaths.map(image =>
+                        <div className="photo">
+                            <img src={image}/>
+                            <button onClick={() => onRemoveImage(image)} className="xremove">X</button>
+                        </div>)}
+                </div>
+                <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
+                <button onClick={onAddImage}>Upload!</button>
             </div>
         </div>
 

@@ -232,4 +232,25 @@ public class OrganizationsFacade {
     private boolean userExists(String user){
         return usersFacade.userExists(user);
     }
+
+    public void changeImageInOrganization(int organizationId, String image, boolean add, String actor) {
+        Organization organization = organizationRepository.getOrganization(organizationId);
+        if(!organization.isManager(actor) && !isAdmin(actor)) {
+            throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "add image"));
+        }
+
+        if(image.charAt(0) == '\"') {
+            int len = image.length();
+            image = image.substring(1, len - 1);
+        }
+
+        List<String> newImages = new ArrayList<>(organization.getImagePaths());
+        if(add) {
+            newImages.add(image);
+        }
+        else {
+            newImages.remove(image);
+        }
+        organizationRepository.setImages(organizationId, newImages);
+    }
 }

@@ -83,17 +83,21 @@ public class VolunteerPost extends Post {
     }
 
     public void addImage(String actor, String path) {
-        if(!relatedUsers.contains(path)) {
+        if(!relatedUsers.contains(actor)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, actor, "add image to"));
         }
         if(this.images.contains(path)) {
             throw new IllegalArgumentException(PostErrors.makeImagePathExists(path, actor, true));
         }
+        if(path.charAt(0) == '\"') {
+            int len = path.length();
+            path = path.substring(1, len - 1);
+        }
         this.images.add(path);
     }
 
     public void removeImage(String actor, String path) {
-        if(!relatedUsers.contains(path)) {
+        if(!relatedUsers.contains(actor)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, actor, "remove image from"));
         }
         if(!this.images.contains(path)) {

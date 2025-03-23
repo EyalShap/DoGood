@@ -28,17 +28,18 @@ import {getUserByToken} from "./api/user_api.ts";
 import LoginAndRegister from "./components/LoginAndRegister.tsx";
 import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
+import EasterEgg from './components/EasterEgg.tsx'
 
 
 function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [user, setUser] = useState<UserModel>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const loggedInCheck = async () => {
     if(localStorage.getItem("token") != null){
       try {
         let um: UserModel = await getUserByToken();
         localStorage.setItem("username", um.username);
-        setIsAdmin(um.admin)
+        setUser(um)
         window.dispatchEvent(new Event('storage'))
       }catch (e){
         localStorage.removeItem("token");
@@ -63,7 +64,8 @@ function App() {
     <>
       {!isLoggedIn ? <LoginAndRegister/> :
           <BrowserRouter>
-            <Header isAdmin={isAdmin}/>
+            <Header user={user}/>
+            <div className='Routes'>
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
@@ -88,8 +90,9 @@ function App() {
               <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
               <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
               <Route path='/volunteerPost/:id' element={<VolunteerPost/>}/>
-
+              <Route path='/easterEgg' element={<EasterEgg/>}/>
             </Routes>
+            </div>
             <Footer/>
           </BrowserRouter>}
     </>

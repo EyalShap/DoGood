@@ -1,5 +1,9 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
+
 import java.util.List;
 import java.util.Objects;
 
@@ -12,8 +16,9 @@ public class OrganizationDTO {
     private List<Integer> volunteeringIds;
     private List<String> managerUsernames;
     private String founderUsername;
+    private List<String> imagePaths;
 
-    public OrganizationDTO(int id, String name, String description, String phoneNumber, String email, List<Integer> volunteeringIds, List<String> managerUsernames, String founderUsername) {
+    public OrganizationDTO(int id, String name, String description, String phoneNumber, String email, List<Integer> volunteeringIds, List<String> managerUsernames, String founderUsername, List<String> imagePaths) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -22,6 +27,7 @@ public class OrganizationDTO {
         this.volunteeringIds = volunteeringIds;
         this.managerUsernames = managerUsernames;
         this.founderUsername = founderUsername;
+        this.imagePaths = imagePaths;
     }
 
     public OrganizationDTO(Organization organization) {
@@ -33,6 +39,7 @@ public class OrganizationDTO {
         this.volunteeringIds = organization.getVolunteeringIds();
         this.managerUsernames = organization.getManagerUsernames();
         this.founderUsername = organization.getFounderUsername();
+        this.imagePaths = organization.getImagePaths();
     }
 
     public int getId() {
@@ -67,17 +74,25 @@ public class OrganizationDTO {
         return founderUsername;
     }
 
+    public List<String> getImagePaths() {
+        return imagePaths;
+    }
+
+    public void setImagePaths(List<String> imagePaths) {
+        this.imagePaths = imagePaths;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         OrganizationDTO that = (OrganizationDTO) o;
-        return id == that.id && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && Objects.equals(volunteeringIds, that.volunteeringIds) && Objects.equals(managerUsernames, that.managerUsernames) && Objects.equals(founderUsername, that.founderUsername);
+        return id == that.id && Objects.equals(name, that.name) && Objects.equals(description, that.description) && Objects.equals(phoneNumber, that.phoneNumber) && Objects.equals(email, that.email) && Objects.equals(volunteeringIds, that.volunteeringIds) && Objects.equals(managerUsernames, that.managerUsernames) && Objects.equals(founderUsername, that.founderUsername) && Objects.equals(imagePaths, that.imagePaths);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername);
+        return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername, imagePaths);
     }
 
     public void setId(int id) {
