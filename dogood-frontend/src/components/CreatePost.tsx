@@ -49,15 +49,17 @@ function CreatePost() {
 
 
   const contactSubmit: SubmitHandler<PostFormData> = async (data) => {
-    console.log("here");
+    console.log(id);
     try {
       if(id !== undefined) {
+        console.log(edit);
         if(!edit) {
             let postId: number = await createVolunteeringPost(data.title, data.description, parseInt(id));
             alert("Post created successfully!");
             navigate(`/volunteeringPostList`);
         }
         else {
+          console.log("hiiiiiiiii");
           if(postId !== undefined && post !== null) {
             if(isVolunteeringPost) {
               console.log("im here3");
@@ -67,9 +69,7 @@ function CreatePost() {
             }
             else {
               console.log("im here4");
-              await editVolunteerPost(parseInt(postId), data.title, data.description);
-              alert("Post edited successfully!");
-              navigate(`/volunteerPost/${parseInt(postId)}`);
+              
             }
             
           }
@@ -79,9 +79,19 @@ function CreatePost() {
         }
       }
       else {
-        let postId: number = await createVolunteerPost(data.title, data.description);
-        alert("Post created successfully!");
-        navigate(`/volunteeringPostList`);
+        if(!edit) {
+          let postId: number = await createVolunteerPost(data.title, data.description);
+          alert("Post created successfully!");
+          navigate(`/volunteeringPostList`);
+        }
+        else {
+          if(postId !== undefined) {
+          await editVolunteerPost(parseInt(postId), data.title, data.description);
+          alert("Post edited successfully!");
+          navigate(`/volunteerPost/${parseInt(postId)}`);
+          }
+        }
+        
       }
     }
     catch(e){
