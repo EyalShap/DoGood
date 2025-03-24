@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { filterVolunteeringPosts, filterVolunteerPosts, getAllOrganizationNames, getAllPostsCities, getAllVolunteeringNames, getAllVolunteeringPosts, getAllVolunteeringPostsCategories, getAllVolunteeringPostsSkills, getAllVolunteerPosts, getAllVolunteerPostsCategories, getAllVolunteerPostsSkills, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
+import { filterVolunteeringPosts, filterVolunteerPosts, getAllOrganizationNames, getAllPostsCities, getAllVolunteeringNames, getAllVolunteeringPosts, getAllVolunteeringPostsCategories, getAllVolunteeringPostsSkills, getAllVolunteerPosts, getAllVolunteerPostsCategories, getAllVolunteerPostsSkills, getVolunteeringImages, searchByKeywords, sortByLastEditTime, sortByPopularity, sortByPostingTime, sortByRelevance } from '../api/post_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPostList.css'
 import MultipleSelectDropdown from './MultipleSelectDropdown';
@@ -16,10 +16,12 @@ function VolunteeringPostList() {
     const navigate = useNavigate();
     const[isVolunteeringPosts, setIsVolunteeringPosts] = useState<boolean>(true);
     const [posts, setPosts] = useState<PostModel[]>([]);
+    const [searchedPosts, setSearchedPosts] = useState<PostModel[]>([]);
+    //const [seacrhedVolunteerPosts, setSearchedVolunteerPosts] = useState<VolunteerPostModel[]>([]);
+    //const [filteredPosts, setFilteredPosts] = useState<PostModel[]>([]);
     const [allVolunteeringPosts, setAllVolunteeringPosts] = useState<VolunteeringPostModel[]>([]);
     const [allVolunteerPosts, setAllVolunteerPosts] = useState<VolunteerPostModel[]>([]);
     const [postsListItems, setPostsListItems] = useState<ListItem[]>([]);
-    const [allPostsListItems, setAllPostsListItems] = useState<ListItem[]>([]);
     const [search, setSearch] = useState("");
     const[sortFunction, setSortFunction] = useState<SingleValue<{ value: string; label: string }>>(null);
     const[allCategories, setAllCategories] = useState<string[]>([]);
@@ -32,6 +34,7 @@ function VolunteeringPostList() {
     const[selectedCities, setSelectedCities] = useState<string[]>([]);
     const[selectedOrganizationNames, setSelectedOrganizationNames] = useState<string[]>([]);
     const[selectedVolunteeringNames, setSelectedVolunteeringNames] = useState<string[]>([]);
+    const [postImages, setPostImages] = useState<Map<number, string>>(new Map());
 
     const fetchPosts = async () => {
         try {
@@ -44,11 +47,21 @@ function VolunteeringPostList() {
                 else {
                     fetchedPosts = await sortByRelevance(await getAllVolunteeringPosts());
                     setAllVolunteeringPosts(fetchedPosts);
+                    setSearchedPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
 
+                const imagesArray = await Promise.all(
+                    fetchedPosts.map(post => getVolunteeringImages(post.volunteeringId))
+                );
+        
+                fetchedPosts.forEach((post, index) => {
+                    const images = imagesArray[index];
+                    const firstImage = images.length > 0 ? images[0] : '/src/assets/defaultVolunteeringDog.webp';
+                    postImages.set(post.id, firstImage);
+                });
+
                 let listItems = convertToListItems(fetchedPosts);
-                setAllPostsListItems(listItems);
                 setPostsListItems(listItems);
 
                 let allCategories = await getAllVolunteeringPostsCategories();
@@ -74,10 +87,16 @@ function VolunteeringPostList() {
                 else {
                     fetchedPosts = await getAllVolunteerPosts();
                     setAllVolunteerPosts(fetchedPosts);
+                    setSearchedPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
+        
+                fetchedPosts.forEach((post, index) => {
+                    const firstImage = post.images.length > 0 ? post.images[0] : '/src/assets/defaultVolunteerPostDog.jpg';
+                    postImages.set(post.id, firstImage);
+                });
+
                 let listItems = convertToListItems(fetchedPosts);
-                setAllPostsListItems(listItems);
                 setPostsListItems(listItems);
 
                 let allCategories = await getAllVolunteerPostsCategories();
@@ -105,7 +124,7 @@ function VolunteeringPostList() {
     const convertToListItems = (posts: PostModel[]) => {
         const listItems: ListItem[] = posts.map((post) => ({
             id: post.id,
-            image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+            image: postImages.get(post.id) ?? '/src/assets/defaultVolunteeringDog.webp', 
             title: post.title,  
             description: post.description, // assuming 'summary' is a short description
         }));
@@ -114,9 +133,28 @@ function VolunteeringPostList() {
 
     const handleSearchOnClick = async () => {
         try {
-            let res : PostModel[] = await searchByKeywords(search, posts, true);
+            let res : PostModel[] = [];
+            if(isVolunteeringPosts) {
+                if(search.trim() === "") {
+                    res = allVolunteeringPosts;
+                }
+                res = await searchByKeywords(search, allVolunteeringPosts, isVolunteeringPosts);
+                setSearchedPosts(res);
+                let resVolunteeringPosts : number[] = res.map(resPost => resPost.id);
+                res = await filterVolunteeringPosts(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, resVolunteeringPosts);
+            }
+            else {
+                if(search.trim() === "") {
+                    res = allVolunteerPosts;
+                }
+                res = await searchByKeywords(search, allVolunteerPosts, isVolunteeringPosts);                
+                setSearchedPosts(res);
+                res = await filterVolunteerPosts(selectedCategories, selectedSkills, res as VolunteerPostModel[]);
+            }
+            
             setPosts(res);
             setPostsListItems(convertToListItems(res));
+            
         }
         catch(e) {
             alert(e);
@@ -152,15 +190,18 @@ function VolunteeringPostList() {
         let filtered : PostModel[] = [];
         if(isVolunteeringPosts) {
             if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0) {
-                filtered = allVolunteeringPosts;
+                //filtered = allVolunteeringPosts;
+                filtered = searchedPosts;
             }
             else {
-                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, posts as VolunteeringPostModel[]);
+                let postIds : number[] = searchedPosts.map(post => post.id);
+                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, postIds);
             }
         }
         else {
             if(categories.length === 0 && skills.length === 0) {
-                filtered = allVolunteerPosts;
+                //filtered = allVolunteerPosts;
+                filtered = searchedPosts;
             }
             else {
                 filtered = await filterVolunteerPosts(categories, skills, posts as VolunteerPostModel[]);

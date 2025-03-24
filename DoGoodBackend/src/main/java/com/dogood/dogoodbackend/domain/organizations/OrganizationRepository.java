@@ -11,6 +11,7 @@ public interface OrganizationRepository {
     public void setVolunteeringIds(int organizationId, List<Integer> volunteeringIds);
     public void setManagers(int organizationId, List<String> managers);
     public void setFounder(int organizationId, String newFounder);
+    public void setImages(int organizationId, List<String> images);
     public Organization getOrganization(int organizationId);
     public List<Organization> getAllOrganizations();
 

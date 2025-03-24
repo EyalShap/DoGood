@@ -64,6 +64,13 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    public void setImages(int organizationId, List<String> images) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setImagePaths(images);
+        jpa.save(toSet);
+    }
+
+    @Override
     @Transactional
     public Organization getOrganization(int organizationId) {
         Optional<Organization> organization = jpa.findById(organizationId);

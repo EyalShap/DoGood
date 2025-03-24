@@ -63,6 +63,12 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    public void setImages(int organizationId, List<String> images) {
+        Organization toSet = getOrganization(organizationId);
+        toSet.setImagePaths(images);
+    }
+
+    @Override
     public Organization getOrganization(int organizationId) {
         if(!organizations.containsKey(organizationId)) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));

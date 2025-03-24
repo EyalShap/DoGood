@@ -82,4 +82,10 @@ public class UserAPI {
         String token = getToken(request);
         return userService.leaderboard(token, username);
     }
+
+    @GetMapping("/setLeaderboard")
+    public Response<Boolean> setLeaderboard(@RequestParam String username, @RequestParam boolean leaderboard, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.setLeaderboard(token, username, leaderboard);
+    }
 }

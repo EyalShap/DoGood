@@ -214,4 +214,15 @@ public class OrganizationService {
             return Response.createResponse(null, e.getMessage());
         }
     }
+
+    public Response<Boolean> changeImageInOrganization(String token, int organizationId, String image, boolean add, String actor) {
+        try {
+            checkToken(token, actor);
+            organizationsFacade.changeImageInOrganization(organizationId, image, add, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
 }

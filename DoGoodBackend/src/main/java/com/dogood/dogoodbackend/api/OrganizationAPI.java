@@ -160,4 +160,18 @@ public class OrganizationAPI {
 
         return organizationService.getUserVolunteeerings(token, actor, organizationId);
     }
+
+    @PostMapping("/addImageToOrganization")
+    public Response<Boolean> addImageToOrganization(@RequestParam int organizationId, @RequestBody String image, @RequestParam String actor,  HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.changeImageInOrganization(token, organizationId, image, true, actor);
+    }
+
+    @DeleteMapping("/removeImageFromOrganization")
+    public Response<Boolean> removeImageFromOrganization(@RequestParam int organizationId, @RequestParam String image, @RequestParam String actor,  HttpServletRequest request) {
+        String token = getToken(request);
+
+        return organizationService.changeImageInOrganization(token, organizationId, image, false, actor);
+    }
 }
