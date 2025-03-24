@@ -1,0 +1,113 @@
+.catsAndSkills {
+  display: flex;
+  gap: 40px; /* Increases spacing between the two sections */
+  justify-content: center; /* Centers them horizontally */
+  align-items: flex-start;
+  margin-top: 20px;
+}
+
+.cats, .skills {
+  background-color: #f9f9f9;
+  padding: 20px;
+  border-radius: 10px;
+  width: 50%; /* Adjust width as needed */
+  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
+  text-align: center; /* Centers text inside */
+}
+
+
+
+  .volunteerPostHeader {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    margin: 0;
+    color: black;
+    max-width: 800px;
+    line-height: 1.4;
+  }
+
+  .notFound {
+    font-family: 'Montserrat', sans-serif;
+    text-align: center; /* Ensures "No skills" is centered */
+    width: 100%; /* Ensures full width usage */
+    display: block; /* Makes sure it behaves like a block-level element */
+  }
+
+  .skillsList, .catsList {
+    list-style: none; /* Removes default bullet points */
+    padding: 0;
+    text-align: center; /* Aligns items to the left */
+    font-family: 'Montserrat', sans-serif;
+}
+
+.skillsList li::before,
+.catsList li::before {
+    content: "- "; /* Replaces bullet with a dash */
+    font-weight: bold; /* Optional: Makes the dash bold */
+    margin-right: 5px; /* Adds spacing between the dash and text */
+}
+.generalUsersList {
+  display: flex;
+  justify-content: center;  /* Centers the items horizontally */
+  align-items: center;      /* Centers the items vertically */
+  flex-wrap: wrap;          /* Allows wrapping of items */
+  gap: 30px;                /* Adds space between the items */
+  width: 100%;              /* Makes sure the container takes full width */
+  box-sizing: border-box;   /* Ensures padding doesn't affect width */
+}
+
+.relatedUsersList {
+  display: flex;
+  justify-content: space-evenly;
+  list-style-type: none; /* Optional: removes bullet points */
+  padding: 0; /* Optional: removes default padding */
+}
+
+.postListItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 10px;
+  min-width: 150px;
+  background: #f2f2f2;
+}
+
+.postListItem {
+  width: 80px;             
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 10px;
+  object-fit: cover;       
+}
+
+.userName, .isPoster {
+  font-size: 18px;          /* Increases font size for names */
+  margin: 5px 0;
+}
+
+.isPoster {
+  font-size: 14px;          /* Slightly smaller font for "(Poster)" */
+  color: #888;              /* Lighter color for "(Poster)" */
+}
+
+.listContainer {
+  padding-left: 10px; /* Check if there's an uneven padding */
+  padding-right: 10px;
+}
+
+.volunteerPostHeaderContainer {
+  display: flex;
+  justify-content: center; /* Push image to left and info to right */
+  align-items: center; /* Center vertically */
+  gap: 200px; /* Space between image and info */
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin: 0 auto;
+  max-width: 1200px;
+  flex-wrap: wrap; /* Make responsive */
+  border-radius: 15px; /* Rounded corners */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+  background-color: #e6e5e5;
+  width: 80%;
+}

@@ -12,13 +12,19 @@ body {
     max-width: 1100px;
     margin: 30px auto;
     padding: 25px;
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
+.actionsMenu {
+    position: relative; /* Ensure this container is the reference point for absolute positioning */
+    display: flex;
+    justify-content: flex-start; /* Push the dots menu to the right */
+    align-items: center;
+    margin-right: auto;  /* Pushes menu to the right */
+    gap: 30px;
+  }
 
 /* Post Information Section */
 #postInfo {
@@ -57,10 +63,10 @@ textarea {
 /* Volunteering and Organization */
 #volunteeringAndOrganization {
     display: flex;
-    gap: 20px;
-    justify-content: space-between;  /* Ensures equal spacing between items */
+    justify-content: center;  /* Ensures equal spacing between items */
     margin-top: 20px;
     width: 100%;
+    gap: 20px;
 }
 
 .volunteeringOrganizationBox {
@@ -230,8 +236,7 @@ transform: translateY(-4px); /* Lift effect */
     opacity: 1;
     position: absolute;
     top: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    left: 100%;
     background-color: #d8e5eb;
     color: #000000;
     text-align: center;
@@ -242,6 +247,8 @@ transform: translateY(-4px); /* Lift effect */
     transition: opacity 0.3s ease;
     width: 350px;
     font-family: 'Montserrat', sans-serif;
+
+
   }
 
   .info-tooltip::before {
@@ -312,5 +319,40 @@ transform: translateY(-4px); /* Lift effect */
     border: 1px solid #ccc;
     border-radius: 5px;
     resize: none;
+    font-family: 'Montserrat', sans-serif;
+  }
+
+  .volunteeringPostHeaderContainer {
+    display: flex;
+    justify-content: center; /* Push image to left and info to right */
+    align-items: center; /* Center vertically */
+    gap: 50px; /* Space between image and info */
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin: 0 auto;
+    max-width: 1200px;
+    flex-wrap: wrap; /* Make responsive */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+    background-color: #e6e5e5;
+    width: 80%;
+  }
+
+  .joinButton {
+    font-family: 'Montserrat', sans-serif;
+    background-color: #037b7b;
+    color: white;
+    border: none;
+    padding: 10px 20px; /* Smaller padding */
+    font-size: 1.3rem; /* Smaller text */
+    border-radius: 20px; /* Optional: adjust for better proportion */
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    font-weight: 400;
+    margin-top: 30px;
+    margin-bottom: 30px;
+  }
+
+  #noPastExperiences{
     font-family: 'Montserrat', sans-serif;
   }

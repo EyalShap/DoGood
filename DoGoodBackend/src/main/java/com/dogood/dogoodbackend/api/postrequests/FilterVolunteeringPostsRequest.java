@@ -12,7 +12,7 @@ public class FilterVolunteeringPostsRequest {
     private Set<String> organizationNames;
     private Set<String> volunteeringNames;
     private String actor;
-    private List<VolunteeringPostDTO> allPosts;
+    private List<Integer> allPosts;
 
     public Set<String> getCategories() {
         return categories;
@@ -46,11 +46,11 @@ public class FilterVolunteeringPostsRequest {
         this.actor = actor;
     }
 
-    public List<VolunteeringPostDTO> getAllPosts() {
+    public List<Integer> getAllPosts() {
         return allPosts;
     }
 
-    public void setAllPosts(List<VolunteeringPostDTO> allPosts) {
+    public void setAllPosts(List<Integer> allPosts) {
         this.allPosts = allPosts;
     }
 

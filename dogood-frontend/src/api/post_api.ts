@@ -438,7 +438,7 @@ export const sortByLastEditTime = async (postsToSort: PostModel[]): Promise<Post
     return posts;
 }
 
-export const filterVolunteeringPosts = async (categories: string[], skills: string[], cities: string[], organizationNames: string[], voluntteringNames: string[], postsToFilter: VolunteeringPostModel[]): Promise<VolunteeringPostModel[]> => {
+export const filterVolunteeringPosts = async (categories: string[], skills: string[], cities: string[], organizationNames: string[], voluntteringNames: string[], postsToFilter: number[]): Promise<VolunteeringPostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 

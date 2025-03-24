@@ -14,9 +14,12 @@ export interface ListProps {
   data: ListItem[];
   limit: number;
   navigateTo: string;
+  clickable?: (id: number | string) => boolean;
+  onRemove? : (arg0: string) => Promise<void>;
+  isOrgManager? : boolean;
 }
 
-const List: React.FC<ListProps> = ({ data, limit, navigateTo }) => {
+const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0); 
 
@@ -53,11 +56,12 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo }) => {
       rel="stylesheet"
       />
 
-      <button onClick={handlePrev} className="leftArrow"></button>
+      {data.length > 1 && <button onClick={handlePrev} className="leftArrow"></button>}
 
       <div className="list">
         {visibleItems.map((item) => (
-          <div key={item.id} className="listItem" onClick={() => handleTitleOnClick(item.id)}>
+          <div className="itemAndButton">
+          <div key={item.id} className={`listItem ${(clickable ? clickable(item.id) : false) ? "clickable" : "nonClickable"}`} onClick={() => handleTitleOnClick(item.id)}>
             <img
               src={item.image}
               alt={item.title}
@@ -66,10 +70,12 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo }) => {
             <h3 className="listItemHeader">{item.title}</h3>
             <p className="listItemDesc">{item.description}</p>
           </div>
+          {(isOrgManager && onRemove && item.image !== '/src/assets/defaultOrganizationDog.webp') && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
+          </div>
         ))}
       </div>
 
-      <button onClick={handleNext} className="rightArrow"></button>
+      {data.length > 1 && <button onClick={handleNext} className="rightArrow"></button>}
 
 
     </div>

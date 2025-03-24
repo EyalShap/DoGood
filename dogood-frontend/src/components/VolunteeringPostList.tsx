@@ -16,10 +16,12 @@ function VolunteeringPostList() {
     const navigate = useNavigate();
     const[isVolunteeringPosts, setIsVolunteeringPosts] = useState<boolean>(true);
     const [posts, setPosts] = useState<PostModel[]>([]);
+    const [searchedPosts, setSearchedPosts] = useState<PostModel[]>([]);
+    //const [seacrhedVolunteerPosts, setSearchedVolunteerPosts] = useState<VolunteerPostModel[]>([]);
+    //const [filteredPosts, setFilteredPosts] = useState<PostModel[]>([]);
     const [allVolunteeringPosts, setAllVolunteeringPosts] = useState<VolunteeringPostModel[]>([]);
     const [allVolunteerPosts, setAllVolunteerPosts] = useState<VolunteerPostModel[]>([]);
     const [postsListItems, setPostsListItems] = useState<ListItem[]>([]);
-    const [allPostsListItems, setAllPostsListItems] = useState<ListItem[]>([]);
     const [search, setSearch] = useState("");
     const[sortFunction, setSortFunction] = useState<SingleValue<{ value: string; label: string }>>(null);
     const[allCategories, setAllCategories] = useState<string[]>([]);
@@ -45,6 +47,7 @@ function VolunteeringPostList() {
                 else {
                     fetchedPosts = await sortByRelevance(await getAllVolunteeringPosts());
                     setAllVolunteeringPosts(fetchedPosts);
+                    setSearchedPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
 
@@ -59,7 +62,6 @@ function VolunteeringPostList() {
                 });
 
                 let listItems = convertToListItems(fetchedPosts);
-                setAllPostsListItems(listItems);
                 setPostsListItems(listItems);
 
                 let allCategories = await getAllVolunteeringPostsCategories();
@@ -85,6 +87,7 @@ function VolunteeringPostList() {
                 else {
                     fetchedPosts = await getAllVolunteerPosts();
                     setAllVolunteerPosts(fetchedPosts);
+                    setSearchedPosts(fetchedPosts);
                 }
                 setPosts(fetchedPosts);
         
@@ -94,7 +97,6 @@ function VolunteeringPostList() {
                 });
 
                 let listItems = convertToListItems(fetchedPosts);
-                setAllPostsListItems(listItems);
                 setPostsListItems(listItems);
 
                 let allCategories = await getAllVolunteerPostsCategories();
@@ -131,9 +133,28 @@ function VolunteeringPostList() {
 
     const handleSearchOnClick = async () => {
         try {
-            let res : PostModel[] = await searchByKeywords(search, posts, true);
+            let res : PostModel[] = [];
+            if(isVolunteeringPosts) {
+                if(search.trim() === "") {
+                    res = allVolunteeringPosts;
+                }
+                res = await searchByKeywords(search, allVolunteeringPosts, isVolunteeringPosts);
+                setSearchedPosts(res);
+                let resVolunteeringPosts : number[] = res.map(resPost => resPost.id);
+                res = await filterVolunteeringPosts(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, resVolunteeringPosts);
+            }
+            else {
+                if(search.trim() === "") {
+                    res = allVolunteerPosts;
+                }
+                res = await searchByKeywords(search, allVolunteerPosts, isVolunteeringPosts);                
+                setSearchedPosts(res);
+                res = await filterVolunteerPosts(selectedCategories, selectedSkills, res as VolunteerPostModel[]);
+            }
+            
             setPosts(res);
             setPostsListItems(convertToListItems(res));
+            
         }
         catch(e) {
             alert(e);
@@ -169,15 +190,18 @@ function VolunteeringPostList() {
         let filtered : PostModel[] = [];
         if(isVolunteeringPosts) {
             if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0) {
-                filtered = allVolunteeringPosts;
+                //filtered = allVolunteeringPosts;
+                filtered = searchedPosts;
             }
             else {
-                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, posts as VolunteeringPostModel[]);
+                let postIds : number[] = searchedPosts.map(post => post.id);
+                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, postIds);
             }
         }
         else {
             if(categories.length === 0 && skills.length === 0) {
-                filtered = allVolunteerPosts;
+                //filtered = allVolunteerPosts;
+                filtered = searchedPosts;
             }
             else {
                 filtered = await filterVolunteerPosts(categories, skills, posts as VolunteerPostModel[]);
