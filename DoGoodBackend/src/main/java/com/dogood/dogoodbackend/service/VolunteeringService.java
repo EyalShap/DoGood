@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.*;
 
 import static java.lang.Thread.sleep;
@@ -83,6 +84,8 @@ public class VolunteeringService {
         this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date());
         this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date());
         this.facadeManager.getUsersFacade().register("EyalManager", "password654", "Eyal Manager", "eyal.manager@gmail.com", "0549873210", new Date());
+        this.facadeManager.getUsersFacade().register("DanaManager", "123456", "Dana Manager", "dana.manager@gmail.com", "0549873210", new Date());
+        this.facadeManager.getUsersFacade().register("EyalShap", "123456", "אייל שפירו", "eyald@post.bgu.ac.il", "0528585519", Date.from(LocalDate.of(2003,10,19).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
         this.facadeManager.getUsersFacade().register("FionaManager", "password555", "Fiona Manager", "fiona.manager@gmail.com", "0539876543", new Date());
         this.facadeManager.getUsersFacade().register("GeorgeManager", "password999", "George Manager", "george.manager@gmail.com", "0523219876", new Date());
 
@@ -99,114 +102,114 @@ public class VolunteeringService {
 
 // Organization 1: Happy Tails
         int volId1 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Dog Walking", "Walk and care for shelter dogs", "AliceManager");
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId1, List.of("Animal Care", "Physical Activity"));
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId1, List.of("Animals", "Health"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId1, List.of("Animal Care", "Physical Activity"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId1, List.of("Animals", "Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Walk Shelter Dogs!", "Join us to keep our furry friends happy and active.", "AliceManager", volId1);
 
         int volId2 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Cat Cuddling", "Provide love and care to shelter cats", "AliceManager");
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId2, List.of("Patience", "Compassion"));
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId2, List.of("Animals", "Mental Health"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId2, List.of("Patience", "Compassion"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId2, List.of("Animals", "Mental Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Cuddle Shelter Cats!", "Spend quality time with our adorable shelter cats.", "AliceManager", volId2);
 
 // Organization 2: GreenThumbs
         int volId3 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId2, "Planting Trees", "Help us plant trees in urban areas", "BobManager");
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("BobManager", volId3, List.of("Gardening", "Teamwork"));
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("BobManager", volId3, List.of("Environment", "Health"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("BobManager", volId3, List.of("Gardening", "Teamwork"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("BobManager", volId3, List.of("Environment", "Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Plant Trees in the City!", "Be part of a greener future by planting trees with us.", "BobManager", volId3);
 
         int volId4 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId2, "Beach Cleanup", "Join us to clean up our local beaches", "BobManager");
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("BobManager", volId4, List.of("Cleaning", "Teamwork"));
-        ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("BobManager", volId4, List.of("Environment", "Social Impact"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("BobManager", volId4, List.of("Cleaning", "Teamwork"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("BobManager", volId4, List.of("Environment", "Social Impact"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Beach Cleanup Crew Needed!", "Help us protect marine life by cleaning up the beaches.", "BobManager", volId4);
 
 // Organization 3: FitForLife
         int volId5 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId3, "Yoga Sessions", "Lead yoga sessions for the community", "CharlieManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("CharlieManager", volId5, List.of("Fitness", "Leadership"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("CharlieManager", volId5, List.of("Health", "Mental Wellness"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("CharlieManager", volId5, List.of("Fitness", "Leadership"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("CharlieManager", volId5, List.of("Health", "Mental Wellness"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Lead Yoga Classes!", "Volunteer to bring mindfulness and fitness to our community.", "CharlieManager", volId5);
 
 // Organization 4: Foodies United
         int volId6 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId4, "Soup Kitchen Helper", "Assist in preparing and serving meals", "DinaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId6, List.of("Cooking", "Teamwork"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId6, List.of("Community", "Food"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId6, List.of("Cooking", "Teamwork"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId6, List.of("Community", "Food"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Help at the Soup Kitchen!", "Join us to provide warm meals to those in need.", "DinaManager", volId6);
 
 // Organization 5: Code4Good
         int volId7 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId5, "Teach Coding", "Volunteer to teach coding to kids", "EyalManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId7, List.of("Programming", "Teaching"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId7, List.of("Education", "Technology"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId7, List.of("Programming", "Teaching"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId7, List.of("Education", "Technology"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Teach Kids to Code!", "Make a difference by teaching coding skills to children.", "EyalManager", volId7);
 
 // Organization 6: Literacy League
         int volId8 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId6, "Book Reading Sessions", "Read books to children in libraries", "FionaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId8, List.of("Storytelling", "Patience"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId8, List.of("Education", "Community"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId8, List.of("Storytelling", "Patience"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId8, List.of("Education", "Community"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Volunteer as a Storyteller!", "Bring stories to life for kids in libraries.", "FionaManager", volId8);
 
 // Organization 7: Senior Supporters
         int volId9 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId7, "Home Visit Volunteer", "Spend time with lonely seniors", "GeorgeManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId9, List.of("Compassion", "Communication"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId9, List.of("Community", "Mental Wellness"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId9, List.of("Compassion", "Communication"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId9, List.of("Community", "Mental Wellness"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Support the Elderly!", "Visit seniors and brighten their day.", "GeorgeManager", volId9);
 // Organization 3: FitForLife
         int volId10 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId3, "Healthy Cooking Workshops", "Teach community members how to cook healthy meals", "CharlieManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("CharlieManager", volId10, List.of("Cooking", "Teaching"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("CharlieManager", volId10, List.of("Health", "Education"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("CharlieManager", volId10, List.of("Cooking", "Teaching"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("CharlieManager", volId10, List.of("Health", "Education"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Teach Healthy Cooking!", "Volunteer to run workshops that promote healthy eating.", "CharlieManager", volId10);
 
 // Organization 4: Foodies United
         int volId11 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId4, "Food Bank Organizer", "Help organize food donations at the local food bank", "DinaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId11, List.of("Organization", "Compassion"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId11, List.of("Community", "Food"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId11, List.of("Organization", "Compassion"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId11, List.of("Community", "Food"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Help Organize Food Donations!", "Support your community by organizing food for those in need.", "DinaManager", volId11);
 
         int volId12 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId4, "Meal Delivery Driver", "Deliver meals to families in need", "DinaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId12, List.of("Driving", "Compassion"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId12, List.of("Community", "Social Impact"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DinaManager", volId12, List.of("Driving", "Compassion"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DinaManager", volId12, List.of("Community", "Social Impact"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Deliver Meals to Families!", "Make a direct impact by delivering meals to those in need.", "DinaManager", volId12);
 
 // Organization 5: Code4Good
         int volId13 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId5, "Coding Mentorship", "Mentor students learning to code", "EyalManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId13, List.of("Programming", "Mentorship"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId13, List.of("Education", "Technology"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId13, List.of("Programming", "Mentorship"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId13, List.of("Education", "Technology"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Mentor Aspiring Coders!", "Share your programming skills with the next generation.", "EyalManager", volId13);
 
         int volId14 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId5, "App Development Team", "Collaborate on building a charity app", "EyalManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId14, List.of("Programming", "Teamwork", "Design"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId14, List.of("Technology", "Social Impact"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("EyalManager", volId14, List.of("Programming", "Teamwork", "Design"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("EyalManager", volId14, List.of("Technology", "Social Impact"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Build an App for Good!", "Join a team to develop apps that create social impact.", "EyalManager", volId14);
 
 // Organization 6: Literacy League
         int volId15 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId6, "Reading Buddy", "Help children improve their reading skills", "FionaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId15, List.of("Patience", "Teaching"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId15, List.of("Education", "Community"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId15, List.of("Patience", "Teaching"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId15, List.of("Education", "Community"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Be a Reading Buddy!", "Support kids by helping them become confident readers.", "FionaManager", volId15);
 
         int volId16 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId6, "Library Organizer", "Organize books and manage library resources", "FionaManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId16, List.of("Organization", "Attention to Detail"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId16, List.of("Education", "Community"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("FionaManager", volId16, List.of("Organization", "Attention to Detail"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("FionaManager", volId16, List.of("Education", "Community"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Organize a Library!", "Help us create a welcoming and organized library space.", "FionaManager", volId16);
 
 // Organization 7: Senior Supporters
         int volId17 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId7, "Elderly Companion", "Spend time with seniors to combat loneliness", "GeorgeManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId17, List.of("Compassion", "Listening"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId17, List.of("Community", "Mental Health"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId17, List.of("Compassion", "Listening"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId17, List.of("Community", "Mental Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Be a Companion for Seniors!", "Make a difference in the lives of elderly people by being a friendly companion.", "GeorgeManager", volId17);
 
         int volId18 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId7, "Event Coordinator for Seniors", "Organize activities and events for the elderly", "GeorgeManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId18, List.of("Organization", "Creativity"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId18, List.of("Community", "Social Impact"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("GeorgeManager", volId18, List.of("Organization", "Creativity"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("GeorgeManager", volId18, List.of("Community", "Social Impact"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Plan Events for Seniors!", "Bring joy to seniors by organizing fun events.", "GeorgeManager", volId18);
 
 // Organization 1: Happy Tails (Again)
         int volId19 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Dog Training Sessions", "Help train shelter dogs to improve adoption chances", "AliceManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId19, List.of("Animal Training", "Patience"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId19, List.of("Animals", "Education"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId19, List.of("Animal Training", "Patience"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId19, List.of("Animals", "Education"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Train Shelter Dogs!", "Volunteer to help our shelter dogs find loving homes.", "AliceManager", volId19);
 
         int volId20 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Pet Adoption Events", "Assist at events to match pets with families", "AliceManager");
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId20, List.of("Event Planning", "Communication"));
-        //this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId20, List.of("Animals", "Community"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId20, List.of("Event Planning", "Communication"));
+        this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId20, List.of("Animals", "Community"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Help at Adoption Events!", "Join us to find forever homes for our furry friends.", "AliceManager", volId20);
 
         this.facadeManager.getPostsFacade().createVolunteerPost("Hiii", "HI", "AliceManager");
@@ -527,6 +530,15 @@ public class VolunteeringService {
             facadeManager.getVolunteeringFacade().checkViewingPermissions(userId, volunteeringId);
             VolunteeringDTO dto = facadeManager.getVolunteeringFacade().getVolunteeringDTO(volunteeringId);
             return Response.createResponse(dto);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<VolunteeringDTO>> getVolunteeringsOfUser(String token, String userId) {
+        try {
+            checkToken(token, userId);
+            return Response.createResponse(facadeManager.getVolunteeringFacade().getVolunteeringsOfUser(userId));
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }

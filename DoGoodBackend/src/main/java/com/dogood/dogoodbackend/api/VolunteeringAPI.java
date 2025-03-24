@@ -264,6 +264,12 @@ public class VolunteeringAPI {
         return volunteeringService.getVolunteeringDTO(token, userId, volunteeringId);
     }
 
+    @GetMapping("/getVolunteeringsOfUser")
+    public Response<List<VolunteeringDTO>> getVolunteeringsOfUser(@RequestParam String userId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getVolunteeringsOfUser(token, userId);
+    }
+
     @GetMapping("/getVolunteeringSkills")
     public Response<List<String>> getVolunteeringSkills(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);

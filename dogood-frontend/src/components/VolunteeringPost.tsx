@@ -35,11 +35,11 @@ function VolunteeringPost() {
         try {
             if(id !== undefined) {
                 let post: VolunteeringPostModel = await getVolunteeringPost(parseInt(id));
+                let volunteeringName: string = await getVolunteeringName(post.volunteeringId);
+                let organizationName: string = await getOrganizationName(post.organizationId);
                 setModel(post);
                 setReady(true);
 
-                let volunteeringName: string = await getVolunteeringName(post.volunteeringId);
-                let organizationName: string = await getOrganizationName(post.organizationId);
                 setVolunteeringName(volunteeringName);
                 setOrganizationName(organizationName);
                 
@@ -50,6 +50,7 @@ function VolunteeringPost() {
                 catch {
                     setIsVolunteer(false);                
                 }
+                setIsManager(await getIsManager(post.organizationId));
             }
             else {
                 alert("Error");
@@ -100,16 +101,6 @@ function VolunteeringPost() {
         }
     }
 
-    const updatePermissions = async () => {
-        try{
-            setIsManager(await getIsManager(model.organizationId));
-        }
-        catch(e){
-            //send to error page
-            alert(e)
-        }
-    }
-
     useEffect(() => {
         fetchVolunteeringPost();
         fetchPastExperiences();
@@ -119,11 +110,6 @@ function VolunteeringPost() {
         fetchImages();
     }, [model, ready])
 
-    useEffect(() =>{
-        if(ready){
-            updatePermissions();
-        }
-    }, [model, ready])
 
     const fixDate = (dateJson: string, showHour: boolean) : string => {
         let date: Date = new Date(dateJson);

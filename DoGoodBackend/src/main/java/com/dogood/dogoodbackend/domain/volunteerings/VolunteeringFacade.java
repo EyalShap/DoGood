@@ -676,6 +676,13 @@ public class VolunteeringFacade {
         return volunteering.getDTO();
     }
 
+    public List<VolunteeringDTO> getVolunteeringsOfUser(String username){
+        List<Volunteering> volunteerings = repository.getAllVolunteerings();
+        return volunteerings.stream()
+                .filter(volunteering -> volunteering.hasVolunteer(username) || organizationFacade.isManager(username, volunteering.getOrganizationId()))
+                .map(volunteering -> volunteering.getDTO()).toList();
+    }
+
 
     public List<String> getVolunteeringSkills(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
