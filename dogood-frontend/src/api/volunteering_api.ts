@@ -23,6 +23,18 @@ export const getVolunteering = async (volunteeringId: number): Promise<Volunteer
     return response.data;
 }
 
+export const getVolunteeringsOfUser = async (): Promise<VolunteeringModel[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getVolunteeringsOfUser?userId=${localStorage.getItem('username')}`, config);
+    const response: APIResponse<VolunteeringModel[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const getVolunteeringVolunteers = async (volunteeringId: number): Promise<VolunteersToGroup> => {
     const config = {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }

@@ -36,10 +36,10 @@ function LeaderboardMap() {
                     </tr>
                 </thead>
                 <tbody>
-                    {Object.entries(leaderboardData!).map(([user, score]) => (
+                    {Object.entries(leaderboardData!).reverse().map(([user, score]) => (
                         <tr key={user} className='leaderboardItem'>
                             <td>{user}</td>
-                            <td>{score}</td>
+                            <td>{score.toString() === score.toFixed(0) ? score : score.toFixed(1)}</td>
                         </tr>
                     ))}
                 </tbody>

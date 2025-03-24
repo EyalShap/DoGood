@@ -30,8 +30,8 @@ const Header: React.FC<Props> = ({ user }) => {
         await logout();
         localStorage.removeItem("username");
         localStorage.removeItem("token");
-        window.dispatchEvent(new Event('storage'))
         closeMenu();
+        window.dispatchEvent(new Event('storage'))
       }
       catch(e){
         alert(e);
@@ -58,7 +58,7 @@ const Header: React.FC<Props> = ({ user }) => {
             <ul className="menuList">
               <li className="menuListItem"><a href="/volunteeringPostList" className="navLink">Browse Posts</a></li>
               <li className="menuListItem"><a href="/organizationList" className="navLink">Browse Organizations</a></li>
-              <li className="menuListItem"><a href="/contact" className="navLink">My Volunteerings</a></li>
+              <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>
               <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>
               <div className="profileWrapper">
                     <img
