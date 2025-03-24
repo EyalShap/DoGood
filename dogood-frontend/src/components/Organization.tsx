@@ -419,7 +419,7 @@ function Organization() {
                 <h2 className='listHeader'>Our Volunteerings</h2>
                 <div className='generalList'>
                     {volunteerings.length > 0 ? (
-                        <ListWithArrows data = {volunteerings} limit = {4} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id)}></ListWithArrows>
+                        <ListWithArrows data = {volunteerings} limit = {4} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id) || isManager}></ListWithArrows>
                     ) : (
                         <p>No volunteerings available.</p>
                     )}
