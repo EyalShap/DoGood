@@ -204,25 +204,13 @@ public class UsersFacade {
         return volunteeringFacade.getUserApprovedHours(user.getUsername(), allIds);
     }
 
-    private List<Integer> getAllUserVolunteeringIds(User user) {
-        List<Integer> allUserVolunteeringIds = user.getVolunteeringIds();
-
-        List<VolunteeringDTO> userHistory = user.getVolunteeringsInHistory();
-        for(VolunteeringDTO volunteering : userHistory) {
-            allUserVolunteeringIds.add(volunteering.getId());
-        }
-
-        return allUserVolunteeringIds;
-    }
-
     public Map<String, Double> leaderboard() {
         List<User> allUsers = repository.getAllUsers();
         Map<String, Double> leaderboardMap = new HashMap<>();
 
         for(User user : allUsers) {
             if(user.getLeaderboard()) {
-                List<Integer> userVolunteeringIds = getAllUserVolunteeringIds(user);
-                List<HourApprovalRequest> hours = volunteeringFacade.getUserApprovedHours(user.getUsername(), userVolunteeringIds);
+                List<HourApprovalRequest> hours = getApprovedHours(user.getUsername());
                 double totalUserHours = hours.stream().mapToDouble(HourApprovalRequest::getTotalHours).sum();
                 leaderboardMap.put(user.getUsername(), totalUserHours);
             }

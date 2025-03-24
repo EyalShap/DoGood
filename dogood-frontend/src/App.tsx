@@ -29,6 +29,7 @@ import LoginAndRegister from "./components/LoginAndRegister.tsx";
 import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
 import EasterEgg from './components/EasterEgg.tsx'
+import MyVolunteerings from "./components/MyVolunteerings.tsx";
 
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
               <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
               <Route path='/organizationList' element={<OrganizationList/>}/>
               <Route path='/createOrganization/:id' element={<CreateOrganization/>}/>
+              <Route path='/myvolunteerings' element={<MyVolunteerings/>}/>
               <Route path='/volunteering/:id' element={<Volunteering/>}/>
               <Route path='/volunteering/:id/createVolunteeringPost/:postId' element={<CreatePost/>}/>
               <Route path='/createVolunteerPost/:postId' element={<CreatePost/>}/>
