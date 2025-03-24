@@ -3,20 +3,23 @@ import './../css/Volunteering.css'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
+import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
-import './../css/VolunteeringPost.css'
+import './../css/VolunteerPost.css'
 import './../css/CommonElements.css'
 import { createReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { VolunteerPostModel } from '../models/VolunteerPostModel';
+import { supabase } from '../api/general';
+import { getUserByUsername } from '../api/user_api';
 
 function VolunteerPost() {
     const navigate = useNavigate();
     const [model, setModel] = useState<VolunteerPostModel>({id: -1, title: "", description: "", postedTime: "", lastEditedTime: "", posterUsername: "", relevance: -1, relatedUsers: [], images: [], skills: [], categories: [], keywords: []});
     const [postImages, setPostImages] = useState<ListItem[]>([]);
+    const [relatedUsers, setRelatedUsers] = useState<ListItem[]>([]);
     const [isPoster, setIsPoster] = useState<boolean>(false);
     const [ready, setReady] = useState(false);
     const [showJoinFreeText, setShowJoinFreeText] = useState(false);
@@ -25,6 +28,8 @@ function VolunteerPost() {
     const [reportDescription, setReportDescription] = useState("");
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
     let { id } = useParams();
     
     const fetchVolunteerPost = async () => {
@@ -33,24 +38,22 @@ function VolunteerPost() {
                 let post: VolunteerPostModel = await getVolunteerPost(parseInt(id));
                 setModel(post);
 
-                let listItems: ListItem[] = model.images.map((img) => ({
+                let images = model.images;
+                if(!Array.isArray(images) || images.length === 0) {
+                    images = ['/src/assets/defaultVolunteerPostDog.jpg'];
+                }
+                 
+                let listItems: ListItem[] = images.map((img) => ({
                     id: "",
                     image: img, 
                     title: "",  
                     description: "", // assuming 'summary' is a short description
                 }));
-                if(listItems.length === 0) {
-                    listItems = [{
-                        id: "",
-                        image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
-                        title: "",  
-                        description: "", // assuming 'summary' is a short description
-                    }]
-                }
+
+                await convertUsersToListItems(post.relatedUsers);
                 
                 setPostImages(listItems);
-                console.log(localStorage.getItem("username"));
-                setIsPoster(localStorage.getItem("username") === model.posterUsername);
+                setIsPoster(localStorage.getItem("username") === post.posterUsername);
                 setReady(true);
             }
             else {
@@ -60,6 +63,19 @@ function VolunteerPost() {
         catch(e) {
             alert(e);
         }
+    }
+
+    const convertUsersToListItems = async (usernames : string[]) => {
+        const userPromises = usernames.map(username => getUserByUsername(username));
+        const users = await Promise.all(userPromises);
+
+        const usersItems: ListItem[] = users.map((user) => ({
+            id: user.username,
+            image: '/src/assets/defaultProfilePic.jpg', 
+            title: user.name,  
+            description: "",
+        }));
+        setRelatedUsers(usersItems);
     }
 
     useEffect(() => {
@@ -91,7 +107,6 @@ function VolunteerPost() {
 
     const handleSubmitOnClick = async () => {
         try {
-            console.log(joinFreeText);
             await sendAddRelatedUserRequest(model.id, joinFreeText);
             alert("Join request was sent successfully!");
         }
@@ -146,56 +161,62 @@ function VolunteerPost() {
         }
     }
 
+    const onRemoveImage = async (image: string) => {
+        try {
+            await removeImageFromVolunteerPost(model.id, `"${image}"`);
+            let updatedModel: VolunteerPostModel = {
+                ...model, 
+                images: model.images.filter(img => image !== img)
+            }
+            setModel(updatedModel);
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+    
+    const onAddImage = async () => {
+        try {
+            let {data,error} =
+                await supabase.storage.from("volunteer-post-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+                if(data == null || error !== null){
+                    alert(error)
+                    console.log(error)
+                }else {
+                    let filePath = data!.path;
+                    let response = await supabase.storage.from("volunteer-post-photos").getPublicUrl(filePath);
+                    let url = response.data.publicUrl;
+                    await addImageToVolunteerPost(model.id, url);
+                    
+                    let updatedModel: VolunteerPostModel = {
+                        ...model,  // Spread the existing properties of model
+                        images: Array.isArray(model.images) ? [...model.images, url] : [url],  // Safely update images
+                    };
+                    setModel(updatedModel);
+
+                    setSelectedFile(null)
+                    setKey(prevState => 1-prevState)
+                }
+            }
+            catch (e) {
+                //send to error page
+                alert(e);
+            }
+        };
+    
+        const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedFile(e.target.files![0])
+        }
+        
     return (
         <div id="postPage" className="postPage">
-            <div className='headers'>
-                <h1 className='bigHeader'>{model.title}</h1>
-                <p className='smallHeader'>{model.description}</p>
-            </div>
 
-            <div id="postInfo" className="postInfo">
-                <ListWithArrows data={postImages} limit={1} navigateTo={""}></ListWithArrows>
-
-                <div className="info-container">
-                    <button
-                        className="info-button"
-                        onMouseEnter={() => setIsHovered(true)} // Show on hover
-                        onMouseLeave={() => setIsHovered(false)} // Hide when hover ends
-                    >
-                        i
-                    </button>
-                    {isHovered && (
-                        <div className="info-tooltip">
-                        <p id="postPosterUsername">Posted by: {model.posterUsername}</p>
-                        <p id="postPostedTime">Posted on: {fixDate(model.postedTime, true)}</p>
-                        <p id="postLastEditedTime">Last edited on: {fixDate(model.lastEditedTime, true)}</p>
-                        </div>
-                    )}
-                </div>
-
-                {localStorage.getItem("username") === model.posterUsername && <button className='orangeCircularButton' onClick={handleAddVolunteerOnClick}>Add Volunteer</button>}
-    
-                    {showJoinFreeText && (
-                        <div className="popup-window">
-                            <div className="popup-header">
-                            <span className="popup-title">Add Volunteer</span>
-                            <button className="cancelButton" onClick={handleCancelOnClick}>
-                                X
-                            </button>
-                            </div>
-                            <div className="popup-body">
-                                <textarea placeholder="Volunteer Username" value={joinFreeText} onChange={(e) => setJoinFreeText(e.target.value)}></textarea>
-                                <button className="orangeCircularButton" onClick={handleSubmitOnClick}>
-                                    Submit
-                                </button>
-                            </div>
-                        </div>
-                    )}
-
-            
-            </div>
-            
-                <div className="actionsMenu">
+            <div className="actionsMenu">
                     <img
                         src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
                         alt="Profile"
@@ -226,24 +247,110 @@ function VolunteerPost() {
                         </div>
                     )}
                 </div>
-                
-                <ul>
-                {model.relatedUsers.map((item, index) => (
-                    <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                ))}
-                </ul>
 
-                <ul>
-                {model.categories.map((item, index) => (
-                    <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                ))}
-                </ul>
+            <div className = "volunteerPostHeaderContainer">
+
+            <div className='headers'>
+                <h1 className='bigHeader'>{model.title}</h1>
+                <p className='smallHeader'>{model.description}</p>
+
+                <div className="info-container">
+                    <button
+                        className="info-button"
+                        onMouseEnter={() => setIsHovered(true)} // Show on hover
+                        onMouseLeave={() => setIsHovered(false)} // Hide when hover ends
+                    >
+                        i
+                    </button>
+                    {isHovered && (
+                        <div className="info-tooltip">
+                        <p id="postPosterUsername">Posted by: {model.posterUsername}</p>
+                        <p id="postPostedTime">Posted on: {fixDate(model.postedTime, true)}</p>
+                        <p id="postLastEditedTime">Last edited on: {fixDate(model.lastEditedTime, true)}</p>
+                        </div>
+                    )}
+                </div>
+            </div>
+
+                <div className="postImages">
+                    <ListWithArrows data = {postImages} limit = {1} navigateTo={''} onRemove={onRemoveImage} isOrgManager={isPoster}></ListWithArrows>
+                    {isPoster && <div className='uplaodImage'>
+                    <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
+                    <button onClick={onAddImage} className="orangeCircularButton">Upload Image</button>
+                    </div>}
+                </div>
+            </div>
+
+            
+            <div className="listContainer">
+                <h2 className='volunteerPostheader'>Friends In This Post</h2>
+
+                <div className='generalUsersList'>
+                        {relatedUsers.length > 0 ? (
+                            <ul className='relatedUsersList'>
+                                {relatedUsers.map((user) => (
+                                    <li className='managersListItem' key={user.id}>
+                                        <img className = 'managerProfilePic' src={user.image}></img>
+                                        <p className='managerName'>{user.title}</p>
+                                        {user.id === model.posterUsername && <p className='isPoster'>(Poster)</p>}
+                                        
+                                    </li>
+                                ))}
+                            </ul>
+                            ) : 
+                            (<p>No related users available.</p>)
+                        }
+                </div>
+
+                <div id="addVolunteerButton" className="addVolunteerButton">
+            
+                {localStorage.getItem("username") === model.posterUsername && <button className='orangeCircularButton' onClick={handleAddVolunteerOnClick}>Add Volunteer</button>}
     
-                <ul>
-                {model.skills.map((item, index) => (
-                    <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                ))}
-                </ul>
+                    {showJoinFreeText && (
+                        <div className="popup-window">
+                            <div className="popup-header">
+                            <span className="popup-title">Add Volunteer</span>
+                            <button className="cancelButton" onClick={handleCancelOnClick}>
+                                X
+                            </button>
+                            </div>
+                            <div className="popup-body">
+                                <textarea placeholder="Volunteer Username" value={joinFreeText} onChange={(e) => setJoinFreeText(e.target.value)}></textarea>
+                                <button className="orangeCircularButton" onClick={handleSubmitOnClick}>
+                                    Submit
+                                </button>
+                            </div>
+                        </div>
+                    )}
+            </div>
+            
+            </div>
+
+            <div className='catsAndSkills'>
+                <div className='cats'>
+                    <h2 className='volunteerPostheader'>Offered Categories</h2>
+                    <h2 className='smallHeader'>Extracted Automatically Using AI</h2>
+                    <ul className='catsList'>
+                        <div>
+                    {model.categories.length > 0 ? model.categories.map((item, index) => (
+                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                    )) : <p className='notFound'>No Categories Found</p>}
+                    </div>
+                    </ul>
+                </div>
+    
+                <div className='skills'>
+                    <h2 className='volunteerPostheader'>Offered Skills</h2>
+                    <h2 className='smallHeader'>Extracted Automatically Using AI</h2>
+                    <ul className='skillsList'>
+                    <div>
+                    {model.skills.length > 0 ? model.skills.map((item, index) => (
+                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                    )) : <p className='notFound'>No Skills Found</p>}
+                    </div>
+                    </ul>
+                </div>
+            </div>
         </div>
     )
 }

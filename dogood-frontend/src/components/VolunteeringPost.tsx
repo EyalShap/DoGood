@@ -36,8 +36,20 @@ function VolunteeringPost() {
             if(id !== undefined) {
                 let post: VolunteeringPostModel = await getVolunteeringPost(parseInt(id));
                 setModel(post);
-                console.log(post);
                 setReady(true);
+
+                let volunteeringName: string = await getVolunteeringName(post.volunteeringId);
+                let organizationName: string = await getOrganizationName(post.organizationId);
+                setVolunteeringName(volunteeringName);
+                setOrganizationName(organizationName);
+                
+                try {
+                    await getVolunteering(post.volunteeringId);
+                    setIsVolunteer(true);
+                }
+                catch {
+                    setIsVolunteer(false);                
+                }
             }
             else {
                 alert("Error");
@@ -48,34 +60,13 @@ function VolunteeringPost() {
         }
     }
 
-    const fetchNames = async () => {
-        try {
-            if(ready) {
-                let volunteeringName: string = await getVolunteeringName(model.volunteeringId);
-                let organizationName: string = await getOrganizationName(model.organizationId);
-                setVolunteeringName(volunteeringName);
-                setOrganizationName(organizationName);
-                
-                try {
-                    await getVolunteering(model.volunteeringId);
-                    setIsVolunteer(true);
-                }
-                catch {
-                    setIsVolunteer(false);                
-                }
-            }
-        }
-        catch(e) {
-            alert(e);
-        }
-    }
 
     const fetchImages = async () => {
         try {
             if(ready) {
                 let images = await getVolunteeringImages(parseInt(id!));
                 if(images.length === 0) {
-                    images = ['https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 'https://pettownsendvet.com/wp-content/uploads/2023/01/iStock-1052880600.jpg', 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp'];
+                    images = ['/src/assets/defaultVolunteeringDog.webp'];
                 }
                 const listItems: ListItem[] = images.map((image) => ({
                     id: "",
@@ -125,7 +116,6 @@ function VolunteeringPost() {
     }, [id])
 
     useEffect(() => {
-        fetchNames();
         fetchImages();
     }, [model, ready])
 
@@ -242,13 +232,43 @@ function VolunteeringPost() {
 
     return (
         <div id="postPage" className="postPage">
+            <div className="actionsMenu">
+                    <img
+                        src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
+                        alt="Profile"
+                        className="dotsMenu"
+                        onClick={toggleDropdown}
+                    />
+                    {dropdownOpen && (
+                        <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
+                            {isManager && <p className="actionDropdownItem" onClick = {handleEditPostOnClick}>Edit</p>}
+                            {isManager && <p className="actionDropdownItem" onClick = {handleRemovePostOnClick}>Remove</p>}
+                            <p className="actionDropdownItem" onClick = {handleReportOnClick}>Report</p>
+                            {showReportDescription && (
+                                <div className="popup-window">
+                                    <div className="popup-header">
+                                    <span className="popup-title">Report</span>
+                                    <button className="cancelButton" onClick={handleCancelReportOnClick}>
+                                        X
+                                    </button>
+                                    </div>
+                                    <div className="popup-body">
+                                        <textarea placeholder="What went wrong?..."></textarea>
+                                        <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+
+
+            <div className = "volunteeringPostHeaderContainer">
             <div className='headers'>
                 <h1 className='bigHeader'>{model.title}</h1>
                 <p className='smallHeader'>{model.description}</p>
-            </div>
-
-            <div id="postInfo" className="postInfo">
-                <ListWithArrows data={volunteeringImages} limit={1} navigateTo={""}></ListWithArrows>
 
                 <div className="info-container">
                     <button
@@ -268,8 +288,17 @@ function VolunteeringPost() {
                         </div>
                     )}
                 </div>
+            </div>
+            <div className='postImages'>
+            <ListWithArrows data={volunteeringImages} limit={1} navigateTo={""}></ListWithArrows>
+            </div>
+            </div>
+            
 
-                <button className='orangeCircularButton' onClick={handleJoinVolunteeringOnClick}>I Want To Join</button>
+            <div id="postInfo" className="postInfo">
+                
+
+                <button className='joinButton' onClick={handleJoinVolunteeringOnClick}>I Want To Join</button>
     
                     {showJoinFreeText && (
                         <div className="popup-window">
@@ -305,40 +334,6 @@ function VolunteeringPost() {
                         <p id="postOrganization">{organizationName}</p>
                     </div>
                 </div>
-
-                <div className="actionsMenu">
-                    <img
-                        src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
-                        alt="Profile"
-                        className="dotsMenu"
-                        onClick={toggleDropdown}
-                    />
-                    {dropdownOpen && (
-                        <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
-                            {isManager && <p className="actionDropdownItem" onClick = {handleEditPostOnClick}>Edit</p>}
-                            {isManager && <p className="actionDropdownItem" onClick = {handleRemovePostOnClick}>Remove</p>}
-                            <p className="actionDropdownItem" onClick = {handleReportOnClick}>Report</p>
-                            {showReportDescription && (
-                                <div className="popup-window">
-                                    <div className="popup-header">
-                                    <span className="popup-title">Report</span>
-                                    <button className="cancelButton" onClick={handleCancelReportOnClick}>
-                                        X
-                                    </button>
-                                    </div>
-                                    <div className="popup-body">
-                                        <textarea placeholder="What went wrong?..."></textarea>
-                                        <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
-                                            Submit
-                                        </button>
-                                    </div>
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-                
-                
     
                 <div id="pastExperiences" className="pastExperiences">
                     <h1 id="pastExperiencesHeader">Volunteers Past Experiences</h1>

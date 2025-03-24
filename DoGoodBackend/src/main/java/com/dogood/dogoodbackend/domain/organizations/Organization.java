@@ -42,6 +42,10 @@ public class Organization {
     @Column(name = "organization_founder")
     private String founderUsername;
 
+    @Column(name = "organization_images")
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<String> imagePaths;
+
     public Organization() {}
 
     public Organization(int id, String name, String description, String phoneNumber, String email, String actor) {
@@ -67,6 +71,7 @@ public class Organization {
         this.managerUsernames = new ArrayList<>();
         this.managerUsernames.add(actor); // adding founder also as manager so if he sets another founder he is still a manager
         this.founderUsername = actor;
+        this.imagePaths = new ArrayList<>();
     }
 
     private String isValid(String name, String description, String phoneNumber, String email) {
@@ -194,6 +199,13 @@ public class Organization {
         this.managerUsernames = managers;
     }
 
+    public List<String> getImagePaths() {
+        return imagePaths;
+    }
+
+    public void setImagePaths(List<String> imagePaths) {
+        this.imagePaths = imagePaths;
+    }
 
     @Override
     public boolean equals(Object o) {

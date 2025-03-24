@@ -2,17 +2,19 @@ import OrganizationModel from '../models/OrganizationModel';
 import { useEffect, useState } from 'react'
 import './../css/Organization.css'
 import './../css/CommonElements.css'
-import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings } from '../api/organization_api'
+import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings, removeImageFromOrganization, addImageToOrganization } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
 import Volunteering from './Volunteering';
 import { getVolunteering } from '../api/volunteering_api';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { getUserByUsername } from '../api/user_api';
+import { getVolunteeringImages } from '../api/post_api';
+import { supabase } from '../api/general';
 
 function Organization() {
     const navigate = useNavigate();
-    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: ""});
+    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: "", imagePaths: []});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
     const [userVolunteerings, setUserVolunteerings] = useState<number[]>([]);
@@ -22,37 +24,61 @@ function Organization() {
     const [showAddManager, setShowAddManager] = useState(false);
     const [addManagerText, setAddManagerText] = useState('');
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
+    const [orgImages, setOrgImages] = useState<ListItem[]>([]);
     
     const fetchOrganization = async () => {
         try{
             let found = await getOrganization(parseInt(id!));
+            console.log(found);
             setModel(found);
 
-            let managerIds = model.managerUsernames;
+            let managerIds = found.managerUsernames;
             const userPromises = managerIds.map(username => getUserByUsername(username));
             const users = await Promise.all(userPromises);
 
             const managersItems: ListItem[] = users.map((user) => ({
                 id: user.username,
-                image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+                image: '/src/assets/defaultProfilePic.jpg', 
                 title: user.name,  
                 description: "",
             }));
             setManagers(managersItems);
+
+            convertImagesToListItems(model.imagePaths);
         }
         catch(e){
             //send to error page
             alert(e)
         }
     }
+    
+    const convertImagesToListItems = (images: string[]) => {
+        let imageListItems: ListItem[] = [];
+        imageListItems = images.map((image) => ({
+            id: "",
+            image: image, 
+            title: "",  
+            description: "",
+        }));
+        if(imageListItems.length === 0) {
+            imageListItems = [{id : "", image: "/src/assets/defaultOrganizationDog.webp", title: "", description: ""}];
+        }
+        setOrgImages(imageListItems);
+    } 
 
     const fetchVolunteerings = async () => {
         try {
             const volunteeringDetails = await getOrganizationVolunteerings(model.id);
 
-            const listItems: ListItem[] = volunteeringDetails.map((volunteering) => ({
+            const imagesArray = await Promise.all(
+                volunteeringDetails.map(volunteering => getVolunteeringImages(volunteering.id))
+            );
+
+            const listItems: ListItem[] = volunteeringDetails.map((volunteering, index) => ({
                 id: volunteering.id,
-                image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+                image: imagesArray[index].length > 0 ? imagesArray[index][0] : '/src/assets/defaultVolunteeringDog.webp', 
                 title: volunteering.name,  
                 description: volunteering.description, // assuming 'summary' is a short description
             }));
@@ -132,6 +158,8 @@ function Organization() {
         if(showAddManager) {
             if(id !== undefined) {
                 try {
+                    console.log("hi");
+                    console.log(newManager);
                     await sendAssignManagerRequest(parseInt(id), newManager);
                     alert("Your request was sent successfully!");
                     setShowAddManager(false);
@@ -169,7 +197,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== managerToRemove),
-                        founderUsername: model.founderUsername
+                        founderUsername: model.founderUsername,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -196,7 +225,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames,
-                        founderUsername: newFounder
+                        founderUsername: newFounder,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -210,9 +240,10 @@ function Organization() {
         }
     };
 
-    const handleAddManagerTextChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setAddManagerText(event.target.value);
+    const handleAddManagerTextChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+        setAddManagerText(event.target.value);  // Update the state with the new value
     };
+    
 
     const handleResignOnClick = async () => {
         if (window.confirm(`Are you sure you want to resign?`)) {
@@ -227,7 +258,8 @@ function Organization() {
                         email: model.email,
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username")),
-                        founderUsername: model.founderUsername
+                        founderUsername: model.founderUsername,
+                        imagePaths: model.imagePaths
                     }
                     setModel(updatedModel);
                 }
@@ -263,8 +295,8 @@ function Organization() {
         }
     }*/
 
-    const isVolunteer = (volunteeringId: number) : boolean => {
-        return userVolunteerings.includes(volunteeringId);
+    const isVolunteer = (volunteeringId: number | string) : boolean => {
+        return userVolunteerings.includes(volunteeringId as number);
     }
 
     const toggleDropdown = () => {
@@ -274,6 +306,68 @@ function Organization() {
     const closeDropdown = () => {
         setDropdownOpen(false);
     };
+
+    const onRemoveImage = async (image: string) => {
+        try {
+            await removeImageFromOrganization(model.id, `"${image}"`);
+            let updatedModel: OrganizationModel = {
+                id: model.id,
+                name: model.name,
+                description: model.description,
+                phoneNumber: model.phoneNumber,
+                email: model.email,
+                volunteeringIds: model.volunteeringIds,
+                managerUsernames: model.managerUsernames,
+                founderUsername: model.founderUsername,
+                imagePaths: model.imagePaths.filter(img => image !== img)
+            }
+            setModel(updatedModel);
+            convertImagesToListItems(model.imagePaths.filter(img => image !== img));
+
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+    
+    const onAddImage = async () => {
+        try {
+            let {data,error} =
+                await supabase.storage.from("organization-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+                if(data == null || error !== null){
+                    alert(error)
+                    console.log(error)
+                }else {
+                    let filePath = data!.path;
+                    let response = await supabase.storage.from("organization-photos").getPublicUrl(filePath);
+                    let url = response.data.publicUrl;
+                    await addImageToOrganization(model.id, url);
+                    
+                    let newImages = Array.isArray(model.imagePaths) ? [...model.imagePaths, url] : [url]
+                    let updatedModel: OrganizationModel = {
+                        ...model,  // Spread the existing properties of model
+                        imagePaths: newImages,  // Safely update images
+                    };
+                    setModel(updatedModel);
+                    convertImagesToListItems(newImages);
+                    setSelectedFile(null)
+                    setKey(prevState => 1-prevState)
+                }
+            }
+            catch (e) {
+                //send to error page
+                alert(e);
+            }
+        };
+    
+        const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedFile(e.target.files![0])
+        }
     
     return (
         <div className='generalPageDiv'>
@@ -289,14 +383,18 @@ function Organization() {
                     <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
                         {isManager && <p className="actionDropdownItem" onClick = {handleRemoveOrganizationOnClick}>Remove Organization</p>}
                         {isManager && <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Edit Organization</p>}
-                        {isManager && <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Report Organization</p>}
+                        <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Report Organization</p>
                     </div>
                 )}
             </div>
 
             <div className = "orgHeaderContainer">
-                <div className="orgImageContainer">
-                    <img src="https://i.pinimg.com/564x/8c/f6/b0/8cf6b01e7f02e2befa711da2c9030f36.jpg" alt="Image" className="orgImage" />
+                <div className="organizationImages">
+                    <ListWithArrows data = {orgImages} limit = {1} navigateTo={''} onRemove={onRemoveImage} isOrgManager={isManager}></ListWithArrows>
+                    {isManager && <div className='uplaodImage'>
+                    <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
+                    <button onClick={onAddImage} className="orangeCircularButton">Upload Image</button>
+                    </div>}
                 </div>
 
                 <div className='orgInfoText'>
@@ -321,7 +419,7 @@ function Organization() {
                 <h2 className='listHeader'>Our Volunteerings</h2>
                 <div className='generalList'>
                     {volunteerings.length > 0 ? (
-                        <ListWithArrows data = {volunteerings} limit = {4} navigateTo={'volunteering'}></ListWithArrows>
+                        <ListWithArrows data = {volunteerings} limit = {4} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id)}></ListWithArrows>
                     ) : (
                         <p>No volunteerings available.</p>
                     )}
@@ -339,9 +437,9 @@ function Organization() {
                                     <img className = 'managerProfilePic' src={manager.image}></img>
                                     <p className='managerName'>{manager.title}</p>
                                     {manager.id === model.founderUsername && <p className='isFounder'>(Founder)</p>}
-                                    {(localStorage.getItem("username") === manager.id && manager.id !== model.founderUsername) && <button onClick={handleResignOnClick}>Resign</button>}
-                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button onClick={() => handleRemoveManagerOnClick(manager.id.toString())}>X</button>}
-                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button onClick={() => handleSetAsFounderOnClick(manager.id.toString())}>Set As Founder</button>}
+                                    {(localStorage.getItem("username") === manager.id && manager.id !== model.founderUsername) && <button onClick={handleResignOnClick} className='orangeCircularButton'>Resign</button>}
+                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button className='orangeCircularButton' onClick={() => handleRemoveManagerOnClick(manager.id.toString())}>X</button>}
+                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button className='orangeCircularButton' onClick={() => handleSetAsFounderOnClick(manager.id.toString())}>Set As Founder</button>}
                                     
                                 </li>
                             ))}
@@ -360,7 +458,7 @@ function Organization() {
                             </button>
                             </div>
                             <div className="popup-body">
-                                <textarea placeholder="New manager username"></textarea>
+                                <textarea placeholder="New manager username" value={addManagerText} onChange={handleAddManagerTextChange}></textarea>
                                 <button className="orangeCircularButton" onClick={() => handleAddNewManagerOnClick(addManagerText)}>
                                     Submit
                                 </button>
@@ -368,6 +466,8 @@ function Organization() {
                         </div>
                 }
             </div>
+
+            
         </div>
 
     )

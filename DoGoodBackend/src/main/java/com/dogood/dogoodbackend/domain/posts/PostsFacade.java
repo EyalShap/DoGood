@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategories;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.requests.Request;
@@ -259,9 +260,13 @@ public class PostsFacade {
 
     private int countCommons(Set<String> s1, Set<String> s2) {
         int matching = 0;
-        for (String item : s1) {
-            if (s2.contains(item)) {
-                matching++;
+        for (String item1 : s1) {
+            item1 = item1.toLowerCase().trim();
+            for(String item2 : s2) {
+                item2 = item2.toLowerCase().trim();
+                if (item2.contains(item1)) {
+                    matching++;
+                }
             }
         }
         return matching;
@@ -343,14 +348,15 @@ public class PostsFacade {
     }
 
     //TODO: add more parameters
-    public List<VolunteeringPostDTO> filterVolunteeringPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
+    public List<VolunteeringPostDTO> filterVolunteeringPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
-        for(VolunteeringPostDTO post : allPosts) {
+        for(int postId : allPostIds) {
+            VolunteeringPost post = volunteeringPostRepository.getVolunteeringPost(postId);
             int volunteeringId = post.getVolunteeringId();
             Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
             Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
@@ -358,14 +364,15 @@ public class PostsFacade {
             Set<String> volunteeringCities = volunteeringLocations.stream().map(locationDTO -> locationDTO.getAddress().getCity()).collect(Collectors.toSet());
             String organizationName = organizationsFacade.getOrganization(post.getOrganizationId()).getName();
             String volunteeringName = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId()).getName();
+            Set<String> postKeywords = post.getKeywords();
 
-            boolean matchByCategory = true;
-            boolean matchBySkill = true;
-            boolean matchByCity = true;
+            boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1 : true;
+            boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1 : true;
+            boolean matchByCity = cities.size() > 0 ? countCommons(volunteeringCities, cities) >= 1 || countCommons(postKeywords, cities) >= 1 : true;
             boolean matchByOrganization = organizationNames.size() > 0 ? organizationNames.contains(organizationName) : true;
             boolean matchByVolunteering = volunteeringNames.size() > 0 ? volunteeringNames.contains(volunteeringName) : true;
 
-            if(categories.size() > 0) {
+            /*if(categories.size() > 0) {
                 volunteeringCategories.retainAll(categories);
                 matchByCategory = volunteeringCategories.size() >= 1;
             }
@@ -376,10 +383,10 @@ public class PostsFacade {
             if(cities.size() > 0) {
                 volunteeringCities.retainAll(cities);
                 matchByCity = volunteeringCities.size() >= 1;
-            }
+            }*/
 
             if(matchByCategory && matchBySkill && matchByCity && matchByOrganization && matchByVolunteering) {
-                result.add(post);
+                result.add(new VolunteeringPostDTO(post));
             }
         }
         return result;
@@ -395,18 +402,19 @@ public class PostsFacade {
         for(VolunteerPostDTO post : allPosts) {
             Set<String> volunteeringCategories = new HashSet<>(post.getCategories());
             Set<String> volunteeringSkills = new HashSet<>(post.getSkills());
+            Set<String> postKeywords = post.getKeywords();
 
-            boolean matchByCategory = true;
-            boolean matchBySkill = true;
+            boolean matchByCategory = countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1;
+            boolean matchBySkill = countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1;
 
-            if(categories.size() > 0) {
+            /*if(categories.size() > 0) {
                 volunteeringCategories.retainAll(categories);
                 matchByCategory = volunteeringCategories.size() >= 1;
             }
             if(skills.size() > 0) {
                 volunteeringSkills.retainAll(skills);
                 matchBySkill = volunteeringSkills.size() >= 1;
-            }
+            }*/
 
             if(matchByCategory && matchBySkill) {
                 result.add(post);
@@ -557,11 +565,11 @@ public class PostsFacade {
         }
 
         Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
-        //List<String>[] postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
-        //List<String> postSkills = postSkillsAndCategories[0];
-        //List<String> postCategories = postSkillsAndCategories[1];
-        List<String> postSkills = new LinkedList<>();
-        List<String> postCategories = new LinkedList<>();
+        SkillsAndCategories postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
+        List<String> postSkills = postSkillsAndCategories.getSkills();
+        List<String> postCategories = postSkillsAndCategories.getCategories();
+        //List<String> postSkills = new LinkedList<>();
+        //List<String> postCategories = new LinkedList<>();
         int postId = volunteerPostRepository.createVolunteerPost(title, description, postKeywords, posterUsername, postSkills, postCategories);
         return postId;
     }
@@ -661,7 +669,11 @@ public class PostsFacade {
 
         for(PostDTO post : allPosts) {
             Set<String> postKeywords = getPostKeywords(post);
-            postKeywords = postKeywords.stream().map(keyword -> keyword.toLowerCase()).collect(Collectors.toSet());;
+            Set<String> postTitleKeywords = new HashSet<>(Arrays.asList(post.getTitle().split(" ")));
+            Set<String> postDescriptionKeywords = new HashSet<>(Arrays.asList(post.getDescription().split(" ")));
+            postKeywords.addAll(postTitleKeywords);
+            postKeywords.addAll(postDescriptionKeywords);
+
             int common = countCommons(searchKeywords, postKeywords);
             if(common >= 1) {
                 result.add(post);

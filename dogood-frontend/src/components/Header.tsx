@@ -2,12 +2,16 @@ import { useState } from 'react';
 import './../css/Header.css'
 import { logout } from '../api/user_api';
 import { useNavigate } from 'react-router-dom';
+import UserModel from '../models/UserModel';
 
-type Props = { isAdmin: boolean };
+type Props = { user: UserModel | undefined };
 
-const Header: React.FC<Props> = ({ isAdmin }) => {
+const Header: React.FC<Props> = ({ user }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  
+  const isAdmin = user === undefined ? false : user.admin;
+  const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -58,8 +62,8 @@ const Header: React.FC<Props> = ({ isAdmin }) => {
               <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>
               <div className="profileWrapper">
                     <img
-                        src="https://i.pinimg.com/564x/8c/f6/b0/8cf6b01e7f02e2befa711da2c9030f36.jpg"
-                        alt="Profile"
+                        src={profilePicture}
+                        alt=""
                         className="profileImage"
                         onClick={toggleDropdown}
                     />

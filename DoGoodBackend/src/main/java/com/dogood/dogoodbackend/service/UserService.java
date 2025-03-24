@@ -135,4 +135,14 @@ public class UserService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<Boolean> setLeaderboard(String token, String username, boolean leaderboard) {
+        try {
+            checkToken(token, username);
+            usersFacade.setLeaderboard(username, leaderboard);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

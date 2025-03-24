@@ -174,10 +174,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<VolunteeringPostDTO> allPosts) {
+    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPosts);
+            List<VolunteeringPostDTO> posts = postsFacade.filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPostIds);
             return Response.createResponse(posts);
         }
         catch (Exception e) {

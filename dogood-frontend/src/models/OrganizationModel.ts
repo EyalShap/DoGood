@@ -6,7 +6,8 @@ type OrganizationModel = {
     email: string,
     volunteeringIds: number[],
     managerUsernames: string[],
-    founderUsername: string
+    founderUsername: string,
+    imagePaths: string[]
 }
 
 export default OrganizationModel;
