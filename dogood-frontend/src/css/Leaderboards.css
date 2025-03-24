@@ -45,3 +45,10 @@
     font-family: 'Montserrat', sans-serif;
 }
 
+.username {
+    cursor: pointer;
+}
+.username:hover {
+    text-decoration: underline;
+}
+
