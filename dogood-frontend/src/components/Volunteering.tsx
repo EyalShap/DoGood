@@ -47,15 +47,14 @@ interface GroupToVolunteers {
 }
 
 function GroupRow({ groupId, volunteers, deleteGroup, onDragStart, onDrop }: { groupId: number, volunteers: string[], deleteGroup: (groupId: number) => void, onDragStart: (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => void, onDrop: (e: any, to: number) => void }) {
-
     return (
-        <div className='groupRow' onDragEnter={(e) => onDrop(e, groupId)}>
+        <div className={`groupRow`} onDrop={(e) => onDrop(e, groupId)} onDragOver={e => e.preventDefault()}>
             <div className='groupHeader'>
                 <h1 className='groupId'>Group {groupId}</h1>
-                <button onClick={() => deleteGroup(groupId)}>Remove Group</button>
+                <button className="cancelButton" onClick={() => deleteGroup(groupId)}>Remove Group</button>
             </div>
             {volunteers.map(volunteer => <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)} className='volunteerUsername'>{volunteer}</p>)}
-            <hr />
+            <hr/>
         </div>
     )
 }
@@ -533,8 +532,8 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
             {selectedGroup > -1 && selectedLocation > -1 &&
                 <div className='rangePanel'>
                     <div className='weekButtons'>
-                        <button className='left weekButton' onClick={() => addWeeks(-1)}>← Last Week</button>
-                        <button className='right weekButton' onClick={() => addWeeks(1)}>Next Week →</button>
+                        <button className='left orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
+                        <button className='right orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
                     </div>
                     <div className='calender'>
                         <div className='innercalender'>
@@ -790,14 +789,14 @@ function Volunteering() {
         <div>
             <div className="volInfo">
                 <div className='volInfoText'>
-                    <h1>{model.name}</h1>
-                    <p>{model.description}</p>
+                    <h1 className="bigHeader">{model.name}</h1>
+                    <p className="smallHeader">{model.description}</p>
                 </div>
                 {isManager ?
                     <div className='volInfoButtons'>
-                        <button onClick={() => navigate("./settings")}>Settings</button>
-                        <button onClick={() => navigate("./jrequests")}>View Join Requests</button>
-                        <button onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
+                        <button className="orangeCircularButton" onClick={() => navigate("./settings")}>Settings</button>
+                        <button className="orangeCircularButton" onClick={() => navigate("./jrequests")}>View Join Requests</button>
+                        <button className="orangeCircularButton" onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
                     </div> : <></>}
             </div>
             {isManager ?
@@ -807,14 +806,14 @@ function Volunteering() {
                 </div> : <></>}
             {isManager ?
                 <div className='scanButtons'>
-                    <button onClick={() => navigate("./chat")}>Chat</button>
-                    <button onClick={() => navigate("./code")}>Show Changing QR Code</button>
-                    <button onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
+                    <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
+                    <button className="orangeCircularButton" onClick={() => navigate("./code")}>Show Changing QR Code</button>
+                    <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
                 </div> :
                 <div className='scanButtons'>
-                    <button onClick={() => navigate("./chat")}>Chat</button>
-                    <button onClick={() => navigate("/scan")}>Scan QR Code</button>
-                    <Popup trigger={<button>Leave</button>} modal nested>
+                    <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
+                    <button className="orangeCircularButton" onClick={() => navigate("/scan")}>Scan QR Code</button>
+                    <Popup trigger={<button className="orangeCircularButton">Leave</button>} modal nested>
                         {/* 
                     // @ts-ignore */}
                         {close => (
@@ -827,14 +826,14 @@ function Volunteering() {
 
             {isManager ?
                 <div className="volunteers">
-                <button onClick={() => onAddNewGroup()}>New Group</button>
+                <button className="orangeCircularButton" onClick={() => onAddNewGroup()}>New Group</button>
                     {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart} onDrop={onDrop} deleteGroup={deleteGroup} groupId={parseInt(key)} volunteers={value} />)}
                 </div> : <></>}
             {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
-                    <button onClick={() => navigate("./appointment")}>Make An Appointment</button>
-                    <Popup trigger={<button>Request Hours Manually</button>} modal nested>
+                    <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Make An Appointment</button>
+                    <Popup trigger={<button className="orangeCircularButton">Request Hours Manually</button>} modal nested>
                         {/* 
                     // @ts-ignore */}
                         {close => (
