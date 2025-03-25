@@ -21,6 +21,10 @@ function LeaderboardMap() {
     useEffect(() => {
         fetchLeaderboard();
     }, [])
+
+    const handleUserOnClick = async (username: string | number) => {
+        navigate(`/profile/${username}`);
+    }
     
     return (
         <div className='generalPageDiv'>
@@ -37,8 +41,8 @@ function LeaderboardMap() {
                 </thead>
                 <tbody>
                     {Object.entries(leaderboardData!).reverse().map(([user, score]) => (
-                        <tr key={user} className='leaderboardItem'>
-                            <td>{user}</td>
+                        <tr key={user} className='leaderboardItem' onClick={() => handleUserOnClick(user)}>
+                            <td className='username'>{user}</td>
                             <td>{score.toString() === score.toFixed(0) ? score : score.toFixed(1)}</td>
                         </tr>
                     ))}

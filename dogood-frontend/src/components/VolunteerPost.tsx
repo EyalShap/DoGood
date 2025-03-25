@@ -38,21 +38,9 @@ function VolunteerPost() {
                 let post: VolunteerPostModel = await getVolunteerPost(parseInt(id));
                 setModel(post);
 
-                let images = model.images;
-                if(!Array.isArray(images) || images.length === 0) {
-                    images = ['/src/assets/defaultVolunteerPostDog.jpg'];
-                }
-                 
-                let listItems: ListItem[] = images.map((img) => ({
-                    id: "",
-                    image: img, 
-                    title: "",  
-                    description: "", // assuming 'summary' is a short description
-                }));
-
                 await convertUsersToListItems(post.relatedUsers);
-                
-                setPostImages(listItems);
+                convertImagesToListItems(post.images);
+  
                 setIsPoster(localStorage.getItem("username") === post.posterUsername);
                 setReady(true);
             }
@@ -64,6 +52,21 @@ function VolunteerPost() {
             alert(e);
         }
     }
+
+    const convertImagesToListItems = (images: string[]) => {
+        if(!Array.isArray(images) || images.length === 0) {
+            images = ['/src/assets/defaultVolunteerPostDog.jpg'];
+        }
+                 
+        let imageListItems: ListItem[] = images.map((image) => ({
+            id: "",
+            image: image, 
+            title: "",  
+            description: "",
+        }));
+
+        setPostImages(imageListItems);
+    } 
 
     const convertUsersToListItems = async (usernames : string[]) => {
         const userPromises = usernames.map(username => getUserByUsername(username));
@@ -143,6 +146,10 @@ function VolunteerPost() {
         navigate(`/createVolunteerPost/${model.id}`);
     }
 
+    const handleUserOnClick = async (username: string | number) => {
+        navigate(`/profile/${username}`);
+    }
+
     const handleRemovePostOnClick = async () => {
         if(window.confirm("Are you sure you want to remove this post?")) {
             try {
@@ -164,11 +171,14 @@ function VolunteerPost() {
     const onRemoveImage = async (image: string) => {
         try {
             await removeImageFromVolunteerPost(model.id, `"${image}"`);
+            let newImages = model.images.filter(img => image !== img)
             let updatedModel: VolunteerPostModel = {
                 ...model, 
-                images: model.images.filter(img => image !== img)
+                images: newImages
             }
             setModel(updatedModel);
+            convertImagesToListItems(newImages);
+
         }
         catch (e) {
             //send to error page
@@ -193,12 +203,13 @@ function VolunteerPost() {
                     let url = response.data.publicUrl;
                     await addImageToVolunteerPost(model.id, url);
                     
+                    let newImages : string[] = Array.isArray(model.images) ? [...model.images, url] : [url];
                     let updatedModel: VolunteerPostModel = {
                         ...model,  // Spread the existing properties of model
-                        images: Array.isArray(model.images) ? [...model.images, url] : [url],  // Safely update images
+                        images: newImages,  // Safely update images
                     };
                     setModel(updatedModel);
-
+                    convertImagesToListItems(newImages);
                     setSelectedFile(null)
                     setKey(prevState => 1-prevState)
                 }
@@ -289,7 +300,7 @@ function VolunteerPost() {
                         {relatedUsers.length > 0 ? (
                             <ul className='relatedUsersList'>
                                 {relatedUsers.map((user) => (
-                                    <li className='managersListItem' key={user.id}>
+                                    <li className='managersListItem' key={user.id} onClick={() => handleUserOnClick(user.id)}>
                                         <img className = 'managerProfilePic' src={user.image}></img>
                                         <p className='managerName'>{user.title}</p>
                                         {user.id === model.posterUsername && <p className='isPoster'>(Poster)</p>}

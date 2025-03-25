@@ -368,6 +368,10 @@ function Organization() {
         const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
             setSelectedFile(e.target.files![0])
         }
+
+        const handleUserOnClick = async (username: string | number) => {
+            navigate(`/profile/${username}`);
+        }
     
     return (
         <div className='generalPageDiv'>
@@ -433,7 +437,7 @@ function Organization() {
                     {managers.length > 0 ? (
                         <ul className='managersList'>
                             {managers.map((manager) => (
-                                <li className='managersListItem' key={manager.id}>
+                                <li className='managersListItem' key={manager.id} onClick={() => handleUserOnClick(manager.id)}>
                                     <img className = 'managerProfilePic' src={manager.image}></img>
                                     <p className='managerName'>{manager.title}</p>
                                     {manager.id === model.founderUsername && <p className='isFounder'>(Founder)</p>}

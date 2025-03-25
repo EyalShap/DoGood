@@ -303,10 +303,10 @@ function VolunteeringSettings() {
                             <p>{location.address.city}</p>
                             <p>{location.address.street}</p>
                             <p>{location.address.address}</p>
-                            <button className="remove" onClick={() => onRemove(location.id)}>Remove Location</button>
+                            <button className="removeButton" onClick={() => onRemove(location.id)}>Remove Location</button>
                         </div>)}
                 </div>
-                <Popup trigger={<button>Add Location</button>} modal nested>
+                <Popup trigger={<button className="orangeCircularButton">Add Location</button>} modal nested>
                     {/* 
 // @ts-ignore */}
                     {close => (
@@ -380,7 +380,7 @@ function VolunteeringSettings() {
                                     />
                                     {errors.address && <p style={{color: 'red'}}>{errors.address.message}</p>}
                                 </div>
-                                <button type="submit">Add Location</button>
+                                <button type="submit" className="orangeCircularButton">Add Location</button>
                             </form>
                         </div>
                     )}
@@ -392,14 +392,14 @@ function VolunteeringSettings() {
                     {skills.map(skill =>
                         <div className="skillcateg">
                             <p>{skill}</p>
-                            <button onClick={() => onRemoveSkill(skill)} className="xremove">X</button>
+                            <button onClick={() => onRemoveSkill(skill)} className="removeButton">X</button>
                         </div>)}
                 </div>
                 <input onChange={e => setSkillToAdd(e.target.value)} value={skillToAdd}/>
-                <button onClick={onAddSkill}>Add Skill</button>
+                <button className="orangeCircularButton" onClick={onAddSkill}>Add Skill</button>
             </div>
             <div className="container">
-                <button onClick={generate}>Generate Skills and Categories with AI</button>
+                <button className="orangeCircularButton" onClick={generate}>Generate Skills and Categories with AI</button>
             </div>
             <div className="container">
                 <h1>Volunteeering Categories:</h1>
@@ -407,11 +407,11 @@ function VolunteeringSettings() {
                     {categories.map(category =>
                         <div className="skillcateg">
                             <p>{category}</p>
-                            <button onClick={() => onRemoveCategory(category)} className="xremove">X</button>
+                            <button onClick={() => onRemoveCategory(category)} className="removeButton">X</button>
                         </div>)}
                 </div>
                 <input onChange={e => setCategoryToAdd(e.target.value)} value={categoryToAdd}/>
-                <button onClick={onAddCategory}>Add Category</button>
+                <button className="orangeCircularButton" onClick={onAddCategory}>Add Category</button>
             </div>
             <div className="container">
                 <h1>Photos:</h1>
@@ -419,11 +419,11 @@ function VolunteeringSettings() {
                     {images.map(image =>
                         <div className="photo">
                             <img src={image}/>
-                            <button onClick={() => onRemoveImage(image)} className="xremove">X</button>
+                            <button onClick={() => onRemoveImage(image)} className="removeButton">X</button>
                         </div>)}
                 </div>
                 <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
-                <button onClick={onAddImage}>Upload!</button>
+                <button className="orangeCircularButton" onClick={onAddImage}>Upload!</button>
             </div>
             <div className="container">
                 <h1>Volunteer Scanning:</h1>
@@ -450,7 +450,7 @@ function VolunteeringSettings() {
                                               label="Automatically Approve Hours"/>
                         </RadioGroup>
                     </FormControl>}
-                <button onClick={sendScanDetails}>Confirm</button>
+                <button className="orangeCircularButton" onClick={sendScanDetails}>Confirm</button>
             </div>
             <div className="container">
                 <h1>Manage Constant Codes:</h1>
@@ -462,8 +462,8 @@ function VolunteeringSettings() {
                             <button onClick={() => qrLink(`qr${index}`)}>Download</button>
                         </div>)}
                 </div>
-                <button onClick={onGenerateCode}>Generate New Code</button>
-                <button onClick={onClearCodes}>Clear Codes</button>
+                <button className="orangeCircularButton" onClick={onGenerateCode}>Generate New Code</button>
+                <button className="orangeCircularButton" onClick={onClearCodes}>Clear Codes</button>
             </div>
         </div>
     )
