@@ -69,8 +69,10 @@ function VolunteeringChat() {
     const sendMessage = async (event: FormEvent) => {
         event.preventDefault();
         try{
-            await sendVolunteeringMessage(parseInt(id!), typedMessage);
-            setTypedMessage("");
+            if(typedMessage !== "") {
+                await sendVolunteeringMessage(parseInt(id!), typedMessage);
+                setTypedMessage("");
+            }
         }catch (e){
             alert(e);
         }

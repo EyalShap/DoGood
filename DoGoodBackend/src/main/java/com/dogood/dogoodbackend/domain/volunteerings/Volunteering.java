@@ -302,21 +302,19 @@ public class Volunteering {
         addNewExperience(e);
     }
 
-    public void moveVolunteerToNewGroup(String userId, int groupIdTo){
+    public synchronized void moveVolunteerToNewGroup(String userId, int groupIdTo){
         if(!groups.containsKey(groupIdTo)){
             throw new UnsupportedOperationException("There is no group with id "+groupIdTo);
         }
         if(!hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
         }
-        synchronized (volunteerToGroup) {
-            int currentGroupId = volunteerToGroup.get(userId);
-            Group groupFrom = groups.get(currentGroupId);
-            Group groupTo = groups.get(groupIdTo);
-            groupFrom.removeUser(userId);
-            groupTo.addUser(userId);
-            volunteerToGroup.put(userId, groupIdTo);
-        }
+        int currentGroupId = volunteerToGroup.get(userId);
+        Group groupFrom = groups.get(currentGroupId);
+        Group groupTo = groups.get(groupIdTo);
+        groupFrom.removeUser(userId);
+        groupTo.addUser(userId);
+        volunteerToGroup.put(userId, groupIdTo);
     }
 
     public void assignVolunteerToLocation(String userId, int locId){
