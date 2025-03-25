@@ -1,4 +1,4 @@
-import {useParams} from "react-router-dom";
+import {useNavigate, useParams} from "react-router-dom";
 import ChatMessage from "../models/ChatMessage.ts";
 import {FormEvent, useEffect, useRef, useState} from "react";
 import {deleteMessage, getVolunteeringChatMessages, sendVolunteeringMessage} from "../api/chat_api.ts";
@@ -11,7 +11,7 @@ import {FaRegTrashAlt} from "react-icons/fa";
 
 function MessageComponent({model} : {model:ChatMessage}) {
     const [timeSent, setTimeSent] = useState("");
-
+    const navigate = useNavigate();
 
     const deleteSelf = async () => {
         try{
@@ -19,6 +19,10 @@ function MessageComponent({model} : {model:ChatMessage}) {
         }catch (e){
             alert(e)
         }
+    }
+
+    const handleUserOnClick = async () => {
+        navigate(`/profile/${model.sender}`);
     }
 
     useEffect(() => {
@@ -34,7 +38,7 @@ function MessageComponent({model} : {model:ChatMessage}) {
     return (
         <div className={`message ${model.userIsSender ? "messageSender" : "messageRecipient"}`}>
             <div className="senderRow">
-                <p className="senderName">{model.sender}</p>
+                <p className="senderName" onClick={() => handleUserOnClick()}>{model.sender}</p>
                 <p className="sentOn">{timeSent}</p>
             </div>
             <h2 className="messageContent">{model.content}</h2>

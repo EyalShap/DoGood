@@ -36,6 +36,10 @@
     font-weight: bolder;
 }
 
+.senderName:hover {
+    text-decoration: underline;
+}
+
 .sentOn {
     margin: 5px;
 }

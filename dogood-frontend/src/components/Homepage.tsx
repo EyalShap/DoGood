@@ -59,7 +59,7 @@ function Homepage() {
 
             <div className='generalList'>
                 <h1 className='recommendedDesc'>Handpicked Volunteering Opportunities, Just For You</h1>
-                <ListWithArrows data={posts} limit = {3} navigateTo = 'volunteeringPost'></ListWithArrows>
+                <ListWithArrows data={posts} limit = {3} navigateTo = 'volunteeringPost' clickable={() => true}></ListWithArrows>
             </div>
         </div>
     );
