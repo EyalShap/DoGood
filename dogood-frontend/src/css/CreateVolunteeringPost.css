@@ -96,3 +96,19 @@
     text-align: center;
     gap: 30px;
   }
+
+  
+@media (max-width: 500px) {
+  .form-container {
+    display: flex;
+  flex-direction: column;  /* Align children in a column */
+  justify-content: center; /* Center content vertically */
+  align-items: center;     /* Center content horizontally */
+  
+  }
+
+  .form-fields {
+    width: 80%;
+  }
+  
+}

@@ -20,7 +20,7 @@ function OrganizationList() {
             
             const listItems: ListItem[] = organizations.map((org) => ({
                 id: org.id,
-                image: 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp', 
+                image: org.imagePaths.length > 0 ? org.imagePaths[0] : "/src/assets/defaultOrganizationDog.jpg", 
                 title: org.name,  
                 description: org.description, // assuming 'summary' is a short description
             }));

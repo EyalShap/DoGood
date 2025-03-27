@@ -1,4 +1,4 @@
-.listComponent {
+/*.listComponent {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -12,31 +12,31 @@
   display: flex;
   gap: 20px;
   overflow: hidden;
-  width: max-content; /* Wrap to fit children */
+  width: max-content; 
 }
 
 .listItem {
   background: #f5f5f5;
   text-align: left;
   padding: 10px;
-  width: 260px; /* Fixed width */
+  width: 260px; 
   cursor: pointer;
-  flex-shrink: 0; /* Don't shrink to fit */
+  flex-shrink: 0; 
 }
 
 .clickable:hover {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Soft shadow */
-  transform: translateY(-4px); /* Lift effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+  transform: translateY(-4px); 
 }
 
 .listItemImg {
-  width: 100%; /* Make the width 100% of the parent */
-  position: relative; /* Make it possible to position the image inside */
-  background-size: cover; /* Ensure the image covers the container */
-  background-position: center; /* Center the image in the container */
-  background-repeat: no-repeat; /* Prevent the image from repeating */
-  aspect-ratio: 1; /* Ensure height is equal to width */
-  object-fit: cover; /* Prevent the image from stretching */
+  width: 100%; 
+  position: relative; 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  aspect-ratio: 1; 
+  object-fit: cover; 
   border-radius: 0px;
 }
 
@@ -59,7 +59,7 @@
   cursor: pointer;
   background-image: url('https://www.iconpacks.net/icons/2/free-arrow-left-icon-3099-thumb.png');
   background-size: contain;
-  background-color: transparent; /* Remove any background color */
+  background-color: transparent; 
   width: 50px;
   height: 50px;
 }
@@ -75,16 +75,15 @@
 }
 
 .nonClickable {
-  pointer-events: none; /* Prevent clicks */
-  cursor: default; /* Show default cursor */
-}
+  pointer-events: none; 
+  cursor: default; 
 
 .itemAndButton {
   display: flex;
-  flex-direction: column; /* Stack items vertically */
-  align-items: center; /* Center the button horizontally */
-  justify-content: center; /* Center the button vertically if needed */
-  position: relative; /* Ensure button is positioned relative to the container */
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  position: relative; 
   gap: 10px;
 }
 
@@ -93,8 +92,8 @@
   background-color: #9f3d00;
   color: white;
   border: none;
-  font-size: 0.8rem; /* Smaller text */
-  border-radius: 20px; /* Optional: adjust for better proportion */
+  font-size: 0.8rem; 
+  border-radius: 20px; 
   cursor: pointer;
   transition: background-color 0.3s ease;
   font-weight: 400;
@@ -103,4 +102,171 @@
 .removeButton:hover{
   background-color: rgb(224, 148, 101);
 
+}*/
+
+/* General List Container */
+.listComponent {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 100%;
+  max-width: 900px;
+  margin: auto;
+  padding: 10px;
+}
+
+/* Default: Horizontal List */
+.list {
+  display: flex;
+  gap: 20px;
+  overflow: hidden;
+  width: max-content; /* Wrap to fit children */
+}
+
+.listItem {
+  background: #f5f5f5;
+  text-align: left;
+  padding: 10px;
+  width: 260px;
+  cursor: pointer;
+  flex-shrink: 0; /* Don't shrink */
+  border-radius: 8px;
+  transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.clickable:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transform: translateY(-4px);
+}
+
+/* Images */
+.listItemImg {
+  width: 100%; 
+  position: relative; 
+  background-size: cover; 
+  background-position: center; 
+  background-repeat: no-repeat; 
+  aspect-ratio: 1; 
+  object-fit: cover; 
+  border-radius: 0px;
+}
+
+/* Text */
+.listItemHeader {
+  font-size: 18px;
+  font-weight: bold;
+  margin: 10px 0;
+}
+
+.listItemDesc {
+  font-size: 14px;
+  color: #555;
+  line-height: 1.4;
+}
+
+/* Remove Button */
+.removeButton {
+  background-color: #9f3d00;
+  color: white;
+  border: none;
+  font-size: 0.9rem;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  font-weight: 500;
+  padding: 6px 12px;
+}
+
+.removeButton:hover {
+  background-color: rgb(224, 148, 101);
+}
+
+/* Arrows */
+.leftArrow, .rightArrow {
+  border: none;
+  padding: 10px;
+  position: absolute;
+  top: 50%;
+  cursor: pointer;
+  background-image: url('https://www.iconpacks.net/icons/2/free-arrow-left-icon-3099-thumb.png');
+  background-size: contain;
+  background-color: transparent;
+  width: 50px;
+  height: 50px;
+}
+
+.leftArrow {
+  transform: translateY(-50%);
+  left: -40px;
+}
+
+.rightArrow {
+  transform: translateY(-50%) scaleX(-1);
+  right: -40px;
+}
+
+@media (max-width: 768px) {
+  .listComponent {
+    flex-direction: column;
+    align-items: center;
+    width: 90%;
+  }
+
+  .list {
+    flex-direction: column; /* Stack items vertically */
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+  }
+
+  .listItem {
+    width: 95%;
+    max-width: 400px;
+    padding: 12px;
+  }
+
+
+
+  .listItemHeader {
+    font-size: 20px; /* Bigger text */
+  }
+
+  .listItemDesc {
+    font-size: 16px;
+  }
+
+
+}
+
+@media (max-width: 480px) {
+  .listItem {
+    width: 95%;
+    max-width: 350px;
+    padding: 10px;
+  }
+
+
+
+  .listItemHeader {
+    font-size: 18px;
+  }
+
+  .listItemDesc {
+    font-size: 15px;
+  }
+}
+
+.nonClickable {
+  pointer-events: none; 
+  cursor: default; 
+}
+
+.itemAndButton {
+  display: flex;
+  flex-direction: column; 
+  align-items: center; 
+  justify-content: center; 
+  position: relative; 
+  gap: 10px;
 }

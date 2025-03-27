@@ -17,9 +17,10 @@ export interface ListProps {
   clickable?: (id: number | string) => boolean;
   onRemove? : (arg0: string) => Promise<void>;
   isOrgManager? : boolean;
+  showArrows? : boolean;
 }
 
-const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager }) => {
+const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager, showArrows = true }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0); 
 
@@ -56,7 +57,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
       rel="stylesheet"
       />
 
-      {data.length > 1 && <button onClick={handlePrev} className="leftArrow"></button>}
+      {showArrows && data.length > 1 && <button onClick={handlePrev} className="leftArrow"></button>}
 
       <div className="list">
         {visibleItems.map((item) => (
@@ -75,7 +76,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
         ))}
       </div>
 
-      {data.length > 1 && <button onClick={handleNext} className="rightArrow"></button>}
+      {showArrows && data.length > 1 && <button onClick={handleNext} className="rightArrow"></button>}
 
 
     </div>
