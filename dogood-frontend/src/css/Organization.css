@@ -94,13 +94,13 @@
   color: #333; /* Text color */
 }
 
-.actionsMenu {
+.orgActionsMenu {
   position: relative; /* Ensure this container is the reference point for absolute positioning */
   display: flex;
   justify-content: flex-start; /* Push the dots menu to the right */
   align-items: center;
   margin-right: auto;  /* Pushes menu to the right */
-
+  margin-bottom: 10px;
 }
 
 .actionDropdownMenu {
@@ -322,5 +322,75 @@
   gap: 10px; /* Add spacing */
 }
 
+/* Responsive Styles for Mobile */
+@media (max-width: 768px) {
+  .orgHeaderContainer {
+      flex-direction: column;
+      gap: 30px;
+      padding: 20px;
+  }
+
+  .organizationImages {
+      order: 2;
+  }
+
+  .orgInfoText {
+      order: 1;
+      text-align: center;
+  }
+
+  .listContainer {
+      width: 100%;
+      padding: 15px;
+  }
+
+  .managersList {
+      flex-direction: column;
+      align-items: center;
+      padding: 0;
+  }
+
+  .managersListItem {
+      width: 90%;
+      max-width: 400px;
+  }
+
+  .contact {
+      width: 90%;
+      padding: 15px;
+  }
+
+
+
+  .dotsMenu {
+      width: 25px;
+      height: 25px;
+  }
+
+
+
+  .actionDropdownItem {
+      text-align: center;
+  }
+
+  .generalPageDiv {
+      padding: 10px;
+  }
+
+  .listHeader {
+      font-size: 1.4rem;
+  }
+
+  .popup-window {
+      width: 90%;
+      max-width: 400px;
+  }
+
+  .popup-body textarea {
+      width: 100%;
+  }
+
+
+}
 
 

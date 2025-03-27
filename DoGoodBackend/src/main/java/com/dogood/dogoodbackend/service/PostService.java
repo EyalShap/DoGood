@@ -185,7 +185,7 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(String token, Set<String> categories, Set<String> skills, String actor, List<VolunteerPostDTO> allPosts) {
+    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(String token, Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts) {
         try {
             checkToken(token,actor);
             List<VolunteerPostDTO> posts = postsFacade.filterVolunteerPosts(categories, skills, actor, allPosts);

@@ -470,7 +470,7 @@ export const filterVolunteeringPosts = async (categories: string[], skills: stri
     return posts;
 }
 
-export const filterVolunteerPosts = async (categories: string[], skills: string[], postsToFilter: VolunteerPostModel[]): Promise<VolunteerPostModel[]> => {
+export const filterVolunteerPosts = async (categories: string[], skills: string[], postsToFilter: number[]): Promise<VolunteerPostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 

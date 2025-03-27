@@ -11,6 +11,8 @@ function Homepage() {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<ListItem[]>([]);
 
+    const isMobile = window.innerWidth <= 768;
+
     const fetchPosts = async () => {
       try {
         let allPosts = await sortByRelevance(await getAllVolunteeringPosts());
@@ -59,7 +61,7 @@ function Homepage() {
 
             <div className='generalList'>
                 <h1 className='recommendedDesc'>Handpicked Volunteering Opportunities, Just For You</h1>
-                <ListWithArrows data={posts} limit = {3} navigateTo = 'volunteeringPost' clickable={() => true}></ListWithArrows>
+                <ListWithArrows data={posts} limit = {!isMobile ? 3 : posts.length} navigateTo = 'volunteeringPost' clickable={() => true} showArrows={!isMobile}></ListWithArrows>
             </div>
         </div>
     );

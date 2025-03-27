@@ -27,6 +27,7 @@ function Organization() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [key, setKey] = useState(0)
     const [orgImages, setOrgImages] = useState<ListItem[]>([]);
+    const isMobile = window.innerWidth <= 768;
     
     const fetchOrganization = async () => {
         try{
@@ -46,7 +47,7 @@ function Organization() {
             }));
             setManagers(managersItems);
 
-            convertImagesToListItems(model.imagePaths);
+            convertImagesToListItems(found.imagePaths);
         }
         catch(e){
             //send to error page
@@ -63,7 +64,7 @@ function Organization() {
             description: "",
         }));
         if(imageListItems.length === 0) {
-            imageListItems = [{id : "", image: "/src/assets/defaultOrganizationDog.webp", title: "", description: ""}];
+            imageListItems = [{id : "", image: "/src/assets/defaultOrganizationDog.jpg", title: "", description: ""}];
         }
         setOrgImages(imageListItems);
     } 
@@ -376,7 +377,7 @@ function Organization() {
     return (
         <div className='generalPageDiv'>
             
-            <div className="actionsMenu">
+            <div className="orgActionsMenu">
                 <img
                     src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
                     alt="Profile"
@@ -423,7 +424,7 @@ function Organization() {
                 <h2 className='listHeader'>Our Volunteerings</h2>
                 <div className='generalList'>
                     {volunteerings.length > 0 ? (
-                        <ListWithArrows data = {volunteerings} limit = {4} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id) || isManager}></ListWithArrows>
+                        <ListWithArrows data = {volunteerings} limit = {isMobile ? 1 : 3} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id) || isManager}></ListWithArrows>
                     ) : (
                         <p>No volunteerings available.</p>
                     )}
