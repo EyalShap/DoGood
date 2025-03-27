@@ -9,7 +9,7 @@ type Props = { user: UserModel | undefined };
 const Header: React.FC<Props> = ({ user }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
-  
+  const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
   const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
 
@@ -56,10 +56,11 @@ const Header: React.FC<Props> = ({ user }) => {
           <div className="logo" onClick = {onLogo}>doGood</div>
           <nav className="nav">
             <ul className="menuList">
-              <li className="menuListItem"><a href="/volunteeringPostList" className="navLink">Browse Posts</a></li>
-              <li className="menuListItem"><a href="/organizationList" className="navLink">Browse Organizations</a></li>
-              <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>
-              <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>
+              {!isMobile && <li className="menuListItem"><a href="/volunteeringPostList" className="navLink">Browse Posts</a></li>}
+              {!isMobile && <li className="menuListItem"><a href="/organizationList" className="navLink">Browse Organizations</a></li>}
+              {!isMobile && <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>}
+              {!isMobile && <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>}
+
               <div className="profileWrapper">
                     <img
                         src={profilePicture}
@@ -69,6 +70,10 @@ const Header: React.FC<Props> = ({ user }) => {
                     />
                     {dropdownOpen && (
                         <div className="dropdownMenu" onMouseLeave={closeDropdown}>
+                          {isMobile && <a href="/volunteeringPostList" className="dropdownItem">Browse Posts</a>}
+                          {isMobile && <a href="/organizationList" className="dropdownItem">Browse Organizations</a>}
+                            {isMobile && <a href="/myvolunteerings" className="dropdownItem">My Volunteerings</a>}
+                              {isMobile && <a href="/leaderboard" className="dropdownItem">Leaderboard</a>}
                             <a href="/my-profile" className="dropdownItem">My Profile</a>
                             <a href="/managerRequestsList" className="dropdownItem">My Requests</a>
                             {isAdmin && <a href="/reportList" className="dropdownItem">Reports</a>}

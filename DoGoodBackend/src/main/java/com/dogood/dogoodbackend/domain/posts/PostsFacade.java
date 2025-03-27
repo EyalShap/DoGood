@@ -392,20 +392,21 @@ public class PostsFacade {
         return result;
     }
 
-    public List<VolunteerPostDTO> filterVolunteerPosts(Set<String> categories, Set<String> skills, String actor, List<VolunteerPostDTO> allPosts) {
+    public List<VolunteerPostDTO> filterVolunteerPosts(Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
         List<VolunteerPostDTO> result = new ArrayList<>();
 
-        for(VolunteerPostDTO post : allPosts) {
-            Set<String> volunteeringCategories = new HashSet<>(post.getCategories());
-            Set<String> volunteeringSkills = new HashSet<>(post.getSkills());
+        for(int postId : allPosts) {
+            VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+            Set<String> volunteeringCategories = new HashSet<>(post.getCategories(this));
+            Set<String> volunteeringSkills = new HashSet<>(post.getSkills(this));
             Set<String> postKeywords = post.getKeywords();
 
-            boolean matchByCategory = countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1;
-            boolean matchBySkill = countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1;
+            boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1 : true;
+            boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1 : true;
 
             /*if(categories.size() > 0) {
                 volunteeringCategories.retainAll(categories);
@@ -417,7 +418,7 @@ public class PostsFacade {
             }*/
 
             if(matchByCategory && matchBySkill) {
-                result.add(post);
+                result.add(new VolunteerPostDTO(post));
             }
         }
         return result;

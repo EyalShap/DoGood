@@ -13,6 +13,7 @@ import { VolunteerPostModel } from '../models/VolunteerPostModel';
 import { Switch } from '@mui/material';
 
 function VolunteeringPostList() {
+    const isMobile = window.innerWidth <= 768;
     const navigate = useNavigate();
     const[isVolunteeringPosts, setIsVolunteeringPosts] = useState<boolean>(true);
     const [posts, setPosts] = useState<PostModel[]>([]);
@@ -35,6 +36,7 @@ function VolunteeringPostList() {
     const[selectedOrganizationNames, setSelectedOrganizationNames] = useState<string[]>([]);
     const[selectedVolunteeringNames, setSelectedVolunteeringNames] = useState<string[]>([]);
     const [postImages, setPostImages] = useState<Map<number, string>>(new Map());
+    const[showFilter, setShowFilter] = useState<boolean>(!isMobile);
 
     const fetchPosts = async () => {
         try {
@@ -145,11 +147,13 @@ function VolunteeringPostList() {
             }
             else {
                 if(search.trim() === "") {
+                    console.log(allVolunteerPosts);
                     res = allVolunteerPosts;
                 }
                 res = await searchByKeywords(search, allVolunteerPosts, isVolunteeringPosts);                
                 setSearchedPosts(res);
-                res = await filterVolunteerPosts(selectedCategories, selectedSkills, res as VolunteerPostModel[]);
+                let resVolunteerPosts : number[] = res.map(resPost => resPost.id);
+                res = await filterVolunteerPosts(selectedCategories, selectedSkills, resVolunteerPosts);
             }
             
             setPosts(res);
@@ -204,7 +208,8 @@ function VolunteeringPostList() {
                 filtered = searchedPosts;
             }
             else {
-                filtered = await filterVolunteerPosts(categories, skills, posts as VolunteerPostModel[]);
+                let postIds : number[] = searchedPosts.map(post => post.id);
+                filtered = await filterVolunteerPosts(categories, skills, postIds);
             }
         }
         setPosts(filtered);
@@ -260,6 +265,10 @@ function VolunteeringPostList() {
 
     return (
         <div className='generalPageDiv'>
+            <link
+            href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
+            rel="stylesheet"
+            />
             <div className="Posts">
                 <div className='headers'>
                 <h1 className = "bigHeader">Your Opportunity To Volunteer</h1>
@@ -292,21 +301,28 @@ function VolunteeringPostList() {
                         options={sortingOptions}
                         placeholder="Sort By"
                     />
+
+                {isMobile && <img
+                    src="https://static.thenounproject.com/png/4800805-200.png"
+                    className="showFilter"
+                    onClick = {() => setShowFilter(!showFilter)}
+                />}
                     
                 </div>
 
-                <div className = "filter">
+                
+                {showFilter && <div className = "filter">
                     <MultipleSelectDropdown label={'Categories'} options={allCategories} onChange={handleSelectedCategoriesChange}></MultipleSelectDropdown>
                     <MultipleSelectDropdown label={'Skills'} options={allSkills} onChange={handleSelectedSkillsChange}></MultipleSelectDropdown>
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Cities'} options={allCities} onChange={handleSelectedCitiesChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Organizations'} options={allOrganizationNames} onChange={handleSelectedOrganizationsChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Volunteerings'} options={allVolunteeringNames} onChange={handleSelectedVolunteeringsChange}></MultipleSelectDropdown>}
-                </div>
+                </div>}
                 
                 {postsListItems.length > 0 ? 
                     <ListWithPlus data={postsListItems} limit = {9} navigateTo={isVolunteeringPosts ? 'volunteeringPost' : 'volunteerPost'}></ListWithPlus>
                     :
-                    <p>No posts available.</p>
+                    <p className='noPosts'>No posts available.</p>
                 }
 
             </div>

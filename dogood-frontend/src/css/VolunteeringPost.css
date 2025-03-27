@@ -23,6 +23,8 @@ body {
     justify-content: flex-start; /* Push the dots menu to the right */
     align-items: center;
     margin-right: auto;  /* Pushes menu to the right */
+    margin-top: -30px;
+    margin-bottom: 10px;
     gap: 30px;
   }
 
@@ -80,6 +82,7 @@ textarea {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     text-align: center;
+    width: 80%;
 }
 
 .volunteeringOrganizationBox:hover {
@@ -119,6 +122,7 @@ transform: translateY(-4px); /* Lift effect */
     max-width: 800px;
     line-height: 1.4;
     font-weight: 300;
+    text-align: center;
 }
 
 #pastExperiences .pastExperienceItem {
@@ -194,6 +198,15 @@ transform: translateY(-4px); /* Lift effect */
         align-items: center;
         gap: 15px;
     }
+
+    .postImages {
+        margin-top: -50px;
+    }
+
+    .volunteeringOrganizationBox {
+        height: 30px;
+        flex: 0 1 60px;
+    }
 }
 
 @media (max-width: 480px) {
@@ -209,6 +222,7 @@ transform: translateY(-4px); /* Lift effect */
     #pastExperiences h1 {
         font-size: 1.6rem;
     }
+
 }
 
 /* InfoButton.css */
@@ -235,21 +249,20 @@ transform: translateY(-4px); /* Lift effect */
     visibility: visible;
     opacity: 1;
     position: absolute;
-    top: 30px;
-    left: 100%;
-    background-color: #d8e5eb;
-    color: #000000;
+    top: 100%; /* Positions it below the button */
+    left: 50%;
+    transform: translateX(-50%); /* Centers it */
+    background-color: #037b7bb0;
+    color: #ffffff;
     text-align: center;
-    padding: 5px;
+    padding: 8px;
     border-radius: 5px;
     z-index: 10;
     font-size: 14px;
     transition: opacity 0.3s ease;
-    width: 350px;
     font-family: 'Montserrat', sans-serif;
-
-
-  }
+    white-space: nowrap; /* Prevents wrapping */
+}
 
   .info-tooltip::before {
     content: '';
@@ -335,7 +348,7 @@ transform: translateY(-4px); /* Lift effect */
     border-radius: 15px; /* Rounded corners */
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow effect */
     background-color: #e6e5e5;
-    width: 80%;
+    width: 95%;
   }
 
   .joinButton {

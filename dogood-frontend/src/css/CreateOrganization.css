@@ -82,3 +82,11 @@
   text-align: center;
   gap: 30px;
 }
+
+
+@media (max-width: 500px) {
+  .createHeaders {
+    padding-top: 0px;
+
+  }
+}
