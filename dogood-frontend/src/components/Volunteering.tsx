@@ -406,6 +406,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     }
     const [startDate, setStartDate] = useState(getLastSunday(new Date))
     const [locations, setLocations] = useState<Location[]>([])
+    const [locationsDisabled, setLocationsDisabled] = useState(false);
     const [selectedLocation, setSelectedLocation] = useState<number>(-1)
     const [selectedGroup, setSelectedGroup] = useState<number>(-1)
     const [ranges, setRanges] = useState<ScheduleRange[]>([])
@@ -414,10 +415,13 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     const [selectedRange, setSelectedRange] = useState<ScheduleRange | null | undefined>(null)
 
     const fetchLocations = async () => {
-        try {
-            setLocations(await getVolunteeringLocations(volunteeringId))
-        } catch (e) {
-            alert(e)
+        try{
+            let fetchedLocations: Location[] = await getVolunteeringLocations(volunteeringId);
+            setLocationsDisabled(false);
+            fetchedLocations.forEach(location => location.id === -1 && setLocationsDisabled(true));
+            setLocations(fetchedLocations)
+        }catch(e){
+            alert(e);
         }
     }
 
@@ -513,23 +517,22 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     }, [])
 
     useEffect(() => {
-        console.log(selectedLocation)
-        if (selectedGroup > -1 && selectedLocation > -1) {
+        if (selectedGroup > -1 && (locationsDisabled || selectedLocation > -1)) {
             fetchRanges();
         }
     }, [selectedGroup, selectedLocation])
 
     return (
         <div>
-            <select onChange={e => setSelectedLocation(parseInt(e.target.value))}>
+            {!locationsDisabled && <select onChange={e => setSelectedLocation(parseInt(e.target.value))}>
                 <option value={-1}></option>
                 {locations.map(location => <option value={location.id}>{location.name}</option>)}
-            </select>
+            </select>}
             <select onChange={e => setSelectedGroup(parseInt(e.target.value))}>
                 <option value={-1}></option>
                 {groups.map(group => <option value={group}>Group {group}</option>)}
             </select>
-            {selectedGroup > -1 && selectedLocation > -1 &&
+            {selectedGroup > -1 && (locationsDisabled || selectedLocation > -1) &&
                 <div className='rangePanel'>
                     <div className='weekButtons'>
                         <button className='left orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
@@ -567,7 +570,13 @@ function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: numb
     }
 
     const fetchLocations = async () => {
-        setLocations(await getGroupLocations(volunteeringId, groupId));
+        try{
+            let fetchedLocations: Location[] = await getGroupLocations(volunteeringId, groupId)
+            fetchedLocations.forEach(location => location.id === -1 && assignUser(-1));
+            setLocations(fetchedLocations)
+        }catch(e){
+            alert(e);
+        }
     }
 
     useEffect(() => {
@@ -700,7 +709,7 @@ function Volunteering() {
 
     const updateHasLocation = async () => {
         try {
-            setHasLocation((await getUserAssignedLocation(model.id)) > -1)
+            setHasLocation((await getUserAssignedLocation(parseInt(id!))) > -2)
         } catch (e) {
             //send to error page
             alert(e)

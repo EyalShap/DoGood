@@ -79,7 +79,7 @@ public class VolunteeringService {
 
 
         // Step 1: Register Managers
-        this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
+        /*this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
         this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date());
         this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date());
         this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date());
@@ -215,7 +215,7 @@ public class VolunteeringService {
         this.facadeManager.getPostsFacade().createVolunteerPost("Hiii", "HI", "AliceManager");
 
         facadeManager.getVolunteeringFacade().requestToJoinVolunteering("BobManager", volId1, "plz i want join");
-        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("AliceManager", volId1, "BobManager", 0);
+        facadeManager.getVolunteeringFacade().acceptUserJoinRequest("AliceManager", volId1, "BobManager", 0);*/
     }
 
     private void checkToken(String token, String username) {
@@ -765,6 +765,16 @@ public class VolunteeringService {
             checkToken(token, userId);
             String path = facadeManager.getVolunteeringFacade().getUserApprovedHoursFormatted(userId, volunteeringId, israeliId);
             return Response.createResponse(path, null);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> disableVolunteeringLocations(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().disableVolunteeringLocations(userId, volunteeringId);
+            return Response.createOK();
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
