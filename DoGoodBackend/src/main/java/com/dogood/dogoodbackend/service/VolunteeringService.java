@@ -769,4 +769,14 @@ public class VolunteeringService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<String> disableVolunteeringLocations(String token, String userId, int volunteeringId) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().disableVolunteeringLocations(userId, volunteeringId);
+            return Response.createOK();
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

@@ -34,6 +34,17 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: 'Montserrat', sans-serif;
+}
+.disabledLocation {
+    padding-left: 100px;
+    padding-right: 100px;
+}
+
+.disabledLocation h2 {
+    color: #500606;
+    font-weight: bolder;
+    font-size: 32px;
 }
 
 .location button {

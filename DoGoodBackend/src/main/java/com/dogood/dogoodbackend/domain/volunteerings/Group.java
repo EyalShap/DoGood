@@ -129,7 +129,7 @@ public class Group {
 
     public int getAssignedLocation(String volunteerId){
         if(!volunteersToLocation.containsKey(volunteerId)){
-            return -1;
+            return -2;
         }
         return volunteersToLocation.get(volunteerId);
     }

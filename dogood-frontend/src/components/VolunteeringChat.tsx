@@ -32,7 +32,7 @@ function MessageComponent({model} : {model:ChatMessage}) {
         }else if(isYesterday(date)){
             setTimeSent(`Yesterday at ${format(date, "H:mm")}`)
         }else{
-            setTimeSent(`${format(date, "MMMM do, YYYY")} at ${format(date, "H:mm")}`)
+            setTimeSent(`${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`)
         }
     }, []);
     return (

@@ -5,7 +5,7 @@ import Location from "../models/Location";
 import {
     addImageToVolunteering,
     addVolunteeringLocation,
-    clearConstantCodes,
+    clearConstantCodes, disableVolunteeringLocations,
     generateSkillsAndCategories,
     getCode,
     getConstantCodes,
@@ -52,6 +52,7 @@ function VolunteeringSettings() {
     const [categoryToAdd, setCategoryToAdd] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [key, setKey] = useState(0)
+    const [locationsDisabled, setLocationsDisabled] = useState(false);
 
     const { register, handleSubmit, formState: { errors } } = useForm<LocationFormData>();
 
@@ -70,7 +71,10 @@ function VolunteeringSettings() {
 
     const fetchLocations = async () => {
         try {
-            setLocations(await getVolunteeringLocations(parseInt(id!)))
+            let fetchedLocations: Location[] = await getVolunteeringLocations(parseInt(id!));
+            setLocationsDisabled(false);
+            fetchedLocations.forEach(location => location.id === -1 && setLocationsDisabled(true));
+            setLocations(fetchedLocations)
         } catch (e) {
             //send to error page
             alert(e)
@@ -125,6 +129,17 @@ function VolunteeringSettings() {
             await addVolunteeringLocation(parseInt(id!), data.name, data.city, data.street, data.address);
             close();
             alert("Location created successfully!");
+            fetchLocations();
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+
+    const disableLocations = async () => {
+        try {
+            await disableVolunteeringLocations(parseInt(id!));
             fetchLocations();
         }
         catch (e) {
@@ -298,15 +313,15 @@ function VolunteeringSettings() {
                 <h1>Current Locations:</h1>
                 <div className="locations">
                     {locations.map(location =>
-                        <div className='location'>
+                        <div className={`location${location.id === -1 ? " disabledLocation" : ""}`}>
                             <h2>{location.name}</h2>
-                            <p>{location.address.city}</p>
-                            <p>{location.address.street}</p>
-                            <p>{location.address.address}</p>
-                            <button className="removeButton" onClick={() => onRemove(location.id)}>Remove Location</button>
+                            {location.id > -1 && <p>{location.address.city}</p>}
+                            {location.id > -1 && <p>{location.address.street}</p>}
+                            {location.id > -1 && <p>{location.address.address}</p>}
+                            <button className="removeButton" onClick={() => onRemove(location.id)}>{location.id > -1 ? "Remove Location" : "Enable Locations?"}</button>
                         </div>)}
                 </div>
-                <Popup trigger={<button className="orangeCircularButton">Add Location</button>} modal nested>
+                {!locationsDisabled && <Popup trigger={<button className="orangeCircularButton">Add Location</button>} modal nested>
                     {/* 
 // @ts-ignore */}
                     {close => (
@@ -384,10 +399,11 @@ function VolunteeringSettings() {
                             </form>
                         </div>
                     )}
-                </Popup>
+                </Popup>}
+                {locations.length === 0 && <button onClick={disableLocations} className="orangeCircularButton">We don't have locations!</button>}
             </div>
             <div className="container">
-                <h1>Volunteering Skills:</h1>
+            <h1>Volunteering Skills:</h1>
                 <div className="stringlist">
                     {skills.map(skill =>
                         <div className="skillcateg">

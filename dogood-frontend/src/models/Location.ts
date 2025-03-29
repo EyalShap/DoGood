@@ -1,6 +1,6 @@
 type Location = {
     id: number,
-    name: number,
+    name: string,
     address: AddressTuple
 }
 

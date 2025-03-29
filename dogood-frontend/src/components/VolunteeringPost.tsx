@@ -65,7 +65,7 @@ function VolunteeringPost() {
     const fetchImages = async () => {
         try {
             if(ready) {
-                let images = await getVolunteeringImages(parseInt(id!));
+                let images = await getVolunteeringImages(model.volunteeringId);
                 if(images.length === 0) {
                     images = ['/src/assets/defaultVolunteeringDog.webp'];
                 }
@@ -108,7 +108,7 @@ function VolunteeringPost() {
 
     useEffect(() => {
         fetchImages();
-    }, [model, ready])
+    }, [model])
 
 
     const fixDate = (dateJson: string, showHour: boolean) : string => {
@@ -295,7 +295,7 @@ function VolunteeringPost() {
                             </button>
                             </div>
                             <div className="popup-body">
-                                <textarea placeholder="Why do you want to join the volunteering?..."></textarea>
+                                <textarea value={joinFreeText} onChange={e => setJoinFreeText(e.target.value)} placeholder="Why do you want to join the volunteering?..."></textarea>
                                 <button className="orangeCircularButton" onClick={handleSubmitOnClick}>
                                     Submit
                                 </button>

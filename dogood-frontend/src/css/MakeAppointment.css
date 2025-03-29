@@ -1,5 +1,4 @@
 .makeAppointment {
-    width: 100%;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -16,25 +15,6 @@
     flex-direction: row;
     justify-content: space-around; /* Even spacing between buttons */
     margin-bottom: 15px; /* Increased spacing for consistency */
-}
-
-.weekButton {
-    background: linear-gradient(135deg, #007bff, #0056b3); /* Matching button styles */
-    width: auto;
-    padding: 12px 18px; /* Consistent padding */
-    color: #fff;
-    font-weight: bold;
-    font-size: 1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-}
-
-.weekButton:hover {
-    background: linear-gradient(135deg, #0056b3, #00408d);
-    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
 }
 
 .maker {
@@ -83,12 +63,8 @@
         padding: 10px; /* Adjusted padding */
     }
 
-    .weekButtons {
-        flex-wrap: wrap; /* Allow wrapping for smaller screens */
-        justify-content: center;
-    }
-
     .calender {
+        width: 100%;
         overflow-x: scroll;
     }
 
