@@ -28,6 +28,12 @@ public class ChatAPI {
         return chatService.sendVolunteeringMessage(token, body.get("username").asText(), body.get("content").asText(), body.get("volunteeringId").asInt());
     }
 
+    @PostMapping("/sendPostMessage")
+    public Response<Integer> sendPostMessage(@RequestBody JsonNode body, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.sendPostMessage(token, body.get("username").asText(), body.get("content").asText(), body.get("postId").asInt(), body.get("with").asText());
+    }
+
     @PostMapping("/sendPrivateMessage")
     public Response<Integer> sendPrivateMessage(@RequestBody JsonNode body, HttpServletRequest request){
         String token = getToken(request);
@@ -56,5 +62,11 @@ public class ChatAPI {
     public Response<List<MessageDTO>> getVolunteeringChatMessages(@RequestParam String username, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);
         return chatService.getVolunteeringChatMessages(token, username, volunteeringId);
+    }
+
+    @GetMapping("/getPostChatMessages")
+    public Response<List<MessageDTO>> getPostChatMessages(@RequestParam String username, @RequestParam int postId, @RequestParam String with, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.getPostChatMessages(token, username, postId, with);
     }
 }

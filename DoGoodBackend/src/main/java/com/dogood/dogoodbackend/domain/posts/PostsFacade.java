@@ -635,6 +635,14 @@ public class PostsFacade {
         volunteerPostRepository.removeRelatedUser(postId, username, actor);
     }
 
+    public boolean hasRelatedUser(int postId, String username) {
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User " + username + " doesn't exist");
+        }
+        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        return post.hasRelatedUser(username);
+    }
+
     public void addImage(int postId, String path, String actor) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
