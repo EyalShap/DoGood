@@ -129,4 +129,8 @@ public class VolunteerPost extends Post {
     public List<String> getCategories(PostsFacade postsFacade) {
         return this.categories;
     }
+
+    public boolean hasRelatedUser(String username) {
+        return username.equals(posterUsername) || relatedUsers.contains(username);
+    }
 }

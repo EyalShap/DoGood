@@ -13,8 +13,8 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
     @Bean
-    VolunteeringChatInterceptor volunteeringChatInterceptor() {
-        return new VolunteeringChatInterceptor();
+    ChatInterceptor volunteeringChatInterceptor() {
+        return new ChatInterceptor();
     }
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config) {
