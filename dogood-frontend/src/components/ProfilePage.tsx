@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { getIsAdmin, getUserByUsername } from "../api/user_api";
+import { banUser, getIsAdmin, getUserByUsername } from "../api/user_api";
 import './../css/MyProfile.css';
+import { createUserReport } from "../api/report_api";
 
 function ProfilePage() {
     const navigate = useNavigate();
@@ -18,6 +19,9 @@ function ProfilePage() {
     const [preferencesInput, setPreferencesInput] = useState(""); // Separate input for preferences
     const [preferences, setPreferences] = useState(""); // Displayed preferences
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isActorAdmin, setIsActorAdmin] = useState(false);
+    const [showReportDescription, setShowReportDescription] = useState(false);
+    const [reportDescription, setReportDescription] = useState("");
 
     // Fetch user profile on load
     useEffect(() => {
@@ -31,6 +35,7 @@ function ProfilePage() {
                 setPhone(profile.phone);
                 setBirthDate(new Date(profile.birthDate).toISOString().split('T')[0]);
                 setIsAdmin(await getIsAdmin(profile.username));
+                setIsActorAdmin(await getIsAdmin(localStorage.getItem("username") ?? ""));
                 setSkills(profile.skills.join(", "));
                 setSkillsInput(profile.skills.join(", "));
                 setPreferences(profile.preferredCategories.join(", "));
@@ -42,9 +47,43 @@ function ProfilePage() {
         fetchProfile();
     }, []);
 
+    
+    const handleReportOnClick = async () => {
+        setShowReportDescription(true);
+    }
+    
+    const handleSubmitReportOnClick = async () => {
+        try {
+            await createUserReport(username, reportDescription);
+            alert("Thank you for your report!");
+        }
+        catch(e) {
+            alert(e);
+        }
+            setShowReportDescription(false);
+            setReportDescription("");
+        }
+            
+    const handleCancelReportOnClick = () => {
+        setShowReportDescription(false);
+        setReportDescription("");
+    }
+
+    const handleBanUserOnClick = async () => {
+        if(window.confirm("Are you sure you want to ban this user?")) {
+            try {
+                await banUser(username);
+                alert("User banned successfully!");
+            }
+            catch(e) {
+                alert(e);
+            }
+        }
+    }
+
     return (
         <div className="my-profile">
-            <h1>Profile Page of {username}</h1>
+            <h1 className="bigHeader">Profile Page of {username}</h1>
 
             <div className="profile-section">
                 <h2>Profile Details</h2>
@@ -94,6 +133,27 @@ function ProfilePage() {
                     value={preferencesInput}
                     disabled
                 />
+            </div>
+
+            <div className="reportSection">
+                {isActorAdmin && <button onClick={handleBanUserOnClick} className="orangeCircularButton">Ban</button>}
+                <button onClick={handleReportOnClick} className="orangeCircularButton">Report</button>
+                {showReportDescription && (
+                    <div className="popup-window">
+                        <div className="popup-header">
+                            <span className="popup-title">Report</span>
+                            <button className="cancelButton" onClick={handleCancelReportOnClick}>
+                                X
+                            </button>
+                            </div>
+                            <div className="popup-body">
+                            <textarea placeholder="What went wrong?..." onClick={(e) => { e.stopPropagation()}} onChange={(e) => setReportDescription(e.target.value)}></textarea>
+                            <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
+                                Submit
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

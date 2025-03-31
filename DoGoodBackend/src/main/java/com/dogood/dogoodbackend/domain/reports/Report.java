@@ -20,7 +20,7 @@ public class Report {
     private String description;
 
     @Id
-    @Column(name = "report_date")
+    @Column(name = "date")
     private LocalDate date;
 
     @Id

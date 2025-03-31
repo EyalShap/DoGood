@@ -23,6 +23,9 @@ public class ChatService {
         if (!facadeManager.getAuthFacade().getNameFromToken(token).equals(username)) {
             throw new IllegalArgumentException("Invalid token");
         }
+        if (facadeManager.getUsersFacade().isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
+        }
     }
 
     public Response<Integer> sendVolunteeringMessage(String token, String username, String content, int volunteeringId){

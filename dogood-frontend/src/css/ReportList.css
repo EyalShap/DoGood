@@ -15,58 +15,45 @@ body {
     background: linear-gradient(135deg, #ffffff, #f9f9f9);
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    width: 80%;
+    display: flex;
+    flex-direction: column; /* Stack items vertically */
+    align-items: center; /* Center horizontally */
+    justify-content: center;
+    gap: 10px;
   }
 
-  /* Header */
-  .Reports h2 {
-    font-size: 2.8rem;
-    color: #222;
-    margin-bottom: 15px;
-    text-align: center;
-  }
+
 
   /* Request Item */
   .reportItem {
-    padding: 20px;
-    margin: 15px 0;
-    border-radius: 10px;
-    background: #ffffff;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    padding: 20px; /* Adds space inside */
+    box-sizing: border-box;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border: 1px solid black;
+    border-radius: 0px;
+    width: 80%;
   }
 
 
   .reportItem h3 {
-    font-size: 1.5rem;
-    color: #333;
-    margin-bottom: 10px;
+    font-weight: bold;
   }
+
+  .reportItem h3:hover{
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
 
   .reportItem p {
-    font-size: 1.1rem;
-    color: #555;
-    margin-bottom: 10px;
-    line-height: 1.5;
+    font-family: 'Montserrat', sans-serif;
   }
 
-  /* Buttons */
-  .reportItem button {
-    margin: 5px;
-    padding: 12px 18px;
-    font-size: 1rem;
-    color: #fff;
-    background: linear-gradient(135deg, #007bff, #0056b3);
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
-    height: 40px;
-  }
+
 
 
   /* No Reports available */
@@ -93,10 +80,8 @@ body {
       font-size: 1rem;
     }
 
-    .reportItem button {
-      font-size: 0.85rem;
-      padding: 10px;
-    }
+
+
   }
 
   @media (max-width: 480px) {
@@ -112,9 +97,54 @@ body {
       font-size: 0.9rem;
     }
 
-    .reportItem button {
-      font-size: 0.85rem;
-      padding: 10px;
+    .reportItem {
+      display: flex;
+      flex-direction: column;
+      justify-content: center; /* Centers items horizontally */
+      align-items: center;    /* Centers items vertically */
+      gap: 0px; 
     }
+
+    #buttons {
+      display: flex;
+      flex-direction: column; /* Stacks items vertically */
+      justify-content: center; /* Centers vertically */
+      align-items: center; /* Centers horizontally */
+      width: 100%;
+      gap:10px;
+      margin-top: 10px;
+    }
+
   }
 
+  .reportsHeader {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.6rem;
+    text-align: center;
+  }
+
+  .adminDashboardHeader {
+    text-align: center;
+    margin-top: 40px;
+  }
+
+  #searchTextbox{
+    width: 80%;
+    margin-bottom: 10px;
+  }
+
+  .selectEmail {
+    width: 80%;
+  }
+
+  .banNewEmail {
+    display: flex;
+    flex-direction: column; /* Stacks items vertically */
+    justify-content: center; /* Centers vertically */
+    align-items: center; /* Centers horizontally */
+    width: 100%;
+    gap:10px;
+    margin-top: 10px;
+  }
+
+  

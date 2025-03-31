@@ -7,11 +7,14 @@ import {
     updateUserPreferences,
     getIsAdmin,
     getUserApprovedHours,
+    setLeaderboard,
+    leaderboard,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
 import { getUserApprovedHoursFormatted } from "../api/volunteering_api";
+import { Switch } from "@mui/material";
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -28,6 +31,7 @@ function MyProfilePage() {
     const [preferencesInput, setPreferencesInput] = useState("");
     const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
+    const [isLeaderboard, setIsLeaderboard] = useState(true);
     const [model, setModel] = useState<User | null>(null);
 
     // Volunteering History
@@ -58,6 +62,7 @@ function MyProfilePage() {
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
                 setApprovedHours(await getUserApprovedHours(profile.username));
+                setIsLeaderboard(profile.leaderboard);
                 setModel(profile);
                 console.log(profile);
             } catch (e) {
@@ -108,12 +113,20 @@ function MyProfilePage() {
         }
     }
 
+    const toggleSwitch = async () => {
+        let newState = !isLeaderboard;
+        console.log(newState);
+        setIsLeaderboard(newState);
+        console.log("here1");
+        await setLeaderboard(newState);
+        console.log("here");
+    }
+
     return (
         <div className="my-profile">
-            <h1>My Profile</h1>
-
+            <h1 className="bigHeader">My Profile</h1>
             <div className="profile-section">
-                <h2>Update Profile</h2>
+                <h2 className="profileSectionHeader">Update Profile</h2>
                 <label>Username:</label>
                 <input type="text" value={username} disabled />
                 <label>Password:</label>
@@ -143,31 +156,31 @@ function MyProfilePage() {
                 />
                 <label>Birth Date:</label>
                 <input type="date" value={birthDate} disabled />
-                <button onClick={handleProfileUpdate}>Update Profile</button>
+                <button onClick={handleProfileUpdate} className="orangeCircularButton">Update Profile</button>
             </div>
 
             <div className="list-section">
-                <h2>Update Skills</h2>
+                <h2 className="profileSectionHeader">Update Skills</h2>
                 <textarea
                     value={skillsInput}
                     onChange={(e) => setSkillsInput(e.target.value)}
                     placeholder="Enter skills separated by commas"
                 />
-                <button onClick={handleSkillsUpdate}>Update Skills</button>
+                <button onClick={handleSkillsUpdate} className="orangeCircularButton">Update Skills</button>
             </div>
 
             <div className="list-section">
-                <h2>Update Preferences</h2>
+                <h2 className="profileSectionHeader">Update Preferences</h2>
                 <textarea
                     value={preferencesInput}
                     onChange={(e) => setPreferencesInput(e.target.value)}
                     placeholder="Enter preferences separated by commas"
                 />
-                <button onClick={handlePreferencesUpdate}>Update Preferences</button>
+                <button onClick={handlePreferencesUpdate} className="orangeCircularButton">Update Preferences</button>
             </div>
 
             <div className="history-section">
-                <h2>Volunteering History</h2>
+                <h2 className="profileSectionHeader">Volunteering History</h2>
                 {volunteeringsInHistory.length > 0 ? (
                     <table className="history-table">
                         <thead>
@@ -198,7 +211,7 @@ function MyProfilePage() {
                 )}
             </div>
             <div className="history-section">
-                <h2>Approved hours</h2>
+                <h2 className="profileSectionHeader">Approved hours</h2>
                 {approvedHours.length > 0 ? (
                     <table className="history-table">
                         <thead>
@@ -226,7 +239,7 @@ function MyProfilePage() {
             </div>
 
             <div className="status-section">
-                <h2>Profile Status</h2>
+                <h2 className="profileSectionHeader">Profile Status</h2>
                 <p><strong>Username:</strong> {username}</p>
                 <p><strong>Name:</strong> {name}</p>
                 <p><strong>Email:</strong> {email}</p>
@@ -237,7 +250,7 @@ function MyProfilePage() {
                 <p><strong>Admin:</strong> {isAdmin ? "Yes" : "No"}</p>
                 <p><strong>Student:</strong> {model?.student ? "Yes" : "No"}</p>
                 {isAdmin && (
-                    <button onClick={() => navigate('/reportList')}>Go to Reports</button>
+                    <button onClick={() => navigate('/reportList')} className="orangeCircularButton">Go to Reports</button>
                 )}
             </div>
 
@@ -256,8 +269,14 @@ function MyProfilePage() {
                     {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
                     {model.volunteeringsInHistory.map(hist => <option value={hist.id}>{hist.id} ({hist.name})</option>)}
                 </select>
-                <button disabled={selectedVolunteering < 0} onClick={handleExport}>Export</button>
+                <button disabled={selectedVolunteering < 0} onClick={handleExport} className="orangeCircularButton">Export</button>
             </div>}
+
+            <div className="leaderboard-section">
+                <h2 className="profileSectionHeader">Set Leaderboard</h2>
+                <p>Set here if you would like to apprear in the leaderboard of volunteering hours.</p>
+                <Switch className='switch' checked={isLeaderboard} onChange={toggleSwitch}/>
+            </div>
         </div>
     );
 }

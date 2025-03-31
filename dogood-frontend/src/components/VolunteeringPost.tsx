@@ -8,7 +8,7 @@ import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteeringPost.css'
 import './../css/CommonElements.css'
-import { createReport } from '../api/report_api';
+import { createVolunteeringPostReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 
@@ -161,7 +161,7 @@ function VolunteeringPost() {
 
     const handleSubmitReportOnClick = async () => {
         try {
-            await createReport(model.id, reportDescription);
+            await createVolunteeringPostReport(model.id, reportDescription);
             alert("Thank you for your report!");
         }
         catch(e) {
@@ -226,10 +226,10 @@ function VolunteeringPost() {
                         onClick={toggleDropdown}
                     />
                     {dropdownOpen && (
-                        <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
+                        <div className="actionDropdownMenu" onClick={toggleDropdown}>
                             {isManager && <p className="actionDropdownItem" onClick = {handleEditPostOnClick}>Edit</p>}
                             {isManager && <p className="actionDropdownItem" onClick = {handleRemovePostOnClick}>Remove</p>}
-                            <p className="actionDropdownItem" onClick = {handleReportOnClick}>Report</p>
+                            <p className="actionDropdownItem" onClick={(e) => { e.stopPropagation(); handleReportOnClick();}}>Report</p>
                             {showReportDescription && (
                                 <div className="popup-window">
                                     <div className="popup-header">
@@ -239,7 +239,7 @@ function VolunteeringPost() {
                                     </button>
                                     </div>
                                     <div className="popup-body">
-                                        <textarea placeholder="What went wrong?..."></textarea>
+                                        <textarea placeholder="What went wrong?..." onClick={(e) => { e.stopPropagation()}} onChange={(e) => setReportDescription(e.target.value)}></textarea>
                                         <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
                                             Submit
                                         </button>

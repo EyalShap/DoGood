@@ -63,7 +63,7 @@ public class PostsFacadeMemoryIntegrationTest {
         this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
         this.postsFacade = new PostsFacade(volunteeringPostRepository, null, new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor(), null, null);
-        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, postsFacade, null, null);
+        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, null, postsFacade, null, null);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
@@ -411,19 +411,19 @@ public class PostsFacadeMemoryIntegrationTest {
         VolunteeringPostDTO post3 = allPosts.get(2);
 
         List<VolunteeringPostDTO> expected0 = allPosts;
-        List<VolunteeringPostDTO> res0 = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), actor1, allPosts);
+        List<VolunteeringPostDTO> res0 = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), actor1, null);
         assertEquals(expected0, res0);
 
         List<VolunteeringPostDTO> expected1 = List.of(post2);
-        List<VolunteeringPostDTO> res1 = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), Set.of("Jerusalem"), new HashSet<>(), new HashSet<>(), actor1, allPosts);
+        List<VolunteeringPostDTO> res1 = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), Set.of("Jerusalem"), new HashSet<>(), new HashSet<>(), actor1, null);
         assertEquals(expected1, res1);
 
         List<VolunteeringPostDTO> expected2 = List.of();
-        List<VolunteeringPostDTO> res2 = postsFacade.filterVolunteeringPosts(Set.of("Lemon", "Cherry"), Set.of("Lettuce"), new HashSet<>(), Set.of("Cherry"), new HashSet<>(), actor1, allPosts);
+        List<VolunteeringPostDTO> res2 = postsFacade.filterVolunteeringPosts(Set.of("Lemon", "Cherry"), Set.of("Lettuce"), new HashSet<>(), Set.of("Cherry"), new HashSet<>(), actor1, null);
         assertEquals(expected2, res2);
 
         List<VolunteeringPostDTO> expected3 = List.of(post1, post3);
-        List<VolunteeringPostDTO> res3 = postsFacade.filterVolunteeringPosts(new HashSet<>(), Set.of("Lettuce", "Tomato"), new HashSet<>(), new HashSet<>(), Set.of("Volunteering"), actor1, allPosts);
+        List<VolunteeringPostDTO> res3 = postsFacade.filterVolunteeringPosts(new HashSet<>(), Set.of("Lettuce", "Tomato"), new HashSet<>(), new HashSet<>(), Set.of("Volunteering"), actor1, null);
         assertEquals(expected3, res3);
     }
 

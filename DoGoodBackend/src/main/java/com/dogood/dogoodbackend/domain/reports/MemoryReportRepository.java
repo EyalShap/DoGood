@@ -70,6 +70,39 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
+    public List<Report> getAllVolunteeringPostReports() {
+        List<Report> res = new ArrayList<>();
+        List<Report> allReports = getAllReports();
+
+        for(Report report : allReports) {
+            if(report.getReportObject() == ReportObject.VOLUNTEERING_POST) {
+                res.add(report);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public List<Report> getAllVolunteerPostReports() {
+        return null;
+    }
+
+    @Override
+    public List<Report> getAllVolunteeringReports() {
+        return null;
+    }
+
+    @Override
+    public List<Report> getAllUserReports() {
+        return null;
+    }
+
+    @Override
+    public List<Report> getAllOrganizationReports() {
+        return null;
+    }
+
+    @Override
     public void clear() {
         reports = new HashMap<>();
     }

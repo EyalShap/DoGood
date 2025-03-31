@@ -11,6 +11,7 @@ import ListWithArrows, { ListItem } from './ListWithArrows';
 import { getUserByUsername } from '../api/user_api';
 import { getVolunteeringImages } from '../api/post_api';
 import { supabase } from '../api/general';
+import { createOrganizationReport } from '../api/report_api';
 
 function Organization() {
     const navigate = useNavigate();
@@ -27,6 +28,8 @@ function Organization() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [key, setKey] = useState(0)
     const [orgImages, setOrgImages] = useState<ListItem[]>([]);
+    const [showReportDescription, setShowReportDescription] = useState(false);
+    const [reportDescription, setReportDescription] = useState("");
     const isMobile = window.innerWidth <= 768;
     
     const fetchOrganization = async () => {
@@ -373,6 +376,27 @@ function Organization() {
         const handleUserOnClick = async (username: string | number) => {
             navigate(`/profile/${username}`);
         }
+
+        const handleReportOnClick = async () => {
+            setShowReportDescription(true);
+        }
+
+        const handleSubmitReportOnClick = async () => {
+                try {
+                    await createOrganizationReport(model.id, reportDescription);
+                    alert("Thank you for your report!");
+                }
+                catch(e) {
+                    alert(e);
+                }
+                setShowReportDescription(false);
+                setReportDescription("");
+            }
+        
+            const handleCancelReportOnClick = () => {
+                setShowReportDescription(false);
+                setReportDescription("");
+            }
     
     return (
         <div className='generalPageDiv'>
@@ -385,10 +409,28 @@ function Organization() {
                     onClick={toggleDropdown}
                 />
                 {dropdownOpen && (
-                    <div className="actionDropdownMenu" onMouseLeave={closeDropdown}>
-                        {isManager && <p className="actionDropdownItem" onClick = {handleRemoveOrganizationOnClick}>Remove Organization</p>}
-                        {isManager && <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Edit Organization</p>}
-                        <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Report Organization</p>
+                    <div className="actionDropdownMenu" onClick={toggleDropdown}>
+                        {isManager && <p className="actionDropdownItem" onClick = {handleRemoveOrganizationOnClick}>Remove</p>}
+                        {isManager && <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Edit</p>}
+                        <p className="actionDropdownItem" onClick={(e) => { e.stopPropagation(); handleReportOnClick();}}>Report</p>
+                    
+                        {showReportDescription && (
+                                <div className="popup-window">
+                                    <div className="popup-header">
+                                    <span className="popup-title">Report</span>
+                                    <button className="cancelButton" onClick={handleCancelReportOnClick}>
+                                        X
+                                    </button>
+                                    </div>
+                                    <div className="popup-body">
+                                        <textarea placeholder="What went wrong?..." onClick={(e) => { e.stopPropagation()}} onChange={(e) => setReportDescription(e.target.value)}></textarea>
+                                        <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
+                                            Submit
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
                     </div>
                 )}
             </div>
