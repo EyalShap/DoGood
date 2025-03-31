@@ -11,10 +11,18 @@ public interface ReportRepository {
     public void editReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject, String description);
     public Report getReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject);
     public List<Report> getAllReports();
+    public List<Report> getAllVolunteeringPostReports();
+    public List<Report> getAllVolunteerPostReports();
+    public List<Report> getAllVolunteeringReports();
+    public List<Report> getAllUserReports();
+    public List<Report> getAllOrganizationReports();
     public void clear();
 
     public default List<ReportDTO> getAllReportDTOs() {
-        List<Report> reports = getAllReports();
+        return getReportDTOs(getAllReports());
+    }
+
+    public default List<ReportDTO> getReportDTOs(List<Report> reports) {
         List<ReportDTO> reportDTOS = reports.stream()
                 .map(report -> new ReportDTO(report))
                 .collect(Collectors.toList());

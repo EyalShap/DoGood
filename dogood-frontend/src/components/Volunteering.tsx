@@ -36,9 +36,21 @@ import ScheduleRange, { RestrictionTuple } from '../models/ScheduleRange';
 import dayjs, { Dayjs } from 'dayjs';
 import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
-import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
+import {
+    Checkbox,
+    FormControl,
+    FormControlLabel,
+    FormGroup,
+    FormLabel,
+    MenuItem,
+    Radio,
+    RadioGroup
+} from '@mui/material';
 import NumberInput from './NumberInput';
 import Popup from 'reactjs-popup';
+import {Tab, TabList, TabPanel, Tabs} from 'react-tabs';
+import 'react-tabs/style/react-tabs.css';
+import Select from "react-select";
 
 
 
@@ -169,9 +181,12 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
 
     return (
         <div>
-            <div>
-                <button onClick={() => addWeeks(-1)}>Last Week</button>
-                <button onClick={() => addWeeks(1)}>Next Week</button>
+            <br/>
+            <h2 className='listHeader'>My Appointments</h2>
+            <br/>
+            <div className='weekButtons'>
+                <button className='orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
+                <button className='orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
             </div>
             <div className='calender'>
                 <div className='innercalender'>
@@ -198,13 +213,14 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
                                 ]
                             }
                         )}
-                        headerTextWrappingEnabled={true} />
-                </div></div>
+                        headerTextWrappingEnabled={true}/>
+                </div>
+            </div>
         </div>
     )
 }
 
-function RangeMaker({ groupId, locId, volunteeringId, refreshRanges }: { groupId: number, locId: number, volunteeringId: number, refreshRanges: () => void }) {
+function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId: number, locId: number, volunteeringId: number, refreshRanges: () => void }) {
     const [startTime, setStartTime] = useState(dayjs('2024-01-01T00:00'));
     const [endTime, setEndTime] = useState(dayjs('2024-01-01T00:00'));
     const [weekOrOne, setWeekOrOne] = useState("one");
@@ -406,18 +422,22 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     }
     const [startDate, setStartDate] = useState(getLastSunday(new Date))
     const [locations, setLocations] = useState<Location[]>([])
-    const [selectedLocation, setSelectedLocation] = useState<number>(-1)
-    const [selectedGroup, setSelectedGroup] = useState<number>(-1)
+    const [locationsDisabled, setLocationsDisabled] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState({value: -1, label: "Select Location"})
+    const [selectedGroup, setSelectedGroup] = useState({value: -1, label: "Select Group"})
     const [ranges, setRanges] = useState<ScheduleRange[]>([])
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [events, setEvents] = useState<DayPilot.EventData[]>([])
     const [selectedRange, setSelectedRange] = useState<ScheduleRange | null | undefined>(null)
 
     const fetchLocations = async () => {
-        try {
-            setLocations(await getVolunteeringLocations(volunteeringId))
-        } catch (e) {
-            alert(e)
+        try{
+            let fetchedLocations: Location[] = await getVolunteeringLocations(volunteeringId);
+            setLocationsDisabled(false);
+            fetchedLocations.forEach(location => location.id === -1 && setLocationsDisabled(true));
+            setLocations(fetchedLocations)
+        }catch(e){
+            alert(e);
         }
     }
 
@@ -483,7 +503,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
 
     const fetchRanges = async () => {
         try {
-            setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup, selectedLocation))
+            setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup.value, selectedLocation.value))
         } catch (e) {
             alert(e)
         }
@@ -491,7 +511,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
 
     const refreshRange = async (range: ScheduleRange | null) => {
         try {
-            setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup, selectedLocation))
+            setRanges(await getVolunteeringLocationGroupRanges(volunteeringId, selectedGroup.value, selectedLocation.value))
             setSelectedRange(range)
         } catch (e) {
             alert(e)
@@ -513,23 +533,30 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     }, [])
 
     useEffect(() => {
-        console.log(selectedLocation)
-        if (selectedGroup > -1 && selectedLocation > -1) {
+        if (selectedGroup.value > -1 && (locationsDisabled || selectedLocation.value > -1)) {
             fetchRanges();
         }
     }, [selectedGroup, selectedLocation])
 
     return (
         <div>
-            <select onChange={e => setSelectedLocation(parseInt(e.target.value))}>
-                <option value={-1}></option>
-                {locations.map(location => <option value={location.id}>{location.name}</option>)}
-            </select>
-            <select onChange={e => setSelectedGroup(parseInt(e.target.value))}>
-                <option value={-1}></option>
-                {groups.map(group => <option value={group}>Group {group}</option>)}
-            </select>
-            {selectedGroup > -1 && selectedLocation > -1 &&
+            <div className="selectorsRow">
+                {!locationsDisabled && <Select
+                    value={selectedLocation}
+                    className="selectorInRow"
+                    onChange={e => setSelectedLocation(e!)}
+                    options={locations.map(location => ({value: location.id, label: location.name}))}
+                    placeholder="Select Location"
+                />}
+                <Select
+                    value={selectedGroup}
+                    className="selectorInRow"
+                    onChange={e => setSelectedGroup(e!)}
+                    options={groups.map(group => ({value: group, label: `Group ${group}`}))}
+                    placeholder="Select Group"
+                />
+            </div>
+            {selectedGroup.value > -1 && (locationsDisabled || selectedLocation.value > -1) &&
                 <div className='rangePanel'>
                     <div className='weekButtons'>
                         <button className='left orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
@@ -548,9 +575,9 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
                                 headerTextWrappingEnabled={true}
                                 onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
                         </div></div>
-                    <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} refreshRanges={fetchRanges} />
+                    <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup.value} locId={selectedLocation.value} refreshRanges={fetchRanges} />
                     {selectedRange === null || selectedRange === undefined ? <></> :
-                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup} locId={selectedLocation} range={selectedRange!} />}
+                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup.value} locId={selectedLocation.value} range={selectedRange!} />}
                 </div>}
         </div>
     )
@@ -567,7 +594,13 @@ function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: numb
     }
 
     const fetchLocations = async () => {
-        setLocations(await getGroupLocations(volunteeringId, groupId));
+        try{
+            let fetchedLocations: Location[] = await getGroupLocations(volunteeringId, groupId)
+            fetchedLocations.forEach(location => location.id === -1 && assignUser(-1));
+            setLocations(fetchedLocations)
+        }catch(e){
+            alert(e);
+        }
     }
 
     useEffect(() => {
@@ -630,12 +663,14 @@ function HourRequestMaker({ volunteerindId, close }: { volunteerindId: number, c
 
 function Leaver({ volunteerindId, close }: { volunteerindId: number, close: any }) {
     const [experience, setExperience] = useState("");
+    const navigate = useNavigate();
 
     const onRequest = async () => {
         try {
             await finishVolunteering(volunteerindId, experience);
             alert("Goodbye!")
             close();
+            navigate("/");
         } catch (e) {
             alert(e)
         }
@@ -700,7 +735,7 @@ function Volunteering() {
 
     const updateHasLocation = async () => {
         try {
-            setHasLocation((await getUserAssignedLocation(model.id)) > -1)
+            setHasLocation((await getUserAssignedLocation(parseInt(id!))) > -2)
         } catch (e) {
             //send to error page
             alert(e)
@@ -824,15 +859,31 @@ function Volunteering() {
                     </Popup>
                 </div>}
 
-            {isManager ?
-                <div className="volunteers">
-                <button className="orangeCircularButton" onClick={() => onAddNewGroup()}>New Group</button>
-                    {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart} onDrop={onDrop} deleteGroup={deleteGroup} groupId={parseInt(key)} volunteers={value} />)}
-                </div> : <></>}
-            {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)} /> : <></>}
+            {isManager && <Tabs>
+                <TabList>
+                    <Tab>View and Manage Volunteers</Tab>
+                    <Tab>View and Manage Schedule</Tab>
+                </TabList>
+                <TabPanel>
+                    <div className="volunteers">
+                        <button className="orangeCircularButton" onClick={() => onAddNewGroup()}>New Group</button>
+                        {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart}
+                                                                                onDrop={onDrop}
+                                                                                deleteGroup={deleteGroup}
+                                                                                groupId={parseInt(key)}
+                                                                                volunteers={value}/>)}
+                    </div>
+                </TabPanel>
+                <TabPanel>
+                    <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />
+                </TabPanel>
+            </Tabs>}
+            {permissionsLoaded && !isManager && hasLocation ?
+                <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
-                    <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Make An Appointment</button>
+                    <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Make An
+                        Appointment</button>
                     <Popup trigger={<button className="orangeCircularButton">Request Hours Manually</button>} modal nested>
                         {/* 
                     // @ts-ignore */}
@@ -844,7 +895,6 @@ function Volunteering() {
                     </Popup>
                 </div> : <></>}
             {!isManager && !hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
-            {isManager && <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />}
         </div>
     )
 }

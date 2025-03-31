@@ -1,10 +1,12 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
 import { login } from "../api/user_api";
+import "../css/LoginPage.css"
 
 function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetStateAction<boolean>>}) {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const isMobile = window.innerWidth <= 768;
 
     const onLogin = async () => {
         try {
@@ -16,18 +18,30 @@ function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetSta
             alert(e);
         }
     };
-
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'Arial, sans-serif' }}>
-            <h1>Login</h1>
-            <div style={{ display: 'flex', flexDirection: 'column', width: '300px' }}>
+        <div className="back">
+        <div className = "loginPage"> 
+            <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+            />
+            <link
+            href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
+            rel="stylesheet"
+            />
+        <div className="image">
+            <h2 className="bigHeader welcome">Welcome To DoGood</h2>
+        </div>
+        <div className="loginSection">
+            <h1 className="mobileLogin">{isMobile ? "Welcome To DoGood" : "Login"}</h1>
+            <div className = 'fields' >
                 <input
                     onKeyDown = {(e) =>{if (e.key === 'Enter') onLogin();} }
                     type="text" 
                     placeholder="Username" 
                     value={username} 
                     onChange={e => setUsername(e.target.value)} 
-                    style={{ margin: '5px 0', padding: '10px', fontSize: '16px' }}
+                    style={{ margin: '5px 0', padding: '10px', fontSize: '16px', fontFamily: 'Montserrat, sans-serif' }}
                 />
                 <input 
                     onKeyDown = {(e) =>{if (e.key === 'Enter') onLogin();} }
@@ -39,7 +53,8 @@ function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetSta
                 />
                 <button
                     onClick={onLogin} 
-                    style={{ margin: '10px 0', padding: '10px', fontSize: '16px', backgroundColor: '#4CAF50', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                    className="orangeCircularButton"
+                    style={{ margin: '10px 0', padding: '10px', fontSize: '16px', border: 'none', cursor: 'pointer' }}
                 >
                     Login
                 </button>
@@ -53,6 +68,8 @@ function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetSta
             </a>
                 
             </div>
+            </div>
+        </div>
         </div>
     );
 }

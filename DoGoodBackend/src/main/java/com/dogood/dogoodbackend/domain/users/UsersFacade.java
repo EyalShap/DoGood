@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.users;
 
+import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
@@ -14,6 +15,7 @@ public class UsersFacade {
     private VolunteeringFacade volunteeringFacade;
     private UserRepository repository;
     private AuthFacade authFacade;
+    private ReportsFacade reportsFacade;
 
     public UsersFacade(UserRepository repository, AuthFacade authFacade) {
         this.repository = repository;
@@ -24,8 +26,19 @@ public class UsersFacade {
         this.volunteeringFacade = volunteeringFacade;
     }
 
+    public void setReportsFacade(ReportsFacade reportsFacade) {
+        this.reportsFacade = reportsFacade;
+    }
+
     public String login(String username, String password) {
         User user = getUser(username);
+
+        for(String email : user.getEmails()) {
+            if(reportsFacade.isBannedEmail(email)) {
+                throw new IllegalArgumentException(username + " is banned from the system.");
+            }
+        }
+
         boolean correctPassword = user.checkPassword(password);
         if (!correctPassword) {
             throw new IllegalArgumentException("Invalid password given for user " + username);
@@ -45,6 +58,11 @@ public class UsersFacade {
             // if user with the same username exists, cannot register it again
             throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
         } catch (IllegalArgumentException e) {
+
+            if(reportsFacade.isBannedEmail(email)) {
+                throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
+            }
+
             repository.createUser(username, email, name, password, phone, birthDate);
         }
     }
@@ -60,6 +78,11 @@ public class UsersFacade {
             // if user with the same username exists, cannot register it again
             throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
         } catch (IllegalArgumentException e) {
+
+            if(reportsFacade.isBannedEmail(email)) {
+                throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
+            }
+
             repository.createUser(username, email, name, password, phone, birthDate);
             repository.setAdmin(username, true);
         }
@@ -91,6 +114,13 @@ public class UsersFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User not found");
         }
+
+        for(String email : emails) {
+            if(reportsFacade.isBannedEmail(email)) {
+                throw new IllegalArgumentException(email + " is banned from the system.");
+            }
+        }
+
         User user = getUser(username);
         if(password == null){
             repository.updateUserFields(
@@ -231,5 +261,33 @@ public class UsersFacade {
         User user = repository.getUser(username);
         user.setLeaderboard(leaderboard);
         repository.saveUser(user);
+    }
+
+    public boolean isBanned(String username) {
+        List<String> userEmails = getUser(username).getEmails();
+        for(String email : userEmails) {
+            if(reportsFacade.isBannedEmail(email)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void banUser(String username, String actor) {
+        List<String> userEmails = getUser(username).getEmails();
+        for(String email : userEmails) {
+            reportsFacade.banEmail(email, actor);
+        }
+        reportsFacade.removeUserReports(username);
+    }
+
+    public List<String> getAllUserEmails() {
+        List<User> allUsers = repository.getAllUsers();
+        Set<String> allEmails = new HashSet<>();
+
+        for(User user : allUsers) {
+            allEmails.addAll(user.getEmails());
+        }
+        return new ArrayList<>(allEmails);
     }
 }

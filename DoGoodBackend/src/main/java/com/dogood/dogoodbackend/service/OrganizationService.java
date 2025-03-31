@@ -4,6 +4,8 @@ import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
+import com.dogood.dogoodbackend.domain.users.User;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +17,21 @@ import java.util.List;
 public class OrganizationService {
     private OrganizationsFacade organizationsFacade;
     private AuthFacade authFacade;
+    private UsersFacade usersFacade;
 
     @Autowired
     public OrganizationService(FacadeManager facadeManager){
         this.organizationsFacade = facadeManager.getOrganizationsFacade();
         this.authFacade = facadeManager.getAuthFacade();
+        this.usersFacade = facadeManager.getUsersFacade();
     }
 
     private void checkToken(String token, String username){
         if(!authFacade.getNameFromToken(token).equals(username)){
             throw new IllegalArgumentException("Invalid token");
+        }
+        if (usersFacade.isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
         }
     }
 

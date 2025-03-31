@@ -76,7 +76,7 @@ const Header: React.FC<Props> = ({ user }) => {
                               {isMobile && <a href="/leaderboard" className="dropdownItem">Leaderboard</a>}
                             <a href="/my-profile" className="dropdownItem">My Profile</a>
                             <a href="/managerRequestsList" className="dropdownItem">My Requests</a>
-                            {isAdmin && <a href="/reportList" className="dropdownItem">Reports</a>}
+                            {isAdmin && <a href="/reportList" className="dropdownItem">Admin Dashboard</a>}
                             <a href="/" className="dropdownItem" onClick = {onLogout}>Logout</a>
                         </div>
                     )}

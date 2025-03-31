@@ -505,6 +505,18 @@ export const addVolunteeringLocation = async (volunteeringId: number, name: stri
     return response.data;
 }
 
+export const disableVolunteeringLocations = async (volunteeringId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.put(`${server}/api/volunteering/disableVolunteeringLocations?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, {}, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const requestHoursApproval = async (volunteeringId: number, startDate: string, endDate: string): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
@@ -703,4 +715,16 @@ export const getUserApprovedHoursFormatted = async (volunteeringId: number, isra
 
     document.body.removeChild(link);
     URL.revokeObjectURL(href);
+}
+
+export const removeVolunteering = async (volunteeringId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`${server}/api/volunteering/removeVolunteering?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
 }

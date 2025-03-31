@@ -213,6 +213,12 @@ public class Volunteering {
         if(!g.isEmpty()){
             throw new UnsupportedOperationException("Cannot remove a non-empty group, please re-assign the volunteers first");
         }
+        if(groups.size() <= 1){
+            throw new UnsupportedOperationException("Cannot have less than 1 group");
+        }
+        for(int rId : g.getRangeToLocation().keySet()){
+            scheduleRanges.remove(rId);
+        }
         groups.remove(id);
     }
 
@@ -425,7 +431,7 @@ public class Volunteering {
 
     public int getAssignedLocation(String volunteerId){
         if(!hasVolunteer(volunteerId)){
-            return -1;
+            return -2;
         }
         Group g = groups.get(volunteerToGroup.get(volunteerId));
         return g.getAssignedLocation(volunteerId);
@@ -449,7 +455,7 @@ public class Volunteering {
     public List<String> getWarnings(){
         List<String> warnings = new LinkedList<>();
         if(locations.isEmpty()){
-            warnings.add("You don't have any locations defined. You can define locations in Settings.");
+            warnings.add("You don't have any locations defined. You can define locations or disable them in Settings.");
         }
         for(Group g : groups.values()){
             if(!g.canMakeAppointments()){
@@ -507,5 +513,13 @@ public class Volunteering {
 
     public List<String> getImagePaths() {
         return new LinkedList<>(imagePaths);
+    }
+
+    public void disableLocations() {
+        if(!locations.isEmpty()){
+            throw new UnsupportedOperationException("Cannot disable locations for a volunteering that has locations");
+        }
+        Location loc = new Location(-1,id,"Locations Disabled",null);
+        this.locations.put(loc.getId(), loc);
     }
 }

@@ -15,9 +15,9 @@ public class AddressTuple {
     }
 
     public AddressTuple(AddressTuple other) {
-        this.city = other.getCity();
-        this.street = other.getStreet();
-        this.address = other.getAddress();
+        this.city = other == null ? "" : other.getCity();
+        this.street = other == null ? "" : other.getStreet();
+        this.address = other == null ? "" : other.getAddress();
     }
 
     public AddressTuple() {

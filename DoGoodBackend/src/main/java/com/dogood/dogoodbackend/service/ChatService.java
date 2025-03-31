@@ -23,12 +23,25 @@ public class ChatService {
         if (!facadeManager.getAuthFacade().getNameFromToken(token).equals(username)) {
             throw new IllegalArgumentException("Invalid token");
         }
+        if (facadeManager.getUsersFacade().isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
+        }
     }
 
     public Response<Integer> sendVolunteeringMessage(String token, String username, String content, int volunteeringId){
         try{
             checkToken(token, username);
             int id = facadeManager.getChatFacade().sendVolunteeringMessage(username, content, volunteeringId);
+            return Response.createResponse(id);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Integer> sendPostMessage(String token, String username, String content, int postId, String with){
+        try{
+            checkToken(token, username);
+            int id = facadeManager.getChatFacade().sendPostMessage(username, content, postId, with);
             return Response.createResponse(id);
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
@@ -78,6 +91,15 @@ public class ChatService {
         try{
             checkToken(token, username);
             return Response.createResponse(facadeManager.getChatFacade().getPrivateChatMessages(username,receiverId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<MessageDTO>> getPostChatMessages(String token, String username, int postId, String with) {
+        try{
+            checkToken(token, username);
+            return Response.createResponse(facadeManager.getChatFacade().getPostChatMessages(username,postId,with));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }

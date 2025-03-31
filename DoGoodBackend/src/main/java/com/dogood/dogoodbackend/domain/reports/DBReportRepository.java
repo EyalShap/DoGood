@@ -1,15 +1,11 @@
 package com.dogood.dogoodbackend.domain.reports;
 
-import com.dogood.dogoodbackend.domain.posts.VolunteeringPost;
 import com.dogood.dogoodbackend.jparepos.ReportJPA;
-import com.dogood.dogoodbackend.utils.PostErrors;
 import com.dogood.dogoodbackend.utils.ReportErrors;
-import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class DBReportRepository implements ReportRepository{
     private ReportJPA jpa;
@@ -65,6 +61,31 @@ public class DBReportRepository implements ReportRepository{
     @Override
     public List<Report> getAllReports() {
         return jpa.findAll();
+    }
+
+    @Override
+    public List<Report> getAllVolunteeringPostReports() {
+        return jpa.findAllByReportObject(ReportObject.VOLUNTEERING_POST);
+    }
+
+    @Override
+    public List<Report> getAllVolunteerPostReports() {
+        return jpa.findAllByReportObject(ReportObject.VOLUNTEER_POST);
+    }
+
+    @Override
+    public List<Report> getAllVolunteeringReports() {
+        return jpa.findAllByReportObject(ReportObject.VOLUNTEERING);
+    }
+
+    @Override
+    public List<Report> getAllUserReports() {
+        return jpa.findAllByReportObject(ReportObject.USER);
+    }
+
+    @Override
+    public List<Report> getAllOrganizationReports() {
+        return jpa.findAllByReportObject(ReportObject.ORGANIZATION);
     }
 
     @Override

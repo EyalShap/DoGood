@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.reports.ReportDTO;
 import com.dogood.dogoodbackend.domain.reports.ReportObject;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,18 +15,24 @@ import java.util.List;
 public class ReportService {
     private ReportsFacade reportsFacade;
     private AuthFacade authFacade;
+    private UsersFacade usersFacade;
 
     @Autowired
     public ReportService(FacadeManager facadeManager){
         this.reportsFacade = facadeManager.getReportsFacade();
         this.authFacade = facadeManager.getAuthFacade();
+        this.usersFacade = facadeManager.getUsersFacade();
     }
 
     private void checkToken(String token, String username){
         if(!authFacade.getNameFromToken(token).equals(username)){
             throw new IllegalArgumentException("Invalid token");
         }
+        if (usersFacade.isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
+        }
     }
+
     public Response<ReportDTO> createVolunteeringPostReport(String token, String actor, int reportedPostId, String description) {
         try {
             checkToken(token, actor);
@@ -84,7 +91,7 @@ public class ReportService {
     public Response<Boolean> removeVolunteeringPostReport(String token, String reportingUser, LocalDate date, int reportedId, String actor) {
         try {
             checkToken(token, actor);
-            reportsFacade.removeVolunteeringReport(reportingUser, date, reportedId, actor);
+            reportsFacade.removeVolunteeringPostReport(reportingUser, date, reportedId, actor);
             return Response.createResponse(true);
         }
         catch (Exception e) {
@@ -207,6 +214,94 @@ public class ReportService {
             checkToken(token, actor);
             List<ReportDTO> reports = reportsFacade.getAllReportDTOs(actor);
             return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ReportDTO>> getAllVolunteeringPostReports(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<ReportDTO> reports = reportsFacade.getAllVolunteeringPostReports(actor);
+            return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ReportDTO>> getAllVolunteerPostReports(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<ReportDTO> reports = reportsFacade.getAllVolunteerPostReports(actor);
+            return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ReportDTO>> getAllVolunteeringReports(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<ReportDTO> reports = reportsFacade.getAllVolunteeringReports(actor);
+            return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ReportDTO>> getAllUserReports(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<ReportDTO> reports = reportsFacade.getAllUserReports(actor);
+            return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<ReportDTO>> getAllOrganizationReports(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<ReportDTO> reports = reportsFacade.getAllOrganizationReports(actor);
+            return Response.createResponse(reports);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> banEmail(String token, String actor, String email) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.banEmail(email, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> unbanEmail(String token, String actor, String email) {
+        try {
+            checkToken(token, actor);
+            reportsFacade.unbanEmail(email, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<String>> getBannedEmails(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<String> res = reportsFacade.getBannedEmails();
+            return Response.createResponse(res);
         }
         catch (Exception e) {
             return Response.createResponse(e.getMessage());

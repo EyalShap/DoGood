@@ -964,4 +964,19 @@ public class VolunteeringFacade {
         }
         return all;
     }
+
+    public void disableVolunteeringLocations(String userId, int volunteeringId) {
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
+        }
+        volunteering.disableLocations();
+        repository.updateVolunteeringInDB(volunteering);
+    }
 }

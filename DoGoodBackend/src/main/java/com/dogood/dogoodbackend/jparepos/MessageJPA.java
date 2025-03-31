@@ -12,4 +12,5 @@ import java.util.List;
 public interface MessageJPA extends JpaRepository<Message, Integer> {
     List<Message> findByReceiverIdAndAndReceiverType(String receiverId, ReceiverType receiverType);
     List<Message> findByReceiverIdAndAndReceiverTypeAndSenderId(String receiverId, ReceiverType receiverType, String senderId);
+    List<Message> findByReceiverIdEndsWithAndReceiverType(String receiverId, ReceiverType receiverType);
 }

@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.chat.DatabaseMessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
+import com.dogood.dogoodbackend.domain.reports.DBBannedRepository;
 import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteerPostRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
@@ -28,6 +29,7 @@ public class ServiceConfig {
                 new DBVolunteerPostRepository(applicationContext.getBean(VolunteerPostJPA.class)),
                 new DBRequestRepository(applicationContext.getBean(RequestJPA.class)),
                 new DBReportRepository(applicationContext.getBean(ReportJPA.class)),
+                new DBBannedRepository(applicationContext.getBean(BannedJPA.class)),
                 new DatabaseUserRepository(applicationContext.getBean(UserJPA.class)),
                 new DatabaseSchedulingManager(
                         applicationContext.getBean(HourRequestJPA.class),
