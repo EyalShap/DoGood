@@ -1,7 +1,6 @@
 type ReportModel = {
-    id: number,
     reportingUser: string, 
-    reportedPostId: number,
+    reportedId: string,
     description: string,
     date: string
 }

@@ -716,3 +716,15 @@ export const getUserApprovedHoursFormatted = async (volunteeringId: number, isra
     document.body.removeChild(link);
     URL.revokeObjectURL(href);
 }
+
+export const removeVolunteering = async (volunteeringId: number): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.delete(`${server}/api/volunteering/removeVolunteering?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}

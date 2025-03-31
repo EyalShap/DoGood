@@ -1,0 +1,120 @@
+
+
+.loginPage {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    border: 1.5px solid #333; 
+    border-radius:30px;
+    box-shadow:0 4px 12px rgba(0, 0, 0, 0.15);
+    width: 80%;
+    background: white !important;
+}
+
+.image {
+    display: flex;
+    flex-direction: column; 
+    align-items: center; 
+    justify-content: center; 
+    background-image: url(/src/assets/loginDog.png); 
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    /*height: 70vh; 
+    width: 50vw;*/ 
+    width:100%;
+    padding:30px;
+    border-right: 1.5px solid #333;
+    border-top-left-radius: 30px; 
+    border-bottom-left-radius: 30px;
+}
+
+.loginSection {
+    display: flex; 
+    flex-direction: column; 
+    align-items: center;
+    justify-content: center;
+    font-family: 'Montserrat', sans-serif;
+    width: 40%;
+    padding: 50px;
+}
+
+.fields {
+    display:flex;
+    flex-direction:column;
+    background: white !important;
+}
+
+.welcome {
+    color:white;
+    font-size:7rem;
+    margin-top: 30%;
+}
+
+.back {
+    display: flex;
+    flex-direction: column; 
+    align-items: center;    
+    justify-content: center;
+    width: 100%;
+    height:100%
+}
+
+@media (max-width: 500px) {
+    .loginPage {
+        display: flex;
+        flex-direction: column; 
+        align-items: center;    
+        justify-content: center;
+        
+    }
+
+    .image {
+        display: none;
+    }
+
+    .back {
+        position: relative;
+        display: flex;
+        flex-direction: column; 
+        align-items: center;    
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+    }
+    
+    .back::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-image: url(/src/assets/loginDog.png);
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+        opacity: 0.5;  /* Apply opacity only to the background image */
+        z-index: -1;  /* Ensure the background image stays behind the content */
+    }
+    
+
+    .welcome {
+        color:white;
+        font-size:3rem;
+        margin-top: 30%;
+    }
+
+    .loginSection {
+        padding: 0px;
+    }
+
+    .mobileLogin {
+        font-family: "Lobster", cursive;
+        text-align: center;
+        font-size:2.2rem ;
+        font-weight: lighter;
+        width:300%;
+    }
+  }

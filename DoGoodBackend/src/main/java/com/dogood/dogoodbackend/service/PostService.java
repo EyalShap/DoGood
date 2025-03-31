@@ -5,6 +5,8 @@ import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.requests.Request;
+import com.dogood.dogoodbackend.domain.users.User;
+import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,16 +19,21 @@ import java.util.Set;
 public class PostService {
     private PostsFacade postsFacade;
     private AuthFacade authFacade;
+    private UsersFacade usersFacade;
 
     @Autowired
     public PostService(FacadeManager facadeManager){
         this.postsFacade = facadeManager.getPostsFacade();
         this.authFacade = facadeManager.getAuthFacade();
+        this.usersFacade = facadeManager.getUsersFacade();
     }
 
     private void checkToken(String token, String username){
         if(!authFacade.getNameFromToken(token).equals(username)){
             throw new IllegalArgumentException("Invalid token");
+        }
+        if (usersFacade.isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
         }
     }
 

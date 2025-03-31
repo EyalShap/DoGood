@@ -423,4 +423,10 @@ public class VolunteeringAPI {
             }
         }
     }
+
+    @DeleteMapping("/removeVolunteering")
+    public Response<String> removeVolunteering(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.removeVolunteering(token, userId, volunteeringId);
+    }
 }

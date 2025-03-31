@@ -83,9 +83,21 @@ public class UserAPI {
         return userService.leaderboard(token, username);
     }
 
-    @GetMapping("/setLeaderboard")
+    @PutMapping("/setLeaderboard")
     public Response<Boolean> setLeaderboard(@RequestParam String username, @RequestParam boolean leaderboard, HttpServletRequest request) {
         String token = getToken(request);
         return userService.setLeaderboard(token, username, leaderboard);
+    }
+
+    @PatchMapping("/banUser")
+    public Response<Boolean> banUser(@RequestParam String actor, @RequestParam String username, HttpServletRequest request){
+        String token = getToken(request);
+        return userService.banUser(token, actor, username);
+    }
+
+    @GetMapping("/getAllUserEmails")
+    public Response<List<String>> getAllUserEmails(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.getAllUserEmails(token, actor);
     }
 }

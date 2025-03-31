@@ -10,6 +10,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 @Repository
 public interface ReportJPA extends JpaRepository<Report, ReportKey> {
     //@Modifying
@@ -20,4 +22,6 @@ public interface ReportJPA extends JpaRepository<Report, ReportKey> {
     @Modifying
     @Transactional
     Long deleteByReportedIdAndReportObject(String reportedId, ReportObject reportObject);
+
+    List<Report> findAllByReportObject(ReportObject reportObject);
 }

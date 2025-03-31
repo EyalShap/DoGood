@@ -88,7 +88,7 @@ export const getUserByToken = async (): Promise<User> => {
     if (response.error) {
         throw response.errorString;
     }
-     console.log(response.data);
+    console.log(response.data);
     return response.data;
 }
 
@@ -142,5 +142,55 @@ export const leaderboard = async (): Promise<Leaderboard> => {
     }
     let res = await axios.get(`${server}/leaderboard?username=${localStorage.getItem('username')}`, config);
     const response: APIResponse<Leaderboard> = await res.data;
+    return response.data;
+}
+
+export const setLeaderboard = async (isLeaderboard: boolean) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/setLeaderboard?username=${username}&leaderboard=${isLeaderboard}`;
+    console.log(url);
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const banUser = async (toBan: string) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/banUser?actor=${username}&username=${toBan}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    const res = await axios.patch(url, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}
+
+export const getAllUserEmails = async (): Promise<string[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.get(`${server}/getAllUserEmails?actor=${localStorage.getItem('username')}`, config);
+    const response: APIResponse<string[]> = await res.data;
     return response.data;
 }

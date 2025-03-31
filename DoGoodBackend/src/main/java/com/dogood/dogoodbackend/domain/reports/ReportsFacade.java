@@ -13,14 +13,16 @@ import java.util.List;
 @Transactional
 public class ReportsFacade {
     private ReportRepository reportRepository;
+    private BannedRepository bannedRepository;
     private UsersFacade usersFacade;
     private PostsFacade postsFacade;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
 
-    public ReportsFacade(UsersFacade usersFacade, ReportRepository reportRepository, PostsFacade postsFacade, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade) {
+    public ReportsFacade(UsersFacade usersFacade, ReportRepository reportRepository, BannedRepository bannedRepository, PostsFacade postsFacade, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade) {
         this.usersFacade = usersFacade;
         this.reportRepository = reportRepository;
+        this.bannedRepository = bannedRepository;
         this.postsFacade = postsFacade;
         this.volunteeringFacade = volunteeringFacade;
         this.organizationsFacade = organizationsFacade;
@@ -148,6 +150,61 @@ public class ReportsFacade {
         return reportRepository.getAllReportDTOs();
     }
 
+    public List<ReportDTO> getAllVolunteeringPostReports(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
+        }
+
+        return reportRepository.getReportDTOs(reportRepository.getAllVolunteeringPostReports());
+    }
+
+    public List<ReportDTO> getAllVolunteerPostReports(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
+        }
+
+        return reportRepository.getReportDTOs(reportRepository.getAllVolunteerPostReports());
+    }
+
+    public List<ReportDTO> getAllVolunteeringReports(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
+        }
+
+        return reportRepository.getReportDTOs(reportRepository.getAllVolunteeringReports());
+    }
+
+    public List<ReportDTO> getAllUserReports(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
+        }
+
+        return reportRepository.getReportDTOs(reportRepository.getAllUserReports());
+    }
+
+    public List<ReportDTO> getAllOrganizationReports(String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserTriedToViewReportsError(actor));
+        }
+
+        return reportRepository.getReportDTOs(reportRepository.getAllOrganizationReports());
+    }
+
     public void removeVolunteeringPostReports(int id) {
         reportRepository.removeObjectReports(id + "", ReportObject.VOLUNTEERING_POST);
     }
@@ -174,4 +231,35 @@ public class ReportsFacade {
     private boolean userExists(String user){
         return usersFacade.userExists(user);
     }
+
+    public void banEmail(String email, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, "ban a user"));
+        }
+        bannedRepository.ban(email);
+    }
+
+    public void unbanEmail(String email, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!isAdmin(actor)) {
+            throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, "unban a user"));
+        }
+        bannedRepository.unban(email);
+    }
+
+    public boolean isBannedEmail(String email) {
+        return bannedRepository.isBanned(email);
+    }
+
+    public List<String> getBannedEmails() {
+        return bannedRepository.getBannedEmails();
+    }
+
+
+
 }

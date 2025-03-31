@@ -34,6 +34,9 @@ public class UserService {
         if(!authFacade.getNameFromToken(token).equals(username)){
             throw new IllegalArgumentException("Invalid token");
         }
+        if(usersFacade.isBanned(username)) {
+            throw new IllegalArgumentException("Banned user.");
+        }
     }
 
     public Response<String> login(String username, String password) {
@@ -141,6 +144,26 @@ public class UserService {
             checkToken(token, username);
             usersFacade.setLeaderboard(username, leaderboard);
             return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> banUser(String token, String actor, String username) {
+        try {
+            checkToken(token, actor);
+            usersFacade.banUser(username, actor);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<String>> getAllUserEmails(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            List<String> res = usersFacade.getAllUserEmails();
+            return Response.createResponse(res);
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());
         }

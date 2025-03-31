@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.chat.MessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
+import com.dogood.dogoodbackend.domain.reports.BannedRepository;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostRepository;
@@ -30,20 +31,21 @@ public class FacadeManager {
     private ChatFacade chatFacade;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository){
         this.authFacade = new AuthFacade(jwtSecretKey);
         this.usersFacade = new UsersFacade(userRepo, authFacade);
 
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt);
         this.postsFacade = new PostsFacade(volunteeringPostRepo, volunteerPostRepo, usersFacade, volunteeringFacade, organizationsFacade, keyExt, skillsCatExt, reqRepo);
-        this.reportsFacade = new ReportsFacade(usersFacade, repRepo, postsFacade, volunteeringFacade, organizationsFacade);
+        this.reportsFacade = new ReportsFacade(usersFacade, repRepo, bannedRepo, postsFacade, volunteeringFacade, organizationsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
         this.postsFacade.setReportsFacade(reportsFacade);
         this.volunteeringFacade.setReportFacade(reportsFacade);
         this.organizationsFacade.setReportFacade(reportsFacade);
         this.volunteeringFacade.setPostsFacade(postsFacade);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
+        this.usersFacade.setReportsFacade(reportsFacade);
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
     }
 

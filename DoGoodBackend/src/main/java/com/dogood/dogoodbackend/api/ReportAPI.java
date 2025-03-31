@@ -70,46 +70,26 @@ public class ReportAPI {
     }
 
     @DeleteMapping("/removeVolunteeringPostReport")
-    public Response<Boolean> removeVolunteeringPostReport(@RequestBody RemoveReportRequest removeReportRequest, HttpServletRequest request) {
+    public Response<Boolean> removeVolunteeringPostReport(@RequestParam String reportingUser, @RequestParam LocalDate date, @RequestParam int reportedId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
-
-        String reportingUser = removeReportRequest.getReportingUser();
-        LocalDate date = removeReportRequest.getDate();
-        int reportedId = removeReportRequest.getReportedId();
-        String actor = removeReportRequest.getActor();
         return reportService.removeVolunteeringPostReport(token, reportingUser, date, reportedId, actor);
     }
 
     @DeleteMapping("/removeVolunteerPostReport")
-    public Response<Boolean> removeVolunteerPostReport(@RequestBody RemoveReportRequest removeReportRequest, HttpServletRequest request) {
+    public Response<Boolean> removeVolunteerPostReport(@RequestParam String reportingUser, @RequestParam LocalDate date, @RequestParam int reportedId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
-
-        String reportingUser = removeReportRequest.getReportingUser();
-        LocalDate date = removeReportRequest.getDate();
-        int reportedId = removeReportRequest.getReportedId();
-        String actor = removeReportRequest.getActor();
         return reportService.removeVolunteerPostReport(token, reportingUser, date, reportedId, actor);
     }
 
     @DeleteMapping("/removeVolunteeringReport")
-    public Response<Boolean> removeVolunteeringReport(@RequestBody RemoveReportRequest removeReportRequest, HttpServletRequest request) {
+    public Response<Boolean> removeVolunteeringReport(@RequestParam String reportingUser, @RequestParam LocalDate date, @RequestParam int reportedId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
-
-        String reportingUser = removeReportRequest.getReportingUser();
-        LocalDate date = removeReportRequest.getDate();
-        int reportedId = removeReportRequest.getReportedId();
-        String actor = removeReportRequest.getActor();
         return reportService.removeVolunteeringReport(token, reportingUser, date, reportedId, actor);
     }
 
     @DeleteMapping("/removeOrganizationReport")
-    public Response<Boolean> removeOrganizationReport(@RequestBody RemoveReportRequest removeReportRequest, HttpServletRequest request) {
+    public Response<Boolean> removeOrganizationReport(@RequestParam String reportingUser, @RequestParam LocalDate date, @RequestParam int reportedId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
-
-        String reportingUser = removeReportRequest.getReportingUser();
-        LocalDate date = removeReportRequest.getDate();
-        int reportedId = removeReportRequest.getReportedId();
-        String actor = removeReportRequest.getActor();
         return reportService.removeOrganizationReport(token, reportingUser, date, reportedId, actor);
     }
 
@@ -167,5 +147,61 @@ public class ReportAPI {
         String token = getToken(request);
 
         return reportService.getAllReportDTOs(token, actor);
+    }
+
+    @GetMapping("/getAllVolunteeringPostReports")
+    public Response<List<ReportDTO>> getAllVolunteeringPostReports(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getAllVolunteeringPostReports(token, actor);
+    }
+
+    @GetMapping("/getAllVolunteerPostReports")
+    public Response<List<ReportDTO>> getAllVolunteerPostReports(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getAllVolunteerPostReports(token, actor);
+    }
+
+    @GetMapping("/getAllVolunteeringReports")
+    public Response<List<ReportDTO>> getAllVolunteeringReports(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getAllVolunteeringReports(token, actor);
+    }
+
+    @GetMapping("/getAllUserReports")
+    public Response<List<ReportDTO>> getAllUserReports(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getAllUserReports(token, actor);
+    }
+
+    @GetMapping("/getAllOrganizationReports")
+    public Response<List<ReportDTO>> getAllOrganizationReports(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getAllOrganizationReports(token, actor);
+    }
+
+    @PostMapping("/banEmail")
+    public Response<Boolean> banEmail(@RequestParam String actor, @RequestBody String email, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.banEmail(token, actor, email);
+    }
+
+    @DeleteMapping("/unbanEmail")
+    public Response<Boolean> unbanEmail(@RequestParam String actor, @RequestParam String email, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.unbanEmail(token, actor, email);
+    }
+
+    @GetMapping("/getBannedEmails")
+    public Response<List<String>> getBannedEmails(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return reportService.getBannedEmails(token, actor);
     }
 }
