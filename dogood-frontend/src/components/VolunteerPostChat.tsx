@@ -1,63 +1,30 @@
 import {useNavigate, useParams} from "react-router-dom";
 import ChatMessage from "../models/ChatMessage.ts";
 import {FormEvent, useEffect, useRef, useState} from "react";
-import {deleteMessage, getVolunteeringChatMessages, sendVolunteeringMessage} from "../api/chat_api.ts";
+import {
+    deleteMessage,
+    getPostChatMessages,
+    getVolunteeringChatMessages,
+    sendPostMessage,
+    sendVolunteeringMessage
+} from "../api/chat_api.ts";
 import {format, isToday, isYesterday} from "date-fns";
 import "../css/Chat.css";
 import {IoSend} from "react-icons/io5";
 import {host} from "../api/general.ts";
 import {Client} from "@stomp/stompjs";
 import {FaRegTrashAlt} from "react-icons/fa";
+import {MessageComponent} from "./VolunteeringChat.tsx";
 
-export function MessageComponent({model} : {model:ChatMessage}) {
-    const [timeSent, setTimeSent] = useState("");
-    const navigate = useNavigate();
-
-    const deleteSelf = async () => {
-        try{
-            await deleteMessage(model.id);
-        }catch (e){
-            alert(e)
-        }
-    }
-
-    const handleUserOnClick = async () => {
-        navigate(`/profile/${model.sender}`);
-    }
-
-    useEffect(() => {
-        let date = new Date(model.timeSent);
-        if(isToday(date)){
-            setTimeSent(`Today at ${format(date, "H:mm")}`)
-        }else if(isYesterday(date)){
-            setTimeSent(`Yesterday at ${format(date, "H:mm")}`)
-        }else{
-            setTimeSent(`${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`)
-        }
-    }, []);
-    return (
-        <div className={`message ${model.userIsSender ? "messageSender" : "messageRecipient"}`}>
-            <div className="senderRow">
-                <p className="senderName" onClick={() => handleUserOnClick()}>{model.sender}</p>
-                <p className="sentOn">{timeSent}</p>
-            </div>
-            <h2 className="messageContent">{model.content}</h2>
-            {model.userIsSender &&
-                <div className="messageOptions">
-                <button onClick={deleteSelf}><FaRegTrashAlt /></button>
-            </div>}
-        </div>
-    )
-}
-
-function VolunteeringChat() {
-    let { id } = useParams();
+function VolunteerPostChat({ other } : { other: boolean}) {
+    let { id , username} = useParams();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [typedMessage, setTypedMessage] = useState("");
     const [connected, setConnected] = useState(false);
+    const userWith = other ? username : localStorage.getItem("username");
     const fetchMessages = async () => {
         try{
-            setMessages(await getVolunteeringChatMessages(parseInt(id!)));
+            setMessages(await getPostChatMessages(parseInt(id!),userWith!));
         }catch (e){
             alert(e);
         }
@@ -70,7 +37,7 @@ function VolunteeringChat() {
         event.preventDefault();
         try{
             if(typedMessage !== "") {
-                await sendVolunteeringMessage(parseInt(id!), typedMessage);
+                await sendPostMessage(parseInt(id!), userWith!, typedMessage);
                 setTypedMessage("");
             }
         }catch (e){
@@ -89,7 +56,7 @@ function VolunteeringChat() {
             onConnect: () => {
                 console.log("Connected!");
                 if(!connected) {
-                    client.subscribe(`/topic/volchat/${id}`, msg => {
+                    client.subscribe(`/topic/postchat/${id}/${userWith}`, msg => {
                         let body = JSON.parse(msg.body);
                         console.log(body)
                         let el = containerRef.current
@@ -137,4 +104,4 @@ function VolunteeringChat() {
     )
 }
 
-export default VolunteeringChat
+export default VolunteerPostChat

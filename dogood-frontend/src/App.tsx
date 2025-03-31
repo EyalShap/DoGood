@@ -30,6 +30,7 @@ import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
 import EasterEgg from './components/EasterEgg.tsx'
 import MyVolunteerings from "./components/MyVolunteerings.tsx";
+import VolunteerPostChat from "./components/VolunteerPostChat.tsx";
 
 
 function App() {
@@ -92,6 +93,8 @@ function App() {
               <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
               <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
               <Route path='/volunteerPost/:id' element={<VolunteerPost/>}/>
+              <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>
+              <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
               <Route path='/easterEgg' element={<EasterEgg/>}/>
             </Routes>
             </div>

@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.socket;
 
 
 import com.dogood.dogoodbackend.service.FacadeManager;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -14,10 +15,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
-import java.util.Map;
 
 @Component
-public class VolunteeringChatInterceptor implements ChannelInterceptor {
+@Transactional
+public class ChatInterceptor implements ChannelInterceptor {
     @Autowired
     private FacadeManager facadeManager;
 
@@ -38,6 +39,18 @@ public class VolunteeringChatInterceptor implements ChannelInterceptor {
             if(accessor.getDestination() != null && accessor.getDestination().startsWith("/topic/volchat/")){
                 int volunteeringId = Integer.parseInt(accessor.getDestination().substring("/topic/volchat/".length()));
                 facadeManager.getVolunteeringFacade().checkViewingPermissions(accessor.getUser().getName(),volunteeringId);
+            } else if(accessor.getDestination() != null && accessor.getDestination().startsWith("/topic/postchat/")){
+                String location = accessor.getDestination().substring("/topic/postchat/".length());
+                String[] splits = location.split("/");
+                int postId = Integer.parseInt(splits[0]);
+                String with = splits[1];
+                String username = accessor.getUser().getName();
+                if(!username.equals(with) && !facadeManager.getPostsFacade().hasRelatedUser(postId, username)){
+                    throw new IllegalArgumentException("You have no access to this chat");
+                }
+                if(facadeManager.getPostsFacade().hasRelatedUser(postId, with)){
+                    throw new IllegalArgumentException("You cannot get messages from a post member");
+                }
             }
         }
         return message;

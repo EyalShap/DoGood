@@ -22,12 +22,43 @@ export const sendVolunteeringMessage = async (volunteeringId: number, content: s
     return response.data;
 }
 
+export const sendPostMessage = async (postId: number, userWith: string, content: string): Promise<number> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        username: localStorage.getItem("username"),
+        content: content,
+        postId: postId,
+        "with": userWith
+    }
+    let res = await axios.post(`${server}/sendPostMessage`, body, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const getVolunteeringChatMessages = async (volunteeringId: number): Promise<ChatMessage[]> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
     };
 
     let res = await axios.get(`${server}/getVolunteeringChatMessages?username=${localStorage.getItem("username")}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<ChatMessage[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getPostChatMessages = async (postId: number, userWith: string): Promise<ChatMessage[]> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+
+    let res = await axios.get(`${server}/getPostChatMessages?username=${localStorage.getItem("username")}&postId=${postId}&with=${userWith}`, config);
     const response: APIResponse<ChatMessage[]> = await res.data;
     if(response.error){
         throw response.errorString;

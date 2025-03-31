@@ -114,6 +114,12 @@ public class VolunteeringAPI {
         return volunteeringService.addVolunteeringLocation(token, userId, volunteeringId, body.getName(), body.getAddress());
     }
 
+    @PutMapping("/disableVolunteeringLocations")
+    public Response<String> disableVolunteeringLocations(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.disableVolunteeringLocations(token, userId, volunteeringId);
+    }
+
     @PatchMapping("/assignVolunteerToLocation")
     public Response<String> assignVolunteerToLocation(@RequestParam String userId, @RequestBody AssignVolunteerRequest body, HttpServletRequest request){
         String token = getToken(request);

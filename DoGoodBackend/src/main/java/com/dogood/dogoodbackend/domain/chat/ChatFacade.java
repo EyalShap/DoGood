@@ -1,17 +1,21 @@
 package com.dogood.dogoodbackend.domain.chat;
 
+import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
+import org.springframework.security.core.parameters.P;
 
 import java.util.List;
 
 public class ChatFacade {
     private MessageRepository repository;
     private VolunteeringFacade volunteeringFacade;
+    private PostsFacade postsFacade;
     private ChatSocketSender chatSocketSender;
 
-    public ChatFacade(VolunteeringFacade volunteeringFacade, MessageRepository repository) {
+    public ChatFacade(VolunteeringFacade volunteeringFacade, PostsFacade postsFacade, MessageRepository repository) {
         this.repository = repository;
+        this.postsFacade = postsFacade;
         this.volunteeringFacade = volunteeringFacade;
     }
 
@@ -23,6 +27,18 @@ public class ChatFacade {
         volunteeringFacade.checkViewingPermissions(username, volunteeringId);
         Message m = repository.createMessage(content,username,""+volunteeringId,ReceiverType.VOLUNTEERING);
         chatSocketSender.sendMessageVolunteering(m.getDtoForUser(""),volunteeringId);
+        return m.getId();
+    }
+
+    public int sendPostMessage(String username, String content, int postId, String with){
+        if(!username.equals(with) && !postsFacade.hasRelatedUser(postId, username)){
+            throw new IllegalArgumentException("You have no access to this chat");
+        }
+        if(postsFacade.hasRelatedUser(postId, with)){
+            throw new IllegalArgumentException("You cannot send messages to yourself");
+        }
+        Message m = repository.createMessage(content,username,with + "@" + postId,ReceiverType.POST);
+        chatSocketSender.sendMessagePost(m.getDtoForUser(""),with,postId);
         return m.getId();
     }
 
@@ -63,5 +79,22 @@ public class ChatFacade {
         List<Message> chat = repository.getPrivateChatMessages(username,user2);
         chat.addAll(repository.getPrivateChatMessages(user2, username));
         return chat.stream().map(message -> message.getDtoForUser(username)).sorted().toList();
+    }
+
+    public List<MessageDTO> getPostChatMessages(String username, int postId, String with) {
+        if(!username.equals(with) && !postsFacade.hasRelatedUser(postId, username)){
+            throw new IllegalArgumentException("You have no access to this chat");
+        }
+        if(postsFacade.hasRelatedUser(postId, with)){
+            throw new IllegalArgumentException("You cannot get messages from a post member");
+        }
+        return repository.getPostChatMessages(with,postId).stream().map(message -> message.getDtoForUser(username)).sorted().toList();
+    }
+
+    public List<String> getOpenPostChats(String username, int postId){
+        if(!postsFacade.hasRelatedUser(postId, username)){
+            throw new IllegalArgumentException("You have no access to the open chats");
+        }
+        return repository.getSendersToPost(postId);
     }
 }

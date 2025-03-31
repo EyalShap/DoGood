@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.chat;
 
+import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.jparepos.MessageJPA;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
@@ -18,6 +19,7 @@ import java.util.List;
 public class ChatFacadeTests {
     private ChatFacade chatFacade;
     private VolunteeringFacade volunteeringFacade;
+    private PostsFacade postsFacade;
     private ChatSocketSender chatSocketSender;
 
     @Autowired
@@ -28,7 +30,8 @@ public class ChatFacadeTests {
         jpa.deleteAll();
         this.volunteeringFacade = Mockito.mock(VolunteeringFacade.class);
         this.chatSocketSender = Mockito.mock(ChatSocketSender.class);
-        this.chatFacade = new ChatFacade(volunteeringFacade, new DatabaseMessageRepository(jpa));
+        this.postsFacade = Mockito.mock(PostsFacade.class);
+        this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, new DatabaseMessageRepository(jpa));
         this.chatFacade.setChatSocketSender(chatSocketSender);
     }
 

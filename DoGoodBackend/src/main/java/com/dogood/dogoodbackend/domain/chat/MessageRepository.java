@@ -8,5 +8,7 @@ public interface MessageRepository {
     public void editMessage(int messageId, String newContent);
     public List<Message> getVolunteeringChatMessages(int volunteeringId);
     public List<Message> getPrivateChatMessages(String sender, String receiver);
+    public List<Message> getPostChatMessages(String with, int postId);
     public Message getMessage(int messageId);
+    public List<String> getSendersToPost(int postId);
 }

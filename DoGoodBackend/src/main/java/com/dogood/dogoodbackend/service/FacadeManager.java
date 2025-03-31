@@ -46,7 +46,7 @@ public class FacadeManager {
         this.volunteeringFacade.setPostsFacade(postsFacade);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
         this.usersFacade.setReportsFacade(reportsFacade);
-        this.chatFacade = new ChatFacade(volunteeringFacade, messageRepository);
+        this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {

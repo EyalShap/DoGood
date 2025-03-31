@@ -38,6 +38,16 @@ public class ChatService {
         }
     }
 
+    public Response<Integer> sendPostMessage(String token, String username, String content, int postId, String with){
+        try{
+            checkToken(token, username);
+            int id = facadeManager.getChatFacade().sendPostMessage(username, content, postId, with);
+            return Response.createResponse(id);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Integer> sendPrivateMessage(String token, String username, String content, String receiverId){
         try{
             checkToken(token, username);
@@ -81,6 +91,15 @@ public class ChatService {
         try{
             checkToken(token, username);
             return Response.createResponse(facadeManager.getChatFacade().getPrivateChatMessages(username,receiverId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<MessageDTO>> getPostChatMessages(String token, String username, int postId, String with) {
+        try{
+            checkToken(token, username);
+            return Response.createResponse(facadeManager.getChatFacade().getPostChatMessages(username,postId,with));
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
         }

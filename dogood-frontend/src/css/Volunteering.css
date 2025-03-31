@@ -67,8 +67,26 @@
     padding: 12px 18px;
 }
 
-.volunteers {
+.react-tabs {
     margin-top: 20px;
+    width: 100%;
+}
+
+.selectorsRow {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.selectorInRow {
+    color: black;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    width: 20%;
+}
+
+.volunteers {
     background: linear-gradient(135deg, #ffffff, #f9f9f9);
     padding: 20px;
     display: flex;
@@ -147,7 +165,7 @@
     align-items: center;
     justify-content: center;
     width: 100%;
-    margin-top: 0;
+    margin-top: 5px;
     padding: 10px;
     background: #fcfcfc;
     border-radius: 8px;
@@ -221,5 +239,22 @@
         font-size: 1rem;
         margin: 5px;
         padding: 8px;
+    }
+
+    .selectorInRow {
+        width: 50%;
+    }
+
+    .scanButtons {
+        width: 80%;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .innercalender {
+        overflow-x: scroll;
+    }
+    .calender{
+        width: 100%;
     }
 }

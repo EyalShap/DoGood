@@ -43,11 +43,21 @@ public class DatabaseMessageRepository implements MessageRepository{
     }
 
     @Override
+    public List<Message> getPostChatMessages(String with, int postId) {
+        return jpa.findByReceiverIdAndAndReceiverType(with + "@" + postId,ReceiverType.POST);
+    }
+
+    @Override
     public Message getMessage(int messageId) {
         Message m = jpa.findById(messageId).orElse(null);
         if (m == null){
             throw new IllegalArgumentException("Message with ID " + messageId + " not found");
         }
         return m;
+    }
+
+    @Override
+    public List<String> getSendersToPost(int postId) {
+        return jpa.findByReceiverIdEndsWithAndReceiverType("@"+postId,ReceiverType.POST).stream().map(message -> message.getReceiverId().split("@")[0]).distinct().toList();
     }
 }

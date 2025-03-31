@@ -1,10 +1,10 @@
 import { DayPilotCalendar, DayPilot } from '@daypilot/daypilot-lite-react';
 import './../css/Volunteering.css'
 import "./../css/MakeAppointment.css"
-import { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import ScheduleRange from '../models/ScheduleRange';
 import { getUserAssignedLocationData, getVolunteerAvailableRanges, getVolunteerGroup, makeAppointment } from '../api/volunteering_api';
-import { useParams } from 'react-router-dom';
+import {useNavigate, useParams} from 'react-router-dom';
 import Location from '../models/Location';
 import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-pickers';
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
@@ -25,6 +25,8 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
     const [thursday, setThursday] = useState(false);
     const [friday, setFriday] = useState(false);
     const [saturday, setSaturday] = useState(false);
+
+    const navigate = useNavigate();
 
     const hasDay = (day: number) => {
         if(range.weekDays !== null){
@@ -54,6 +56,8 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
         try{
             await makeAppointment(volunteeringId, range.id, startTime.hour(), startTime.minute(),
     endTime.hour(), endTime.minute(), getOneTime(), getWeekDays());
+            alert("Appointment made!");
+            navigate(`/volunteering/${volunteeringId}`);
         }catch(e){
             alert(e)
         }
@@ -242,19 +246,19 @@ function MakeAppointment() {
 
     return (
         <div className='makeAppointment'>
-            <h1>Available appointment ranges for Group {group} at {location.name} for {localStorage.getItem("username")}</h1>
+            <h1>{location.id == -1 ? `Available appointment ranges for Group ${group} for ${localStorage.getItem("username")}` : `Available appointment ranges for Group ${group} at ${location.name} for ${localStorage.getItem("username")}`}</h1>
             <div className='weekButtons'>
-                <button className='left weekButton' onClick={() => addWeeks(-1)}>← Last Week</button>
-                <button className='right weekButton' onClick={() => addWeeks(1)}>Next Week →</button>
+                <button className='orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
+                <button className='orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
             </div>
             <div className='calender'>
                 <div className='innercalender'>
-            <DayPilotCalendar
-                startDate={new DayPilot.Date(startDate, true)}
-                viewType='Week'
-                headerDateFormat='dddd dd/MM/yyyy'
-                events={events}
-                height={isMobile ? 100 : 300}
+                    <DayPilotCalendar
+                        startDate={new DayPilot.Date(startDate, true)}
+                        viewType='Week'
+                        headerDateFormat='dddd dd/MM/yyyy'
+                        events={events}
+                        height={isMobile ? 100 : 300}
                 cellHeight={isMobile ? 15 : 30}
                 headerTextWrappingEnabled={true}
                 eventMoveHandling='Disabled'
