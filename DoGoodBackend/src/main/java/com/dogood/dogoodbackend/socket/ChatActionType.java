@@ -1,5 +1,5 @@
 package com.dogood.dogoodbackend.socket;
 
 public enum ChatActionType {
-    ADD,DELETE,EDIT
+    ADD,DELETE,EDIT, CLOSE
 }

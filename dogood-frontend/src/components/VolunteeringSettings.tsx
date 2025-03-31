@@ -415,9 +415,6 @@ function VolunteeringSettings() {
                 <button className="orangeCircularButton" onClick={onAddSkill}>Add Skill</button>
             </div>
             <div className="container">
-                <button className="orangeCircularButton" onClick={generate}>Generate Skills and Categories with AI</button>
-            </div>
-            <div className="container">
                 <h1>Volunteeering Categories:</h1>
                 <div className="stringlist">
                     {categories.map(category =>
@@ -428,6 +425,9 @@ function VolunteeringSettings() {
                 </div>
                 <input onChange={e => setCategoryToAdd(e.target.value)} value={categoryToAdd}/>
                 <button className="orangeCircularButton" onClick={onAddCategory}>Add Category</button>
+            </div>
+            <div className="container">
+                <button className="orangeCircularButton" onClick={generate}>Generate Skills and Categories with AI</button>
             </div>
             <div className="container">
                 <h1>Photos:</h1>

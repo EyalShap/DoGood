@@ -183,3 +183,42 @@
     transform: translateX(-50%);
   }
 }
+
+.openChatListItem {
+  width: 100%;
+  border: 1px solid black;
+  align-items: left;
+  margin: 0px;
+  display: flex;
+  justify-content: left;
+  display: flex;
+  align-items: center;
+}
+
+.openChatListItem:hover {
+  cursor: pointer;
+  background-color: #c8d8e69a;
+}
+
+.chats-popup-body {
+  padding: 0px;
+}
+
+.openChatProfilePic {
+  height: 50px;
+  width: 50px;
+  border-radius: 50%;
+  margin: 10px;
+  margin-right: 20px;
+}
+
+.openChatsList {
+    list-style: none;
+    width: 100%;
+    padding: 0; 
+    margin: 0; 
+}
+
+.chatUsername {
+  font-size:1rem;
+}

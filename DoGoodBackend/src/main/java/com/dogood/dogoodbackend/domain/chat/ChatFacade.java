@@ -97,4 +97,9 @@ public class ChatFacade {
         }
         return repository.getSendersToPost(postId);
     }
+
+    public void closeChat(String username, int postId){
+        repository.closePostChat(postId, username);
+        chatSocketSender.closeChat(username, postId);
+    }
 }

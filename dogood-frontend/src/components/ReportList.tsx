@@ -374,7 +374,7 @@ function ReportList() {
                     volunteeringPostReports.map((report, index) => (
                         <div key={index} className="reportItem">
                             <div id = "info"> 
-                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteeringPost", report.reportedId)}>Report on post: {postTitles[report.reportedId]}</h3>
+                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteeringPost", report.reportedId)}>Report on: {postTitles[report.reportedId]}</h3>
                                 <p className='reportDesc'>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
                                 <p className='reportDesc'>Issue: {report.description}</p>
                             </div>
@@ -396,7 +396,7 @@ function ReportList() {
                     volunteerPostReports.map((report, index) => (
                         <div key={index} className="reportItem">
                             <div id = "info"> 
-                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteerPost", report.reportedId)}>Report on post: {postTitles[report.reportedId]}</h3>
+                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteerPost", report.reportedId)}>Report on: {postTitles[report.reportedId]}</h3>
                                 <p className='reportDesc'>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
                                 <p className='reportDesc'>Issue: {report.description}</p>
                             </div>
@@ -418,9 +418,9 @@ function ReportList() {
                     volunteeringReports.map((report, index) => (
                         <div key={index} className="reportItem">
                             <div id = "info"> 
-                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteering", report.reportedId)}>Report on volunteering: {volunteeringNames[report.reportedId]}</h3>
-                                <p>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
-                                <p>Issue: {report.description}</p>
+                                <h3 className='smallHeader' onClick={() => handleShowOnClick("volunteering", report.reportedId)}>Report on: {volunteeringNames[report.reportedId]}</h3>
+                                <p className='reportDesc'>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
+                                <p className='reportDesc'>Issue: {report.description}</p>
                             </div>
 
                             <div id = "buttons">
@@ -440,7 +440,7 @@ function ReportList() {
                     orgReports.map((report, index) => (
                         <div key={index} className="reportItem">
                             <div id = "info"> 
-                                <h3 className='smallHeader' onClick={() => handleShowOnClick("organization", report.reportedId)}>Report on organization: {orgNames[report.reportedId]}</h3>
+                                <h3 className='smallHeader' onClick={() => handleShowOnClick("organization", report.reportedId)}>Report on: {orgNames[report.reportedId]}</h3>
                                 <p>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
                                 <p>Issue: {report.description}</p>
                             </div>
@@ -462,7 +462,7 @@ function ReportList() {
                     userReports.map((report, index) => (
                         <div key={index} className="reportItem">
                             <div id = "info"> 
-                                <h3 className='smallHeader' onClick={() => handleShowOnClick("profile", report.reportedId)}>Report on organization: {userNames[report.reportedId]}</h3>
+                                <h3 className='smallHeader' onClick={() => handleShowOnClick("profile", report.reportedId)}>Report on: {userNames[report.reportedId]}</h3>
                                 <p>Reported by {report.reportingUser} on {fixDate(report.date)}</p>
                                 <p>Issue: {report.description}</p>
                             </div>

@@ -104,4 +104,23 @@ public class ChatService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<List<String>> getOpenPostChats(String token, String username, int postId) {
+        try{
+            checkToken(token, username);
+            return Response.createResponse(facadeManager.getChatFacade().getOpenPostChats(username,postId));
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> closeChat(String token, String username, int postId) {
+        try{
+            checkToken(token, username);
+            facadeManager.getChatFacade().closeChat(username, postId);
+            return Response.createResponse(true);
+        }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

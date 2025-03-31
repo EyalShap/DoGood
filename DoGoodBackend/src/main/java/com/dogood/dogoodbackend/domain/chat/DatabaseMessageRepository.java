@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.chat;
 
 import com.dogood.dogoodbackend.jparepos.MessageJPA;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -59,5 +60,11 @@ public class DatabaseMessageRepository implements MessageRepository{
     @Override
     public List<String> getSendersToPost(int postId) {
         return jpa.findByReceiverIdEndsWithAndReceiverType("@"+postId,ReceiverType.POST).stream().map(message -> message.getReceiverId().split("@")[0]).distinct().toList();
+    }
+
+    @Override
+    @Transactional
+    public void closePostChat(int postId, String with) {
+        jpa.deleteByReceiverIdAndReceiverType(with + "@" + postId, ReceiverType.POST);
     }
 }
