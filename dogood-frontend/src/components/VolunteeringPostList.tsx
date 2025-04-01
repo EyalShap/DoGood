@@ -328,15 +328,15 @@ function VolunteeringPostList() {
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Cities'} options={allCities} onChange={handleSelectedCitiesChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Organizations'} options={allOrganizationNames} onChange={handleSelectedOrganizationsChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Volunteerings'} options={allVolunteeringNames} onChange={handleSelectedVolunteeringsChange}></MultipleSelectDropdown>}
-                
-                    <div className="switch-container">
+
+                    {/*<div className="switch-container">
                         <label className="switch-label">My Posts</label>
                         <Switch className='switch' defaultChecked onChange={toggleMyPostsSwitch}/>
                         <label className="switch-label">All Posts</label>
-                    </div>
+                    </div>*/}
                 </div>}
-                
-                {postsListItems.length > 0 ? 
+
+                {postsListItems.length > 0 ?
                     <ListWithPlus data={postsListItems} limit = {9} navigateTo={isVolunteeringPosts ? 'volunteeringPost' : 'volunteerPost'}></ListWithPlus>
                     :
                     <p className='noPosts'>No posts available.</p>
