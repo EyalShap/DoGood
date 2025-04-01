@@ -37,6 +37,7 @@ function VolunteeringPostList() {
     const[selectedVolunteeringNames, setSelectedVolunteeringNames] = useState<string[]>([]);
     const [postImages, setPostImages] = useState<Map<number, string>>(new Map());
     const[showFilter, setShowFilter] = useState<boolean>(!isMobile);
+    const [isMyPosts, setIsMyPosts] = useState(false);
 
     const fetchPosts = async () => {
         try {
@@ -143,7 +144,7 @@ function VolunteeringPostList() {
                 res = await searchByKeywords(search, allVolunteeringPosts, isVolunteeringPosts);
                 setSearchedPosts(res);
                 let resVolunteeringPosts : number[] = res.map(resPost => resPost.id);
-                res = await filterVolunteeringPosts(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, resVolunteeringPosts);
+                res = await filterVolunteeringPosts(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, resVolunteeringPosts, isMyPosts);
             }
             else {
                 if(search.trim() === "") {
@@ -153,7 +154,7 @@ function VolunteeringPostList() {
                 res = await searchByKeywords(search, allVolunteerPosts, isVolunteeringPosts);                
                 setSearchedPosts(res);
                 let resVolunteerPosts : number[] = res.map(resPost => resPost.id);
-                res = await filterVolunteerPosts(selectedCategories, selectedSkills, resVolunteerPosts);
+                res = await filterVolunteerPosts(selectedCategories, selectedSkills, resVolunteerPosts, isMyPosts);
             }
             
             setPosts(res);
@@ -190,26 +191,28 @@ function VolunteeringPostList() {
         }
     };
 
-    const filter = async(categories: string[], skills: string[], cities: string[], organizationNames: string[], volunteeringNames: string[]) => {
+    const filter = async(categories: string[], skills: string[], cities: string[], organizationNames: string[], volunteeringNames: string[], isMyPosts: boolean) => {
+        console.log("hihihhihih");
         let filtered : PostModel[] = [];
         if(isVolunteeringPosts) {
-            if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0) {
+            console.log(isMyPosts);
+            if(categories.length === 0 && skills.length === 0 && cities.length === 0 && organizationNames.length === 0 && volunteeringNames.length === 0 && !isMyPosts) {
                 //filtered = allVolunteeringPosts;
                 filtered = searchedPosts;
             }
             else {
                 let postIds : number[] = searchedPosts.map(post => post.id);
-                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, postIds);
+                filtered = await filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, postIds, isMyPosts);
             }
         }
         else {
-            if(categories.length === 0 && skills.length === 0) {
+            if(categories.length === 0 && skills.length === 0 && !isMyPosts) {
                 //filtered = allVolunteerPosts;
                 filtered = searchedPosts;
             }
             else {
                 let postIds : number[] = searchedPosts.map(post => post.id);
-                filtered = await filterVolunteerPosts(categories, skills, postIds);
+                filtered = await filterVolunteerPosts(categories, skills, postIds, isMyPosts);
             }
         }
         setPosts(filtered);
@@ -218,28 +221,36 @@ function VolunteeringPostList() {
 
     const handleSelectedCategoriesChange = async (selectedValues: string[]) => {
         setSelectedCategories(selectedValues);
-        await filter(selectedValues, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
+        await filter(selectedValues, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, isMyPosts);
     };
 
     const handleSelectedSkillsChange = async (selectedValues: string[]) => {
         setSelectedSkills(selectedValues);
-        await filter(selectedCategories, selectedValues, selectedCities, selectedOrganizationNames, selectedVolunteeringNames);
+        await filter(selectedCategories, selectedValues, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, isMyPosts);
     };
 
     const handleSelectedCitiesChange = async (selectedValues: string[]) => {
         setSelectedCities(selectedValues);
-        await filter(selectedCategories, selectedSkills, selectedValues, selectedOrganizationNames, selectedVolunteeringNames);
+        await filter(selectedCategories, selectedSkills, selectedValues, selectedOrganizationNames, selectedVolunteeringNames, isMyPosts);
     };
 
     const handleSelectedOrganizationsChange = async (selectedValues: string[]) => {
         setSelectedOrganizationNames(selectedValues);
-        await filter(selectedCategories, selectedSkills, selectedCities, selectedValues, selectedVolunteeringNames);
+        await filter(selectedCategories, selectedSkills, selectedCities, selectedValues, selectedVolunteeringNames, isMyPosts);
     };
 
     const handleSelectedVolunteeringsChange = async (selectedValues: string[]) => {
         setSelectedVolunteeringNames(selectedValues);
-        await filter(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedValues);
+        await filter(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedValues, isMyPosts);
     };
+
+    const toggleMyPostsSwitch = async () => {
+        const newSwitchState = !isMyPosts;
+        setIsMyPosts(newSwitchState);
+        console.log("hiiiiiiioosh");
+        console.log(newSwitchState);
+        await filter(selectedCategories, selectedSkills, selectedCities, selectedOrganizationNames, selectedVolunteeringNames, newSwitchState);
+    }
 
     const sortingOptions = 
         isVolunteeringPosts ? 
@@ -317,6 +328,12 @@ function VolunteeringPostList() {
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Cities'} options={allCities} onChange={handleSelectedCitiesChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Organizations'} options={allOrganizationNames} onChange={handleSelectedOrganizationsChange}></MultipleSelectDropdown>}
                     {isVolunteeringPosts && <MultipleSelectDropdown label={'Volunteerings'} options={allVolunteeringNames} onChange={handleSelectedVolunteeringsChange}></MultipleSelectDropdown>}
+                
+                    <div className="switch-container">
+                        <label className="switch-label">My Posts</label>
+                        <Switch className='switch' defaultChecked onChange={toggleMyPostsSwitch}/>
+                        <label className="switch-label">All Posts</label>
+                    </div>
                 </div>}
                 
                 {postsListItems.length > 0 ? 

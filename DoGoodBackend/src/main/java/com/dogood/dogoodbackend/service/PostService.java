@@ -181,10 +181,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds) {
+    public Response<List<VolunteeringPostDTO>> filterVolunteeringPosts(String token, Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds, boolean isMyPosts) {
         try {
             checkToken(token,actor);
-            List<VolunteeringPostDTO> posts = postsFacade.filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPostIds);
+            List<VolunteeringPostDTO> posts = postsFacade.filterVolunteeringPosts(categories, skills, cities, organizationNames, volunteeringNames, actor, allPostIds, isMyPosts);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
@@ -192,10 +192,10 @@ public class PostService {
         }
     }
 
-    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(String token, Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts) {
+    public Response<List<VolunteerPostDTO>> filterVolunteerPosts(String token, Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts, boolean isMyPosts) {
         try {
             checkToken(token,actor);
-            List<VolunteerPostDTO> posts = postsFacade.filterVolunteerPosts(categories, skills, actor, allPosts);
+            List<VolunteerPostDTO> posts = postsFacade.filterVolunteerPosts(categories, skills, actor, allPosts, isMyPosts);
             return Response.createResponse(posts);
         }
         catch (Exception e) {
