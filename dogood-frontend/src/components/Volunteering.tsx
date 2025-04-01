@@ -633,16 +633,15 @@ function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: numb
 }
 
 function HourRequestMaker({ volunteerindId, close }: { volunteerindId: number, close: any }) {
-    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs('2024-01-01T00:00:000'));
-    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs('2024-01-01T00:00:000'));
+    const [startTime, setStartTime] = useState<Dayjs | null>(dayjs().startOf('day'));
+    const [endTime, setEndTime] = useState<Dayjs | null>(dayjs().startOf('day'));
     const [date, setDate] = useState<Dayjs | null>(dayjs())
 
     const onRequest = async () => {
         try {
-            let dateString = date?.toISOString()!.split('T')[0];
-            let startString = startTime?.toISOString()!.split('T')[1];
-            let endString = endTime?.toISOString()!.split('T')[1];
-            await requestHoursApproval(volunteerindId, `${dateString}T${startString}`, `${dateString}T${endString}`);
+            let startDate = date!.set('hour',startTime!.hour()).set('minute',startTime!.minute()).set('second',0).set('millisecond',0);
+            let endDate = date!.set('hour',endTime!.hour()).set('minute',endTime!.minute()).set('second',0).set('millisecond',0);
+            await requestHoursApproval(volunteerindId, startDate.toISOString(), endDate.toISOString());
             alert("Request Sent Successfully!")
             close();
         } catch (e) {
