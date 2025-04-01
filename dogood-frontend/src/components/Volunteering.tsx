@@ -24,6 +24,7 @@ import {
     removeGroup,
     removeRange,
     removeRestrictionFromRange,
+    removeVolunteering,
     requestHoursApproval
 } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
@@ -51,6 +52,8 @@ import Popup from 'reactjs-popup';
 import {Tab, TabList, TabPanel, Tabs} from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Select from "react-select";
+import { createVolunteeringPost } from '../api/post_api';
+import { createVolunteeringReport } from '../api/report_api';
 
 
 
@@ -702,6 +705,9 @@ function Volunteering() {
     const [currentDragVolunteer, setCurrentDragVolunteer] = useState("");
     const [currentDragFrom, setCurrentDragFrom] = useState(-1);
 
+    const [showReportDescription, setShowReportDescription] = useState(false);
+    const [reportDescription, setReportDescription] = useState("");
+
     const fetchVolunteering = async () => {
         try {
             let found = await getVolunteering(parseInt(id!));
@@ -773,6 +779,19 @@ function Volunteering() {
         navigate(`./createVolunteeringPost/-1`);
     }
 
+    const handleRemoveVolunteeringOnClick = async () => {
+        if(window.confirm("Are you sure you want to remove this volunteering?")) {
+            try {
+                await removeVolunteering(model.id);
+                alert("Volunteering removed successfully!");
+                navigate(`/myvolunteerings`);
+            }
+            catch(e) {
+                alert(e);
+            }
+        }
+    }
+
     const deleteGroup = async (groupId: number) => {
         try {
             await removeGroup(parseInt(id!), groupId);
@@ -820,6 +839,27 @@ function Volunteering() {
         }
     }
 
+    const handleReportOnClick = async () => {
+        setShowReportDescription(true);
+    }
+    
+    const handleSubmitReportOnClick = async () => {
+        try {
+            await createVolunteeringReport(model.id, reportDescription);
+            alert("Thank you for your report!");
+        }
+        catch(e) {
+            alert(e);
+        }
+        setShowReportDescription(false);
+        setReportDescription("");
+    }
+            
+    const handleCancelReportOnClick = () => {
+        setShowReportDescription(false);
+        setReportDescription("");
+    }
+
     return (
         <div>
             <div className="volInfo">
@@ -832,6 +872,8 @@ function Volunteering() {
                         <button className="orangeCircularButton" onClick={() => navigate("./settings")}>Settings</button>
                         <button className="orangeCircularButton" onClick={() => navigate("./jrequests")}>View Join Requests</button>
                         <button className="orangeCircularButton" onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
+                        <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
+                        <button className="orangeCircularButton" onClick={handleRemoveVolunteeringOnClick}>Remove Volunteering</button>
                     </div> : <></>}
             </div>
             {isManager ?
@@ -843,11 +885,12 @@ function Volunteering() {
                 <div className='scanButtons'>
                     <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
                     <button className="orangeCircularButton" onClick={() => navigate("./code")}>Show Changing QR Code</button>
-                    <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
+                    <button className="orangeCircularButton" onClick={handleReportOnClick}>Report</button>
                 </div> :
                 <div className='scanButtons'>
                     <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
                     <button className="orangeCircularButton" onClick={() => navigate("/scan")}>Scan QR Code</button>
+                    <button className="orangeCircularButton" onClick={handleReportOnClick}>Report</button>
                     <Popup trigger={<button className="orangeCircularButton">Leave</button>} modal nested>
                         {/* 
                     // @ts-ignore */}
@@ -858,6 +901,19 @@ function Volunteering() {
                         )}
                     </Popup>
                 </div>}
+
+                {showReportDescription && (
+                    <div className="popup-window">
+                        <div className="popup-header">
+                        <span className="popup-title">Report</span>
+                        <button className="cancelButton" onClick={handleCancelReportOnClick}>X</button>
+                        </div>
+                        <div className="popup-body">
+                            <textarea placeholder="What went wrong?..." onClick={(e) => { e.stopPropagation()}} onChange={(e) => setReportDescription(e.target.value)}></textarea>
+                            <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>Submit</button>
+                        </div>
+                    </div>
+                )}
 
             {isManager && <Tabs>
                 <TabList>

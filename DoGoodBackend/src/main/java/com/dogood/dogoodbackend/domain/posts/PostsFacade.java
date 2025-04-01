@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategories;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
+import com.dogood.dogoodbackend.domain.organizations.OrganizationDTO;
 import com.dogood.dogoodbackend.domain.organizations.OrganizationsFacade;
 import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
@@ -347,8 +348,18 @@ public class PostsFacade {
         return sorted;
     }
 
+    // my post = I am poster or I am a manager of the organization
+    private boolean isMyPost(VolunteeringPost post, String actor) {
+        if(post.getPosterUsername().equals(actor)) {
+            return true;
+        }
+        int volunteeringOrgId = post.getOrganizationId();
+        OrganizationDTO org = organizationsFacade.getOrganization(volunteeringOrgId);
+        return org.getManagerUsernames().contains(actor);
+    }
+
     //TODO: add more parameters
-    public List<VolunteeringPostDTO> filterVolunteeringPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds) {
+    public List<VolunteeringPostDTO> filterVolunteeringPosts(Set<String> categories, Set<String> skills, Set<String> cities, Set<String> organizationNames, Set<String> volunteeringNames, String actor, List<Integer> allPostIds, boolean isMyPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
@@ -371,7 +382,7 @@ public class PostsFacade {
             boolean matchByCity = cities.size() > 0 ? countCommons(volunteeringCities, cities) >= 1 || countCommons(postKeywords, cities) >= 1 : true;
             boolean matchByOrganization = organizationNames.size() > 0 ? organizationNames.contains(organizationName) : true;
             boolean matchByVolunteering = volunteeringNames.size() > 0 ? volunteeringNames.contains(volunteeringName) : true;
-
+            boolean matchByMyPost = isMyPosts ? isMyPost(post, actor) : true;
             /*if(categories.size() > 0) {
                 volunteeringCategories.retainAll(categories);
                 matchByCategory = volunteeringCategories.size() >= 1;
@@ -385,14 +396,23 @@ public class PostsFacade {
                 matchByCity = volunteeringCities.size() >= 1;
             }*/
 
-            if(matchByCategory && matchBySkill && matchByCity && matchByOrganization && matchByVolunteering) {
+            if(matchByCategory && matchBySkill && matchByCity && matchByOrganization && matchByVolunteering && matchByMyPost) {
                 result.add(new VolunteeringPostDTO(post));
             }
         }
+
         return result;
     }
 
-    public List<VolunteerPostDTO> filterVolunteerPosts(Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts) {
+    // my post = I am poster or I am a related user
+    private boolean isMyPost(VolunteerPost post, String actor) {
+        if(post.getPosterUsername().equals(actor)) {
+            return true;
+        }
+        return post.getRelatedUsers().contains(actor);
+    }
+
+    public List<VolunteerPostDTO> filterVolunteerPosts(Set<String> categories, Set<String> skills, String actor, List<Integer> allPosts, boolean isMyPosts) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
@@ -407,6 +427,7 @@ public class PostsFacade {
 
             boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1 : true;
             boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1 : true;
+            boolean matchByIsMyPost = isMyPosts ? isMyPost(post, actor) : true;
 
             /*if(categories.size() > 0) {
                 volunteeringCategories.retainAll(categories);
@@ -417,7 +438,7 @@ public class PostsFacade {
                 matchBySkill = volunteeringSkills.size() >= 1;
             }*/
 
-            if(matchByCategory && matchBySkill) {
+            if(matchByCategory && matchBySkill && matchByIsMyPost) {
                 result.add(new VolunteerPostDTO(post));
             }
         }

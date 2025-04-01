@@ -39,4 +39,9 @@ public class ChatSocketSender {
     public void sendMessagePost(MessageDTO message, String with, int postId) {
         template.convertAndSend("/topic/postchat/"+postId + "/"+with, new ChatAction(ChatActionType.ADD,message));
     }
+
+    public void closeChat(String with, int postId) {
+        template.convertAndSend("/topic/postchat/" + postId + "/" + with, new ChatAction(ChatActionType.CLOSE, null));
+    }
+
 }

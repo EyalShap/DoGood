@@ -5,7 +5,7 @@ import './../css/CommonElements.css'
 import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings, removeImageFromOrganization, addImageToOrganization } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
-import Volunteering from './Volunteering';
+
 import { getVolunteering } from '../api/volunteering_api';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { getUserByUsername } from '../api/user_api';
@@ -429,7 +429,7 @@ function Organization() {
                                         </button>
                                     </div>
                                 </div>
-                            )}
+                        )}
 
                     </div>
                 )}

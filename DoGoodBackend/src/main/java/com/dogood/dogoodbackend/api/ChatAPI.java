@@ -69,4 +69,16 @@ public class ChatAPI {
         String token = getToken(request);
         return chatService.getPostChatMessages(token, username, postId, with);
     }
+
+    @GetMapping("/getOpenPostChats")
+    public Response<List<String>> getPrivateChatMessages(@RequestParam String username, @RequestParam int postId, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.getOpenPostChats(token, username, postId);
+    }
+
+    @DeleteMapping("/closeChat")
+    public Response<Boolean> closeChat(@RequestParam String username, @RequestParam int postId, HttpServletRequest request){
+        String token = getToken(request);
+        return chatService.closeChat(token, username, postId);
+    }
 }

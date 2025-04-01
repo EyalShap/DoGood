@@ -28,7 +28,9 @@ function CodeView() {
             width: "100%",
              display: "flex",
              flexDirection: "column",
-             alignItems: "center"}}>
+             alignItems: "center",
+             fontFamily: 'Montserrat, sans-serif',
+             marginBottom: "20px"}}>
             <h1>Changing Code</h1>
             <QRCode size={300} value={code}/>
         </div>

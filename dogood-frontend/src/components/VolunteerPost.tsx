@@ -14,6 +14,8 @@ import ListWithArrows, { ListItem } from './ListWithArrows';
 import { VolunteerPostModel } from '../models/VolunteerPostModel';
 import { supabase } from '../api/general';
 import { getUserByUsername } from '../api/user_api';
+import { getOpenPostChats } from '../api/chat_api';
+import User from '../models/UserModel';
 
 function VolunteerPost() {
     const navigate = useNavigate();
@@ -21,11 +23,15 @@ function VolunteerPost() {
     const [postImages, setPostImages] = useState<ListItem[]>([]);
     const [relatedUsers, setRelatedUsers] = useState<ListItem[]>([]);
     const [isPoster, setIsPoster] = useState<boolean>(false);
+    const [isActorInPost, setIsActorInPost] = useState<boolean>(false);
     const [ready, setReady] = useState(false);
     const [showJoinFreeText, setShowJoinFreeText] = useState(false);
     const [joinFreeText, setJoinFreeText] = useState("");
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
+    const [showChatList, setShowChatList] = useState(false);
+    const [openChatUsers, setOpenChatUsers] = useState<string[]>([]);
+    const [openChatUsersProfilePics, setOpenChatUsersProfilePics] = useState<{ [key: string]: string }>({});
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
@@ -42,6 +48,29 @@ function VolunteerPost() {
                 convertImagesToListItems(post.images);
   
                 setIsPoster(localStorage.getItem("username") === post.posterUsername);
+
+                const actorInPost = post.relatedUsers.includes(localStorage.getItem("username") ?? "");
+                setIsActorInPost(actorInPost);
+                
+                if(actorInPost) {
+                    let openChatUsers = await getOpenPostChats(post.id);
+                    setOpenChatUsers(openChatUsers);
+                    
+                    for (let username of openChatUsers) {
+                        try {
+                            const user: User = await getUserByUsername(username);
+                            const image: string = '/src/assets/defaultProfilePic.jpg';
+                                                    
+                            setOpenChatUsersProfilePics((prev) => ({
+                                ...prev,
+                                [username]: image,
+                            }));
+                        } catch (e) {
+                            alert(e);
+                        }
+                    }
+                }
+
                 setReady(true);
             }
             else {
@@ -223,6 +252,23 @@ function VolunteerPost() {
         const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
             setSelectedFile(e.target.files![0])
         }
+
+    const handleChatOnClick = () => {
+        if(isActorInPost) {
+            setShowChatList(true);
+        }
+        else {
+            navigate("./chat");
+        }
+    }
+
+    const handleOpenChatOnClick = (username: string) => {
+        navigate(`./chat/${username}`);
+    }
+
+    const handleCancelChatOnClick = async () => {
+        setShowChatList(false);
+    }
         
     return (
         <div id="postPage" className="postPage">
@@ -292,7 +338,33 @@ function VolunteerPost() {
                 </div>
             </div>
 
-            
+            <div>
+                <button className="orangeCircularButton" onClick={handleChatOnClick} style={{marginTop:'20px'}}>{isActorInPost ? "Open Chat" : "Start Chat"}</button>
+                {showChatList && (
+                    <div className="popup-window">
+                        <div className="popup-header">
+                            <span className="popup-title">Open Chats</span>
+                            <button className="cancelButton" onClick={handleCancelChatOnClick}>
+                                X
+                            </button>
+                        </div>
+                        <div className="popup-body chats-popup-body">
+                            <ul className="openChatsList">
+                                {openChatUsers.map((username, index) => (
+                                <li key={index} onClick={() => handleOpenChatOnClick(username)}>
+                                    <div className='openChatListItem'>
+                                    <img className='openChatProfilePic' src={openChatUsersProfilePics[username]}></img>
+                                    <p className='chatUsername'>{username}</p>
+                                    </div>
+                                </li>
+                                ))}
+                            </ul>
+                            
+                            
+                        </div>
+                    </div>
+                )}
+            </div>
             <div className="listContainer">
                 <h2 className='volunteerPostheader'>Friends In This Post</h2>
 

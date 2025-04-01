@@ -13,6 +13,7 @@ public class FilterVolunteeringPostsRequest {
     private Set<String> volunteeringNames;
     private String actor;
     private List<Integer> allPosts;
+    private boolean isMyPosts;
 
     public Set<String> getCategories() {
         return categories;
@@ -68,5 +69,13 @@ public class FilterVolunteeringPostsRequest {
 
     public void setVolunteeringNames(Set<String> volunteeringNames) {
         this.volunteeringNames = volunteeringNames;
+    }
+
+    public boolean isMyPosts() {
+        return isMyPosts;
+    }
+
+    public void setMyPosts(boolean myPosts) {
+        isMyPosts = myPosts;
     }
 }

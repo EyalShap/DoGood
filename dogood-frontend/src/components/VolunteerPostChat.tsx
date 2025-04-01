@@ -1,7 +1,8 @@
-import {useNavigate, useParams} from "react-router-dom";
+import {Navigate, useNavigate, useParams} from "react-router-dom";
 import ChatMessage from "../models/ChatMessage.ts";
 import {FormEvent, useEffect, useRef, useState} from "react";
 import {
+    closeChat,
     deleteMessage,
     getPostChatMessages,
     getVolunteeringChatMessages,
@@ -17,11 +18,15 @@ import {FaRegTrashAlt} from "react-icons/fa";
 import {MessageComponent} from "./VolunteeringChat.tsx";
 
 function VolunteerPostChat({ other } : { other: boolean}) {
+    const navigate = useNavigate();
     let { id , username} = useParams();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [typedMessage, setTypedMessage] = useState("");
     const [connected, setConnected] = useState(false);
+    const [closedChatNavigate, setClosedChatNavigate] = useState(false);
     const userWith = other ? username : localStorage.getItem("username");
+
+
     const fetchMessages = async () => {
         try{
             setMessages(await getPostChatMessages(parseInt(id!),userWith!));
@@ -44,6 +49,12 @@ function VolunteerPostChat({ other } : { other: boolean}) {
             alert(e);
         }
     }
+
+    useEffect(() => {
+        if (closedChatNavigate) {
+            navigate(`/volunteerPost/${id}`);
+        }
+    }, [closedChatNavigate]);
 
     useEffect(() => {
         fetchMessages();
@@ -70,6 +81,18 @@ function VolunteerPostChat({ other } : { other: boolean}) {
                             let messageToDelete: ChatMessage = body.payload
                             setMessages(prevState => prevState.filter(message => message.id !== messageToDelete.id))
                         }
+                        else if(body.type === "CLOSE"){
+                            setMessages([]);
+
+                            if (userWith !== localStorage.getItem("username")) {
+                                window.confirm("This chat was closed. Click OK to continue.");
+                                navigate(`/volunteerPost/${id}`);
+                                
+                            }
+                            else {
+                                navigate(`/volunteerPost/${id}`);
+                            }
+                        }
                     });
                     setConnected(true);
                 }
@@ -90,6 +113,18 @@ function VolunteerPostChat({ other } : { other: boolean}) {
         }
     }, [messages]);
 
+    const handleCloseChatOnClick = async () => {
+        if(window.confirm("Are you sure you want to close this chat?")) {
+            try {
+                await closeChat(parseInt(id!));
+                navigate(`/volunteerPost/${id}`);
+            }
+            catch(e) {
+                alert(e);
+            }
+        }
+    }
+
     return (
         <div className="chat">
             <div ref={containerRef} className="messages">
@@ -100,6 +135,9 @@ function VolunteerPostChat({ other } : { other: boolean}) {
                 <input className="typing" onChange={e => setTypedMessage(e.target.value)} value={typedMessage}/>
                 <button className="send" type="submit"><IoSend/></button>
             </form>
+            <div>
+                {!other && <button className="orangeCircularButton" style={{margin: '10px'}} onClick={handleCloseChatOnClick}>Close Chat</button>}
+            </div>
         </div>
     )
 }

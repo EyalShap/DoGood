@@ -438,7 +438,7 @@ export const sortByLastEditTime = async (postsToSort: PostModel[]): Promise<Post
     return posts;
 }
 
-export const filterVolunteeringPosts = async (categories: string[], skills: string[], cities: string[], organizationNames: string[], voluntteringNames: string[], postsToFilter: number[]): Promise<VolunteeringPostModel[]> => {
+export const filterVolunteeringPosts = async (categories: string[], skills: string[], cities: string[], organizationNames: string[], voluntteringNames: string[], postsToFilter: number[], isMyPosts: boolean): Promise<VolunteeringPostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 
@@ -458,7 +458,8 @@ export const filterVolunteeringPosts = async (categories: string[], skills: stri
         organizationNames: organizationNames, 
         volunteeringNames: voluntteringNames,
         actor: username,
-        allPosts: postsToFilter
+        allPosts: postsToFilter,
+        isMyPosts: isMyPosts
     }
 
     let res = await axios.post(url, request, config);
@@ -470,7 +471,7 @@ export const filterVolunteeringPosts = async (categories: string[], skills: stri
     return posts;
 }
 
-export const filterVolunteerPosts = async (categories: string[], skills: string[], postsToFilter: number[]): Promise<VolunteerPostModel[]> => {
+export const filterVolunteerPosts = async (categories: string[], skills: string[], postsToFilter: number[], isMyPosts: boolean): Promise<VolunteerPostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");
 
@@ -487,7 +488,8 @@ export const filterVolunteerPosts = async (categories: string[], skills: string[
         categories: categories,
         skills: skills,
         actor: username,
-        allPosts: postsToFilter
+        allPosts: postsToFilter,
+        isMyPosts: isMyPosts
     }
 
     let res = await axios.post(url, request, config);
