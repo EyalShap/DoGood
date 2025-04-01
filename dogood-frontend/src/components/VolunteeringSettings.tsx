@@ -310,14 +310,14 @@ function VolunteeringSettings() {
     return (
         <div className="settings">
             <div className="container">
-                <h1 className="settingsHeader">Current Locations:</h1>
+                <h1>Current Locations:</h1>
                 <div className="locations">
                     {locations.map(location =>
                         <div className={`location${location.id === -1 ? " disabledLocation" : ""}`}>
                             <h2>{location.name}</h2>
-                            {location.id > -1 && <p className="settingsP">{location.address.city}</p>}
-                            {location.id > -1 && <p className="settingsP">{location.address.street}</p>}
-                            {location.id > -1 && <p className="settingsP">{location.address.address}</p>}
+                            {location.id > -1 && <p>{location.address.city}</p>}
+                            {location.id > -1 && <p>{location.address.street}</p>}
+                            {location.id > -1 && <p>{location.address.address}</p>}
                             <button className="removeButton" onClick={() => onRemove(location.id)}>{location.id > -1 ? "Remove Location" : "Enable Locations?"}</button>
                         </div>)}
                 </div>
@@ -328,7 +328,7 @@ function VolunteeringSettings() {
                         <div className="modal">
                             <form className="create-location-form"
                                   onSubmit={handleSubmit(async (data) => addLocation(data, close))}>
-                                <h1 className="settingsHeader">Add Location</h1>
+                                <h1>Add Location</h1>
                                 <div style={{display: 'flex', alignItems: 'center', gap: '1rem'}}>
                                     <label htmlFor="name">Location Name:</label>
                                     <input
@@ -403,11 +403,11 @@ function VolunteeringSettings() {
                 {locations.length === 0 && <button onClick={disableLocations} className="orangeCircularButton">We don't have locations!</button>}
             </div>
             <div className="container">
-            <h1 className="settingsHeader">Volunteering Skills:</h1>
+            <h1>Volunteering Skills:</h1>
                 <div className="stringlist">
                     {skills.map(skill =>
                         <div className="skillcateg">
-                            <p className="settingsP">{skill}</p>
+                            <p>{skill}</p>
                             <button onClick={() => onRemoveSkill(skill)} className="removeButton">X</button>
                         </div>)}
                 </div>
@@ -415,11 +415,11 @@ function VolunteeringSettings() {
                 <button className="orangeCircularButton" onClick={onAddSkill}>Add Skill</button>
             </div>
             <div className="container">
-                <h1 className="settingsHeader">Volunteeering Categories:</h1>
+                <h1>Volunteeering Categories:</h1>
                 <div className="stringlist">
                     {categories.map(category =>
                         <div className="skillcateg">
-                            <p className="settingsP">{category}</p>
+                            <p>{category}</p>
                             <button onClick={() => onRemoveCategory(category)} className="removeButton">X</button>
                         </div>)}
                 </div>
@@ -430,7 +430,7 @@ function VolunteeringSettings() {
                 <button className="orangeCircularButton" onClick={generate}>Generate Skills and Categories with AI</button>
             </div>
             <div className="container">
-                <h1 className="settingsHeader">Photos:</h1>
+                <h1>Photos:</h1>
                 <div className="photos">
                     {images.map(image =>
                         <div className="photo">
@@ -442,7 +442,7 @@ function VolunteeringSettings() {
                 <button className="orangeCircularButton" onClick={onAddImage}>Upload!</button>
             </div>
             <div className="container">
-                <h1 className="settingsHeader">Volunteer Scanning:</h1>
+                <h1>Volunteer Scanning:</h1>
                 <FormControl>
                     <FormLabel>Choose type of confirming arrival using QR codes</FormLabel>
                     <RadioGroup
@@ -469,7 +469,7 @@ function VolunteeringSettings() {
                 <button className="orangeCircularButton" onClick={sendScanDetails}>Confirm</button>
             </div>
             <div className="container">
-                <h1 className="settingsHeader">Manage Constant Codes:</h1>
+                <h1>Manage Constant Codes:</h1>
                 <div className="codes">
                     {codes.map((code, index) =>
                         <div className="code">
