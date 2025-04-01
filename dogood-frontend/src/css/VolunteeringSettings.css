@@ -36,6 +36,11 @@
     align-items: center;
     font-family: 'Montserrat', sans-serif;
 }
+
+.settings h1, .settings p{
+    font-family: 'Montserrat', sans-serif;
+}
+
 .disabledLocation {
     padding-left: 100px;
     padding-right: 100px;

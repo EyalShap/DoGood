@@ -77,3 +77,28 @@ export const deleteMessage = async (messageId: number): Promise<string> => {
     }
     return response.data;
 }
+
+export const getOpenPostChats = async (postId: number): Promise<string[]> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+
+    let res = await axios.get(`${server}/getOpenPostChats?username=${localStorage.getItem("username")}&postId=${postId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const closeChat = async (postId: number) => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+
+    let res = await axios.delete(`${server}/closeChat?username=${localStorage.getItem("username")}&postId=${postId}`, config);
+    const response = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}

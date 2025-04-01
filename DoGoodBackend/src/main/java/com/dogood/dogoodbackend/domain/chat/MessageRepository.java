@@ -11,4 +11,5 @@ public interface MessageRepository {
     public List<Message> getPostChatMessages(String with, int postId);
     public Message getMessage(int messageId);
     public List<String> getSendersToPost(int postId);
+    public void closePostChat(int postId, String with);
 }
