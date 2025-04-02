@@ -14,7 +14,11 @@ import com.dogood.dogoodbackend.pdfformats.University;
 import com.itextpdf.text.DocumentException;
 import jakarta.transaction.Transactional;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -778,6 +782,24 @@ public class VolunteeringFacade {
                 userData.getPhone(),
                 email,
                 getUserApprovedHours(userId, List.of(volunteeringId)));
+    }
+
+    public String getAppointmentsCsv(String userId, int numOfWeeks) throws IOException {
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        User userData = usersFacade.getUser(userId);
+        String csv = "Subject,Start Date,Start Time,End Time\n";
+        List<ScheduleAppointmentDTO> scheduleAppointments = schedulingFacade.getUserAppointments(userId,userData.getVolunteeringIds());
+        for(ScheduleAppointmentDTO scheduleAppointmentDTO : scheduleAppointments){
+            csv += scheduleAppointmentDTO.toCsv(getVolunteeringDTO(scheduleAppointmentDTO.getVolunteeringId()).getName(),numOfWeeks);
+        }
+        Files.createDirectories(Paths.get("./"+userId));
+        String path = "./"+userId + "/"+"export-"+userId+".csv";
+        PrintWriter csvWriter = new PrintWriter(path);
+        csvWriter.print(csv);
+        csvWriter.close();
+        return path;
     }
 
 

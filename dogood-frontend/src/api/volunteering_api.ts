@@ -717,6 +717,33 @@ export const getUserApprovedHoursFormatted = async (volunteeringId: number, isra
     URL.revokeObjectURL(href);
 }
 
+export const getAppointmentsCsv = async (numWeeks: number): Promise<void> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` },
+        responseType: 'arraybuffer',
+        validateStatus: () => true
+    };
+    //@ts-ignore
+    let response = await axios.get(`${server}/api/volunteering/getAppointmentsCsv?userId=${localStorage.getItem('username')}&numOfWeeks=${numWeeks}`, config);
+
+    if(response.status === 400){
+        throw(new TextDecoder().decode(response.data))
+    }
+
+    var blob = new Blob([response.data], { type: "application/csv" });
+
+    const href = URL.createObjectURL(blob);
+
+    const link = document.createElement('a');
+    link.href = href;
+    link.setAttribute('download', 'export'+(new Date()).toLocaleTimeString() + ".csv"); //or any other extension
+    document.body.appendChild(link);
+    link.click();
+
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+}
+
 export const removeVolunteering = async (volunteeringId: number): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }

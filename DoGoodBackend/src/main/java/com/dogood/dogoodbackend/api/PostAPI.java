@@ -135,7 +135,7 @@ public class PostAPI {
         Set<String> orgNames = filterPostsRequest.getOrganizationNames();
         Set<String> volNames = filterPostsRequest.getVolunteeringNames();
         String actor = filterPostsRequest.getActor();
-        boolean isMyPosts = filterPostsRequest.isMyPosts();
+        boolean isMyPosts = filterPostsRequest.getIsMyPosts();
         return postService.filterVolunteeringPosts(token, categories, skills, cities, orgNames, volNames, actor, filterPostsRequest.getAllPosts() ,isMyPosts);
     }
 
@@ -146,7 +146,7 @@ public class PostAPI {
         Set<String> categories = filterPostsRequest.getCategories();
         Set<String> skills = filterPostsRequest.getSkills();
         String actor = filterPostsRequest.getActor();
-        boolean isMyPosts = filterPostsRequest.isMyPosts();
+        boolean isMyPosts = filterPostsRequest.getIsMyPosts();
         return postService.filterVolunteerPosts(token, categories, skills, actor, filterPostsRequest.getAllPosts(), isMyPosts);
     }
 

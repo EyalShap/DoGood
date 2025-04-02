@@ -79,7 +79,7 @@ public class VolunteeringService {
 
 
         // Step 1: Register Managers
-        this.facadeManager.getUsersFacade().registerAdmin("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
+        this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
         this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date());
         this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date());
         this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date());
@@ -105,11 +105,15 @@ public class VolunteeringService {
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId1, List.of("Animal Care", "Physical Activity"));
         this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId1, List.of("Animals", "Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Walk Shelter Dogs!", "Join us to keep our furry friends happy and active.", "AliceManager", volId1);
+        this.facadeManager.getVolunteeringFacade().addVolunteeringLocation("AliceManager", volId1, "Tel Aviv", new AddressTuple("Tel Aviv", "Tel Aviv", "Tel Aviv"));
+        this.facadeManager.getVolunteeringFacade().addVolunteeringLocation("AliceManager", volId1, "Jerus", new AddressTuple("Jerus", "Jerus", "Jerus"));
 
         int volId2 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Cat Cuddling", "Provide love and care to shelter cats", "AliceManager");
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId2, List.of("Patience", "Compassion"));
         this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId2, List.of("Animals", "Mental Health"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Cuddle Shelter Cats!", "Spend quality time with our adorable shelter cats.", "AliceManager", volId2);
+        this.facadeManager.getVolunteeringFacade().addVolunteeringLocation("AliceManager", volId2, "Tel Aviv", new AddressTuple("Tel Aviv", "Tel Aviv", "Tel Aviv"));
+        this.facadeManager.getVolunteeringFacade().addVolunteeringLocation("AliceManager", volId2, "Beer Sheva", new AddressTuple("Beer Sheva", "Beer Sheva", "Beer Sheva"));
 
 // Organization 2: GreenThumbs
         int volId3 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId2, "Planting Trees", "Help us plant trees in urban areas", "BobManager");
@@ -206,6 +210,7 @@ public class VolunteeringService {
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId19, List.of("Animal Training", "Patience"));
         this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("AliceManager", volId19, List.of("Animals", "Education"));
         this.facadeManager.getPostsFacade().createVolunteeringPost("Train Shelter Dogs!", "Volunteer to help our shelter dogs find loving homes.", "AliceManager", volId19);
+        this.facadeManager.getVolunteeringFacade().addVolunteeringLocation("AliceManager", volId19, "Beer Sheva", new AddressTuple("Beer Sheva", "Beer Sheva", "Beer Sheva"));
 
         int volId20 = this.facadeManager.getOrganizationsFacade().createVolunteering(orgId1, "Pet Adoption Events", "Assist at events to match pets with families", "AliceManager");
         this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("AliceManager", volId20, List.of("Event Planning", "Communication"));
@@ -221,9 +226,6 @@ public class VolunteeringService {
     private void checkToken(String token, String username) {
         if (!facadeManager.getAuthFacade().getNameFromToken(token).equals(username)) {
             throw new IllegalArgumentException("Invalid token");
-        }
-        if (facadeManager.getUsersFacade().isBanned(username)) {
-            throw new IllegalArgumentException("Banned user.");
         }
     }
 
@@ -767,6 +769,16 @@ public class VolunteeringService {
         try {
             checkToken(token, userId);
             String path = facadeManager.getVolunteeringFacade().getUserApprovedHoursFormatted(userId, volunteeringId, israeliId);
+            return Response.createResponse(path, null);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> getAppointmentsCsv(String token, String userId, int numOfWeeks) throws DocumentException, IOException {
+        try {
+            checkToken(token, userId);
+            String path = facadeManager.getVolunteeringFacade().getAppointmentsCsv(userId, numOfWeeks);
             return Response.createResponse(path, null);
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());

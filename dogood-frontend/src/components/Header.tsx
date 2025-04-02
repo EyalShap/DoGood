@@ -31,6 +31,7 @@ const Header: React.FC<Props> = ({ user }) => {
         localStorage.removeItem("username");
         localStorage.removeItem("token");
         closeMenu();
+        console.log()
         window.dispatchEvent(new Event('storage'))
       }
       catch(e){
