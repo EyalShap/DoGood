@@ -2,6 +2,7 @@ import axios from "axios";
 import { host } from "./general";
 import APIResponse from "../models/APIResponse";
 import User from "../models/UserModel";
+import Notification from "../models/Notification";
 import ApprovedHours from "../models/ApprovedHoursModel";
 import {Leaderboard} from "../models/Leaderboard";
 
@@ -192,5 +193,32 @@ export const getAllUserEmails = async (): Promise<string[]> => {
     }
     let res = await axios.get(`${server}/getAllUserEmails?actor=${localStorage.getItem('username')}`, config);
     const response: APIResponse<string[]> = await res.data;
+    return response.data;
+}
+
+export const getUserNotifications = async (): Promise<Notification[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.get(`${server}/getUserNotifications?actor=${localStorage.getItem('username')}`, config);
+    const response: APIResponse<Notification[]> = await res.data;
+    return response.data;
+}
+
+export const readNewUserNotifications = async (): Promise<Notification[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.patch(`${server}/readNewUserNotifications?actor=${localStorage.getItem('username')}`, {}, config);
+    const response: APIResponse<Notification[]> = await res.data;
+    return response.data;
+}
+
+export const getNewUserNotificationsAmount = async (): Promise<number> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.get(`${server}/getNewUserNotificationsAmount?actor=${localStorage.getItem('username')}`, config);
+    const response: APIResponse<number> = await res.data;
     return response.data;
 }

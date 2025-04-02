@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.api.userrequests.LoginRequest;
 import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
 import com.dogood.dogoodbackend.api.userrequests.UpdateUserRequest;
 import com.dogood.dogoodbackend.domain.users.User;
+import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.UserService;
@@ -99,5 +100,23 @@ public class UserAPI {
     public Response<List<String>> getAllUserEmails(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
         return userService.getAllUserEmails(token, actor);
+    }
+
+    @GetMapping("/getUserNotifications")
+    public Response<List<Notification>> getUserNotifications(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.getUserNotifications(token, actor);
+    }
+
+    @PatchMapping("/readNewUserNotifications")
+    public Response<List<Notification>> readNewUserNotifications(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.readNewUserNotifications(token, actor);
+    }
+
+    @GetMapping("/getNewUserNotificationsAmount")
+    public Response<Integer> getNewUserNotificationsAmount(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.getNewUserNotificationsAmount(token, actor);
     }
 }

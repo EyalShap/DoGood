@@ -3,6 +3,8 @@ package com.dogood.dogoodbackend.service;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -15,11 +17,13 @@ import java.util.Map;
 public class UserService {
     private UsersFacade usersFacade;
     private AuthFacade authFacade;
+    private NotificationSystem notificationSystem;
 
     @Autowired
     public UserService(FacadeManager facadeManager){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
+        this.notificationSystem = facadeManager.getNotificationSystem();
         //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
 
 /*
@@ -164,6 +168,39 @@ public class UserService {
             checkToken(token, actor);
             List<String> res = usersFacade.getAllUserEmails();
             return Response.createResponse(res);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<Notification>> getUserNotifications(String token, String actor) {
+        try {
+            checkToken(token, actor);
+//            System.out.println("TESTING GET USER NOTIFICATIONS");
+//            System.out.println(actor);
+            return Response.createResponse(notificationSystem.getUserNotifications(actor));
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<Notification>> readNewUserNotifications(String token, String actor) {
+        try {
+            checkToken(token, actor);
+//            System.out.println("TESTING READ NEW NOTIFICATIONS");
+//            System.out.println(actor);
+            return Response.createResponse(notificationSystem.readNewUserNotifications(actor));
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Integer> getNewUserNotificationsAmount(String token, String actor) {
+        try {
+            checkToken(token, actor);
+//            System.out.println("TESTING GET NEW USER NOTIFICATIONS AMOUNT");
+//            System.out.println(actor);
+            return Response.createResponse(notificationSystem.getNewUserNotificationsAmount(actor));
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());
         }
