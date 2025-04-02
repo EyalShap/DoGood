@@ -32,7 +32,7 @@ public class HourApprovalRequest {
     public HourApprovalRequest() {}
 
     public boolean intersect(Date otherStartTime, Date otherEndTime) {
-        return !(otherStartTime.equals(this.endTime) || otherEndTime.equals(this.startTime) || otherStartTime.after(this.endTime) || otherEndTime.before(this.startTime));
+        return !(otherEndTime.before(this.startTime) || otherStartTime.after(this.endTime));
     }
 
     public double getTotalHours(){

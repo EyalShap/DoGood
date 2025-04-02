@@ -400,6 +400,17 @@ public class VolunteeringAPI {
     public void getUserApprovedHoursFormatted(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam String israeliId, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
         String token = getToken(request);
         Response<String> resp = volunteeringService.getUserApprovedHoursFormatted(token,userId,volunteeringId,israeliId);
+        sendFile(resp, response);
+    }
+
+    @GetMapping("/getAppointmentsCsv")
+    public void getAppointmentsCsv(@RequestParam String userId, @RequestParam int numOfWeeks, HttpServletRequest request, HttpServletResponse response) throws IOException, DocumentException {
+        String token = getToken(request);
+        Response<String> resp = volunteeringService.getAppointmentsCsv(token,userId,numOfWeeks);
+        sendFile(resp, response);
+    }
+
+    private void sendFile(Response<String> resp, HttpServletResponse response) throws IOException {
         if(resp.getError()){
             response.setContentType("application/json");
             response.setStatus(400);

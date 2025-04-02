@@ -13,7 +13,7 @@ import {
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
-import { getUserApprovedHoursFormatted } from "../api/volunteering_api";
+import {getAppointmentsCsv, getUserApprovedHoursFormatted} from "../api/volunteering_api";
 import { Switch } from "@mui/material";
 
 function MyProfilePage() {
@@ -42,6 +42,9 @@ function MyProfilePage() {
     // Export PDF
     const [id, setId] = useState("");
     const [selectedVolunteering, setSelectedVolunteering] = useState(-1);
+
+    // Export CSV
+    const [numWeeks, setNumWeeks] = useState("");
 
     // Volunteering Now
 
@@ -113,6 +116,14 @@ function MyProfilePage() {
         }
     }
 
+    const handleExportCsv = async () => {
+        try{
+            await getAppointmentsCsv(parseInt(numWeeks))
+        } catch(e){
+            alert("Failed to export appointments: " + e);
+        }
+    }
+
     const toggleSwitch = async () => {
         let newState = !isLeaderboard;
         console.log(newState);
@@ -128,7 +139,7 @@ function MyProfilePage() {
             <div className="profile-section">
                 <h2 className="profileSectionHeader">Update Profile</h2>
                 <label>Username:</label>
-                <input type="text" value={username} disabled />
+                <input type="text" value={username} disabled/>
                 <label>Password:</label>
                 <input
                     type="password"
@@ -155,7 +166,7 @@ function MyProfilePage() {
                     onChange={(e) => setPhone(e.target.value)}
                 />
                 <label>Birth Date:</label>
-                <input type="date" value={birthDate} disabled />
+                <input type="date" value={birthDate} disabled/>
                 <button onClick={handleProfileUpdate} className="orangeCircularButton">Update Profile</button>
             </div>
 
@@ -184,26 +195,26 @@ function MyProfilePage() {
                 {volunteeringsInHistory.length > 0 ? (
                     <table className="history-table">
                         <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Organization ID</th>
-                                <th>Name</th>
-                                <th>Description</th>
-                                <th>Skills</th>
-                                <th>Categories</th>
-                            </tr>
+                        <tr>
+                            <th>ID</th>
+                            <th>Organization ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Skills</th>
+                            <th>Categories</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {volunteeringsInHistory.map((history, index) => (
-                                <tr key={index}>
-                                    <td>{history.id}</td>
-                                    <td>{history.orgId}</td>
-                                    <td>{history.name}</td>
-                                    <td>{history.description}</td>
-                                    <td>{history.skills.join(", ")}</td>
-                                    <td>{history.categories.join(", ")}</td>
-                                </tr>
-                            ))}
+                        {volunteeringsInHistory.map((history, index) => (
+                            <tr key={index}>
+                                <td>{history.id}</td>
+                                <td>{history.orgId}</td>
+                                <td>{history.name}</td>
+                                <td>{history.description}</td>
+                                <td>{history.skills.join(", ")}</td>
+                                <td>{history.categories.join(", ")}</td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 ) : (
@@ -215,22 +226,22 @@ function MyProfilePage() {
                 {approvedHours.length > 0 ? (
                     <table className="history-table">
                         <thead>
-                            <tr>
-                                <th>Volunteering id</th>
-                                <th>Date</th>
-                                <th>Start time</th>
-                                <th>End time</th>
-                            </tr>
+                        <tr>
+                            <th>Volunteering id</th>
+                            <th>Date</th>
+                            <th>Start time</th>
+                            <th>End time</th>
+                        </tr>
                         </thead>
                         <tbody>
-                            {approvedHours.map((hours, index) => (
-                                <tr key={index}>
-                                    <td>{hours.volunteeringId}</td>
-                                    <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
-                                    <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
-                                    <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
-                                </tr>
-                            ))}
+                        {approvedHours.map((hours, index) => (
+                            <tr key={index}>
+                                <td>{hours.volunteeringId}</td>
+                                <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
+                                <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
+                                <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
+                            </tr>
+                        ))}
                         </tbody>
                     </table>
                 ) : (
@@ -250,27 +261,45 @@ function MyProfilePage() {
                 <p><strong>Admin:</strong> {isAdmin ? "Yes" : "No"}</p>
                 <p><strong>Student:</strong> {model?.student ? "Yes" : "No"}</p>
                 {isAdmin && (
-                    <button onClick={() => navigate('/reportList')} className="orangeCircularButton">Go to Reports</button>
+                    <button onClick={() => navigate('/reportList')} className="orangeCircularButton">Go to
+                        Reports</button>
                 )}
             </div>
 
-            {model !== null && model.student && 
+            {model !== null && model.student &&
+                <div className="export-section">
+                    <h2>Export approved hours as PDF</h2>
+                    <label>ID (Teudat Zehut):</label>
+                    <input
+                        placeholder="Enter ID"
+                        value={id}
+                        onChange={(e) => setId(e.target.value)}
+                    />
+                    <label>Select primary volunteering to export hours from:</label>
+                    <select defaultValue={-1} onChange={e => setSelectedVolunteering(parseInt(e.target.value))}>
+                        <option value={-1}></option>
+                        {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
+                        {model.volunteeringsInHistory.map(hist => <option
+                            value={hist.id}>{hist.id} ({hist.name})</option>)}
+                    </select>
+                    <button disabled={selectedVolunteering < 0} onClick={handleExport}
+                            className="orangeCircularButton">Export
+                    </button>
+                </div>}
+
             <div className="export-section">
-                <h2>Export approved hours as PDF</h2>
-                <label>ID (Teudat Zehut):</label>
+                <h2>Export your appointments as a CSV</h2>
+                <p>This CSV can later be imported into Google Calendar</p>
+                <label>Number of weeks ahead</label>
                 <input
-                    placeholder="Enter ID"
-                    value={id}
-                    onChange={(e) => setId(e.target.value)}
+                    placeholder="Enter number of weeks"
+                    value={numWeeks}
+                    onChange={(e) => setNumWeeks(e.target.value)}
                 />
-                <label>Select primary volunteering to export hours from:</label>
-                <select defaultValue={-1} onChange={e => setSelectedVolunteering(parseInt(e.target.value))}>
-                    <option value={-1}></option>
-                    {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
-                    {model.volunteeringsInHistory.map(hist => <option value={hist.id}>{hist.id} ({hist.name})</option>)}
-                </select>
-                <button disabled={selectedVolunteering < 0} onClick={handleExport} className="orangeCircularButton">Export</button>
-            </div>}
+                <button disabled={Number.isNaN(numWeeks)} onClick={handleExportCsv}
+                        className="orangeCircularButton">Export
+                </button>
+            </div>
 
             <div className="leaderboard-section">
                 <h2 className="profileSectionHeader">Set Leaderboard</h2>
