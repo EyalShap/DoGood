@@ -71,11 +71,11 @@ public class FilterVolunteeringPostsRequest {
         this.volunteeringNames = volunteeringNames;
     }
 
-    public boolean isMyPosts() {
+    public boolean getIsMyPosts() {
         return isMyPosts;
     }
 
-    public void setMyPosts(boolean myPosts) {
+    public void setIsMyPosts(boolean myPosts) {
         isMyPosts = myPosts;
     }
 }
