@@ -273,6 +273,20 @@ public class PostsFacade {
         return matching;
     }
 
+    private int strictCountCommons(Set<String> s1, Set<String> s2) {
+        int matching = 0;
+        for (String item1 : s1) {
+            item1 = item1.toLowerCase().trim();
+            for(String item2 : s2) {
+                item2 = item2.toLowerCase().trim();
+                if (item2.equals(item1)) {
+                    matching++;
+                }
+            }
+        }
+        return matching;
+    }
+
     private String cleanString(String str) {
         return str.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase();
     }
@@ -377,9 +391,13 @@ public class PostsFacade {
             String volunteeringName = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId()).getName();
             Set<String> postKeywords = post.getKeywords();
 
-            boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1 : true;
-            boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1 : true;
-            boolean matchByCity = cities.size() > 0 ? countCommons(volunteeringCities, cities) >= 1 || countCommons(postKeywords, cities) >= 1 : true;
+            if(volunteeringName.equals("Elderly Companion")){
+                int x = 0;
+            }
+
+            boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(categories, postKeywords) >= 1 : true;
+            boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(skills, postKeywords) >= 1 : true;
+            boolean matchByCity = cities.size() > 0 ? countCommons(volunteeringCities, cities) >= 1 || countCommons(cities, postKeywords) >= 1 : true;
             boolean matchByOrganization = organizationNames.size() > 0 ? organizationNames.contains(organizationName) : true;
             boolean matchByVolunteering = volunteeringNames.size() > 0 ? volunteeringNames.contains(volunteeringName) : true;
             boolean matchByMyPost = isMyPosts ? isMyPost(post, actor) : true;

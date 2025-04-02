@@ -462,6 +462,8 @@ export const filterVolunteeringPosts = async (categories: string[], skills: stri
         isMyPosts: isMyPosts
     }
 
+    console.log(request);
+
     let res = await axios.post(url, request, config);
     const response: APIResponse<VolunteeringPostModel[]> = await res.data;
     if(response.error){
@@ -491,6 +493,7 @@ export const filterVolunteerPosts = async (categories: string[], skills: string[
         allPosts: postsToFilter,
         isMyPosts: isMyPosts
     }
+    console.log(request);
 
     let res = await axios.post(url, request, config);
     const response: APIResponse<VolunteerPostModel[]> = await res.data;
