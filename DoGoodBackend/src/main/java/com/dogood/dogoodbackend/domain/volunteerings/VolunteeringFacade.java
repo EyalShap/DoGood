@@ -8,6 +8,7 @@ import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import com.dogood.dogoodbackend.pdfformats.PdfFactory;
 import com.dogood.dogoodbackend.pdfformats.University;
@@ -35,6 +36,7 @@ public class VolunteeringFacade {
     private PostsFacade postsFacade;
     private SkillsAndCategoriesExtractor extractor;
     private ReportsFacade reportsFacade;
+    private NotificationSystem notificationSystem;
 
 
     public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
@@ -47,6 +49,10 @@ public class VolunteeringFacade {
 
     public void setReportFacade(ReportsFacade reportsFacade) {
         this.reportsFacade = reportsFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     private boolean isManager(String userId, int organizationId){
@@ -302,6 +308,7 @@ public class VolunteeringFacade {
         volunteering.approveJoinRequest(joinerId, groupId);
         usersFacade.addUserVolunteering(joinerId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
+        notificationSystem.notifyUser(joinerId,"You have been accepted to volunteering " + volunteeringId + ".","/volunteering/"+volunteeringId);
     }
 
 

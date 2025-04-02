@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
@@ -16,6 +17,7 @@ public class UsersFacade {
     private UserRepository repository;
     private AuthFacade authFacade;
     private ReportsFacade reportsFacade;
+    private NotificationSystem notificationSystem;
 
     public UsersFacade(UserRepository repository, AuthFacade authFacade) {
         this.repository = repository;
@@ -28,6 +30,10 @@ public class UsersFacade {
 
     public void setReportsFacade(ReportsFacade reportsFacade) {
         this.reportsFacade = reportsFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     public String login(String username, String password) {

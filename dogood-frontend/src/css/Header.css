@@ -87,6 +87,47 @@
   background-color: #f5f5f5;
 }
 
+.notification {
+  position: relative;
+  display: inline-block;
+  padding: 10px 10px;
+}
+
+.dropdownNotification {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.dropdownNotificationNew {
+  display: block;
+  padding: 10px 20px;
+  color: #333;
+  background-color:rgb(240, 240, 210);
+  text-decoration: none;
+  font-size: 16px;
+}
+
+.dropdownNotification:hover
+.dropdownNotificationNew:hover {
+  background-color: #f5f5f5;
+}
+
+.buttonBadge {
+  background-color: #fa3e3e;
+  border-radius: 2px;
+  color: white;
+ 
+  padding: 1px 3px;
+  font-size: 10px;
+  
+  position: absolute; /* Position the badge within the relatively positioned button */
+  top: 0;
+  right: 0;
+}
+
 .name {
   color: black;
   font-family: 'Montserrat', sans-serif;

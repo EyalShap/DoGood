@@ -9,6 +9,7 @@ import com.dogood.dogoodbackend.domain.posts.DBVolunteerPostRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.DBReportRepository;
 import com.dogood.dogoodbackend.domain.users.DatabaseUserRepository;
+import com.dogood.dogoodbackend.domain.users.notificiations.DatabaseNotificationRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
@@ -36,7 +37,8 @@ public class ServiceConfig {
                         applicationContext.getBean(AppointmentJPA.class)),
                 new AIKeywordExtractor(applicationContext.getBean(Gemini.class)),
                 new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)),
-                new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)));
+                new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)),
+                new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)));
     }
 
     /*@Bean
