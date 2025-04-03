@@ -9,8 +9,13 @@ import com.dogood.dogoodbackend.service.OrganizationService;
 import com.dogood.dogoodbackend.service.Response;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.List;
 
 import static com.dogood.dogoodbackend.utils.GetToken.getToken;
@@ -174,4 +179,31 @@ public class OrganizationAPI {
 
         return organizationService.changeImageInOrganization(token, organizationId, image, false, actor);
     }
+
+    @PutMapping("/uploadSignature")
+    public Response<Boolean> uploadSignature(@RequestParam int organizationId, @RequestParam String username, @RequestParam MultipartFile signature, HttpServletRequest request) {
+        String token = getToken(request);
+        return organizationService.uploadSignature(token, organizationId, username, signature);
+    }
+
+    @PutMapping("/removeSignature")
+    public Response<Boolean> removeSignature(@RequestParam int organizationId, @RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+        return organizationService.uploadSignature(token, organizationId, username, null);
+    }
+
+    @GetMapping("/getSignature")
+    public ResponseEntity<byte[]> getSignature(@RequestParam int organizationId, @RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        Response<byte[]> res = organizationService.getSignature(token, organizationId, actor);
+
+        if (res.getError()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res.getErrorString().getBytes());
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/image")
+                .body(res.getData());
+    }
+
 }

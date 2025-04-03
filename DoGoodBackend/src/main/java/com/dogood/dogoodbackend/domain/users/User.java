@@ -2,10 +2,7 @@ package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -37,6 +34,10 @@ public class User {
     private boolean isStudent;
     private boolean isAdmin;
     private boolean leaderboard;
+
+    @Lob
+    @Column(name = "cv", columnDefinition = "LONGBLOB")
+    private byte[] cv;
 
     public User() {
     }
@@ -217,5 +218,17 @@ public class User {
 
     public void setLeaderboard(boolean leaderboard) {
         this.leaderboard = leaderboard;
+    }
+
+    public void uploadCV(byte[] cv) {
+        this.cv = cv;
+    }
+
+    public byte[] getCv() {
+        return cv;
+    }
+
+    public void setCv(byte[] cv) {
+        this.cv = cv;
     }
 }

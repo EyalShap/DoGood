@@ -47,7 +47,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
   }
 
   const visibleItems1 = data.slice(startIndex, startIndex + limit);
-  const visibleItems2 = data.slice(0, limit - visibleItems1.length);
+  const visibleItems2 = data.length > limit ? data.slice(0, limit - visibleItems1.length) : [];
   const visibleItems = visibleItems1.concat(visibleItems2);
 
   return (
@@ -57,7 +57,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
       rel="stylesheet"
       />
 
-      {showArrows && data.length > 1 && <button onClick={handlePrev} className="leftArrow"></button>}
+      {showArrows && data.length > limit && <button onClick={handlePrev} className="leftArrow"></button>}
 
       <div className="list">
         {visibleItems.map((item) => (
@@ -76,7 +76,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
         ))}
       </div>
 
-      {showArrows && data.length > 1 && <button onClick={handleNext} className="rightArrow"></button>}
+      {showArrows && data.length > limit && <button onClick={handleNext} className="rightArrow"></button>}
 
 
     </div>

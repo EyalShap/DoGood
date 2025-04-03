@@ -2,8 +2,10 @@ package com.dogood.dogoodbackend.service;
 
 import com.dogood.dogoodbackend.domain.chat.ChatFacade;
 import com.dogood.dogoodbackend.domain.chat.MessageRepository;
+import com.dogood.dogoodbackend.domain.externalAIAPI.CVSkillsAndPreferencesExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndPreferences;
 import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.reports.BannedRepository;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
@@ -31,9 +33,9 @@ public class FacadeManager {
     private ChatFacade chatFacade;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository){
         this.authFacade = new AuthFacade(jwtSecretKey);
-        this.usersFacade = new UsersFacade(userRepo, authFacade);
+        this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt);
 
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt);

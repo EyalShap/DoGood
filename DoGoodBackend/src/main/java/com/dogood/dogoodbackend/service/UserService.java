@@ -6,6 +6,7 @@ import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -164,6 +165,36 @@ public class UserService {
             checkToken(token, actor);
             List<String> res = usersFacade.getAllUserEmails();
             return Response.createResponse(res);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> uploadCV(String token, String actor, MultipartFile cvPdf) {
+        try {
+            checkToken(token, actor);
+            usersFacade.uploadCV(actor, cvPdf);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<byte[]> getCV(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            byte[] res = usersFacade.getCV(actor);
+            return Response.createResponse(res);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> generateSkillsAndPreferences(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            usersFacade.generateSkillsAndPreferences(actor);
+            return Response.createResponse(true);
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());
         }

@@ -23,6 +23,7 @@ type User = {
     volunteeringsInHistory: VolunteeringInHistory[];
     myOrganizationIds: number[];
     leaderboard: boolean;
+    cv: File;
 };
 
 export default User;

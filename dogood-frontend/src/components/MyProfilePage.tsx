@@ -9,6 +9,10 @@ import {
     getUserApprovedHours,
     setLeaderboard,
     leaderboard,
+    uploadCV,
+    downloadCV,
+    removeCV,
+    generateSkillsAndPreferences,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
@@ -32,6 +36,9 @@ function MyProfilePage() {
     const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLeaderboard, setIsLeaderboard] = useState(true);
+    const [selectedCV, setSelectedCV] = useState<File | null>(null);
+    const [cv, setCV] = useState<File | null>(null);
+    const [key, setKey] = useState(0)
     const [model, setModel] = useState<User | null>(null);
 
     // Volunteering History
@@ -66,6 +73,16 @@ function MyProfilePage() {
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
                 setApprovedHours(await getUserApprovedHours(profile.username));
                 setIsLeaderboard(profile.leaderboard);
+
+                try {
+                    const cvBlob : Blob = await downloadCV();
+                    const cvFile = new File([cvBlob], "cv", { type: cvBlob.type });
+                    setCV(cvFile);
+                }
+                catch(e) {
+                    setCV(null);
+                }
+                
                 setModel(profile);
                 console.log(profile);
             } catch (e) {
@@ -133,6 +150,78 @@ function MyProfilePage() {
         console.log("here");
     }
 
+    const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        setSelectedCV(e.target.files![0]);
+    }
+
+    const onCVSubmit = async () => {
+        try {
+            if(selectedCV === null) {
+                alert("Did not upload cv.");
+            }
+            else {
+                await uploadCV(selectedCV);
+                alert("CV uploaded successfully!");
+                setSelectedCV(null);
+                setCV(selectedCV);
+                setKey(prevState => 1-prevState);
+            }
+        }
+        catch (e) {
+            alert(e);
+        }
+    };
+
+    const onCVDownload = async () => {
+        try {
+            if(cv === null) {
+                alert("Did not upload cv.");
+            }
+            else {
+                const blob = await downloadCV(); // Get the file as a Blob
+                const url = window.URL.createObjectURL(blob);
+                const link = document.createElement("a");
+                link.href = url;
+                link.setAttribute("download", `${username}CV.pdf`); // Set the filename for the download
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+            }
+        }
+        catch (e) {
+            alert(e);
+        }
+    };
+
+    const onCVRemove = async () => {
+        try {
+            if(window.confirm("Are you sure you want to remove your cv?")) {
+                await removeCV(); // Get the file as a Blob
+                setSelectedCV(null);
+                setCV(null);
+            }
+        }
+        catch (e) {
+            alert(e);
+        }
+    };
+
+    const onCVExtract = async () => {
+        try {
+            await generateSkillsAndPreferences(); // Get the file as a Blob
+            
+            const profile = await getUserByToken();
+            setSkills(profile.skills.join(", "));
+            setSkillsInput(profile.skills.join(", "));
+            setPreferences(profile.preferredCategories.join(", "));
+            setPreferencesInput(profile.preferredCategories.join(", "));
+        }
+        catch (e) {
+            alert(e);
+        }
+    };
+
+
     return (
         <div className="my-profile">
             <h1 className="bigHeader">My Profile</h1>
@@ -168,6 +257,20 @@ function MyProfilePage() {
                 <label>Birth Date:</label>
                 <input type="date" value={birthDate} disabled/>
                 <button onClick={handleProfileUpdate} className="orangeCircularButton">Update Profile</button>
+            </div>
+
+            <div className="cv-section">
+                <h2 className="profileSectionHeader">Upload Your CV</h2>
+                <p>Upload your CV to impress managers and extract your skills and preferences automatically!</p>
+                <input type="file" accept="application/pdf" onChange={onFileUpload}  key={key}/>
+                <div className="cvButtons">
+                <div className="fileButtons" style={{marginTop:'20px'}}>
+                <button onClick={onCVSubmit} className={`orangeCircularButton ${selectedCV === null ? 'disabledButton' : ''}`}>Upload CV</button>
+                <button onClick={onCVDownload} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Download CV</button>
+                <button onClick={onCVRemove} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Remove CV</button>
+                </div>
+                <button onClick={onCVExtract} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} style={{marginTop:'20px'}}>Extract Skills And Preferences Automatically Using AI</button>
+                </div>
             </div>
 
             <div className="list-section">

@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.domain.users;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.Date;
 import java.util.List;
 
@@ -12,6 +14,8 @@ public interface UserRepository {
     public List<User> getAllUsers();
     public void saveUser(User user);
     public void setAdmin(String username, boolean isAdmin);
+    public void uploadCV(String username, MultipartFile pdfFile);
+    public byte[] getCV(String username);
 
 //    public default List<UserDTO> getAllUserDTOs() {
 //        List<User> users = getAllUsers();

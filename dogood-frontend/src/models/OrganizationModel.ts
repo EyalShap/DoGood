@@ -7,7 +7,8 @@ type OrganizationModel = {
     volunteeringIds: number[],
     managerUsernames: string[],
     founderUsername: string,
-    imagePaths: string[]
+    imagePaths: string[],
+    signature: Blob | null
 }
 
 export default OrganizationModel;

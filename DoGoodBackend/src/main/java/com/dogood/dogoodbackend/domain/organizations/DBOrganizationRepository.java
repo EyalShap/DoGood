@@ -1,8 +1,13 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -68,6 +73,27 @@ public class DBOrganizationRepository implements OrganizationRepository{
         Organization toSet = getOrganization(organizationId);
         toSet.setImagePaths(images);
         jpa.save(toSet);
+    }
+
+    @Override
+    public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
+        Organization organization = getOrganization(organizationId);
+
+        try {
+            byte[] signatureBytes = signature != null ? signature.getBytes() : null;
+            organization.uploadSignature(actor, signatureBytes);
+            jpa.save(organization);
+        }
+        catch (IOException exception) {
+            throw new IllegalArgumentException("Problem uploading signature.");
+        }
+    }
+
+
+    @Override
+    public byte[] getSignature(int organizationId, String actor) {
+        Organization toSet = getOrganization(organizationId);
+        return toSet.getSignature(actor);
     }
 
     @Override

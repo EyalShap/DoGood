@@ -194,3 +194,88 @@ export const getAllUserEmails = async (): Promise<string[]> => {
     const response: APIResponse<string[]> = await res.data;
     return response.data;
 }
+
+export const uploadCV = async (cvPdf: File) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/uploadCV?username=${username}`;
+    
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Required for file uploads
+        },
+    };
+    
+    const formData = new FormData();
+    formData.append("cvPdf", cvPdf);
+
+    let res = await axios.put(url, formData, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const downloadCV = async () : Promise<Blob> => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getCV?actor=${username}`;
+    
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/pdf",
+        },
+        responseType: "blob" as const,
+    };
+    
+    let res = await axios.get(url, config);
+    /*console.log(res.data); // Log the response data
+    const response: APIResponse<Blob> = res.data;
+    if (response.error) {
+        throw response.errorString;
+    }*/
+    return res.data;
+}
+
+export const removeCV = async () => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/removeCV?username=${username}`;
+    console.log(url);
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const generateSkillsAndPreferences = async () => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    }
+    let res = await axios.patch(`${server}/generateSkillsAndPreferences?username=${localStorage.getItem('username')}`, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}

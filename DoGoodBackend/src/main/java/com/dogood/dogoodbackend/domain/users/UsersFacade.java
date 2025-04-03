@@ -1,11 +1,14 @@
 package com.dogood.dogoodbackend.domain.users;
 
+import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.volunteerings.Volunteering;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -16,10 +19,12 @@ public class UsersFacade {
     private UserRepository repository;
     private AuthFacade authFacade;
     private ReportsFacade reportsFacade;
+    private CVSkillsAndPreferencesExtractor extractor;
 
-    public UsersFacade(UserRepository repository, AuthFacade authFacade) {
+    public UsersFacade(UserRepository repository, AuthFacade authFacade, CVSkillsAndPreferencesExtractor extractor) {
         this.repository = repository;
         this.authFacade = authFacade;
+        this.extractor = extractor;
     }
 
     public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
@@ -289,5 +294,27 @@ public class UsersFacade {
             allEmails.addAll(user.getEmails());
         }
         return new ArrayList<>(allEmails);
+    }
+
+    public void uploadCV(String username, MultipartFile cvPdf) {
+        repository.uploadCV(username, cvPdf);
+    }
+
+    public byte[] getCV(String username) {
+        return repository.getCV(username);
+    }
+
+    public void generateSkillsAndPreferences(String username) {
+        User user = repository.getUser(username);
+        SkillsAndPreferences skillsAndPreferences = extractor.getSkillsAndPreferences(user.getCv(), new HashSet<>(user.getSkills()), new HashSet<>(user.getPreferredCategories()));
+
+        Set<String> aiSkills = new HashSet<>(skillsAndPreferences.getSkills());
+        Set<String> aiPreferences = new HashSet<>(skillsAndPreferences.getPreferences());
+
+        aiSkills.addAll(user.getSkills());
+        aiPreferences.addAll(user.getPreferredCategories());
+
+        updateUserSkills(username, new ArrayList<>(aiSkills));
+        updateUserPreferences(username, new ArrayList<>(aiPreferences));
     }
 }
