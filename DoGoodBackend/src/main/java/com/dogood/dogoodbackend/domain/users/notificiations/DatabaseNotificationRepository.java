@@ -30,6 +30,7 @@ public class DatabaseNotificationRepository implements NotificationRepository {
     @Override
     public List<Notification> getUserNotifications(String username) {
         List<Notification> notifications = jpa.findByUsernameTo(username);
+        notifications.sort((n1,n2) -> n2.getId() - n1.getId());
         return notifications;
     }
 
@@ -40,12 +41,14 @@ public class DatabaseNotificationRepository implements NotificationRepository {
             notification.markAsRead();
             jpa.save(notification);
         }
+        notifications.sort((n1,n2) -> n2.getId() - n1.getId());
         return notifications;
     }
 
     @Override
     public List<Notification> getAllNotifications() {
         List<Notification> notifications = jpa.findAll();
+        notifications.sort((n1,n2) -> n2.getId() - n1.getId());
         return notifications;
     }
 }
