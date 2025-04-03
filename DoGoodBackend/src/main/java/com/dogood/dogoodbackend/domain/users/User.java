@@ -35,6 +35,10 @@ public class User {
     private boolean isAdmin;
     private boolean leaderboard;
 
+    @Lob
+    @Column(name = "cv", columnDefinition = "LONGBLOB")
+    private byte[] cv;
+
     public User() {
     }
 
@@ -214,5 +218,17 @@ public class User {
 
     public void setLeaderboard(boolean leaderboard) {
         this.leaderboard = leaderboard;
+    }
+
+    public void uploadCV(byte[] cv) {
+        this.cv = cv;
+    }
+
+    public byte[] getCv() {
+        return cv;
+    }
+
+    public void setCv(byte[] cv) {
+        this.cv = cv;
     }
 }

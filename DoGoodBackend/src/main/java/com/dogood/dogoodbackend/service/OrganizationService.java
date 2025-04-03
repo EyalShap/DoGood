@@ -10,7 +10,9 @@ import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.List;
 
 @Service
@@ -227,6 +229,28 @@ public class OrganizationService {
             checkToken(token, actor);
             organizationsFacade.changeImageInOrganization(organizationId, image, add, actor);
             return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+
+    public Response<Boolean> uploadSignature(String token, int organizationId, String actor, MultipartFile signature) {
+        try {
+            checkToken(token, actor);
+            organizationsFacade.uploadSignature(organizationId, actor, signature);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+
+    public Response<byte[]> getSignature(String token, int organizationId, String actor) {
+        try {
+            checkToken(token, actor);
+            byte[] res = organizationsFacade.getSignature(organizationId, actor);
+            return Response.createResponse(res);
         }
         catch (Exception e) {
             return Response.createResponse(null, e.getMessage());

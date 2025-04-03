@@ -1,7 +1,9 @@
 package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.jparepos.UserJPA;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -67,6 +69,35 @@ public class DatabaseUserRepository implements UserRepository {
         }
         user.setAdmin(isAdmin);
         jpa.save(user);
+    }
+
+    @Override
+    public void uploadCV(String username, MultipartFile cvPdf) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Update failed - username: " + username + " doesn't exist");
+        }
+        try {
+            byte[] cvBytes = cvPdf != null ? cvPdf.getBytes() : null;
+            user.uploadCV(cvBytes);
+            jpa.save(user);
+        }
+        catch (IOException exception) {
+            throw new IllegalArgumentException("Problem uploading cv.");
+        }
+    }
+
+    @Override
+    public byte[] getCV(String username) {
+        User user = jpa.findById(username).orElse(null);
+        if (user == null) {
+            throw new IllegalArgumentException("Update failed - username: " + username + " doesn't exist");
+        }
+        byte[] cv = user.getCv();
+        if(cv == null) {
+            throw new IllegalArgumentException("No CV.");
+        }
+        return cv;
     }
 
     @Override

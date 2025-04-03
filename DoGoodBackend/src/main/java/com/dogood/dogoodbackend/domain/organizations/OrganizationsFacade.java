@@ -10,7 +10,9 @@ import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import jakarta.transaction.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -267,5 +269,13 @@ public class OrganizationsFacade {
             newImages.remove(image);
         }
         organizationRepository.setImages(organizationId, newImages);
+    }
+
+    public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
+        organizationRepository.uploadSignature(organizationId, actor, signature);
+    }
+
+    public byte[] getSignature(int organizationId, String actor) {
+        return organizationRepository.getSignature(organizationId, actor);
     }
 }

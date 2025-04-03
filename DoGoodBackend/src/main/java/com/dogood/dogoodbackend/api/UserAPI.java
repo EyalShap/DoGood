@@ -10,7 +10,11 @@ import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
@@ -118,5 +122,37 @@ public class UserAPI {
     public Response<Integer> getNewUserNotificationsAmount(@RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);
         return userService.getNewUserNotificationsAmount(token, actor);
+    }
+
+    @PutMapping("/uploadCV")
+    public Response<Boolean> uploadCV(@RequestParam String username, @RequestParam MultipartFile cvPdf, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.uploadCV(token, username, cvPdf);
+    }
+
+    @PutMapping("/removeCV")
+    public Response<Boolean> removeCV(@RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.uploadCV(token, username, null);
+    }
+
+    @GetMapping("/getCV")
+    public ResponseEntity<byte[]> getCV(@RequestParam String actor, HttpServletRequest request) {
+        String token = getToken(request);
+        Response<byte[]> res = userService.getCV(token, actor);
+
+        if (res.getError()) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(res.getErrorString().getBytes());
+        }
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_TYPE, "application/pdf")
+                .body(res.getData());
+    }
+
+    @PatchMapping("/generateSkillsAndPreferences")
+    public Response<Boolean> generateSkillsAndPreferences(@RequestParam String username, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.generateSkillsAndPreferences(token, username);
     }
 }

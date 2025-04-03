@@ -1,21 +1,22 @@
 import OrganizationModel from '../models/OrganizationModel';
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import './../css/Organization.css'
 import './../css/CommonElements.css'
-import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings, removeImageFromOrganization, addImageToOrganization } from '../api/organization_api'
+import { getOrganization, getIsManager, getOrganizationVolunteerings, removeOrganization, removeManager, setFounder, sendAssignManagerRequest, resign, getUserRequests, getUserVolunteerings, removeImageFromOrganization, addImageToOrganization, uploadSignature, getSignature, removeSignature } from '../api/organization_api'
 import { useParams } from "react-router-dom";
 import { useNavigate } from 'react-router-dom';
-
 import { getVolunteering } from '../api/volunteering_api';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import { getUserByUsername } from '../api/user_api';
 import { getVolunteeringImages } from '../api/post_api';
 import { supabase } from '../api/general';
 import { createOrganizationReport } from '../api/report_api';
+import SignatureCanvas from "react-signature-canvas";
+
 
 function Organization() {
     const navigate = useNavigate();
-    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: "", imagePaths: []});
+    const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: "", imagePaths: [], signature: null});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
     const [userVolunteerings, setUserVolunteerings] = useState<number[]>([]);
@@ -30,6 +31,11 @@ function Organization() {
     const [orgImages, setOrgImages] = useState<ListItem[]>([]);
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
+    const [signature, setSignature] = useState<string>("");
+    const [selectedSignature, setSelectedSignature] = useState<File | null>(null)
+    const [keySignature, setKeySignature] = useState(0)
+    const sigCanvas = useRef<SignatureCanvas | null>(null);
+    const [imageURL, setImageURL] = useState(null);
     const isMobile = window.innerWidth <= 768;
     
     const fetchOrganization = async () => {
@@ -51,6 +57,17 @@ function Organization() {
             setManagers(managersItems);
 
             convertImagesToListItems(found.imagePaths);
+
+            try {
+                const signatureBlob : Blob = await getSignature(found.id);
+                setSignature(signatureBlob.size > 0 ? URL.createObjectURL(signatureBlob) : "");
+            }
+            catch(e) {
+                setSignature("");
+                console.log("here");
+            }    
+            
+            
         }
         catch(e){
             //send to error page
@@ -202,7 +219,8 @@ function Organization() {
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== managerToRemove),
                         founderUsername: model.founderUsername,
-                        imagePaths: model.imagePaths
+                        imagePaths: model.imagePaths,
+                        signature: model.signature
                     }
                     setModel(updatedModel);
                 }
@@ -230,7 +248,8 @@ function Organization() {
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames,
                         founderUsername: newFounder,
-                        imagePaths: model.imagePaths
+                        imagePaths: model.imagePaths,
+                        signature: model.signature
                     }
                     setModel(updatedModel);
                 }
@@ -263,7 +282,8 @@ function Organization() {
                         volunteeringIds: model.volunteeringIds,
                         managerUsernames: model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username")),
                         founderUsername: model.founderUsername,
-                        imagePaths: model.imagePaths
+                        imagePaths: model.imagePaths,
+                        signature: model.signature
                     }
                     setModel(updatedModel);
                 }
@@ -323,7 +343,8 @@ function Organization() {
                 volunteeringIds: model.volunteeringIds,
                 managerUsernames: model.managerUsernames,
                 founderUsername: model.founderUsername,
-                imagePaths: model.imagePaths.filter(img => image !== img)
+                imagePaths: model.imagePaths.filter(img => image !== img),
+                signature: model.signature
             }
             setModel(updatedModel);
             convertImagesToListItems(model.imagePaths.filter(img => image !== img));
@@ -373,6 +394,41 @@ function Organization() {
             setSelectedFile(e.target.files![0])
         }
 
+        const onSelectedSignature = async (e: React.ChangeEvent<HTMLInputElement>) => {
+            setSelectedSignature(e.target.files![0])
+        }
+
+        const onUploadSignatureOnClick = async () => {
+            try {
+                if(selectedSignature === null) {
+                    alert("Did not upload signature.");
+                }
+                else {
+                    await uploadSignature(model.id, selectedSignature);
+                    alert("Signature uploaded successfully!");
+                    setSelectedSignature(null);
+                    setSignature(URL.createObjectURL(selectedSignature));
+                    setKeySignature(prevState => 1-prevState);
+                }
+            }
+            catch (e) {
+                alert(e);
+            }
+        }
+
+        const handleRemoveSignatureOnClick = async () => {
+            try {
+                if(window.confirm("Are you sure you want to remove the signature?")) {
+                    await removeSignature(model.id);
+                    setSelectedSignature(null);
+                    setSignature("");
+                }
+            }
+            catch (e) {
+                alert(e);
+            }
+        }
+
         const handleUserOnClick = async (username: string | number) => {
             navigate(`/profile/${username}`);
         }
@@ -397,6 +453,34 @@ function Organization() {
                 setShowReportDescription(false);
                 setReportDescription("");
             }
+
+            const clearSignature = () => {
+                sigCanvas.current?.clear(); // 👈 Safe optional chaining
+                setImageURL(null);
+              };
+            
+              const saveSignature = async () => {
+                if (!sigCanvas.current || sigCanvas.current.isEmpty()) return;
+                
+                try{
+                const canvas = sigCanvas.current.getCanvas();  // Directly get the canvas
+                const dataURL = canvas.toDataURL("image/png"); // Get data URL from canvas
+
+                // Convert dataURL (base64) to Blob
+                const blob = await fetch(dataURL).then(res => res.blob());
+                const file = new File([blob], "signature.png", { type: "image/png" });
+
+                // Upload signature and wait for completion
+                await uploadSignature(model.id, file);
+
+                // Update state with the object URL for preview
+                setSignature(URL.createObjectURL(file));
+                }
+                catch(e) {
+                    alert(e);
+                }
+              };
+            
     
     return (
         <div className='generalPageDiv'>
@@ -466,8 +550,7 @@ function Organization() {
                 <h2 className='listHeader'>Our Volunteerings</h2>
                 <div className='generalList'>
                     {volunteerings.length > 0 ? (
-                        <ListWithArrows data = {volunteerings} limit = {isMobile ? 1 : 3} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id) || isManager}></ListWithArrows>
-                    ) : (
+                        <ListWithArrows data = {volunteerings} limit = {isMobile ? 1 : Math.min(3,volunteerings.length)} navigateTo={'volunteering'} clickable={(id) => isVolunteer(id) || isManager}></ListWithArrows>                    ) : (
                         <p>No volunteerings available.</p>
                     )}
                     {isManager && <button className = 'orangeCircularButton' onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>}
@@ -514,7 +597,44 @@ function Organization() {
                 }
             </div>
 
-            
+            {isManager && <div className='signature'>
+                <h2 className='listHeader'>Organization Signature</h2>
+                <h2 className='sigDesc'>Upload the organization signature to automatically sign forms for volunteers!</h2>
+                {signature !== "" && <img src={signature}></img>}
+                {signature === "" && <p>No signature available.</p>}
+                {signature !== "" && localStorage.getItem("username") === model.founderUsername && <button className="removeButton" onClick = {handleRemoveSignatureOnClick}>X</button>}
+
+                {localStorage.getItem("username") === model.founderUsername && <div className='uploads'>
+                    <div className='upload uploadSig'>
+                        <h2 className='sigDesc uploadHeader'>Upload your signature as a picture</h2>
+                        <div className='uploadInput'>
+                        <input type="file" accept="image/*" onChange={onSelectedSignature} key={keySignature}/>
+                        <button onClick={onUploadSignatureOnClick} className={`orangeCircularButton ${selectedSignature === null ? 'disabledButton' : ''}`}>Upload Signature</button>
+                        </div>
+                    </div>
+
+                    <h2 className='sigDesc or' style={{fontSize:'1.5rem'}}>OR</h2>
+
+                    <div className='upload drawSig'>
+                        <h2 className='sigDesc'>Sign here</h2>
+                        <div>
+                        <SignatureCanvas
+                            ref={sigCanvas} // Attach ref here
+                            penColor="black"
+                            canvasProps={{ 
+                                className: "border", 
+                                style: { border:"1px solid black", marginBottom:'20px', width:'90%', height:'150px' }
+                             }}
+                        />
+                        </div>
+                        <div className="mt-2">
+                            <button onClick={saveSignature} className="orangeCircularButton">Save</button>
+                            <button onClick={clearSignature} className="orangeCircularButton">Clear</button>
+                        </div>
+                    </div>
+                </div>}
+            </div>}
+
         </div>
 
     )

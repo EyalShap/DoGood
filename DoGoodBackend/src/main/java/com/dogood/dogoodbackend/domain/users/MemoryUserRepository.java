@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.domain.users;
 
+import org.springframework.web.multipart.MultipartFile;
+
 import java.util.*;
 
 public class MemoryUserRepository implements UserRepository {
@@ -60,6 +62,16 @@ public class MemoryUserRepository implements UserRepository {
         }
         User user = users.get(username);
         user.setAdmin(isAdmin);
+    }
+
+    @Override
+    public void uploadCV(String username, MultipartFile pdfFile) {
+
+    }
+
+    @Override
+    public byte[] getCV(String username) {
+        return null;
     }
 
     @Override
