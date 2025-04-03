@@ -426,3 +426,82 @@ export const removeImageFromOrganization = async (orgId: number, image: string) 
     }
 }
 
+export const uploadSignature = async (organizationId: number, signature: File) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/uploadSignature?organizationId=${organizationId}&username=${username}`;
+    
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data", // Required for file uploads
+        },
+    };
+    
+    const formData = new FormData();
+    formData.append("signature", signature);
+
+    let res = await axios.put(url, formData, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const removeSignature = async (organizationId: number) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/removeSignature?organizationId=${organizationId}&username=${username}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<number> = await res.data;
+
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const getSignature = async (organizationId: number) : Promise<Blob> => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getSignature?organizationId=${organizationId}&actor=${username}`;
+    
+    const config = {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "application/image",
+        },
+        responseType: "blob" as const,
+    };
+    
+    let res = await axios.get(url, config);
+    /*console.log(res.data); // Log the response data
+    const response: APIResponse<Blob> = res.data;
+    if (response.error) {
+        throw response.errorString;
+    }*/
+
+    if (res.status === 200) {
+        return res.data;
+    }
+    throw new Error("Error getting signature.");
+}

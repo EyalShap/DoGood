@@ -37,6 +37,7 @@ public class ServiceConfig {
                         applicationContext.getBean(AppointmentJPA.class)),
                 new AIKeywordExtractor(applicationContext.getBean(Gemini.class)),
                 new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)),
+                new AICVSkillsAndPreferencesExtractor(applicationContext.getBean(Gemini.class)),
                 new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)),
                 new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)));
     }

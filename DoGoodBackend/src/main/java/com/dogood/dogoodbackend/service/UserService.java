@@ -9,6 +9,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequ
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Date;
 import java.util.List;
@@ -186,6 +187,16 @@ public class UserService {
         }
     }
 
+    public Response<Boolean> uploadCV(String token, String actor, MultipartFile cvPdf) {
+        try {
+            checkToken(token, actor);
+            usersFacade.uploadCV(actor, cvPdf);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<List<Notification>> readNewUserNotifications(String token, String actor) {
         try {
             checkToken(token, actor);
@@ -197,12 +208,32 @@ public class UserService {
         }
     }
 
+    public Response<byte[]> getCV(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            byte[] res = usersFacade.getCV(actor);
+            return Response.createResponse(res);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Integer> getNewUserNotificationsAmount(String token, String actor) {
         try {
             checkToken(token, actor);
 //            System.out.println("TESTING GET NEW USER NOTIFICATIONS AMOUNT");
 //            System.out.println(actor);
             return Response.createResponse(notificationSystem.getNewUserNotificationsAmount(actor));
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> generateSkillsAndPreferences(String token, String actor) {
+        try {
+            checkToken(token, actor);
+            usersFacade.generateSkillsAndPreferences(actor);
+            return Response.createResponse(true);
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());
         }

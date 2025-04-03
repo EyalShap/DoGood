@@ -2,7 +2,9 @@ package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -66,6 +68,16 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
     public void setImages(int organizationId, List<String> images) {
         Organization toSet = getOrganization(organizationId);
         toSet.setImagePaths(images);
+    }
+
+    @Override
+    public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
+
+    }
+
+    @Override
+    public byte[] getSignature(int organizationId, String actor) {
+        return null;
     }
 
     @Override

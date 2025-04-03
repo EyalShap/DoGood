@@ -1,5 +1,8 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
+import org.springframework.web.multipart.MultipartFile;
+
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -12,6 +15,8 @@ public interface OrganizationRepository {
     public void setManagers(int organizationId, List<String> managers);
     public void setFounder(int organizationId, String newFounder);
     public void setImages(int organizationId, List<String> images);
+    public void uploadSignature(int organizationId, String actor, MultipartFile signature);
+    public byte[] getSignature(int organizationId, String actor);
     public Organization getOrganization(int organizationId);
     public List<Organization> getAllOrganizations();
 

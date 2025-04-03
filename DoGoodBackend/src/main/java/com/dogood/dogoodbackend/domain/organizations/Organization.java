@@ -3,6 +3,7 @@ package com.dogood.dogoodbackend.domain.organizations;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import jakarta.persistence.*;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -45,6 +46,10 @@ public class Organization {
     @Column(name = "organization_images")
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> imagePaths;
+
+    @Lob
+    @Column(name = "signature", columnDefinition = "LONGBLOB")
+    private byte[] signature;
 
     public Organization() {}
 
@@ -220,7 +225,21 @@ public class Organization {
         return Objects.hash(id, name, description, phoneNumber, email, volunteeringIds, managerUsernames, founderUsername);
     }
 
+    public void uploadSignature(String actor, byte[] signature) {
+        if(!actor.equals(founderUsername)) {
+            throw new IllegalArgumentException("Only organization founder can upload signature.");
+        }
+        this.signature = signature;
+    }
 
+    public byte[] getSignature(String actor) {
+        if(!isManager(actor)) {
+            throw new IllegalArgumentException("Only organization founder can upload signature.");
+        }
+        return this.signature;
+    }
 
-
+    public byte[] getSignature() {
+        return this.signature;
+    }
 }

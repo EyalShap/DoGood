@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
 import jakarta.persistence.FetchType;
 
+import java.awt.*;
 import java.util.List;
 import java.util.Objects;
 
@@ -17,8 +18,9 @@ public class OrganizationDTO {
     private List<String> managerUsernames;
     private String founderUsername;
     private List<String> imagePaths;
+    private byte[] signature;
 
-    public OrganizationDTO(int id, String name, String description, String phoneNumber, String email, List<Integer> volunteeringIds, List<String> managerUsernames, String founderUsername, List<String> imagePaths) {
+    public OrganizationDTO(int id, String name, String description, String phoneNumber, String email, List<Integer> volunteeringIds, List<String> managerUsernames, String founderUsername, List<String> imagePaths, byte[] signature) {
         this.id = id;
         this.name = name;
         this.description = description;
@@ -28,6 +30,7 @@ public class OrganizationDTO {
         this.managerUsernames = managerUsernames;
         this.founderUsername = founderUsername;
         this.imagePaths = imagePaths;
+        this.signature = signature;
     }
 
     public OrganizationDTO(Organization organization) {
@@ -40,6 +43,7 @@ public class OrganizationDTO {
         this.managerUsernames = organization.getManagerUsernames();
         this.founderUsername = organization.getFounderUsername();
         this.imagePaths = organization.getImagePaths();
+        this.signature = organization.getSignature();
     }
 
     public int getId() {
@@ -76,6 +80,10 @@ public class OrganizationDTO {
 
     public List<String> getImagePaths() {
         return imagePaths;
+    }
+
+    public byte[] getSignature() {
+        return signature;
     }
 
     public void setImagePaths(List<String> imagePaths) {
@@ -125,5 +133,9 @@ public class OrganizationDTO {
 
     public void setFounderUsername(String founderUsername) {
         this.founderUsername = founderUsername;
+    }
+
+    public void setSignature(byte[] signature) {
+        this.signature = signature;
     }
 }
