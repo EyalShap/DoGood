@@ -2,10 +2,7 @@ package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.ElementCollection;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -14,6 +11,7 @@ import java.util.List;
 @Entity
 public class User {
     @Id
+    @Column(columnDefinition = "VARCHAR(255) COLLATE utf8_bin")
     private String username;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emails;

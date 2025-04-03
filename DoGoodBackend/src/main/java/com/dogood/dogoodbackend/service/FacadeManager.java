@@ -47,12 +47,14 @@ public class FacadeManager {
         this.postsFacade.setReportsFacade(reportsFacade);
         this.volunteeringFacade.setReportFacade(reportsFacade);
         this.organizationsFacade.setReportFacade(reportsFacade);
+        this.organizationsFacade.setNotificationSystem(notificationSystem);
         this.volunteeringFacade.setPostsFacade(postsFacade);
         this.volunteeringFacade.setNotificationSystem(notificationSystem);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
         this.usersFacade.setReportsFacade(reportsFacade);
         this.usersFacade.setNotificationSystem(notificationSystem);
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
+        this.chatFacade.setNotificationSystem(notificationSystem);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {

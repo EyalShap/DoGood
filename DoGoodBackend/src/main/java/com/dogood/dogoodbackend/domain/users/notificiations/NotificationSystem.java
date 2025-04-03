@@ -1,17 +1,24 @@
 package com.dogood.dogoodbackend.domain.users.notificiations;
 
+import com.dogood.dogoodbackend.socket.NotificationSocketSender;
+
 import java.util.List;
 
 public class NotificationSystem {
     private NotificationRepository repository;
+    private NotificationSocketSender sender;
 
     public NotificationSystem(NotificationRepository repository) {
         this.repository = repository;
     }
 
+    public void setSender(NotificationSocketSender sender) {
+        this.sender = sender;
+    }
+
     public void notifyUser(String username, String message, String navigationURL) {
         Notification notification = repository.createNotification(username, message, navigationURL);
-        // TODO: realtime - send this to socket of 'username'
+        sender.sendNotification(username, notification);
     }
 
     public List<Notification> getUserNotifications(String username) {
