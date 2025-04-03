@@ -11,7 +11,6 @@ import java.util.List;
 @Entity
 public class User {
     @Id
-    @Column(columnDefinition = "VARCHAR(255) COLLATE utf8_bin")
     private String username;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emails;
