@@ -231,6 +231,7 @@ public class UserService {
 
     public Response<Boolean> generateSkillsAndPreferences(String token, String actor) {
         try {
+            int x = 0;
             checkToken(token, actor);
             usersFacade.generateSkillsAndPreferences(actor);
             return Response.createResponse(true);
