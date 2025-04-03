@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
@@ -20,6 +21,7 @@ public class OrganizationsFacade {
     private UsersFacade usersFacade;
     private VolunteeringFacade volunteeringFacade;
     private ReportsFacade reportsFacade;
+    private NotificationSystem notificationSystem;
 
     public OrganizationsFacade(UsersFacade usersFacade, OrganizationRepository organizationRepository, RequestRepository requestRepository) {
         this.usersFacade = usersFacade;
@@ -29,6 +31,10 @@ public class OrganizationsFacade {
 
     public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
         this.volunteeringFacade = volunteeringFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     public void setReportFacade(ReportsFacade reportsFacade) {
@@ -181,6 +187,15 @@ public class OrganizationsFacade {
         }
 
         organizationRepository.setFounder(organizationId, newFounder);
+    }
+
+    public void notifyManagers(String message, String nav, int orgId){
+        //Hi dana this is function eyal added
+        //You can change it if you want
+        Organization organization = organizationRepository.getOrganization(orgId);
+        for(String username : organization.getManagerUsernames()){
+            notificationSystem.notifyUser(username, message, nav);
+        }
     }
 
     public List<Request> getUserRequests(String actor) {

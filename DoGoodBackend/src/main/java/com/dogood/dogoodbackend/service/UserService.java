@@ -6,6 +6,7 @@ import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
+import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -20,10 +21,11 @@ public class UserService {
     private NotificationSystem notificationSystem;
 
     @Autowired
-    public UserService(FacadeManager facadeManager){
+    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
         this.notificationSystem = facadeManager.getNotificationSystem();
+        this.notificationSystem.setSender(socketSender);
         //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
 
 /*

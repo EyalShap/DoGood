@@ -6,6 +6,9 @@ import UserModel from '../models/UserModel';
 import Notification from '../models/Notification'
 import { FaBell } from 'react-icons/fa';
 import { Badge } from '@mui/material';
+import {Client} from "@stomp/stompjs";
+import {host} from "../api/general.ts";
+import ChatMessage from "../models/ChatMessage.ts";
 
 type Props = { user: UserModel | undefined };
 
@@ -17,7 +20,8 @@ const Header: React.FC<Props> = ({ user }) => {
   const [newNotificationsAmount, setNewNotificationsAmount] = useState<number>(0);
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
-  const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
+    const [connected, setConnected] = useState(false);
+    const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -74,6 +78,32 @@ const Header: React.FC<Props> = ({ user }) => {
 
     useEffect(() => {
       fetchNotifications();
+        const client = new Client({
+            brokerURL: host+"/api/ws-message",
+            connectHeaders: {
+                "Authorization": localStorage.getItem("token")!
+            },
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log("Connected!");
+                if(!connected) {
+                    client.subscribe(`/user/queue/notifications`, msg => {
+                        let newNotif: Notification = JSON.parse(msg.body);
+                        console.log(newNotif)
+                        setNotifications(prevState => prevState.concat([newNotif]));
+                        setNewNotificationsAmount(prevState => prevState+1)
+                    });
+                    setConnected(true);
+                }
+            },
+            onDisconnect: () => {
+                setConnected(false);
+            }
+        });
+        if(!connected) {
+            client.activate();
+        }
+        return () => client.deactivate();
     },[])
     
     return (
