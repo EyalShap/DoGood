@@ -682,6 +682,11 @@ public class PostsFacade {
         return post.hasRelatedUser(username);
     }
 
+    public List<String> getRelatedUsers(int postId) {
+        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        return new LinkedList<>(post.getRelatedUsers());
+    }
+
     public void addImage(int postId, String path, String actor) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");

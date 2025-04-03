@@ -15,6 +15,8 @@ import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.UserRepository;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationRepository;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.SchedulingManager;
@@ -29,11 +31,13 @@ public class FacadeManager {
     private UsersFacade usersFacade;
     private AuthFacade authFacade;
     private ChatFacade chatFacade;
+    private NotificationSystem notificationSystem;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, MessageRepository messageRepository, NotificationRepository notificationRepo){
         this.authFacade = new AuthFacade(jwtSecretKey);
         this.usersFacade = new UsersFacade(userRepo, authFacade);
+        this.notificationSystem = new NotificationSystem(notificationRepo);
 
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt);
@@ -43,10 +47,14 @@ public class FacadeManager {
         this.postsFacade.setReportsFacade(reportsFacade);
         this.volunteeringFacade.setReportFacade(reportsFacade);
         this.organizationsFacade.setReportFacade(reportsFacade);
+        this.organizationsFacade.setNotificationSystem(notificationSystem);
         this.volunteeringFacade.setPostsFacade(postsFacade);
+        this.volunteeringFacade.setNotificationSystem(notificationSystem);
         this.usersFacade.setVolunteeringFacade(volunteeringFacade);
         this.usersFacade.setReportsFacade(reportsFacade);
+        this.usersFacade.setNotificationSystem(notificationSystem);
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
+        this.chatFacade.setNotificationSystem(notificationSystem);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {
@@ -75,5 +83,9 @@ public class FacadeManager {
 
     public ChatFacade getChatFacade() {
         return chatFacade;
+    }
+
+    public NotificationSystem getNotificationSystem() {
+        return notificationSystem;
     }
 }

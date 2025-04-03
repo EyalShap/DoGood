@@ -1,24 +1,57 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './../css/Header.css'
-import { logout } from '../api/user_api';
+import { getNewUserNotificationsAmount, getUserNotifications, logout, readNewUserNotifications } from '../api/user_api';
 import { useNavigate } from 'react-router-dom';
 import UserModel from '../models/UserModel';
+import Notification from '../models/Notification'
+import { FaBell } from 'react-icons/fa';
+import { Badge } from '@mui/material';
+import {Client} from "@stomp/stompjs";
+import {host} from "../api/general.ts";
+import ChatMessage from "../models/ChatMessage.ts";
 
 type Props = { user: UserModel | undefined };
 
 const Header: React.FC<Props> = ({ user }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [dropdownOpenNotifications, setDropdownOpenNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [newNotificationsAmount, setNewNotificationsAmount] = useState<number>(0);
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
-  const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
+    const [connected, setConnected] = useState(false);
+    const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
     };
 
+    const toggleDropdownNotifications = async () => {
+      setDropdownOpenNotifications(!dropdownOpenNotifications);
+    };
+
+    const fetchNotifications = async () => {
+      try {
+        setNotifications(await getUserNotifications());
+        setNewNotificationsAmount(await getNewUserNotificationsAmount());
+      }
+      catch (e) {
+        alert(e);
+      }
+    }
+
     const closeDropdown = () => {
         setDropdownOpen(false);
+    };
+    
+    const closeDropdownNotifications = () => {
+        setDropdownOpenNotifications(false);
+        // mark all new notifications as read
+        console.log("attempting to read new user notifications");
+        var result = readNewUserNotifications(); // ignore result list, already loads the full list in getUserNotifications
+        console.log(result);
+        fetchNotifications();
     };
 
     const closeMenu = () => {
@@ -42,6 +75,36 @@ const Header: React.FC<Props> = ({ user }) => {
     const onLogo = async () => {
       navigate(`/`);
     }
+
+    useEffect(() => {
+      fetchNotifications();
+        const client = new Client({
+            brokerURL: host+"/api/ws-message",
+            connectHeaders: {
+                "Authorization": localStorage.getItem("token")!
+            },
+            reconnectDelay: 5000,
+            onConnect: () => {
+                console.log("Connected!");
+                if(!connected) {
+                    client.subscribe(`/user/queue/notifications`, msg => {
+                        let newNotif: Notification = JSON.parse(msg.body);
+                        console.log(newNotif)
+                        setNotifications(prevState => prevState.concat([newNotif]));
+                        setNewNotificationsAmount(prevState => prevState+1)
+                    });
+                    setConnected(true);
+                }
+            },
+            onDisconnect: () => {
+                setConnected(false);
+            }
+        });
+        if(!connected) {
+            client.activate();
+        }
+        return () => client.deactivate();
+    },[])
     
     return (
         <header className="header">
@@ -61,6 +124,22 @@ const Header: React.FC<Props> = ({ user }) => {
               {!isMobile && <li className="menuListItem"><a href="/organizationList" className="navLink">Browse Organizations</a></li>}
               {!isMobile && <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>}
               {!isMobile && <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>}
+
+              <div className="notification">
+                <FaBell
+                    className="notificationBell"
+                    onClick={toggleDropdownNotifications}>
+                 </FaBell>
+                 {newNotificationsAmount > 0 &&
+                 <div className="buttonBadge">{newNotificationsAmount}</div>}
+                  {dropdownOpenNotifications && (
+                    <div className="dropdownMenu" onMouseLeave={closeDropdownNotifications}>
+                      {notifications.map((notification: Notification) => 
+                        notification.isRead ? <a href={notification.navigationURL} className={"dropdownNotification"}>{notification.message}</a>
+                        : <a href={notification.navigationURL} className={"dropdownNotificationNew"}>{notification.message}</a>)} 
+                    </div>
+                    )}
+              </div>
 
               <div className="profileWrapper">
                     <img

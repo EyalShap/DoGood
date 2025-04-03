@@ -1,6 +1,8 @@
 package com.dogood.dogoodbackend.domain.chat;
 
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationNavigations;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
 import org.springframework.security.core.parameters.P;
@@ -12,11 +14,16 @@ public class ChatFacade {
     private VolunteeringFacade volunteeringFacade;
     private PostsFacade postsFacade;
     private ChatSocketSender chatSocketSender;
+    private NotificationSystem notificationSystem;
 
     public ChatFacade(VolunteeringFacade volunteeringFacade, PostsFacade postsFacade, MessageRepository repository) {
         this.repository = repository;
         this.postsFacade = postsFacade;
         this.volunteeringFacade = volunteeringFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     public void setChatSocketSender(ChatSocketSender chatSocketSender) {
@@ -27,6 +34,11 @@ public class ChatFacade {
         volunteeringFacade.checkViewingPermissions(username, volunteeringId);
         Message m = repository.createMessage(content,username,""+volunteeringId,ReceiverType.VOLUNTEERING);
         chatSocketSender.sendMessageVolunteering(m.getDtoForUser(""),volunteeringId);
+        for(String member : volunteeringFacade.getVolunteeringChatMembers(volunteeringId)){
+            if(!chatSocketSender.userOnChat(member,""+volunteeringId,ReceiverType.VOLUNTEERING)){
+                notificationSystem.notifyUser(member, "New message in chat of volunteering " + volunteeringId, NotificationNavigations.volunteeringChat(volunteeringId));
+            }
+        }
         return m.getId();
     }
 
@@ -39,6 +51,14 @@ public class ChatFacade {
         }
         Message m = repository.createMessage(content,username,with + "@" + postId,ReceiverType.POST);
         chatSocketSender.sendMessagePost(m.getDtoForUser(""),with,postId);
+        if(!chatSocketSender.userOnChat(with, with + "@" + postId,ReceiverType.POST)){
+            notificationSystem.notifyUser(with, "New message in chat of volunteer post " + postId, NotificationNavigations.volunteerPostVisitorChat(postId));
+        }
+        for(String member : postsFacade.getRelatedUsers(postId)){
+            if(!chatSocketSender.userOnChat(member,with + "@" + postId,ReceiverType.POST)){
+                notificationSystem.notifyUser(member, "New message in chat of your volunteer post " + postId, NotificationNavigations.volunteerPostMemberChat(postId,with));
+            }
+        }
         return m.getId();
     }
 

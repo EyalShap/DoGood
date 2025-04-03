@@ -8,10 +8,7 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
@@ -46,8 +43,8 @@ public class BGUPdfFormat implements PdfFormat{
 
     public BGUPdfFormat(String username) throws IOException, DocumentException {
         current_row = 0;
-        File pdf = ResourceUtils.getFile("classpath:templates/bgu.pdf");
-        reader = new PdfReader(new FileInputStream(pdf));
+        InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/bgu.pdf");
+        reader = new PdfReader(pdf);
         outputPath = "./"+username + "/"+"bgu"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
     }

@@ -8,6 +8,8 @@ import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationNavigations;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.*;
 import com.dogood.dogoodbackend.pdfformats.PdfFactory;
 import com.dogood.dogoodbackend.pdfformats.University;
@@ -19,6 +21,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.*;
@@ -35,6 +38,7 @@ public class VolunteeringFacade {
     private PostsFacade postsFacade;
     private SkillsAndCategoriesExtractor extractor;
     private ReportsFacade reportsFacade;
+    private NotificationSystem notificationSystem;
 
 
     public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
@@ -47,6 +51,10 @@ public class VolunteeringFacade {
 
     public void setReportFacade(ReportsFacade reportsFacade) {
         this.reportsFacade = reportsFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     private boolean isManager(String userId, int organizationId){
@@ -243,6 +251,8 @@ public class VolunteeringFacade {
         schedulingFacade.addHourApprovalRequest(userId, volunteeringId, p.getStart(), p.getEnd());
         if(volunteering.getApprovalType() == ApprovalType.AUTO_FROM_SCAN && approvalOk){
             schedulingFacade.approveUserHours(userId, volunteeringId, p.getStart(), p.getEnd()); //yipee
+        }else{
+            organizationFacade.notifyManagers("New hour approval request from " + userId, NotificationNavigations.volunteeringHourRequest(volunteeringId),volunteering.getOrganizationId());
         }
     }
 
@@ -279,6 +289,7 @@ public class VolunteeringFacade {
         }
         volunteering.addJoinRequest(userId, new JoinRequest(userId, freeText));
         repository.updateVolunteeringInDB(volunteering);
+        organizationFacade.notifyManagers(userId+ " has requested to join volunteering " + volunteering.getName(), NotificationNavigations.volunteeringJoinRequest(volunteeringId),volunteering.getOrganizationId());
     }
 
 
@@ -302,6 +313,7 @@ public class VolunteeringFacade {
         volunteering.approveJoinRequest(joinerId, groupId);
         usersFacade.addUserVolunteering(joinerId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
+        notificationSystem.notifyUser(joinerId,"You have been accepted to volunteering " + volunteering.getName() + ".",NotificationNavigations.volunteering(volunteeringId));
     }
 
 
@@ -324,6 +336,7 @@ public class VolunteeringFacade {
         }
         volunteering.denyJoinRequest(joinerId);
         repository.updateVolunteeringInDB(volunteering);
+        notificationSystem.notifyUser(joinerId,"You have been denied from volunteering " + volunteering.getName() + ".",NotificationNavigations.homepage);
     }
 
 
@@ -343,6 +356,7 @@ public class VolunteeringFacade {
         usersFacade.addUserVolunteeringHistory(userId, volunteering.getDTO());
         usersFacade.removeUserVolunteering(userId, volunteeringId);
         repository.updateVolunteeringInDB(volunteering);
+        organizationFacade.notifyManagers(userId + " has left volunteering " + volunteering.getName(), NotificationNavigations.volunteering(volunteeringId), volunteering.getOrganizationId());
     }
 
 
@@ -406,6 +420,7 @@ public class VolunteeringFacade {
         }
         volunteering.moveVolunteerToNewGroup(volunteerId, groupId);
         repository.updateVolunteeringInDB(volunteering);
+        notificationSystem.notifyUser(volunteerId, "You have been moved to group " + groupId + " in volunteering " + volunteering.getName(), NotificationNavigations.volunteering(volunteeringId));
     }
 
 
@@ -627,6 +642,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + volunteeringId);
         }
         schedulingFacade.addHourApprovalRequest(userId, volunteeringId, start, end);
+        organizationFacade.notifyManagers("New hour approval request from " + userId, NotificationNavigations.volunteeringHourRequest(volunteeringId),volunteering.getOrganizationId());
     }
 
 
@@ -648,6 +664,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + volunteeringId);
         }
         schedulingFacade.approveUserHours(volunteerId, volunteeringId, start, end);
+        notificationSystem.notifyUser(volunteerId, "Your hour request from in volunteering " + volunteering.getName()+ " has been approved", NotificationNavigations.hoursSummary);
     }
 
 
@@ -669,6 +686,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + volunteerId + " is not a volunteer in volunteering " + volunteeringId);
         }
         schedulingFacade.denyUserHours(volunteerId, volunteeringId, start, end);
+        notificationSystem.notifyUser(volunteerId, "Your hour request from in volunteering " + volunteering.getName()+ " has been denied", NotificationNavigations.hoursSummary);
     }
 
 
@@ -1000,5 +1018,16 @@ public class VolunteeringFacade {
         }
         volunteering.disableLocations();
         repository.updateVolunteeringInDB(volunteering);
+    }
+
+    public List<String> getVolunteeringChatMembers(int volunteeringId){
+        List<String> members = new LinkedList<>();
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        members.addAll(volunteering.getVolunteerToGroup().keySet());
+        members.addAll(organizationFacade.getOrganization(volunteering.getOrganizationId()).getManagerUsernames());
+        return members;
     }
 }
