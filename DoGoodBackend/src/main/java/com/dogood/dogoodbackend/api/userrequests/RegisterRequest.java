@@ -9,6 +9,7 @@ public class RegisterRequest {
     private String email;
     private String phone;
     private Date birthDate;
+    private String profilePicUrl;
 
     public String getUsername() {
         return username;
@@ -56,5 +57,13 @@ public class RegisterRequest {
 
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
+    }
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
     }
 }

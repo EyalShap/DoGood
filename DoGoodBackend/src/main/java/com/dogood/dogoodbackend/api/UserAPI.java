@@ -40,7 +40,7 @@ public class UserAPI {
 
     @PostMapping("/register")
     public Response<String> register(@RequestBody RegisterRequest body) {
-        return userService.register(body.getUsername(), body.getPassword(), body.getName(), body.getEmail(), body.getPhone(), body.getBirthDate());
+        return userService.register(body.getUsername(), body.getPassword(), body.getName(), body.getEmail(), body.getPhone(), body.getBirthDate(), body.getProfilePicUrl());
     }
 
     @GetMapping("/isAdmin")
@@ -154,5 +154,12 @@ public class UserAPI {
     public Response<Boolean> generateSkillsAndPreferences(@RequestParam String username, HttpServletRequest request) {
         String token = getToken(request);
         return userService.generateSkillsAndPreferences(token, username);
+    }
+
+    @PatchMapping("/updateProfilePicture")
+    public Response<String> updateProfilePicture(@RequestParam String username, @RequestBody Map<String, String> body, HttpServletRequest request) {
+        String token = getToken(request);
+        String profilePicUrl = body.get("profilePicUrl");
+        return userService.updateProfilePicture(token, username, profilePicUrl);
     }
 }

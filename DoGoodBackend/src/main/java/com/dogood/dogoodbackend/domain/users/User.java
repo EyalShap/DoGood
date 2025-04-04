@@ -17,9 +17,9 @@ public class User {
     private String name;
     @JsonIgnore
     private String passwordHash;
+    private String profilePicUrl;
     private String phone;
     private Date birthDate;
-//    private File/String CV/CVpath;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> preferredCategories;
 //    private notification preferences?
@@ -40,6 +40,31 @@ public class User {
     private byte[] cv;
 
     public User() {
+    }
+
+    public User(String username, String email, String name, String password, String phone, Date birthDate, String profilePicUrl) {
+        if (!isValidUsername(username)) {
+            throw new IllegalArgumentException("Given username isn't valid, it has to be alphanumeric, contain at least 1 letter and be at least 4 characters long.");
+        }
+        if (!isValidPassword(password)) {
+            throw new IllegalArgumentException(("Given password isn't valid, it has to be at least 6 characters long."));
+        }
+        this.username = username;
+        this.emails = new ArrayList<>();
+        this.emails.add(email);
+        this.name = name;
+        this.passwordHash = Cryptography.hashString(password);
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.preferredCategories = new ArrayList<>();
+        this.volunteeringIds = new ArrayList<>();
+        this.volunteeringsInHistory = new ArrayList<>();
+        this.myOrganizationIds = new ArrayList<>();
+        this.skills = new ArrayList<>();
+        this.isStudent = checkStudentEmail(email);
+        this.isAdmin = false;
+        this.leaderboard = true;
+        this.profilePicUrl = profilePicUrl;
     }
 
     public User(String username, String email, String name, String password, String phone, Date birthDate) {
@@ -64,6 +89,7 @@ public class User {
         this.isStudent = checkStudentEmail(email);
         this.isAdmin = false;
         this.leaderboard = true;
+        this.profilePicUrl = "";
     }
 
     public User(String username, List<String> emails, String name, String password, String phone, Date birthDate, List<String> preferredCategories, List<Integer> volunteeringIds, List<VolunteeringDTO> volunteeringsInHistory, List<Integer> myOrganizationIds, List<String> skills, boolean isStudent, boolean isAdmin) {
@@ -86,6 +112,7 @@ public class User {
         this.skills = skills;
         this.isStudent = isStudent;
         this.isAdmin = isAdmin;
+        this.profilePicUrl = "";
     }
 
     private boolean isValidUsername(String username) {
@@ -230,5 +257,13 @@ public class User {
 
     public void setCv(byte[] cv) {
         this.cv = cv;
+    }
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
     }
 }
