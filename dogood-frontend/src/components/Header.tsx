@@ -64,7 +64,6 @@ const Header: React.FC<Props> = ({ user }) => {
         localStorage.removeItem("username");
         localStorage.removeItem("token");
         closeMenu();
-        console.log()
         window.dispatchEvent(new Event('storage'))
       }
       catch(e){
@@ -157,7 +156,7 @@ const Header: React.FC<Props> = ({ user }) => {
                             <a href="/my-profile" className="dropdownItem">My Profile</a>
                             <a href="/managerRequestsList" className="dropdownItem">My Requests</a>
                             {isAdmin && <a href="/reportList" className="dropdownItem">Admin Dashboard</a>}
-                            <a href="/" className="dropdownItem" onClick = {onLogout}>Logout</a>
+                            <a className="dropdownItem" onClick = {onLogout}>Logout</a>
                         </div>
                     )}
                 </div>

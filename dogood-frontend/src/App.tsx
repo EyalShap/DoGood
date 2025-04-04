@@ -54,7 +54,7 @@ function App() {
 
   useEffect(() => {
     const handleStorage = () => {
-      setIsLoggedIn(localStorage.getItem("token") !== null)
+      setIsLoggedIn(localStorage.getItem("token") !== null);
     }
 
     window.addEventListener('storage', handleStorage)
