@@ -110,7 +110,7 @@ public class VolunteeringFacade {
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
-        if(!isAdmin(userId) || !isManager(userId, volunteering.getOrganizationId())){
+        if(!isAdmin(userId) && !isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " cannot remove volunteering " + volunteeringId);
         }
         repository.disableVolunteering(volunteeringId);
