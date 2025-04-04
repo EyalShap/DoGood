@@ -6,7 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface UserRepository {
-    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate);
+    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate, String url_profile);
     public void removeUser(String username);
     public void updateUserFields(String username, List<String> emails, String name, String password, String phoneNumber);
     public void updateUserFields(String username, List<String> emails, String name, String phoneNumber);

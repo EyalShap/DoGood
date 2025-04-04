@@ -24,6 +24,7 @@ type User = {
     myOrganizationIds: number[];
     leaderboard: boolean;
     cv: File;
-};
+    profilePicUrl: string; 
+  };
 
 export default User;

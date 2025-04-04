@@ -19,13 +19,15 @@ const Header: React.FC<Props> = ({ user }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [newNotificationsAmount, setNewNotificationsAmount] = useState<number>(0);
   const isMobile = window.innerWidth <= 768;
-  const isAdmin = user === undefined ? false : user.admin;
-    const [connected, setConnected] = useState(false);
-    const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
+  const isAdmin = user ? user.admin : false;
+  // Use the user's profilePicUrl if available; otherwise, use the default image.
+  const [connected, setConnected] = useState(false);
+  const profilePicture =
+    user && user.profilePicUrl ? user.profilePicUrl : '/src/assets/defaultProfilePic.jpg';
 
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
-    };
+  const toggleDropdown = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
     const toggleDropdownNotifications = async () => {
       setDropdownOpenNotifications(!dropdownOpenNotifications);
@@ -54,22 +56,21 @@ const Header: React.FC<Props> = ({ user }) => {
         fetchNotifications();
     };
 
-    const closeMenu = () => {
-      setDropdownOpen(false);
-    }
+  const closeMenu = () => {
+    setDropdownOpen(false);
+  };
 
-    const onLogout = async () => {
-      try{
-        await logout();
-        localStorage.removeItem("username");
-        localStorage.removeItem("token");
-        closeMenu();
-        window.dispatchEvent(new Event('storage'))
-      }
-      catch(e){
-        alert(e);
-      }
+  const onLogout = async () => {
+    try {
+      await logout();
+      localStorage.removeItem("username");
+      localStorage.removeItem("token");
+      closeMenu();
+      window.dispatchEvent(new Event('storage'));
+    } catch (e) {
+      alert(e);
     }
+  };
 
     const onLogo = async () => {
       navigate(`/`);

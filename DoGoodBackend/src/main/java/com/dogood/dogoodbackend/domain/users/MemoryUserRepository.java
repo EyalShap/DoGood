@@ -12,11 +12,11 @@ public class MemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate) {
+    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate, String url_profile) {
         if (users.containsKey(username)) {
             throw new IllegalArgumentException("Register failed - username:" + username + " already exists");
         }
-        User user = new User(username, email, name, password, phoneNumber, birthDate);
+        User user = new User(username, email, name, password, phoneNumber, birthDate,url_profile);
         users.put(username, user);
         return user;
     }

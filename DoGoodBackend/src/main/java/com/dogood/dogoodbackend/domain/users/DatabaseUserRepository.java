@@ -15,11 +15,11 @@ public class DatabaseUserRepository implements UserRepository {
     }
 
     @Override
-    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate) {
+    public User createUser(String username, String email, String name, String password, String phoneNumber, Date birthDate, String url_profile) {
         if (jpa.findById(username).orElse(null) != null) {
             throw new IllegalArgumentException("Register failed - username:" + username + " already exists");
         }
-        User user = new User(username, email, name, password, phoneNumber, birthDate);
+        User user = new User(username, email, name, password, phoneNumber, birthDate, url_profile);
         jpa.save(user);
         return user;
     }

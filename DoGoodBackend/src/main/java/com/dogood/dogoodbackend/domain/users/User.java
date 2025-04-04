@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
 public class User {
@@ -34,6 +35,7 @@ public class User {
     private boolean isStudent;
     private boolean isAdmin;
     private boolean leaderboard;
+    private String url_profile;
 
     @Lob
     @Column(name = "cv", columnDefinition = "LONGBLOB")
@@ -64,6 +66,31 @@ public class User {
         this.isStudent = checkStudentEmail(email);
         this.isAdmin = false;
         this.leaderboard = true;
+        this.url_profile = "";
+    }
+    public User(String username, String email, String name, String password, String phone, Date birthDate, String url) {
+        if (!isValidUsername(username)) {
+            throw new IllegalArgumentException("Given username isn't valid, it has to be alphanumeric, contain at least 1 letter and be at least 4 characters long.");
+        }
+        if (!isValidPassword(password)) {
+            throw new IllegalArgumentException(("Given password isn't valid, it has to be at least 6 characters long."));
+        }
+        this.username = username;
+        this.emails = new ArrayList<>();
+        this.emails.add(email);
+        this.name = name;
+        this.passwordHash = Cryptography.hashString(password);
+        this.phone = phone;
+        this.birthDate = birthDate;
+        this.preferredCategories = new ArrayList<>();
+        this.volunteeringIds = new ArrayList<>();
+        this.volunteeringsInHistory = new ArrayList<>();
+        this.myOrganizationIds = new ArrayList<>();
+        this.skills = new ArrayList<>();
+        this.isStudent = checkStudentEmail(email);
+        this.isAdmin = false;
+        this.leaderboard = true;
+        this.url_profile = url;
     }
 
     public User(String username, List<String> emails, String name, String password, String phone, Date birthDate, List<String> preferredCategories, List<Integer> volunteeringIds, List<VolunteeringDTO> volunteeringsInHistory, List<Integer> myOrganizationIds, List<String> skills, boolean isStudent, boolean isAdmin) {
@@ -155,6 +182,11 @@ public class User {
     public String getUsername() {
         return username;
     }
+    @JsonProperty("profilePicUrl") // <-- Add this annotation
+    public String getUrl_profile() {
+        return url_profile;
+    }
+
 
     public List<String> getEmails() {
         return emails;
@@ -230,5 +262,9 @@ public class User {
 
     public void setCv(byte[] cv) {
         this.cv = cv;
+    }
+
+    public void setUrl_profile(String url_profile) {
+        this.url_profile = url_profile;
     }
 }

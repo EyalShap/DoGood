@@ -62,7 +62,7 @@ public class UsersFacade {
         authFacade.invalidateToken(token); // Invalidates the token if it isn't invalidated (isn't logged out already), otherwise (somehow) throws an exception.
     }
 
-    public void register(String username, String password, String name, String email, String phone, Date birthDate) {
+    public void register(String username, String password, String name, String email, String phone, Date birthDate, String url_profile) {
         try {
             User user = getUser(username);
             // if user with the same username exists, cannot register it again
@@ -73,7 +73,7 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate);
+            repository.createUser(username, email, name, password, phone, birthDate, url_profile);
         }
     }
 
@@ -93,7 +93,7 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate);
+            repository.createUser(username, email, name, password, phone, birthDate, "");
             repository.setAdmin(username, true);
         }
     }
@@ -321,5 +321,10 @@ public class UsersFacade {
 
         updateUserSkills(username, new ArrayList<>(aiSkills));
         updateUserPreferences(username, new ArrayList<>(aiPreferences));
+    }
+    public void updateProfilePicture(String username, String profilePicUrl) {
+        User user = getUser(username); // getUser already throws if not found
+        user.setUrl_profile(profilePicUrl); // Assuming you add this setter
+        repository.saveUser(user);
     }
 }

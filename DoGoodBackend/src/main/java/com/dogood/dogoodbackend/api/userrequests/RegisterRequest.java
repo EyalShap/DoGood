@@ -57,4 +57,15 @@ public class RegisterRequest {
     public void setBirthDate(Date birthDate) {
         this.birthDate = birthDate;
     }
+
+    private String profilePicUrl;
+
+    public String getProfilePicUrl() {
+        return profilePicUrl;
+    }
+
+    public void setProfilePicUrl(String profilePicUrl) {
+        this.profilePicUrl = profilePicUrl;
+    }
+
 }

@@ -79,15 +79,15 @@ public class VolunteeringService {
 
 
         // Step 1: Register Managers
-        this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
-        this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date());
-        this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date());
-        this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date());
-        this.facadeManager.getUsersFacade().register("EyalManager", "password654", "Eyal Manager", "eyal.manager@gmail.com", "0549873210", new Date());
-        this.facadeManager.getUsersFacade().register("DanaManager", "123456", "Dana Manager", "dana.manager@gmail.com", "0549873210", new Date());
-        this.facadeManager.getUsersFacade().register("EyalShap", "123456", "אייל שפירו", "eyald@post.bgu.ac.il", "0528585519", Date.from(LocalDate.of(2003,10,19).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()));
-        this.facadeManager.getUsersFacade().register("FionaManager", "password555", "Fiona Manager", "fiona.manager@gmail.com", "0539876543", new Date());
-        this.facadeManager.getUsersFacade().register("GeorgeManager", "password999", "George Manager", "george.manager@gmail.com", "0523219876", new Date());
+        this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date(),"");
+        this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date(), "");
+        this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date(), "");
+        this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date(), "");
+        this.facadeManager.getUsersFacade().register("EyalManager", "password654", "Eyal Manager", "eyal.manager@gmail.com", "0549873210", new Date(), "");
+        this.facadeManager.getUsersFacade().register("DanaManager", "123456", "Dana Manager", "dana.manager@gmail.com", "0549873210", new Date(), "");
+        this.facadeManager.getUsersFacade().register("EyalShap", "123456", "אייל שפירו", "eyald@post.bgu.ac.il", "0528585519", Date.from(LocalDate.of(2003,10,19).atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()), "");
+        this.facadeManager.getUsersFacade().register("FionaManager", "password555", "Fiona Manager", "fiona.manager@gmail.com", "0539876543", new Date(), "");
+        this.facadeManager.getUsersFacade().register("GeorgeManager", "password999", "George Manager", "george.manager@gmail.com", "0523219876", new Date(), "");
 
 // Step 2: Create Organizations
         int orgId1 = this.facadeManager.getOrganizationsFacade().createOrganization("Happy Tails", "Animal Welfare Organization", "0521234567", "contact@happytails.org", "AliceManager");

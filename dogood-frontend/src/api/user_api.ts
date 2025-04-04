@@ -34,22 +34,23 @@ export const logout = async (): Promise<string> => {
     return response.data;
 }
 
-export const register = async (username: string, password: string, name : string, email:string, phone:string, birthDate:string ): Promise<string> => {
-    const body = {
-        username: username,
-        password: password,
-        name: name,
-        email: email,
-        phone: phone,
-        birthDate: birthDate
-    };
+export const register = async (
+    username: string,
+    password: string,
+    name: string,
+    email: string,
+    phone: string,
+    birthDate: string,
+    profilePicUrl: string
+): Promise<string> => {
+    const body = { username, password, name, email, phone, birthDate, profilePicUrl };
     let res = await axios.post(`${server}/register`, body);
     const response: APIResponse<string> = await res.data;
-    if(response.error){
+    if (response.error) {
         throw response.errorString;
     }
     return response.data;
-}
+};
 
 export const getIsAdmin = async (username: string): Promise<boolean> => {
     let res = await axios.get(`${server}/isAdmin?username=${username}`);
@@ -307,3 +308,19 @@ export const generateSkillsAndPreferences = async () => {
         throw response.errorString;
     }
 }
+// *** NEW FUNCTION ***
+export const updateProfilePicture = async (username: string, profilePicUrl: string): Promise<string> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+    };
+    const body = { profilePicUrl }; // Send the new URL in the body
+    // Assuming a new PATCH endpoint /updateProfilePicture on the backend
+    // It might take the username from the token or as a param, adjust as needed.
+    // Here, we pass username as a query param for consistency with other update methods.
+    const res = await axios.patch(`${server}/updateProfilePicture`, body, { ...config, params: { username } });
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+    return response.data; // Assuming backend sends back a success message or the URL itself
+};
