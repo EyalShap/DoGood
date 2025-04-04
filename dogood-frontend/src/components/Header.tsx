@@ -9,6 +9,7 @@ import { Badge } from '@mui/material';
 import {Client} from "@stomp/stompjs";
 import {host} from "../api/general.ts";
 import ChatMessage from "../models/ChatMessage.ts";
+import defaultImage from '../assets/defaultProfilePic.jpg';
 
 type Props = { user: UserModel | undefined };
 
@@ -21,7 +22,7 @@ const Header: React.FC<Props> = ({ user }) => {
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
     const [connected, setConnected] = useState(false);
-    const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
+    const profilePicture = user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage;
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
