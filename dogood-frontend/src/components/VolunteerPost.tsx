@@ -39,6 +39,8 @@ function VolunteerPost() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [key, setKey] = useState(0)
+    const isMobile = window.innerWidth <= 768;
+
     let { id } = useParams();
     
     const fetchVolunteerPost = async () => {
@@ -62,7 +64,7 @@ function VolunteerPost() {
                     for (let username of openChatUsers) {
                         try {
                             const user: User = await getUserByUsername(username);
-                            const image: string = defaultProfilePic;
+                            const image: string = (user.profilePicUrl !== null && user.profilePicUrl !== "") ? user.profilePicUrl : defaultProfilePic;
                                                     
                             setOpenChatUsersProfilePics((prev) => ({
                                 ...prev,
@@ -106,7 +108,7 @@ function VolunteerPost() {
 
         const usersItems: ListItem[] = users.map((user) => ({
             id: user.username,
-            image: defaultProfilePic, 
+            image: (user.profilePicUrl !== null && user.profilePicUrl !== "") ? user.profilePicUrl : defaultProfilePic, 
             title: user.name,  
             description: user.username === posterUsername ? "(Poster)" : "",
         }));
@@ -393,17 +395,17 @@ function VolunteerPost() {
 
             <div className="relatedUsersContainer">
                 <h2 className='relatedVolunteersHeader'>Friends In This Post</h2>
-                
+                <div className='generalList'>
                 <ListWithArrows 
                     data={relatedUsers} 
-                    limit = {3} 
+                    limit = {isMobile ? 1 : 3} 
                     navigateTo={`profile`} 
                     clickable={() => true}
                     showFire={(username) => username !== model.posterUsername}
                     fireHandler={onRemoveVolunteer}
                     >
                 </ListWithArrows>
-
+                </div>
                 
 
                 <div id="addVolunteerButton" className="addVolunteerButton">
