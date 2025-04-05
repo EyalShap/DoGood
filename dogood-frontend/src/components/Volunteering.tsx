@@ -54,6 +54,7 @@ import 'react-tabs/style/react-tabs.css';
 import Select from "react-select";
 import { createVolunteeringPost } from '../api/post_api';
 import { createVolunteeringReport } from '../api/report_api';
+import { getOrganizationName } from '../api/organization_api';
 
 
 
@@ -775,7 +776,7 @@ function Volunteering() {
     }, [isManager, permissionsLoaded])
 
     const handlePostVolunteeringOnClick = () => {
-        navigate(`./createVolunteeringPost/-1`);
+        navigate(`./createVolunteeringPost/-1/0`);
     }
 
     const handleRemoveVolunteeringOnClick = async () => {

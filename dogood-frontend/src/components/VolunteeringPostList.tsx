@@ -11,6 +11,8 @@ import { ListItem } from './ListWithArrows';
 import { PostModel } from '../models/PostModel';
 import { VolunteerPostModel } from '../models/VolunteerPostModel';
 import { Switch } from '@mui/material';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteerPostPic from '/src/assets/defaultVolunteerPostDog.jpg';
 
 function VolunteeringPostList() {
     const isMobile = window.innerWidth <= 768;
@@ -60,7 +62,7 @@ function VolunteeringPostList() {
         
                 fetchedPosts.forEach((post, index) => {
                     const images = imagesArray[index];
-                    const firstImage = images.length > 0 ? images[0] : '/src/assets/defaultVolunteeringDog.webp';
+                    const firstImage = images.length > 0 ? images[0] : defaultVolunteeringPic;
                     postImages.set(post.id, firstImage);
                 });
 
@@ -95,7 +97,7 @@ function VolunteeringPostList() {
                 setPosts(fetchedPosts);
         
                 fetchedPosts.forEach((post, index) => {
-                    const firstImage = post.images.length > 0 ? post.images[0] : '/src/assets/defaultVolunteerPostDog.jpg';
+                    const firstImage = post.images.length > 0 ? post.images[0] : defaultVolunteerPostPic;
                     postImages.set(post.id, firstImage);
                 });
 
@@ -127,7 +129,7 @@ function VolunteeringPostList() {
     const convertToListItems = (posts: PostModel[]) => {
         const listItems: ListItem[] = posts.map((post) => ({
             id: post.id,
-            image: postImages.get(post.id) ?? '/src/assets/defaultVolunteeringDog.webp', 
+            image: postImages.get(post.id) ?? defaultVolunteeringPic, 
             title: post.title,  
             description: post.description, // assuming 'summary' is a short description
         }));

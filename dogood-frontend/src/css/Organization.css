@@ -166,31 +166,31 @@
 }
 
 
-.listContainer {
+.orgList .listContainer, .signature {
   display: flex;
   align-items: center;
   justify-content: center;
   position: relative;
-  width: 100%;
+  width: 90%;
   margin: auto;
   flex-direction: column;
   gap: 20px;
   height: 100%;
-
   margin-top: 30px;
   padding: 20px;
-
   text-align: center; /* Center text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
-  .listHeader {
+.orgList .listHeader {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.6rem;
+    font-size: 2rem;
     margin: 0;
     color: black;
     max-width: 800px;
     line-height: 1.4;
     font-weight: 300;
+    border-bottom: 1px solid #555;
   }
 
 .managersList {
@@ -395,6 +395,7 @@
     flex-direction: column;
     align-items: center;
     gap: 0px;
+    width: 100%;
   }
 
   .uploadSig {
@@ -430,7 +431,6 @@
   justify-content: center; /* Centers items horizontally */
   align-items: center;
   gap: 20px;
-  width: 100%;
 }
 
 .upload, .uploadInput {

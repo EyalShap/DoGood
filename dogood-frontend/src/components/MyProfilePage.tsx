@@ -19,6 +19,7 @@ import User, { VolunteeringInHistory } from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
 import {getAppointmentsCsv, getUserApprovedHoursFormatted} from "../api/volunteering_api";
 import { Switch } from "@mui/material";
+import PacmanLoader from "react-spinners/PacmanLoader";
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -38,6 +39,7 @@ function MyProfilePage() {
     const [isLeaderboard, setIsLeaderboard] = useState(true);
     const [selectedCV, setSelectedCV] = useState<File | null>(null);
     const [cv, setCV] = useState<File | null>(null);
+    const [loading, setLoading] = useState(false);
     const [key, setKey] = useState(0)
     const [model, setModel] = useState<User | null>(null);
 
@@ -208,6 +210,7 @@ function MyProfilePage() {
 
     const onCVExtract = async () => {
         try {
+            setLoading(true);
             await generateSkillsAndPreferences(); // Get the file as a Blob
             
             const profile = await getUserByToken();
@@ -218,6 +221,9 @@ function MyProfilePage() {
         }
         catch (e) {
             alert(e);
+        }
+        finally {
+            setLoading(false);
         }
     };
 
@@ -269,7 +275,8 @@ function MyProfilePage() {
                 <button onClick={onCVDownload} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Download CV</button>
                 <button onClick={onCVRemove} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Remove CV</button>
                 </div>
-                <button onClick={onCVExtract} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} style={{marginTop:'20px'}}>Extract Skills And Preferences Automatically Using AI</button>
+                <button onClick={onCVExtract} className={`orangeCircularButton ${cv === null || loading ? 'disabledButton' : ''}`} style={{marginTop:'20px'}}>Extract Skills And Preferences Automatically Using AI</button>
+                {loading && <PacmanLoader color="#037b7b" size={25} />}
                 </div>
             </div>
 

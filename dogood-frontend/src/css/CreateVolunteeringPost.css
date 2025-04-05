@@ -112,3 +112,9 @@
   }
   
 }
+
+.disabledButton {
+  opacity: 0.5; /* Makes the button look faded */
+  cursor: not-allowed; /* Changes cursor to indicate it's not clickable */
+  pointer-events: none; /* Prevents all interactions */
+}

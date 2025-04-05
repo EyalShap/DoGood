@@ -10,22 +10,22 @@ import java.util.Set;
 @Entity
 @Table(name = "volunteer_posts")
 public class VolunteerPost extends Post {
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "volunteer_post_related_users", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "username")
     private List<String> relatedUsers;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "volunteer_post_image_paths", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "path")
     private List<String> images;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "volunteer_post_skills", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "skill")
     private List<String> skills;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "volunteer_post_categories", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "categories")
     private List<String> categories;

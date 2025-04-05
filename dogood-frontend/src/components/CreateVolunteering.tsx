@@ -4,6 +4,7 @@ import { createVolunteering } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/CreateVolunteering.css'
 import './../css/CommonElements.css'
+import StepIndicator from './Stepper';
 
 interface VolunteeringFormData {
   name: string;
@@ -12,16 +13,21 @@ interface VolunteeringFormData {
 
 function CreateVolunteering() {
   const navigate = useNavigate();
-  let { id } = useParams(); 
+  let { id, quickstart } = useParams(); 
 
   const { register, handleSubmit, formState: { errors } , reset} = useForm<VolunteeringFormData>();
   
     const contactSubmit: SubmitHandler<VolunteeringFormData> = async (data) => {
         try {
             if(id !== undefined) {
-              await createVolunteering(parseInt(id), data.name, data.description);
+              let volunteeringId = await createVolunteering(parseInt(id), data.name, data.description);
               alert("Volunteering created successfully!");
-              navigate(-1);
+              if(quickstart === "1") {
+                navigate(`/volunteering/${volunteeringId}/createVolunteeringPost/-1/1`)
+              }
+              else {
+                navigate(-1);
+              }
             }
             else {
               alert("Error");
@@ -80,6 +86,7 @@ function CreateVolunteering() {
 
     return (
       <form className="create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
+        {quickstart === "1" && <StepIndicator activeStep={1} />}
         <div className="form-container">
           <div className='createPostHeaders'>
             <h1 className="bigHeader">Create A New Volunteering</h1>
@@ -126,7 +133,7 @@ function CreateVolunteering() {
             </div>
 
             <button className='orangeCircularButton' type="submit">
-              create Volunteering
+              {quickstart === "1" ? "Continue to posting the volunteering →" : "Create Volunteering"}
             </button>
           </div>
         </div>

@@ -842,3 +842,23 @@ export const removeImageFromVolunteerPost = async (postId: number, image: string
         throw response.errorString;
     }
 }
+
+export const removeRelatedUser = async (postId: number, toRemove: string) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+    
+    let url = `${server}/removeRelatedUser?postId=${postId}&actor=${username}&username=${toRemove}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.delete(url, config);
+    const response: APIResponse<boolean> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}

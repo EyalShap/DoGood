@@ -10,6 +10,8 @@ import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationNavigations;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.LocationDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
@@ -32,6 +34,8 @@ public class PostsFacade {
     private KeywordExtractor keywordExtractor;
     private SkillsAndCategoriesExtractor skillsAndCategoriesExtractor;
     private RequestRepository requestRepository;
+    private NotificationSystem notificationSystem;
+    private final int NOTIFY_NEW_POST = 5;
 
     public PostsFacade(VolunteeringPostRepository volunteeringPostRepository, VolunteerPostRepository volunteerPostRepository, UsersFacade usersFacade, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade, KeywordExtractor keywordExtractor, SkillsAndCategoriesExtractor skillsAndCategoriesExtractor, RequestRepository requestRepository) {
         this.volunteeringPostRepository = volunteeringPostRepository;
@@ -46,6 +50,10 @@ public class PostsFacade {
 
     public void setReportsFacade(ReportsFacade reportsFacade) {
         this.reportsFacade = reportsFacade;
+    }
+
+    public void setNotificationSystem(NotificationSystem notificationSystem) {
+        this.notificationSystem = notificationSystem;
     }
 
     // ----------------------------------------------------
@@ -69,7 +77,27 @@ public class PostsFacade {
         String volunteeringDescription = volunteeringDTO.getDescription();
         Set<String> postKeywords = keywordExtractor.getVolunteeringPostKeywords(volunteeringName, volunteeringDescription, title, description);
         int postId = volunteeringPostRepository.createVolunteeringPost(title, description, postKeywords, posterUsername, volunteeringId, organizationId);
+
+        notifyAboutNewVolunteeringPost(postId, posterUsername);
+
+        String message = String.format("The new post \"%s\" was created for the volunteering \"%s\" in your organization \"%s\".", title, volunteeringName, organizationsFacade.getOrganization(organizationId).getName());
+        organizationsFacade.notifyManagers(message, NotificationNavigations.volunteeringPost(postId), organizationId);
         return postId;
+    }
+
+    private void notifyAboutNewVolunteeringPost(int postId, String actor) {
+        VolunteeringPostDTO post = getVolunteeringPost(postId, actor);
+        List<String> allUsernames = usersFacade.getAllUsername();
+        allUsernames.sort(Comparator.comparing((String username) -> evaluatePostRelevance(post, username)).reversed());
+
+        for(int i = 0; i < Math.min(allUsernames.size(), NOTIFY_NEW_POST); i++) {
+            String notifyUsername = allUsernames.get(i);
+            int relevance = evaluatePostRelevance(post, notifyUsername);
+            if(relevance > 0) {
+                String message = String.format("The new post \"%s\" might be relevant for you!", post.getTitle());
+                notificationSystem.notifyUser(notifyUsername, message, NotificationNavigations.volunteeringPost(postId));
+            }
+        }
     }
 
     private boolean isAllowedToMakePostAction(String actor, VolunteeringPost post) {
@@ -98,6 +126,12 @@ public class PostsFacade {
         }
         reportsFacade.removeVolunteeringPostReports(postId);
         volunteeringPostRepository.removeVolunteeringPost(postId);
+
+        VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(toRemove.getVolunteeringId());
+        int orgId = toRemove.getOrganizationId();
+        OrganizationDTO organizationDTO = organizationsFacade.getOrganization(orgId);
+        String message = String.format("The post \"%s\" of the volunteering \"%s\" in your organization \"%s\" was removed", toRemove.getTitle(), volunteeringDTO.getName(), organizationDTO.getName());
+        organizationsFacade.notifyManagers(message, NotificationNavigations.organization(orgId), orgId);
     }
 
     public void removePostsByVolunteeringId(int volunteeringId) {
@@ -110,6 +144,7 @@ public class PostsFacade {
         }
 
         VolunteeringPost toEdit = volunteeringPostRepository.getVolunteeringPost(postId);
+        String prevTitle = toEdit.getTitle();
         VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(toEdit.getVolunteeringId());
 
         if(!isAllowedToMakePostAction(actor, toEdit)) {
@@ -119,6 +154,11 @@ public class PostsFacade {
         String volunteeringDescription = volunteeringDTO.getDescription();
         Set<String> postKeywords = keywordExtractor.getVolunteeringPostKeywords(volunteeringName, volunteeringDescription, title, description);
         volunteeringPostRepository.editVolunteeringPost(postId, title, description, postKeywords);
+
+        int orgId = toEdit.getOrganizationId();
+        OrganizationDTO organizationDTO = organizationsFacade.getOrganization(orgId);
+        String message = String.format("The post \"%s\" of the volunteering \"%s\" in your organization \"%s\" was edited.", prevTitle, volunteeringName, organizationDTO.getName());
+        organizationsFacade.notifyManagers(message, NotificationNavigations.volunteeringPost(postId), orgId);
     }
 
     public void updateVolunteeringPostsKeywords(int volunteeringId, String actor) {
@@ -202,6 +242,7 @@ public class PostsFacade {
         volunteeringFacade.requestToJoinVolunteering(actor, volunteeringId, freeText);
 
         volunteeringPostRepository.incNumOfPeopleRequestedToJoin(postId);
+        // Eyal already notified org managers
     }
 
     /*public List<VolunteeringPostDTO> searchByKeywords(String search, String actor, List<VolunteeringPostDTO> allPosts) {
@@ -271,24 +312,6 @@ public class PostsFacade {
             }
         }
         return matching;
-    }
-
-    private int strictCountCommons(Set<String> s1, Set<String> s2) {
-        int matching = 0;
-        for (String item1 : s1) {
-            item1 = item1.toLowerCase().trim();
-            for(String item2 : s2) {
-                item2 = item2.toLowerCase().trim();
-                if (item2.equals(item1)) {
-                    matching++;
-                }
-            }
-        }
-        return matching;
-    }
-
-    private String cleanString(String str) {
-        return str.replaceAll("[^a-zA-Z0-9 ]", "").toLowerCase();
     }
 
     public List<VolunteeringPostDTO> sortByRelevance(String actor, List<VolunteeringPostDTO> allPosts) {
@@ -391,28 +414,12 @@ public class PostsFacade {
             String volunteeringName = volunteeringFacade.getVolunteeringDTO(post.getVolunteeringId()).getName();
             Set<String> postKeywords = post.getKeywords();
 
-            if(volunteeringName.equals("Elderly Companion")){
-                int x = 0;
-            }
-
             boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(categories, postKeywords) >= 1 : true;
             boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(skills, postKeywords) >= 1 : true;
             boolean matchByCity = cities.size() > 0 ? countCommons(volunteeringCities, cities) >= 1 || countCommons(cities, postKeywords) >= 1 : true;
             boolean matchByOrganization = organizationNames.size() > 0 ? organizationNames.contains(organizationName) : true;
             boolean matchByVolunteering = volunteeringNames.size() > 0 ? volunteeringNames.contains(volunteeringName) : true;
             boolean matchByMyPost = isMyPosts ? isMyPost(post, actor) : true;
-            /*if(categories.size() > 0) {
-                volunteeringCategories.retainAll(categories);
-                matchByCategory = volunteeringCategories.size() >= 1;
-            }
-            if(skills.size() > 0) {
-                volunteeringSkills.retainAll(skills);
-                matchBySkill = volunteeringSkills.size() >= 1;
-            }
-            if(cities.size() > 0) {
-                volunteeringCities.retainAll(cities);
-                matchByCity = volunteeringCities.size() >= 1;
-            }*/
 
             if(matchByCategory && matchBySkill && matchByCity && matchByOrganization && matchByVolunteering && matchByMyPost) {
                 result.add(new VolunteeringPostDTO(post));
@@ -446,15 +453,6 @@ public class PostsFacade {
             boolean matchByCategory = categories.size() > 0 ? countCommons(volunteeringCategories, categories) >= 1 || countCommons(postKeywords, categories) >= 1 : true;
             boolean matchBySkill = skills.size() > 0 ? countCommons(volunteeringSkills, skills) >= 1 || countCommons(postKeywords, skills) >= 1 : true;
             boolean matchByIsMyPost = isMyPosts ? isMyPost(post, actor) : true;
-
-            /*if(categories.size() > 0) {
-                volunteeringCategories.retainAll(categories);
-                matchByCategory = volunteeringCategories.size() >= 1;
-            }
-            if(skills.size() > 0) {
-                volunteeringSkills.retainAll(skills);
-                matchBySkill = volunteeringSkills.size() >= 1;
-            }*/
 
             if(matchByCategory && matchBySkill && matchByIsMyPost) {
                 result.add(new VolunteerPostDTO(post));
@@ -614,6 +612,13 @@ public class PostsFacade {
         return postId;
     }
 
+    private void notifyRelatedUsers(List<String> users, String postTitle, String postAction, String nav) {
+        for(String relatedUser : users) {
+            String message = String.format("Your post \"%s\" was %s.", postTitle, postAction);
+            notificationSystem.notifyUser(relatedUser, message, nav);
+        }
+    }
+
     public void removeVolunteerPost(String actor, int postId) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
@@ -626,6 +631,8 @@ public class PostsFacade {
         }
         volunteerPostRepository.removeVolunteerPost(postId);
         reportsFacade.removeVolunteerPostReports(postId);
+
+        notifyRelatedUsers(toRemove.getRelatedUsers(), toRemove.getTitle(), "removed", NotificationNavigations.postsList);
     }
 
     public void editVolunteerPost(int postId, String title, String description, String actor) {
@@ -634,6 +641,7 @@ public class PostsFacade {
         }
 
         VolunteerPost toEdit = volunteerPostRepository.getVolunteerPost(postId);
+        String prevTitle = toEdit.getTitle();
 
         if(!toEdit.getPosterUsername().equals(actor)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toEdit.getTitle(), actor, "edit"));
@@ -641,6 +649,8 @@ public class PostsFacade {
 
         Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
         volunteerPostRepository.editVolunteerPost(postId, title, description, postKeywords);
+
+        notifyRelatedUsers(toEdit.getRelatedUsers(), prevTitle, "edited", NotificationNavigations.volunteerPost(postId));
     }
 
     public void sendAddRelatedUserRequest(int postId, String username, String actor) {
@@ -648,6 +658,10 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         requestRepository.createRequest(username, actor, postId, RequestObject.VOLUNTEER_POST);
+
+        String title = getVolunteerPost(postId, actor).getTitle();
+        String message = String.format("%s asked you to join the volunteer post \"%s\".", actor, title);
+        notificationSystem.notifyUser(username, message, NotificationNavigations.requests);
     }
 
     public void handleAddRelatedUserRequest(int postId, String actor, boolean approved) {
@@ -661,16 +675,25 @@ public class PostsFacade {
         }
         requestRepository.deleteRequest(actor, postId, RequestObject.VOLUNTEER_POST);
 
+        String title = getVolunteerPost(postId, actor).getTitle();
         String approvedStr = approved ? "approved" : "denied";
-        String message = String.format("%s has %s your request to join post.", actor, approvedStr);
-        //TODO: change when users facade is implemented
-        //usersFacade.notify(request.getAssignerUsername(), message);
+        String message = String.format("%s has %s your request to join the post \"%s\".", actor, approvedStr, title);
+        notificationSystem.notifyUser(request.getAssignerUsername(), message, NotificationNavigations.volunteerPost(postId));
     }
 
     public void removeRelatedUser(int postId, String username, String actor) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
+        String title = getVolunteerPost(postId, actor).getTitle();
+        List<String> allRelatedUsersButRemoved = getRelatedUsers(postId);
+        allRelatedUsersButRemoved.remove(username);
+        for(String user : allRelatedUsersButRemoved) {
+            String message = String.format("%s was removed from the post \"%s\".", username, title);
+            notificationSystem.notifyUser(user, message, NotificationNavigations.volunteerPost(postId));
+        }
+        notificationSystem.notifyUser(username, String.format("You were removed from the post \"%s\".", title), NotificationNavigations.volunteerPost(postId));
+
         volunteerPostRepository.removeRelatedUser(postId, username, actor);
     }
 

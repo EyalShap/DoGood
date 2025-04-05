@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.users;
 
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
+import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
@@ -321,5 +322,11 @@ public class UsersFacade {
 
         updateUserSkills(username, new ArrayList<>(aiSkills));
         updateUserPreferences(username, new ArrayList<>(aiPreferences));
+    }
+
+    public List<String> getAllUsername() {
+        List<User> allUsers = repository.getAllUsers();
+        List<String> usernames = allUsers.stream().map(user -> user.getUsername()).collect(Collectors.toList());
+        return usernames;
     }
 }

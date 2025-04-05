@@ -9,6 +9,7 @@ import { Badge } from '@mui/material';
 import {Client} from "@stomp/stompjs";
 import {host} from "../api/general.ts";
 import ChatMessage from "../models/ChatMessage.ts";
+import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
 
 type Props = { user: UserModel | undefined };
 
@@ -21,7 +22,7 @@ const Header: React.FC<Props> = ({ user }) => {
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
     const [connected, setConnected] = useState(false);
-    const profilePicture = user === undefined ? '/src/assets/defaultProfilePic.jpg' : '/src/assets/defaultProfilePic.jpg';
+    const profilePicture = user === undefined ? defaultProfilePic : defaultProfilePic;
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -133,7 +134,7 @@ const Header: React.FC<Props> = ({ user }) => {
                  {newNotificationsAmount > 0 &&
                  <div className="buttonBadge">{newNotificationsAmount}</div>}
                   {dropdownOpenNotifications && (
-                    <div className="dropdownMenu" onMouseLeave={closeDropdownNotifications}>
+                    <div className="dropdownMenu notificationsDropDown" onMouseLeave={closeDropdownNotifications}>
                       {notifications.map((notification: Notification) => 
                         notification.isRead ? <a href={notification.navigationURL} className={"dropdownNotification"}>{notification.message}</a>
                         : <a href={notification.navigationURL} className={"dropdownNotificationNew"}>{notification.message}</a>)} 

@@ -38,7 +38,7 @@ public abstract class Post {
     @Transient
     private int relevance;
 
-    @ElementCollection
+    @ElementCollection(fetch = FetchType.EAGER)
     @CollectionTable(name = "post_keywords", joinColumns = @JoinColumn(name = "post_id"))
     @Column(name = "keyword")
     private Set<String> keywords;
