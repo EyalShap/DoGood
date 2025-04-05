@@ -332,6 +332,7 @@ function MyProfilePage() {
                         }}
                     />
                 </div>
+                <div className="profilePicButtons">
                 {/* Hidden file input triggered by the button */}
                 <input
                     type="file"
@@ -343,7 +344,7 @@ function MyProfilePage() {
                 {/* Button to open file selector */}
                 <button
                     onClick={() => document.getElementById("profilePicInput")?.click()}
-                    className="upload-button"
+                    className="upload-button orangeCircularButton"
                     disabled={isUploading} // Disable while upload is in progress
                 >
                     Choose Picture
@@ -353,10 +354,10 @@ function MyProfilePage() {
                     onClick={handleProfilePictureUpdate}
                     className="orangeCircularButton" // Using existing style class
                     disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
-                    style={{ marginTop: '10px' }} // Add some visual spacing
                 >
                     {isUploading ? "Uploading..." : "Save Picture"}
                 </button>
+                </div>
             </div>
             <div className="profile-section">
                 <h2 className="profileSectionHeader">Update Profile</h2>

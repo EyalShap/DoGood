@@ -72,7 +72,7 @@ function Organization() {
 
         const managersItems: ListItem[] = users.map((user) => ({
             id: user.username,
-            image: defaultProfilePic, 
+            image: (user.profilePicUrl !== null && user.profilePicUrl !== "") ? user.profilePicUrl : defaultProfilePic, 
             title: user.name,  
             description: user.username === founder ? "(Founder)" : "",
         }));
@@ -550,9 +550,10 @@ function Organization() {
             <div className='orgList' style = {{width: '100%'}}>
             <div className="listContainer">
                 <h2 className='listHeader'>Our Managers</h2>
+                <div className='generalList'>
                 <ListWithArrows 
                     data={managers} 
-                    limit = {3} 
+                    limit = {isMobile ? 1 : Math.min(3,volunteerings.length)}
                     navigateTo={`profile`} 
                     onRemove={(username) => handleRemoveManagerOnClick(username)} 
                     showResign = {(username) => localStorage.getItem("username") === username && username !== model.founderUsername}
@@ -582,6 +583,7 @@ function Organization() {
                             </div>
                         </div>
                 }
+                </div>
             </div>
             </div>
 

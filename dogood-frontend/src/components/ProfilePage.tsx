@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import { banUser, getIsAdmin, getUserByUsername } from "../api/user_api";
 import './../css/MyProfile.css';
 import { createUserReport } from "../api/report_api";
+import defaultImage from '../assets/defaultProfilePic.jpg';
+
 
 function ProfilePage() {
     const navigate = useNavigate();
@@ -22,6 +24,7 @@ function ProfilePage() {
     const [isActorAdmin, setIsActorAdmin] = useState(false);
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
+    const [profilePic, setProfilePic] = useState("");
 
     // Fetch user profile on load
     useEffect(() => {
@@ -40,6 +43,7 @@ function ProfilePage() {
                 setSkillsInput(profile.skills.join(", "));
                 setPreferences(profile.preferredCategories.join(", "));
                 setPreferencesInput(profile.preferredCategories.join(", "));
+                setProfilePic(profile.profilePicUrl !== "" ? profile.profilePicUrl : defaultImage)
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }
@@ -84,6 +88,13 @@ function ProfilePage() {
     return (
         <div className="my-profile">
             <h1 className="bigHeader">Profile Page of {username}</h1>
+
+            <div className="profile-picture-container">
+                    <img
+                        src={profilePic}
+                        className="profile-picture-preview"
+                    />
+                </div>
 
             <div className="profile-section">
                 <h2>Profile Details</h2>
