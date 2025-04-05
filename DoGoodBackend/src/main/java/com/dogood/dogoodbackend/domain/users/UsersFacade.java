@@ -63,6 +63,21 @@ public class UsersFacade {
         authFacade.invalidateToken(token); // Invalidates the token if it isn't invalidated (isn't logged out already), otherwise (somehow) throws an exception.
     }
 
+    public void register(String username, String password, String name, String email, String phone, Date birthDate, String profilePicUrl) {
+        try {
+            User user = getUser(username);
+            // if user with the same username exists, cannot register it again
+            throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
+        } catch (IllegalArgumentException e) {
+
+            if(reportsFacade.isBannedEmail(email)) {
+                throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
+            }
+
+            repository.createUser(username, email, name, password, phone, birthDate,profilePicUrl);
+        }
+    }
+
     public void register(String username, String password, String name, String email, String phone, Date birthDate) {
         try {
             User user = getUser(username);
@@ -74,8 +89,14 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate);
+            repository.createUser(username, email, name, password, phone, birthDate,"");
         }
+    }
+
+    public void updateProfilePicture(String username, String profilePicUrl) {
+        User user = getUser(username);
+        user.setProfilePicUrl(profilePicUrl);
+        repository.saveUser(user);
     }
 
     public boolean isAdmin(String username) {
@@ -94,7 +115,7 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate);
+            repository.createUser(username, email, name, password, phone, birthDate,"");
             repository.setAdmin(username, true);
         }
     }

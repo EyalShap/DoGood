@@ -9,7 +9,7 @@ import { Badge } from '@mui/material';
 import {Client} from "@stomp/stompjs";
 import {host} from "../api/general.ts";
 import ChatMessage from "../models/ChatMessage.ts";
-import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
+import defaultImage from '../assets/defaultProfilePic.jpg';
 
 type Props = { user: UserModel | undefined };
 
@@ -22,7 +22,7 @@ const Header: React.FC<Props> = ({ user }) => {
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
     const [connected, setConnected] = useState(false);
-    const profilePicture = user === undefined ? defaultProfilePic : defaultProfilePic;
+    const profilePicture = user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage;
 
     const toggleDropdown = () => {
         setDropdownOpen(!dropdownOpen);
@@ -65,7 +65,6 @@ const Header: React.FC<Props> = ({ user }) => {
         localStorage.removeItem("username");
         localStorage.removeItem("token");
         closeMenu();
-        console.log()
         window.dispatchEvent(new Event('storage'))
       }
       catch(e){
@@ -158,7 +157,7 @@ const Header: React.FC<Props> = ({ user }) => {
                             <a href="/my-profile" className="dropdownItem">My Profile</a>
                             <a href="/managerRequestsList" className="dropdownItem">My Requests</a>
                             {isAdmin && <a href="/reportList" className="dropdownItem">Admin Dashboard</a>}
-                            <a href="/" className="dropdownItem" onClick = {onLogout}>Logout</a>
+                            <a className="dropdownItem" onClick = {onLogout}>Logout</a>
                         </div>
                     )}
                 </div>

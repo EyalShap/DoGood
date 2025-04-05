@@ -38,6 +38,7 @@ public class MemoryNotificationRepository implements NotificationRepository {
                 result.add(notification);
             }
         }
+        result.sort((n1,n2) -> n2.getId() - n1.getId());
         return result;
     }
 
@@ -50,11 +51,14 @@ public class MemoryNotificationRepository implements NotificationRepository {
                 result.add(notification);
             }
         }
+        result.sort((n1,n2) -> n2.getId() - n1.getId());
         return result;
     }
 
     @Override
     public List<Notification> getAllNotifications() {
-        return notifications.values().stream().toList();
+        List<Notification> result = notifications.values().stream().toList();
+        result.sort((n1,n2) -> n2.getId() - n1.getId());
+        return result;
     }
 }

@@ -12,7 +12,7 @@ import {
     uploadCV,
     downloadCV,
     removeCV,
-    generateSkillsAndPreferences,
+    generateSkillsAndPreferences, updateProfilePicture,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
@@ -20,6 +20,8 @@ import ApprovedHours from "../models/ApprovedHoursModel";
 import {getAppointmentsCsv, getUserApprovedHoursFormatted} from "../api/volunteering_api";
 import { Switch } from "@mui/material";
 import PacmanLoader from "react-spinners/PacmanLoader";
+import { supabase } from "../api/general";
+import defaultImage from '../assets/defaultProfilePic.jpg';
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -55,6 +57,11 @@ function MyProfilePage() {
     // Export CSV
     const [numWeeks, setNumWeeks] = useState("");
 
+    // Profile Picture States
+    const [profilePic, setProfilePic] = useState<string | null>(null);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
+    const [isUploading, setIsUploading] = useState<boolean>(false);
+
     // Volunteering Now
 
     // Fetch user profile on load
@@ -84,7 +91,7 @@ function MyProfilePage() {
                 catch(e) {
                     setCV(null);
                 }
-                
+                setProfilePic(profile.profilePicUrl);
                 setModel(profile);
                 console.log(profile);
             } catch (e) {
@@ -93,6 +100,81 @@ function MyProfilePage() {
         };
         fetchProfile();
     }, []);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const file = e.target.files[0];
+            setSelectedFile(file);
+
+            // Generate a preview URL
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setProfilePic(reader.result as string); // Update display state with preview
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    const handleProfilePictureUpdate = async () => {
+        if (!selectedFile || !model) {
+            alert("Please select a file first.");
+            return;
+        }
+        setIsUploading(true); // Show loading state
+        try {
+            // 1. Define file path in Supabase (stable name using username)
+            const fileExt = selectedFile.name.split('.').pop();
+            const fileName = `${model.username}.${fileExt}`; // Ensures overwriting the same user's picture
+            const filePath = fileName;
+
+            // 2. Upload to Supabase Storage with upsert option
+            const { error: uploadError } = await supabase.storage
+                .from("profile-pictures") // Ensure this bucket name matches your Supabase setup
+                .upload(filePath, selectedFile, {
+                    cacheControl: '3600', // Cache control for optimization
+                    upsert: true          // Overwrite if file exists for this user
+                });
+
+            if (uploadError) {
+                throw new Error("Supabase upload error: " + uploadError.message);
+            }
+
+            // 3. Get the public URL (add timestamp to URL query to potentially bypass cache)
+            const timestamp = `t=${new Date().getTime()}`;
+            const { data: urlData } = supabase.storage
+                .from("profile-pictures")
+                .getPublicUrl(filePath);
+
+            if (!urlData || !urlData.publicUrl) {
+                throw new Error("Could not get public URL after upload.");
+            }
+            // Construct URL, potentially with timestamp to help bypass caching
+            const publicUrl = `${urlData.publicUrl}?${timestamp}`;
+            const publicUrlForBackend = urlData.publicUrl; // Use the base URL for storing in backend
+
+
+            // 4. Update backend database with the new (base) URL
+            await updateProfilePicture(model.username, publicUrlForBackend);
+
+            // 5. Update local state to reflect the change immediately
+            setModel(prevModel => prevModel ? { ...prevModel, profilePicUrl: publicUrlForBackend } : null);
+            setProfilePic(publicUrl); // Update display state with the timestamped URL to force refresh
+            setSelectedFile(null); // Clear the selected file state
+
+            alert("Profile picture updated successfully!");
+            // Force update header potentially? Dispatch custom event or use context/global state
+            window.dispatchEvent(new Event('profilePictureUpdated'));
+
+
+        } catch (error: any) {
+            console.error("Failed to update profile picture:", error);
+            alert("Failed to update profile picture: " + error.message);
+            // Optional: Revert preview back to the stored URL if upload fails
+            setProfilePic(model?.profilePicUrl || null);
+        } finally {
+            setIsUploading(false); // Hide loading state
+        }
+    };
 
     // Handlers to update profile
     const handleProfileUpdate = async () => {
@@ -151,6 +233,8 @@ function MyProfilePage() {
         await setLeaderboard(newState);
         console.log("here");
     }
+
+    const displayPic = (!profilePic || profilePic === "") ? defaultImage : profilePic;
 
     const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
         setSelectedCV(e.target.files![0]);
@@ -231,6 +315,49 @@ function MyProfilePage() {
     return (
         <div className="my-profile">
             <h1 className="bigHeader">My Profile</h1>
+            {/* Profile Picture Section */}
+            <div className="profile-picture-section">
+                <div className="profile-picture-container">
+                    <img
+                        key={displayPic} // Add key to help React detect changes, especially after upload
+                        src={displayPic!}
+                        alt={`${name}'s profile`} // More descriptive alt text
+                        className="profile-picture-preview"
+                        // Fallback to default image if the src URL is broken or fails to load
+                        onError={(e) => {
+                            if (e.currentTarget.src !== defaultImage) {
+                                e.currentTarget.onerror = null; // Prevent infinite loop if default also fails
+                                e.currentTarget.src = defaultImage;
+                            }
+                        }}
+                    />
+                </div>
+                {/* Hidden file input triggered by the button */}
+                <input
+                    type="file"
+                    accept="image/*" // Accept standard image types
+                    id="profilePicInput"
+                    style={{ display: "none" }}
+                    onChange={handleFileChange}
+                />
+                {/* Button to open file selector */}
+                <button
+                    onClick={() => document.getElementById("profilePicInput")?.click()}
+                    className="upload-button"
+                    disabled={isUploading} // Disable while upload is in progress
+                >
+                    Choose Picture
+                </button>
+                {/* Button to initiate the upload and backend update */}
+                <button
+                    onClick={handleProfilePictureUpdate}
+                    className="orangeCircularButton" // Using existing style class
+                    disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
+                    style={{ marginTop: '10px' }} // Add some visual spacing
+                >
+                    {isUploading ? "Uploading..." : "Save Picture"}
+                </button>
+            </div>
             <div className="profile-section">
                 <h2 className="profileSectionHeader">Update Profile</h2>
                 <label>Username:</label>

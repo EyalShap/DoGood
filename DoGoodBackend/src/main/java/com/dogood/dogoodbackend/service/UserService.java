@@ -63,11 +63,21 @@ public class UserService {
         }
     }
 
-    public Response<String> register(String username, String password, String name, String email, String phone, Date birthDate) {
+    public Response<String> register(String username, String password, String name, String email, String phone, Date birthDate, String profilePicUrl) {
         try{
-            usersFacade.register(username, password, name, email, phone, birthDate);
+            usersFacade.register(username, password, name, email, phone, birthDate, profilePicUrl);
             return Response.createOK();
         }catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> updateProfilePicture(String token, String username, String profilePicUrl) {
+        try {
+            checkToken(token, username);
+            usersFacade.updateProfilePicture(username, profilePicUrl);
+            return Response.createOK();
+        } catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
     }
