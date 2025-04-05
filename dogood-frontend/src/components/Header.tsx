@@ -62,14 +62,15 @@ const Header: React.FC<Props> = ({ user }) => {
     const onLogout = async () => {
       try{
         await logout();
-        localStorage.removeItem("username");
-        localStorage.removeItem("token");
-        closeMenu();
-        window.dispatchEvent(new Event('storage'))
       }
       catch(e){
         alert(e);
       }
+        localStorage.removeItem("username");
+        localStorage.removeItem("token");
+        closeMenu();
+        window.dispatchEvent(new Event('storage'))
+        navigate('/');
     }
 
     const onLogo = async () => {

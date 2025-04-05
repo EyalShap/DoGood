@@ -72,6 +72,12 @@ public class SchedulingFacade {
                 throw new UnsupportedOperationException("The range " + range.getId() + " between " + start + " and " + end + " is full on the specified dates");
             }
         }
+        if(!start.isBefore(end)){
+            throw new IllegalArgumentException("Start time must be before end time");
+        }
+        if(start.isBefore(range.getStartTime()) || end.isAfter(range.getEndTime())){
+            throw new IllegalArgumentException("Appointment doesn't match selected range");
+        }
         range.checkMinutes(start,end);
         range.checkDays(oneTime, weekDays);
         ScheduleAppointment scheduleAppointment = new ScheduleAppointment(userId, volunteeringId, range.getId(), start, end, oneTime, weekDays);

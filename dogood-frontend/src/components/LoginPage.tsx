@@ -13,7 +13,7 @@ function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetSta
             let token = await login(username, password);
             localStorage.setItem("username", username);
             localStorage.setItem("token", token);
-            window.dispatchEvent(new Event('storage'))
+            window.dispatchEvent(new Event('login'))
         } catch (e) {
             alert(e);
         }

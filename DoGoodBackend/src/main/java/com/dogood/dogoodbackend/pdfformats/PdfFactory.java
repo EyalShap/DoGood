@@ -9,18 +9,18 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class PdfFactory {
-    public String createFormat(University uni, String orgName, String firstName, String lastName, String id, String phone, String email, List<HourApprovalRequest> approvedHoursList) throws DocumentException, IOException {
+    public String createFormat(String username, University uni, String orgName, String firstName, String lastName, String id, String phone, String email, List<HourApprovalRequest> approvedHoursList, byte[] signature) throws DocumentException, IOException {
         if(uni == University.ELSE){
             throw new UnsupportedOperationException("University not supported");
         }
         PdfFormat format;
         Files.createDirectories(Paths.get("./"+approvedHoursList.get(0).getUserId()));
         if(uni == University.BGU){
-            format = new BGUPdfFormat(approvedHoursList.get(0).getUserId());
+            format = new BGUPdfFormat(username,signature);
         }else if(uni == University.TECH){
-            format = new TechnionPdfFormat(approvedHoursList.get(0).getUserId());
+            format = new TechnionPdfFormat(username,signature);
         }else{
-            format = new HaifaPdfFormat((approvedHoursList.get(0).getUserId()));
+            format = new HaifaPdfFormat(username,signature);
         }
         double sumHours = 0;
         for(HourApprovalRequest hours : approvedHoursList){

@@ -218,6 +218,10 @@
         gap:10px;
         margin-top: 10px;
     }
+
+      .history-section {
+          overflow-x: scroll;
+      }
   }
 
   .cvButtons {

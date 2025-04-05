@@ -2,57 +2,61 @@ package com.dogood.dogoodbackend.pdfformats;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 public class HaifaPdfFormat implements PdfFormat{
-    final int FUCKED_UP_X_BY=30;
-    final int FUCKED_UP_Y_BY=20;
+    final int ADJUST_X_BY =30;
+    final int ADJUST_Y_BY =20;
 
 
-    final int FIRST_NAME_X = 330+FUCKED_UP_X_BY;
-    final int INFO_Y = 545+FUCKED_UP_Y_BY;
-    final int LAST_NAME_X = 410 + FUCKED_UP_X_BY;
-    final int ID_X = 220 + FUCKED_UP_X_BY;
-    final int PHONE_X = 90 + FUCKED_UP_X_BY;
-    final int EMAIL_Y = 520 + FUCKED_UP_Y_BY;
-    final int EMAIL_X = 90 + FUCKED_UP_X_BY;
-    final int SUM_HOURS_X = 155 + FUCKED_UP_X_BY;
+    final int FIRST_NAME_X = 330+ ADJUST_X_BY;
+    final int INFO_Y = 545+ ADJUST_Y_BY;
+    final int LAST_NAME_X = 410 + ADJUST_X_BY;
+    final int ID_X = 220 + ADJUST_X_BY;
+    final int PHONE_X = 90 + ADJUST_X_BY;
+    final int EMAIL_Y = 520 + ADJUST_Y_BY;
+    final int EMAIL_X = 90 + ADJUST_X_BY;
+    final int SUM_HOURS_X = 155 + ADJUST_X_BY;
     final int SUM_HOURS_Y = 190;
-    final int DATE_X = 400 + FUCKED_UP_X_BY;
-    final int DAY_X = 340 + FUCKED_UP_X_BY;
-    final int STARTHOUR_X = 270 + FUCKED_UP_X_BY;
-    final int ENDHOUR_X = 200 + FUCKED_UP_X_BY;
-    final int TOTAL_X = 155 + FUCKED_UP_X_BY;
-    final int PAGE1_ROW_Y = 475 + FUCKED_UP_Y_BY;
+    final int DATE_X = 400 + ADJUST_X_BY;
+    final int DAY_X = 340 + ADJUST_X_BY;
+    final int STARTHOUR_X = 270 + ADJUST_X_BY;
+    final int ENDHOUR_X = 200 + ADJUST_X_BY;
+    final int TOTAL_X = 155 + ADJUST_X_BY;
+    final int PAGE1_ROW_Y = 475 + ADJUST_Y_BY;
     final int ROW_HEIGHT = 17;
 
     final int FONT_SIZE = 12;
     private int current_row ;
 
+    final int SIGNATURE_HOUR_X = 90;
+    final int SIGNATURE_HOUR_WIDTH = 74;
+
+
     private PdfStamper stamper;
     private PdfReader reader;
     private String outputPath;
+    private byte[] signature;
 
     final String[] days = new String[]{"ראשון", "שני", "שלישי", "רביעי", "חמישי","שישי","שבת"};
 
     final BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H,true);
 
-    public HaifaPdfFormat(String username) throws IOException, DocumentException {
+    public HaifaPdfFormat(String username, byte[] signature) throws IOException, DocumentException {
         current_row = 0;
-        File pdf = ResourceUtils.getFile("classpath:templates/haifa.pdf");
-        reader = new PdfReader(new FileInputStream(pdf));
+        InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/haifa.pdf");
+        reader = new PdfReader(pdf);
+        this.signature = signature == null ? signature : signature.clone();
         outputPath = "./"+username + "/"+"haifa"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
     }
@@ -132,6 +136,14 @@ public class HaifaPdfFormat implements PdfFormat{
         double totalHours = approvedHours.getTotalHours();
         String totalHoursString = Math.floor(totalHours) == totalHours ? ""+(int)totalHours : String.format("%.01f", totalHours);
         addText(TOTAL_X, y, totalHoursString, over);
+        if(signature != null && signature.length > 0){
+            try {
+                Image signatureImage = Image.getInstance(signature);
+                signatureImage.setAbsolutePosition(SIGNATURE_HOUR_X, y-ROW_HEIGHT/2);
+                signatureImage.scaleAbsolute(SIGNATURE_HOUR_WIDTH, ROW_HEIGHT);
+                over.addImage(signatureImage);
+            }catch (Exception e){}
+        }
         current_row++;
         return this;
     }

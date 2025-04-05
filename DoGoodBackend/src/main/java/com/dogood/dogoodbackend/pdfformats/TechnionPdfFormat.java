@@ -8,29 +8,24 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import org.springframework.util.ResourceUtils;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.*;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 
 public class TechnionPdfFormat implements PdfFormat{
-    final int I_FUCKED_UP_THE_Y_BY = 27;
+    final int ADJUST_Y_BY = 27;
 
     final int NAME_X = 340;
-    final int NAME_Y = 590 - I_FUCKED_UP_THE_Y_BY;
-    final int ID_Y = 575 - I_FUCKED_UP_THE_Y_BY;
+    final int NAME_Y = 590 - ADJUST_Y_BY;
+    final int ID_Y = 575 - ADJUST_Y_BY;
     final int ID_X = 360;
-    final int ORGNAME_Y = 560 - I_FUCKED_UP_THE_Y_BY;
+    final int ORGNAME_Y = 560 - ADJUST_Y_BY;
     final int ORGNAME_X = 355;
     final int DATE_X = 435;
     final int STARTHOUR_X = 345;
     final int ENDHOUR_X = 250;
     final int TOTAL_X = 170;
-    final int PAGE1_ROW_Y = 490 - I_FUCKED_UP_THE_Y_BY;
+    final int PAGE1_ROW_Y = 490 - ADJUST_Y_BY;
     final int ROW_HEIGHT = 26;
 
 
@@ -40,15 +35,17 @@ public class TechnionPdfFormat implements PdfFormat{
     private PdfStamper stamper;
     private PdfReader reader;
     private String outputPath;
+    private byte[] signature;
 
     private String fullName = "";
 
     final BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H,true);
 
-    public TechnionPdfFormat(String username) throws IOException, DocumentException {
+    public TechnionPdfFormat(String username, byte[] signature) throws IOException, DocumentException {
         current_row = 0;
-        File pdf = ResourceUtils.getFile("classpath:templates/tech.pdf");
-        reader = new PdfReader(new FileInputStream(pdf));
+        InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/tech.pdf");
+        reader = new PdfReader(pdf);
+        this.signature = signature == null ? signature : signature.clone();
         outputPath = "./"+username + "/"+"tech"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
     }

@@ -509,10 +509,10 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
-        int rangeId = volunteering.addRangeToGroup(groupId, locId, startTime, endTime, minimumMinutes, maximumMinutes, weekDays, oneTime);
         if(weekDays == null && oneTime == null){
             throw new IllegalArgumentException("Week days and One time cannot both be null");
         }
+        int rangeId = volunteering.addRangeToGroup(groupId, locId, startTime, endTime, minimumMinutes, maximumMinutes, weekDays, oneTime);
         repository.updateVolunteeringInDB(volunteering);
         return rangeId;
     }
@@ -792,14 +792,14 @@ public class VolunteeringFacade {
         PdfFactory factory = new PdfFactory();
         String[] nameSplit = userData.getName().split(" "); //TODO: make this better
         String email = userData.getEmails().get(0); //TODO: make this better
-        return factory.createFormat(University.getUniversity(email),
+        return factory.createFormat(userId,University.getUniversity(email),
                 orgData.getName(),
                 nameSplit[0],
                 nameSplit.length > 1 ? nameSplit[1] : "",
                 israeliId,
                 userData.getPhone(),
                 email,
-                getUserApprovedHours(userId, List.of(volunteeringId)));
+                getUserApprovedHours(userId, List.of(volunteeringId)),organizationFacade.getSignature(volunteering.getOrganizationId(), orgData.getFounderUsername()));
     }
 
     public String getAppointmentsCsv(String userId, int numOfWeeks) throws IOException {
