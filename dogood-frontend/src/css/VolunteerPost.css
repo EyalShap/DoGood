@@ -1,13 +1,25 @@
+body{
+  background-color: white;
+}
+
 .catsAndSkills {
   display: flex;
   gap: 40px; /* Increases spacing between the two sections */
   justify-content: center; /* Centers them horizontally */
   align-items: flex-start;
   margin-top: 20px;
+
+  width: 90%;
+
+
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center; /* Center text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }
 
 .cats, .skills {
-  background-color: #f9f9f9;
+  background-color: #f5f5f5;
   padding: 20px;
   border-radius: 10px;
   width: 50%; /* Adjust width as needed */
@@ -24,6 +36,7 @@
     color: black;
     max-width: 800px;
     line-height: 1.4;
+    font-weight: normal;
   }
 
   .notFound {
@@ -104,12 +117,11 @@
   padding-top: 10px;
   padding-bottom: 10px;
   margin: 0 auto;
-  max-width: 1200px;
   flex-wrap: wrap; /* Make responsive */
   border-radius: 15px; /* Rounded corners */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow effect */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Light shadow effect */
   background-color: #e6e5e5;
-  width: 80%;
+  width: 90%;
 }
 
 /* Existing styles for desktop remain unchanged */
@@ -221,4 +233,31 @@
 
 .chatUsername {
   font-size:1rem;
+}
+
+.relatedVolunteersHeader {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  margin: 0;
+  color: black;
+  max-width: 800px;
+  line-height: 1.4;
+  font-weight: 300;
+  border-bottom: 1px solid #555;
+}
+
+.relatedUsersContainer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  width: 90%;
+  margin: auto;
+  flex-direction: column;
+  gap: 20px;
+  height: 100%;
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center; /* Center text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
 }

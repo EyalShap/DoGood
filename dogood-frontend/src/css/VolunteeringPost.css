@@ -67,32 +67,49 @@ textarea {
     display: flex;
     justify-content: center;  /* Ensures equal spacing between items */
     margin-top: 20px;
-    width: 100%;
-    gap: 20px;
+    gap: 50px;
+}
+
+.learnMore {
+       
+  width: 90%;
+  margin: auto;
+
+  height: 100%;
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center; /* Center text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 }
 
 .volunteeringOrganizationBox {
     flex: 0 1 400px;  /* This sets the base size for the boxes and prevents them from stretching */
     max-width: 400px; /* Optional: Set a maximum width to ensure they don't stretch too much */
-    border: 1px solid #ddd;
-    border-radius: 8px;
-    background: linear-gradient(135deg, #ffffff, #f9f9f9);
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border: 0px solid black;
+    border-radius: 0px;
+    background: #4295ac;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     padding: 20px;
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     text-align: center;
-    width: 80%;
+    width: 100%;
+    color: white;
 }
 
 .volunteeringOrganizationBox:hover {
 transform: translateY(-4px); /* Lift effect */
+background: #42a0acc7;
 }
 
 .volunteeringOrganizationBoxHeader {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.3rem;
-    color: #333;
+    color: #ffffff;
     margin: 0;
     font-weight: 600;
 }
@@ -101,7 +118,7 @@ transform: translateY(-4px); /* Lift effect */
 #postOrganization {
     font-family: 'Montserrat', sans-serif;
     font-size: 1.3rem;
-    color: #333;
+    color: #ffffff;
     margin: 0;
 }
 
@@ -114,16 +131,6 @@ transform: translateY(-4px); /* Lift effect */
     align-items: center;
 }
 
-#pastExperiences h1 {
-    font-family: 'Montserrat', sans-serif;
-    font-size: 1.6rem;
-    margin: 0;
-    color: black;
-    max-width: 800px;
-    line-height: 1.4;
-    font-weight: 300;
-    text-align: center;
-}
 
 #pastExperiences .pastExperienceItem {
     display: flex;

@@ -12,6 +12,9 @@ import { getVolunteeringImages } from '../api/post_api';
 import { supabase } from '../api/general';
 import { createOrganizationReport } from '../api/report_api';
 import SignatureCanvas from "react-signature-canvas";
+import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
+import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
 
 
 function Organization() {
@@ -41,21 +44,9 @@ function Organization() {
     const fetchOrganization = async () => {
         try{
             let found = await getOrganization(parseInt(id!));
-            console.log(found);
             setModel(found);
 
-            let managerIds = found.managerUsernames;
-            const userPromises = managerIds.map(username => getUserByUsername(username));
-            const users = await Promise.all(userPromises);
-
-            const managersItems: ListItem[] = users.map((user) => ({
-                id: user.username,
-                image: '/src/assets/defaultProfilePic.jpg', 
-                title: user.name,  
-                description: "",
-            }));
-            setManagers(managersItems);
-
+            await fecthManagers(found.managerUsernames, found.founderUsername);
             convertImagesToListItems(found.imagePaths);
 
             try {
@@ -74,6 +65,20 @@ function Organization() {
             alert(e)
         }
     }
+
+    const fecthManagers = async (managerIds: string[], founder: string) => {
+        const userPromises = managerIds.map(username => getUserByUsername(username));
+        const users = await Promise.all(userPromises);
+
+        const managersItems: ListItem[] = users.map((user) => ({
+            id: user.username,
+            image: defaultProfilePic, 
+            title: user.name,  
+            description: user.username === founder ? "(Founder)" : "",
+        }));
+        setManagers(managersItems);
+        console.log(managersItems);
+    }
     
     const convertImagesToListItems = (images: string[]) => {
         let imageListItems: ListItem[] = [];
@@ -84,7 +89,7 @@ function Organization() {
             description: "",
         }));
         if(imageListItems.length === 0) {
-            imageListItems = [{id : "", image: "/src/assets/defaultOrganizationDog.jpg", title: "", description: ""}];
+            imageListItems = [{id : "", image: defaultOrgImage, title: "", description: ""}];
         }
         setOrgImages(imageListItems);
     } 
@@ -99,7 +104,7 @@ function Organization() {
 
             const listItems: ListItem[] = volunteeringDetails.map((volunteering, index) => ({
                 id: volunteering.id,
-                image: imagesArray[index].length > 0 ? imagesArray[index][0] : '/src/assets/defaultVolunteeringDog.webp', 
+                image: imagesArray[index].length > 0 ? imagesArray[index][0] : defaultVolunteeringPic, 
                 title: volunteering.name,  
                 description: volunteering.description, // assuming 'summary' is a short description
             }));
@@ -155,7 +160,7 @@ function Organization() {
     }, [model, ready])
 
     const handleCreateVolunteeringOnClick = () => {
-        navigate('./createvolunteering');
+        navigate('./createvolunteering/0');
     };
 
     const handleRemoveOrganizationOnClick = async () => {
@@ -171,7 +176,7 @@ function Organization() {
     };
 
     const handleEditOrganizationOnClick = async () => {
-        navigate(`/createOrganization/${id}`);
+        navigate(`/createOrganization/${id}/0`);
     };
 
     
@@ -210,19 +215,15 @@ function Organization() {
             if(id !== undefined) {
                 try {
                     await removeManager(parseInt(id), managerToRemove);
+                    let newManagers = model.managerUsernames.filter((manager) => manager !== managerToRemove);
+
                     let updatedModel: OrganizationModel = {
-                        id: model.id,
-                        name: model.name,
-                        description: model.description,
-                        phoneNumber: model.phoneNumber,
-                        email: model.email,
-                        volunteeringIds: model.volunteeringIds,
-                        managerUsernames: model.managerUsernames.filter((manager) => manager !== managerToRemove),
-                        founderUsername: model.founderUsername,
-                        imagePaths: model.imagePaths,
-                        signature: model.signature
-                    }
+                        ...model,
+                        managerUsernames: newManagers,
+                    };
+                    
                     setModel(updatedModel);
+                    fecthManagers(newManagers, model.founderUsername);
                 }
                 catch(e) {
                     alert(e);
@@ -240,18 +241,11 @@ function Organization() {
                 try {
                     await setFounder(parseInt(id), newFounder);
                     let updatedModel: OrganizationModel = {
-                        id: model.id,
-                        name: model.name,
-                        description: model.description,
-                        phoneNumber: model.phoneNumber,
-                        email: model.email,
-                        volunteeringIds: model.volunteeringIds,
-                        managerUsernames: model.managerUsernames,
+                        ...model,
                         founderUsername: newFounder,
-                        imagePaths: model.imagePaths,
-                        signature: model.signature
-                    }
+                    };
                     setModel(updatedModel);
+                    fecthManagers(model.managerUsernames, newFounder);
                 }
                 catch(e) {
                     alert(e);
@@ -267,25 +261,19 @@ function Organization() {
         setAddManagerText(event.target.value);  // Update the state with the new value
     };
     
-
     const handleResignOnClick = async () => {
         if (window.confirm(`Are you sure you want to resign?`)) {
             if(id !== undefined) {
                 try {
                     await resign(parseInt(id));
+                    let newManagers = model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username"));
+
                     let updatedModel: OrganizationModel = {
-                        id: model.id,
-                        name: model.name,
-                        description: model.description,
-                        phoneNumber: model.phoneNumber,
-                        email: model.email,
-                        volunteeringIds: model.volunteeringIds,
-                        managerUsernames: model.managerUsernames.filter((manager) => manager !== localStorage.getItem("username")),
-                        founderUsername: model.founderUsername,
-                        imagePaths: model.imagePaths,
-                        signature: model.signature
-                    }
+                        ...model,
+                        managerUsernames: newManagers,
+                    };
                     setModel(updatedModel);
+                    await fecthManagers(newManagers, model.founderUsername);
                 }
                 catch(e) {
                     alert(e);
@@ -545,7 +533,8 @@ function Organization() {
                     </div>
                 </div>
             </div>
-
+            
+            <div className='orgList' style = {{width: '100%'}}>
             <div className="listContainer">
                 <h2 className='listHeader'>Our Volunteerings</h2>
                 <div className='generalList'>
@@ -556,28 +545,26 @@ function Organization() {
                     {isManager && <button className = 'orangeCircularButton' onClick={handleCreateVolunteeringOnClick}>Create Volunteering</button>}
                 </div>
             </div>
+            </div>
 
+            <div className='orgList' style = {{width: '100%'}}>
             <div className="listContainer">
                 <h2 className='listHeader'>Our Managers</h2>
-                <div className='generalList'>
-                    {managers.length > 0 ? (
-                        <ul className='managersList'>
-                            {managers.map((manager) => (
-                                <li className='managersListItem' key={manager.id} onClick={() => handleUserOnClick(manager.id)}>
-                                    <img className = 'managerProfilePic' src={manager.image}></img>
-                                    <p className='managerName'>{manager.title}</p>
-                                    {manager.id === model.founderUsername && <p className='isFounder'>(Founder)</p>}
-                                    {(localStorage.getItem("username") === manager.id && manager.id !== model.founderUsername) && <button onClick={handleResignOnClick} className='orangeCircularButton'>Resign</button>}
-                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button className='orangeCircularButton' onClick={() => handleRemoveManagerOnClick(manager.id.toString())}>X</button>}
-                                    {(localStorage.getItem("username") === model.founderUsername && manager.id !== model.founderUsername) && <button className='orangeCircularButton' onClick={() => handleSetAsFounderOnClick(manager.id.toString())}>Set As Founder</button>}
-                                    
-                                </li>
-                            ))}
-                        </ul>
-                        ) : 
-                        (<p>No managers available.</p>)
-                    }
-                </div>
+                <ListWithArrows 
+                    data={managers} 
+                    limit = {3} 
+                    navigateTo={`profile`} 
+                    onRemove={(username) => handleRemoveManagerOnClick(username)} 
+                    showResign = {(username) => localStorage.getItem("username") === username && username !== model.founderUsername}
+                    showFire = {(username) => localStorage.getItem("username") === model.founderUsername && username !== model.founderUsername}
+                    showSetAsFounder = {(username) => localStorage.getItem("username") === model.founderUsername && username !== model.founderUsername}
+                    resignHandler={handleResignOnClick}
+                    fireHandler={handleRemoveManagerOnClick}
+                    setFounderHandler={handleSetAsFounderOnClick}
+                    clickable={() => true}
+                    >
+                </ListWithArrows>
+                
                 {isManager && <button className = 'orangeCircularButton' onClick={() => handleAddNewManagerOnClick(addManagerText)}>Invite A New Manager To The Family</button>}
                 {showAddManager && 
                     <div className="popup-window">
@@ -596,12 +583,14 @@ function Organization() {
                         </div>
                 }
             </div>
+            </div>
 
-            {isManager && <div className='signature'>
+            <div className='orgList' style = {{width: '100%'}}>
+            {isManager && <div className='signature' style={{marginTop:'40px'}}>
                 <h2 className='listHeader'>Organization Signature</h2>
                 <h2 className='sigDesc'>Upload the organization signature to automatically sign forms for volunteers!</h2>
                 {signature !== "" && <img src={signature}></img>}
-                {signature === "" && <p>No signature available.</p>}
+                {signature === "" && <p style={{marginBottom:'-10px'}}>No signature available.</p>}
                 {signature !== "" && localStorage.getItem("username") === model.founderUsername && <button className="removeButton" onClick = {handleRemoveSignatureOnClick}>X</button>}
 
                 {localStorage.getItem("username") === model.founderUsername && <div className='uploads'>
@@ -634,6 +623,7 @@ function Organization() {
                     </div>
                 </div>}
             </div>}
+            </div>
 
         </div>
 

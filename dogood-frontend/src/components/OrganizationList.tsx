@@ -8,6 +8,7 @@ import ListWithArrows, { ListItem } from './ListWithArrows';
 import ListWithPlus from './ListWithPlus';
 import { Switch } from '@mui/material';
 import { getVolunteeringsOfUser, getVolunteeringVolunteers } from '../api/volunteering_api';
+import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
 
 function OrganizationList() {
     const navigate = useNavigate();
@@ -67,7 +68,7 @@ function OrganizationList() {
     const convertToListItems = (orgs: OrganizationModel[]) => {
         const listItems: ListItem[] = orgs.map((org) => ({
             id: org.id,
-            image: org.imagePaths.length > 0 ? org.imagePaths[0] : "/src/assets/defaultOrganizationDog.jpg", 
+            image: org.imagePaths.length > 0 ? org.imagePaths[0] : defaultOrgImage, 
             title: org.name.concat(org.founderUsername === localStorage.getItem("username") ? " (Founder)" : ""),  
             description: org.description, 
         }));
@@ -85,7 +86,7 @@ function OrganizationList() {
     }, [isMyOrgs]);
 
     const handleNewOrgOnClick = () => {
-        navigate('/createOrganization/-1');
+        navigate('/createOrganization/-1/0');
     };
 
     const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {

@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.requests.Request;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationNavigations;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
@@ -72,6 +73,8 @@ public class OrganizationsFacade {
             usersFacade.removeUserOrganization(actor, organizationId);
         }
         reportsFacade.removeOrganizationReports(organizationId);
+
+        notifyManagers(String.format("Your organization \"%s\" was removed.", toRemove.getName()), NotificationNavigations.organizationList, organizationId);
     }
 
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email, String actor) {
@@ -79,11 +82,14 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         Organization toEdit = organizationRepository.getOrganization(organizationId);
+        String prevName = toEdit.getName();
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, toEdit.getName(), "edit the organization's details"));
         }
         organizationRepository.editOrganization(organizationId, name, description, phoneNumber, email);
+
+        notifyManagers(String.format("Your organization \"%s\" was edited.", prevName), NotificationNavigations.organization(organizationId), organizationId);
     }
 
     public int createVolunteering(int organizationId, String volunteeringName, String volunteeringDescription, String actor) {
@@ -99,6 +105,8 @@ public class OrganizationsFacade {
         organization.addVolunteering(volunteeringId);
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
 
+        notifyManagers(String.format("A new volunteering \"%s\" was added to your organization \"%s\".", volunteeringName, organization.getName()), NotificationNavigations.volunteering(volunteeringId), organizationId);
+
         return volunteeringId;
     }
 
@@ -113,6 +121,8 @@ public class OrganizationsFacade {
         }
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
+
+        notifyManagers(String.format("The volunteering \"%s\" was removed from your organization \"%s\".", volunteeringFacade.getVolunteeringDTO(volunteeringId).getName(), organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
@@ -133,8 +143,8 @@ public class OrganizationsFacade {
         }
         requestRepository.createRequest(newManager, actor, organizationId, RequestObject.ORGANIZATION);
 
-        //TODO: change when users facade is implemented
-        //usersFacade.notify(newManager, ....);
+        String message = String.format("%s is asking you to be manager of organization \"%s\".", actor, organization.getName());
+        notificationSystem.notifyUser(newManager, message, NotificationNavigations.requests);
     }
 
     public void handleAssignManagerRequest(String actor, int organizationId, boolean approved) {
@@ -151,8 +161,7 @@ public class OrganizationsFacade {
 
         String approvedStr = approved ? "approved" : "denied";
         String message = String.format("%s has %s your assign as manager request.", actor, approvedStr);
-        //TODO: change when users facade is implemented
-        //usersFacade.notify(request.getAssignerUsername(), message);
+        notificationSystem.notifyUser(request.getAssignerUsername(), message, NotificationNavigations.organization(organizationId));
     }
 
     public void resign(String actor, int organizationId) {
@@ -162,6 +171,8 @@ public class OrganizationsFacade {
         Organization organization = organizationRepository.getOrganization(organizationId);
         organization.resign(actor);
         organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
+
+        notifyManagers(String.format("The manager \"%s\" resigned from your organization \"%s\".", actor, organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
     }
 
     public void removeManager(String actor, String managerToRemove, int organizationId) {
@@ -176,6 +187,7 @@ public class OrganizationsFacade {
 
         organization.removeManager(managerToRemove);
         organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
+        notificationSystem.notifyUser(managerToRemove, String.format("You are no longer a manager of organization \"%s\".", organization.getName()), NotificationNavigations.organization(organizationId));
     }
 
     public void setFounder(String actor, String newFounder, int organizationId) {
@@ -189,6 +201,8 @@ public class OrganizationsFacade {
         }
 
         organizationRepository.setFounder(organizationId, newFounder);
+
+        notifyManagers(String.format("%s is the new founder of your organization \"%s\".", newFounder, organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
     }
 
     public void notifyManagers(String message, String nav, int orgId){

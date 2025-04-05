@@ -6,6 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
 import './../css/CreateVolunteeringPost.css'
 import { PostModel } from '../models/PostModel';
+import ReactLoading from 'react-loading';
+import PacmanLoader from "react-spinners/PacmanLoader";
+import StepIndicator from './Stepper';
+
 
 interface PostFormData {
   title: string;
@@ -14,9 +18,10 @@ interface PostFormData {
 
 function CreatePost() {
   const navigate = useNavigate();
-  let { id, postId } = useParams();
+  let { id, postId, quickstart } = useParams();
   const [edit, setEdit] = useState(false);
   const [post, setPost] = useState<PostModel | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const { register, handleSubmit, formState: { errors } , reset} = useForm<PostFormData>();
   
@@ -49,7 +54,7 @@ function CreatePost() {
 
 
   const contactSubmit: SubmitHandler<PostFormData> = async (data) => {
-    console.log(id);
+    setLoading(true);
     try {
       if(id !== undefined) {
         console.log(edit);
@@ -59,7 +64,6 @@ function CreatePost() {
             navigate(`/volunteeringPostList`);
         }
         else {
-          console.log("hiiiiiiiii");
           if(postId !== undefined && post !== null) {
             if(isVolunteeringPost) {
               console.log("im here3");
@@ -98,6 +102,9 @@ function CreatePost() {
       //send to error page
       alert(e);
     }
+    finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
@@ -106,6 +113,7 @@ function CreatePost() {
 
     return (
       <form className="create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
+        {quickstart === "1" && <StepIndicator activeStep={2} />}
         <div className="form-container">
           <div className='createPostHeaders'>
             {isVolunteeringPost && <h1 className="bigHeader">{edit ? "Edit Volunteering Post" : "Create Volunteering Post"}</h1>}
@@ -149,9 +157,10 @@ function CreatePost() {
               {errors.description && <p>{errors.description.message}</p>}
             </div>
 
-            <button className='orangeCircularButton' type="submit">
+            <button className={`orangeCircularButton ${loading ? 'disabledButton' : ''}`} type="submit">
               {edit ? 'Save Changes' : 'Create Post'}
             </button>
+            {loading && <PacmanLoader color="#037b7b" size={25} />}
           </div>
         </div>
       </form>

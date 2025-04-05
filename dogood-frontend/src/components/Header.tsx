@@ -133,7 +133,7 @@ const Header: React.FC<Props> = ({ user }) => {
                  {newNotificationsAmount > 0 &&
                  <div className="buttonBadge">{newNotificationsAmount}</div>}
                   {dropdownOpenNotifications && (
-                    <div className="dropdownMenu" onMouseLeave={closeDropdownNotifications}>
+                    <div className="dropdownMenu notificationsDropDown" onMouseLeave={closeDropdownNotifications}>
                       {notifications.map((notification: Notification) => 
                         notification.isRead ? <a href={notification.navigationURL} className={"dropdownNotification"}>{notification.message}</a>
                         : <a href={notification.navigationURL} className={"dropdownNotificationNew"}>{notification.message}</a>)} 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
-import { getVolunteering } from '../api/volunteering_api'
+import { getVolunteering, getVolunteeringCategories, getVolunteeringSkills } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
 import { getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, joinVolunteeringRequest, removeVolunteeringPost } from '../api/post_api';
@@ -11,6 +11,7 @@ import './../css/CommonElements.css'
 import { createVolunteeringPostReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
 
 function VolunteeringPost() {
     const navigate = useNavigate();
@@ -29,6 +30,8 @@ function VolunteeringPost() {
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [skills, setSkills] = useState<string[]>([]);
+    const [categories, setCategories] = useState<string[]>([]);
     let { id } = useParams();
     
     const fetchVolunteeringPost = async () => {
@@ -44,13 +47,18 @@ function VolunteeringPost() {
                 setOrganizationName(organizationName);
                 
                 try {
-                    await getVolunteering(post.volunteeringId);
+                    let vol = await getVolunteering(post.volunteeringId);
+                    
                     setIsVolunteer(true);
                 }
                 catch {
                     setIsVolunteer(false);                
                 }
                 setIsManager(await getIsManager(post.organizationId));
+
+                setSkills(await getVolunteeringSkills(post.volunteeringId));
+                setCategories(await getVolunteeringCategories(post.volunteeringId));
+
             }
             else {
                 alert("Error");
@@ -67,7 +75,7 @@ function VolunteeringPost() {
             if(ready) {
                 let images = await getVolunteeringImages(model.volunteeringId);
                 if(images.length === 0) {
-                    images = ['/src/assets/defaultVolunteeringDog.webp'];
+                    images = [defaultVolunteeringPic];
                 }
                 const listItems: ListItem[] = images.map((image) => ({
                     id: "",
@@ -177,7 +185,7 @@ function VolunteeringPost() {
     }
 
     const handleEditPostOnClick = () => {
-        navigate(`/volunteering/${model.volunteeringId}/createVolunteeringPost/${model.id}`);
+        navigate(`/volunteering/${model.volunteeringId}/createVolunteeringPost/${model.id}/0`);
     }
 
     const handleRemovePostOnClick = async () => {
@@ -302,11 +310,37 @@ function VolunteeringPost() {
                             </div>
                         </div>
                     )}
+            </div>
 
-            
+            <div className='catsAndSkills'>
+                <div className='cats'>
+                    <h2 className='volunteerPostheader'>Volunteering Categories</h2>
+                    <ul className='catsList'>
+                        <div>
+                    {categories.length > 0 ? categories.map((item, index) => (
+                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                    )) : <p className='notFound'>No Categories Found</p>}
+                    </div>
+                    </ul>
+                </div>
+    
+                <div className='skills'>
+                    <h2 className='volunteerPostheader'>Required Skills</h2>
+                    <ul className='skillsList'>
+                    <div>
+                    {skills.length > 0 ? skills.map((item, index) => (
+                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                    )) : <p className='notFound'>No Skills Found</p>}
+                    </div>
+                    </ul>
+                </div>
             </div>
             
+            <div className="learnMore">
+                <h2 className='relatedVolunteersHeader' style={{textAlign:'center'}}>Learn More About The Volunteering</h2>
             <div id="volunteeringAndOrganization">
+                
+
                     <div 
                         className="volunteeringOrganizationBox" 
                         onClick={handleShowVolunteeringOnClick}
@@ -321,8 +355,11 @@ function VolunteeringPost() {
                     </div>
                 </div>
     
-                <div id="pastExperiences" className="pastExperiences">
-                    <h1 id="pastExperiencesHeader">Volunteers Past Experiences</h1>
+                
+        </div>
+
+        <div className="learnMore">
+                    <h1 className="relatedVolunteersHeader">Volunteers Past Experiences</h1>
                     {pastExperiences.length > 0 ? (
                         <div id="pastExperienceItem" className="pastExperienceItem">
                             <button id="prevExperienceButton" onClick={handlePrev}>&lt;</button>

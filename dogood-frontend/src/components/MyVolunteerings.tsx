@@ -12,6 +12,7 @@ import { getUserByUsername } from '../api/user_api';
 import { getVolunteeringImages } from '../api/post_api';
 import { supabase } from '../api/general';
 import ListWithPlus from "./ListWithPlus.tsx";
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
 
 function MyVolunteerings() {
     const navigate = useNavigate();
@@ -28,7 +29,7 @@ function MyVolunteerings() {
 
             const listItems: ListItem[] = volunteeringDetails.map((volunteering, index) => ({
                 id: volunteering.id,
-                image: imagesArray[index].length > 0 ? imagesArray[index][0] : '/src/assets/defaultVolunteeringDog.webp',
+                image: imagesArray[index].length > 0 ? imagesArray[index][0] : defaultVolunteeringPic,
                 title: volunteering.name,
                 description: volunteering.description, // assuming 'summary' is a short description
             }));
@@ -49,7 +50,7 @@ function MyVolunteerings() {
         <div className='generalPageDiv'>
 
             <div className="listContainer">
-                <h2 className='listHeader'>My Volunteerings</h2>
+                <h2 className='bigHeader'>My Volunteerings</h2>
                 <div className='generalList'>
                     {volunteerings.length > 0 ? (
                         <ListWithPlus limit = {9} data = {volunteerings} navigateTo={'volunteering'}></ListWithPlus>

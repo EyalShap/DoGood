@@ -77,10 +77,10 @@ function App() {
               <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
               <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
               <Route path='/organizationList' element={<OrganizationList/>}/>
-              <Route path='/createOrganization/:id' element={<CreateOrganization/>}/>
+              <Route path='/createOrganization/:id/:quickstart' element={<CreateOrganization/>}/>
               <Route path='/myvolunteerings' element={<MyVolunteerings/>}/>
               <Route path='/volunteering/:id' element={<Volunteering/>}/>
-              <Route path='/volunteering/:id/createVolunteeringPost/:postId' element={<CreatePost/>}/>
+              <Route path='/volunteering/:id/createVolunteeringPost/:postId/:quickstart' element={<CreatePost/>}/>
               <Route path='/createVolunteerPost/:postId' element={<CreatePost/>}/>
               <Route path='/organization/:id' element={<Organization/>}/>
               <Route path='/volunteering/:id/code' element={<CodeView/>}/>
@@ -90,7 +90,7 @@ function App() {
               <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
               <Route path='/volunteering/:id/chat' element={<VolunteeringChat/>}/>
               <Route path='/scan' element={<CodeScan/>}/>
-              <Route path='/organization/:id/createVolunteering' element={<CreateVolunteering/>}/>
+              <Route path='/organization/:id/createVolunteering/:quickstart' element={<CreateVolunteering/>}/>
               <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
               <Route path='/volunteerPost/:id' element={<VolunteerPost/>}/>
               <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>

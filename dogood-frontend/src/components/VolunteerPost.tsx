@@ -3,7 +3,7 @@ import './../css/Volunteering.css'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
+import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeRelatedUser, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteerPost.css'
@@ -16,6 +16,9 @@ import { supabase } from '../api/general';
 import { getUserByUsername } from '../api/user_api';
 import { getOpenPostChats } from '../api/chat_api';
 import User from '../models/UserModel';
+import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
+import defaultVolunteerPostPic from '/src/assets/defaultVolunteerPostDog.jpg';
+
 
 function VolunteerPost() {
     const navigate = useNavigate();
@@ -44,7 +47,7 @@ function VolunteerPost() {
                 let post: VolunteerPostModel = await getVolunteerPost(parseInt(id));
                 setModel(post);
 
-                await convertUsersToListItems(post.relatedUsers);
+                await convertUsersToListItems(post.relatedUsers, post.posterUsername);
                 convertImagesToListItems(post.images);
   
                 setIsPoster(localStorage.getItem("username") === post.posterUsername);
@@ -59,7 +62,7 @@ function VolunteerPost() {
                     for (let username of openChatUsers) {
                         try {
                             const user: User = await getUserByUsername(username);
-                            const image: string = '/src/assets/defaultProfilePic.jpg';
+                            const image: string = defaultProfilePic;
                                                     
                             setOpenChatUsersProfilePics((prev) => ({
                                 ...prev,
@@ -84,7 +87,7 @@ function VolunteerPost() {
 
     const convertImagesToListItems = (images: string[]) => {
         if(!Array.isArray(images) || images.length === 0) {
-            images = ['/src/assets/defaultVolunteerPostDog.jpg'];
+            images = [defaultVolunteerPostPic];
         }
                  
         let imageListItems: ListItem[] = images.map((image) => ({
@@ -97,15 +100,15 @@ function VolunteerPost() {
         setPostImages(imageListItems);
     } 
 
-    const convertUsersToListItems = async (usernames : string[]) => {
+    const convertUsersToListItems = async (usernames : string[], posterUsername: string) => {
         const userPromises = usernames.map(username => getUserByUsername(username));
         const users = await Promise.all(userPromises);
 
         const usersItems: ListItem[] = users.map((user) => ({
             id: user.username,
-            image: '/src/assets/defaultProfilePic.jpg', 
+            image: defaultProfilePic, 
             title: user.name,  
-            description: "",
+            description: user.username === posterUsername ? "(Poster)" : "",
         }));
         setRelatedUsers(usersItems);
     }
@@ -269,6 +272,26 @@ function VolunteerPost() {
     const handleCancelChatOnClick = async () => {
         setShowChatList(false);
     }
+
+    const onRemoveVolunteer = async (username: string) => {
+        try {
+            if(window.confirm("Are you sure you want to remove this user from the post?")) {
+                await removeRelatedUser(model.id, username);
+                let newRelatedUser = model.relatedUsers.filter(user => username !== user)
+                let updatedModel: VolunteerPostModel = {
+                    ...model, 
+                    relatedUsers: newRelatedUser
+                }
+                setModel(updatedModel);
+
+                await convertUsersToListItems(newRelatedUser, model.posterUsername);
+            }
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
         
     return (
         <div id="postPage" className="postPage">
@@ -338,7 +361,8 @@ function VolunteerPost() {
                 </div>
             </div>
 
-            <div>
+            <div className="relatedUsersContainer">
+                <h2 className='relatedVolunteersHeader'>{isActorInPost ? "Contact Organization Managers" : "Contact Volunteers"}</h2>
                 <button className="orangeCircularButton" onClick={handleChatOnClick} style={{marginTop:'20px'}}>{isActorInPost ? "Open Chat" : "Start Chat"}</button>
                 {showChatList && (
                     <div className="popup-window">
@@ -350,7 +374,7 @@ function VolunteerPost() {
                         </div>
                         <div className="popup-body chats-popup-body">
                             <ul className="openChatsList">
-                                {openChatUsers.map((username, index) => (
+                                {openChatUsers.length > 0 && openChatUsers.map((username, index) => (
                                 <li key={index} onClick={() => handleOpenChatOnClick(username)}>
                                     <div className='openChatListItem'>
                                     <img className='openChatProfilePic' src={openChatUsersProfilePics[username]}></img>
@@ -358,6 +382,7 @@ function VolunteerPost() {
                                     </div>
                                 </li>
                                 ))}
+                                {openChatUsers.length === 0 && <p className='chatUsername'>No Open Chats.</p>}
                             </ul>
                             
                             
@@ -365,25 +390,21 @@ function VolunteerPost() {
                     </div>
                 )}
             </div>
-            <div className="listContainer">
-                <h2 className='volunteerPostheader'>Friends In This Post</h2>
 
-                <div className='generalUsersList'>
-                        {relatedUsers.length > 0 ? (
-                            <ul className='relatedUsersList'>
-                                {relatedUsers.map((user) => (
-                                    <li className='managersListItem' key={user.id} onClick={() => handleUserOnClick(user.id)}>
-                                        <img className = 'managerProfilePic' src={user.image}></img>
-                                        <p className='managerName'>{user.title}</p>
-                                        {user.id === model.posterUsername && <p className='isPoster'>(Poster)</p>}
-                                        
-                                    </li>
-                                ))}
-                            </ul>
-                            ) : 
-                            (<p>No related users available.</p>)
-                        }
-                </div>
+            <div className="relatedUsersContainer">
+                <h2 className='relatedVolunteersHeader'>Friends In This Post</h2>
+                
+                <ListWithArrows 
+                    data={relatedUsers} 
+                    limit = {3} 
+                    navigateTo={`profile`} 
+                    clickable={() => true}
+                    showFire={(username) => username !== model.posterUsername}
+                    fireHandler={onRemoveVolunteer}
+                    >
+                </ListWithArrows>
+
+                
 
                 <div id="addVolunteerButton" className="addVolunteerButton">
             

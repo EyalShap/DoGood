@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import './../css/ListWithArrows.css'
 import './../css/CommonElements.css'
 import { useNavigate } from "react-router-dom";
+import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
 
 export interface ListItem {
   id: number | string;
@@ -18,9 +19,15 @@ export interface ListProps {
   onRemove? : (arg0: string) => Promise<void>;
   isOrgManager? : boolean;
   showArrows? : boolean;
+  showResign? :(username: string) => boolean;
+  showFire? :(username: string) => boolean;
+  showSetAsFounder? :(username: string) => boolean;
+  resignHandler? : (arg0: string) => Promise<void>;
+  fireHandler? : (arg0: string) => Promise<void>;
+  setFounderHandler? : (arg0: string) => Promise<void>;
 }
 
-const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager, showArrows = true }) => {
+const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager, showArrows = true, showResign, showFire, showSetAsFounder, resignHandler, fireHandler, setFounderHandler }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0); 
 
@@ -50,6 +57,10 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
   const visibleItems2 = data.length > limit ? data.slice(0, limit - visibleItems1.length) : [];
   const visibleItems = visibleItems1.concat(visibleItems2);
 
+  useEffect(() => {
+    setStartIndex(0);
+  }, [data]); 
+
   return (
     <div className="listComponent">
       <link
@@ -70,8 +81,14 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
             />
             <h3 className="listItemHeader">{item.title}</h3>
             <p className="listItemDesc">{item.description}</p>
+            <div className="listItemButtons">
+              {showResign && showResign(item.id.toString()) && resignHandler && <button onClick={(e) => {e.stopPropagation(); resignHandler(item.id.toString());}} className='orangeCircularButton'>Resign</button>}
+              {showFire && showFire(item.id.toString()) && fireHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); fireHandler(item.id.toString());}}>X</button>}
+              {showSetAsFounder && showSetAsFounder(item.id.toString()) && setFounderHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); setFounderHandler(item.id.toString());}}>Set As Founder</button>}
+            </div>
           </div>
-          {(isOrgManager && onRemove && item.image !== '/src/assets/defaultOrganizationDog.webp') && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
+          {(isOrgManager && onRemove && item.image !== defaultOrgImage) && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
+                                              
           </div>
         ))}
       </div>

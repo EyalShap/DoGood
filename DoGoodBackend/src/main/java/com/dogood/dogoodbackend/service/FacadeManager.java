@@ -56,6 +56,7 @@ public class FacadeManager {
         this.usersFacade.setNotificationSystem(notificationSystem);
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
         this.chatFacade.setNotificationSystem(notificationSystem);
+        this.postsFacade.setNotificationSystem(notificationSystem);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {

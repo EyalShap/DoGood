@@ -134,3 +134,7 @@
   font-weight: bold;
   text-align: center;
 }
+
+.notificationsDropDown {
+  width: 700px;
+}

@@ -6,6 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import OrganizationModel from '../models/OrganizationModel';
 import './../css/CreateOrganization.css'
 import './../css/CommonElements.css'
+import StepIndicator from './Stepper';
 
 interface OrganizationFormData {
   name: string;
@@ -16,7 +17,7 @@ interface OrganizationFormData {
 
 function CreateOrganization() {
   const navigate = useNavigate();
-  let { id } = useParams(); 
+  let { id, quickstart } = useParams(); 
 
   const { register, handleSubmit, formState: { errors } , reset} = useForm<OrganizationFormData>();
   const [edit, setEdit] = useState(false);
@@ -48,7 +49,12 @@ function CreateOrganization() {
           if(!edit) {
             organizationId = await createOrganization(data.name, data.description, data.email, data.phoneNumber);
             alert("Organization created successfully!");
-            navigate(`/organization/${organizationId}`);
+            if(quickstart === "1") {
+              navigate(`/organization/${organizationId}/createVolunteering/1`);
+            }
+            else {
+              navigate(`/organization/${organizationId}/0`);
+            }
           }
           else {
             if(id === undefined) {
@@ -75,8 +81,10 @@ function CreateOrganization() {
 
     return (
       <form className="create-organization-form" onSubmit={handleSubmit(contactSubmit)}>
+        {quickstart === "1" && <StepIndicator activeStep={0} />}
         <div className="form-container">
           <div className='createHeaders'>
+          
             <h1 className="bigHeader">{edit ? "Edit Organization" : "Create Organization"}</h1>
             <h2 className="smallHeader">{edit ? "Edit " : "Start "}your organization now and make your vision a reality - build a community that shares your passion</h2>
           </div>
@@ -143,7 +151,7 @@ function CreateOrganization() {
             </div>
 
             <button className='orangeCircularButton' type="submit">
-              {edit ? 'Save Changes' : 'Create Organization'}
+              {edit ? 'Save Changes' : (quickstart === "1" ? 'Continue To Creating Volunteering →' : 'Create Organization')}
             </button>
           </div>
         </div>

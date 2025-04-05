@@ -755,3 +755,29 @@ export const removeVolunteering = async (volunteeringId: number): Promise<string
     }
     return response.data;
 }
+
+
+export const getVolunteeringSkills = async (volunteeringId: number): Promise<string[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getVolunteeringSkills?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+
+export const getVolunteeringCategories = async (volunteeringId: number): Promise<string[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getVolunteeringCategories?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
