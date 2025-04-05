@@ -1,7 +1,10 @@
 package com.dogood.dogoodbackend.pdfformats;
 
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
+import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.DocumentException;
+import com.itextpdf.text.Image;
+import com.itextpdf.text.Rectangle;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
@@ -38,13 +41,18 @@ public class BGUPdfFormat implements PdfFormat{
     private PdfStamper stamper;
     private PdfReader reader;
     private String outputPath;
+    private byte[] signature;
+
+    final int SIGNATURE_HOUR_X = 73;
+    final int SIGNATURE_HOUR_WIDTH = 100;
 
     final BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H,true);
 
-    public BGUPdfFormat(String username) throws IOException, DocumentException {
+    public BGUPdfFormat(String username, byte[] signature) throws IOException, DocumentException {
         current_row = 0;
         InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/bgu.pdf");
         reader = new PdfReader(pdf);
+        this.signature = signature == null ? signature : signature.clone();
         outputPath = "./"+username + "/"+"bgu"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
     }
@@ -134,6 +142,14 @@ public class BGUPdfFormat implements PdfFormat{
         double totalHours = approvedHours.getTotalHours();
         String totalHoursString = Math.floor(totalHours) == totalHours ? ""+(int)totalHours : String.format("%.01f", totalHours);
         addText(TOTAL_X, y, totalHoursString, over);
+        if(signature != null && signature.length > 0){
+            try {
+                Image signatureImage = Image.getInstance(signature);
+                signatureImage.setAbsolutePosition(SIGNATURE_HOUR_X, y-ROW_HEIGHT/2);
+                signatureImage.scaleAbsolute(SIGNATURE_HOUR_WIDTH, ROW_HEIGHT);
+                over.addImage(signatureImage);
+            }catch (Exception e){}
+        }
         current_row++;
         return this;
     }

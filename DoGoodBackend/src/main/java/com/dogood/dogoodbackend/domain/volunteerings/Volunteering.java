@@ -336,8 +336,8 @@ public class Volunteering {
     }
 
     public int addRangeToGroup(int groupId, int locId, LocalTime startTime, LocalTime endTime,int minimumAppointmentMinutes, int maximumAppointmentMinutes, boolean[] weekDays, LocalDate oneTime){
-        if(startTime.isAfter(endTime)){
-            throw new IllegalArgumentException("Start time cannot be after end time");
+        if(!startTime.isBefore(endTime)){
+            throw new IllegalArgumentException("Start time must be before end time");
         }
         if(minimumAppointmentMinutes > 0 && maximumAppointmentMinutes > 0 && minimumAppointmentMinutes > maximumAppointmentMinutes){
             throw new IllegalArgumentException("Illegal appointment minutes range");

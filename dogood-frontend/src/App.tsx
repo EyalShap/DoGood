@@ -57,9 +57,11 @@ function App() {
       setIsLoggedIn(localStorage.getItem("token") !== null);
     }
 
-    window.addEventListener('storage', handleStorage)
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('login', loggedInCheck);
     loggedInCheck();
-    return () => window.removeEventListener('storage', handleStorage)
+    return () => {window.removeEventListener('storage', handleStorage);
+    window.removeEventListener('login',loggedInCheck)}
   }, []);
 
   return (
