@@ -116,7 +116,7 @@ public class VolunteeringFacade {
         repository.disableVolunteering(volunteeringId);
         postsFacade.removePostsByVolunteeringId(volunteeringId);
         schedulingFacade.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
-        organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId);
+        organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId, volunteering.getName());
         reportsFacade.removeVolunteeringReports(volunteeringId);
     }
 

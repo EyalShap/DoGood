@@ -53,7 +53,7 @@ function CreateOrganization() {
               navigate(`/organization/${organizationId}/createVolunteering/1`);
             }
             else {
-              navigate(`/organization/${organizationId}/0`);
+              navigate(`/organization/${organizationId}`);
             }
           }
           else {
