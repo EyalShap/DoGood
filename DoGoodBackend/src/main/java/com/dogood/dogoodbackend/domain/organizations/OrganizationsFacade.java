@@ -62,19 +62,21 @@ public class OrganizationsFacade {
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toRemove.getName(), "remove the organization"));
         }
-        for(int volunteeringId : toRemove.getVolunteeringIds()) {
+
+        List<Integer> volunteeringIds = new ArrayList<>(toRemove.getVolunteeringIds());
+        for(int volunteeringId : volunteeringIds) {
             volunteeringFacade.removeVolunteering(actor, volunteeringId);
         }
         requestRepository.removeObjectRequests(organizationId, RequestObject.ORGANIZATION);
         organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
-        organizationRepository.removeOrganization(organizationId);
         if(toRemove.isFounder(actor)) {
             usersFacade.removeUserOrganization(actor, organizationId);
         }
         reportsFacade.removeOrganizationReports(organizationId);
 
         notifyManagers(String.format("Your organization \"%s\" was removed.", toRemove.getName()), NotificationNavigations.organizationList, organizationId);
+        organizationRepository.removeOrganization(organizationId);
     }
 
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email, String actor) {
@@ -110,7 +112,7 @@ public class OrganizationsFacade {
         return volunteeringId;
     }
 
-    public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
+    public void removeVolunteering(int organizationId, int volunteeringId, String actor, String volunteeringName) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
@@ -122,7 +124,23 @@ public class OrganizationsFacade {
         organization.removeVolunteering(volunteeringId); // checks if volunteering exists
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
 
-        notifyManagers(String.format("The volunteering \"%s\" was removed from your organization \"%s\".", volunteeringFacade.getVolunteeringDTO(volunteeringId).getName(), organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
+        notifyManagers(String.format("The volunteering \"%s\" was removed from your organization \"%s\".", volunteeringName, organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
+    }
+
+    public void removeVolunteering(int organizationId, int volunteeringId, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        Organization organization = organizationRepository.getOrganization(organizationId);
+        String volunteeringName = volunteeringFacade.getVolunteeringDTO(volunteeringId).getName();
+
+        if(!organization.isManager(actor) && !isAdmin(actor)) {
+            throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "remove a volunteering"));
+        }
+        organization.removeVolunteering(volunteeringId); // checks if volunteering exists
+        organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
+
+        notifyManagers(String.format("The volunteering \"%s\" was removed from your organization \"%s\".", volunteeringName, organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
     }
 
     public void sendAssignManagerRequest(String newManager, String actor, int organizationId) {
