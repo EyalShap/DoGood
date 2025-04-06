@@ -9,14 +9,29 @@
   }
 
   .logo {
-    color: white; /* Fill color */
-    font-size: 24px;
-    font-weight: bold;
-    cursor: pointer;
+    box-shadow: none !important;
+    filter: drop-shadow(0px 0px 0px white);
+    transition: filter 2s;
+  }
+
+  .logo img {
+    box-shadow: none;
+  }
+
+  .logotitle {
+    height: 45px !important;
+    width: auto !important;
+  }
+
+  .logoicon {
+    height: 60px !important;
+    width: auto !important;
+    margin-right: 10px;
+    filter: drop-shadow(0px 0px 5px white);
   }
 
   .logo:hover {
-    text-decoration: underline;
+    filter: drop-shadow(0px 0px 10px white);
   }
 
   .nav {
@@ -137,4 +152,17 @@
 
 .notificationsDropDown {
   width: 700px;
+}
+
+@media (max-width: 500px) {
+  .logoicon{
+    height: 40px !important;
+  }
+  .logotitle {
+    height: 30px !important;
+  }
+
+  .notificationsDropDown{
+    width: 30%;
+  }
 }

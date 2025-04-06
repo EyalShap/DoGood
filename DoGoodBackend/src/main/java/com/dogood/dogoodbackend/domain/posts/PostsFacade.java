@@ -350,7 +350,9 @@ public class PostsFacade {
         Set<String> currKeywords = getVolunteeringKeywords(currVolunteering);
 
         for(VolunteeringDTO historyVolunteering : history) {
-            Set<String> historyKeywords = getVolunteeringKeywords(historyVolunteering);
+            Set<String> historyKeywords = new HashSet<>();
+            historyKeywords.addAll(historyVolunteering.getCategories());
+            historyKeywords.addAll(historyVolunteering.getSkills());
             match += countCommons(currKeywords, historyKeywords);
         }
         return match;

@@ -8,8 +8,9 @@ import { FaBell } from 'react-icons/fa';
 import { Badge } from '@mui/material';
 import {Client} from "@stomp/stompjs";
 import {host} from "../api/general.ts";
-import ChatMessage from "../models/ChatMessage.ts";
 import defaultImage from '../assets/defaultProfilePic.jpg';
+import logoTitle from "../assets/title_dogood.png"
+import logoIcon from "../assets/logo.png"
 
 type Props = { user: UserModel | undefined };
 
@@ -118,7 +119,10 @@ const Header: React.FC<Props> = ({ user }) => {
             rel="stylesheet"
             />
             
-          <div className="logo" onClick = {onLogo}>doGood</div>
+          <div className="logo" onClick = {onLogo}>
+              <img className="logoicon" src={logoIcon}/>
+              <img className="logotitle" src={logoTitle}/>
+          </div>
           <nav className="nav">
             <ul className="menuList">
               {!isMobile && <li className="menuListItem"><a href="/volunteeringPostList" className="navLink">Browse Posts</a></li>}
