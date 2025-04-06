@@ -8,7 +8,7 @@ import {
     assignVolunteerToLocation,
     cancelAppointment,
     createNewGroup,
-    finishVolunteering,
+    finishVolunteering, getGroupLocationMapping,
     getGroupLocations,
     getIsManager,
     getUserAssignedLocation,
@@ -31,7 +31,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
 import { DayPilotCalendar } from '@daypilot/daypilot-lite-react';
 import { DayPilot } from '@daypilot/daypilot-lite-react';
-import Location from '../models/Location';
+import Location, {VolunteersToLocation} from '../models/Location';
 
 import ScheduleRange, { RestrictionTuple } from '../models/ScheduleRange';
 import dayjs, { Dayjs } from 'dayjs';
@@ -55,6 +55,7 @@ import Select from "react-select";
 import { createVolunteeringPost } from '../api/post_api';
 import { createVolunteeringReport } from '../api/report_api';
 import { getOrganizationName } from '../api/organization_api';
+import Info from "./Info.tsx";
 
 
 
@@ -62,14 +63,30 @@ interface GroupToVolunteers {
     [key: number]: string[];
 }
 
-function GroupRow({ groupId, volunteers, deleteGroup, onDragStart, onDrop }: { groupId: number, volunteers: string[], deleteGroup: (groupId: number) => void, onDragStart: (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => void, onDrop: (e: any, to: number) => void }) {
+function GroupRow({ groupId, volunteeringId, volunteers, deleteGroup, onDragStart, onDrop }: { groupId: number, volunteeringId: number, volunteers: string[], deleteGroup: (groupId: number) => void, onDragStart: (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => void, onDrop: (e: any, to: number) => void }) {
+    const [locationMapping, setLocationMapping] = useState<VolunteersToLocation>({});
+
+    const fetchLocations = async () => {
+        try{
+            let fetchedMapping = await getGroupLocationMapping(volunteeringId,groupId);
+            setLocationMapping(fetchedMapping);
+            console.log(fetchedMapping)
+        }catch(e){
+            alert(e)
+        }
+    }
+
+    useEffect(() => {
+        fetchLocations();
+    }, []);
+
     return (
         <div className={`groupRow`} onDrop={(e) => onDrop(e, groupId)} onDragOver={e => e.preventDefault()}>
             <div className='groupHeader'>
                 <h1 className='groupId'>Group {groupId}</h1>
                 <button className="cancelButton" onClick={() => deleteGroup(groupId)}>Remove Group</button>
             </div>
-            {volunteers.map(volunteer => <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)} className='volunteerUsername'>{volunteer}</p>)}
+            {volunteers.map(volunteer => <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)} className='volunteerUsername'>{volunteer} {locationMapping.hasOwnProperty(volunteer) && `(Volunteers at ${locationMapping[volunteer].name})`}</p>)}
             <hr/>
         </div>
     )
@@ -188,6 +205,7 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
             <br/>
             <h2 className='listHeader'>My Appointments</h2>
             <br/>
+            {appointments.length > 0 ? <>
             <div className='weekButtons'>
                 <button className='orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
                 <button className='orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
@@ -220,6 +238,7 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
                         headerTextWrappingEnabled={true}/>
                 </div>
             </div>
+            </> : <p className="smallHeader">No Appointments</p>}
         </div>
     )
 }
@@ -347,6 +366,7 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId:
                     setShowMinMin(e.target.checked)
                     e.target.checked ? setMinimumMinutes(0) : setMinimumMinutes(-1)
                 }} />} label="Minimum Appointment Minutes?" />
+                <Info text="Minimum number of minutes volunteers will have to sign up for"/>
                 {showMinMin && <NumberInput value={minimumMinutes} onChange={(_, val) => val != null && setMinimumMinutes(val)} min={0} />}
             </div>
             <div>
@@ -354,6 +374,7 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId:
                     setShowMaxMin(e.target.checked)
                     e.target.checked ? setMaximumMinutes(0) : setMaximumMinutes(-1)
                 }} />} label="Maximum Appointment Minutes?" />
+                <Info text="Maximum number of minutes volunteers will have to sign up for"/>
                 {showMaxMin && <NumberInput value={maximumMinutes} onChange={(_, val) => val != null && setMaximumMinutes(val)} min={Math.max(0, minimumMinutes)} />}
             </div>
             <button className='sendButton' onClick={send}>Create Range</button>
@@ -399,6 +420,7 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
             <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
             {range.oneTime !== null && <p>At {range.oneTime}</p>}
             <p>Current Restrictions:</p>
+            <Info text="Restrictions are times when the amount of volunteers is limited."/>
             {range.restrict.map(restriction => <div className='restriction'>
                 <div className='restrictionData'>
                     <p>Starts at: {restriction.startTime}</p>
@@ -562,6 +584,10 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
             </div>
             {selectedGroup.value > -1 && (locationsDisabled || selectedLocation.value > -1) &&
                 <div className='rangePanel'>
+                    <h1 className="listHeader">Current Schedule Ranges for Group {selectedGroup.value}</h1>
+                    <p className="smallHeader">These are the times your volunteers can sign up to come and help out.</p>
+                    <p className="smallHeader">You can scroll down to define more ranges.</p>
+                    <p className="smallHeader">You can select a range and scroll down to edit it.</p>
                     <div className='weekButtons'>
                         <button className='left orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
                         <button className='right orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
@@ -577,17 +603,21 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
                                 cellHeight={isMobile ? 15 : 30}
                                 eventMoveHandling='Disabled'
                                 headerTextWrappingEnabled={true}
-                                onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
-                        </div></div>
-                    <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup.value} locId={selectedLocation.value} refreshRanges={fetchRanges} />
+                                onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))}/>
+                        </div>
+                    </div>
+                    <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup.value}
+                                locId={selectedLocation.value} refreshRanges={fetchRanges}/>
                     {selectedRange === null || selectedRange === undefined ? <></> :
-                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId} groupId={selectedGroup.value} locId={selectedLocation.value} range={selectedRange!} />}
+                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId}
+                                          groupId={selectedGroup.value} locId={selectedLocation.value}
+                                          range={selectedRange!}/>}
                 </div>}
         </div>
     )
 }
 
-function LocationSelector({ volunteeringId, assignUser }: { volunteeringId: number, assignUser: (locId: number) => void }) {
+function LocationSelector({volunteeringId, assignUser}: { volunteeringId: number, assignUser: (locId: number) => void }) {
     const [groupId, setGroupId] = useState(-1);
     const [ready, setReady] = useState(false);
     const [locations, setLocations] = useState<Location[]>([]);
@@ -927,6 +957,7 @@ function Volunteering() {
                                                                                 onDrop={onDrop}
                                                                                 deleteGroup={deleteGroup}
                                                                                 groupId={parseInt(key)}
+                                                                                volunteeringId={parseInt(id!)}
                                                                                 volunteers={value}/>)}
                     </div>
                 </TabPanel>
@@ -934,14 +965,12 @@ function Volunteering() {
                     <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />
                 </TabPanel>
             </Tabs>}
-            {permissionsLoaded && !isManager && hasLocation ?
-                <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
             {!isManager && hasLocation ?
                 <div className='scanButtons'>
                     <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Make An
                         Appointment</button>
                     <Popup trigger={<button className="orangeCircularButton">Request Hours Manually</button>} modal nested>
-                        {/* 
+                        {/*
                     // @ts-ignore */}
                         {close => (
                             <div className="modal">
@@ -950,6 +979,8 @@ function Volunteering() {
                         )}
                     </Popup>
                 </div> : <></>}
+            {permissionsLoaded && !isManager && hasLocation ?
+                <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
             {!isManager && !hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
         </div>
     )

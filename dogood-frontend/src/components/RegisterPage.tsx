@@ -12,6 +12,8 @@ function RegisterPage({ changeState }: { changeState: React.Dispatch<React.SetSt
     const [birthDate, setBirthDate] = useState("");
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [preview, setPreview] = useState<string | null>(null);
+    const [needUpload, setNeedUpload] = useState(false);
+    const [picUrl, setPicUrl] = useState("")
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -22,13 +24,13 @@ function RegisterPage({ changeState }: { changeState: React.Dispatch<React.SetSt
                 setPreview(reader.result as string);
             };
             reader.readAsDataURL(file);
+            setNeedUpload(true);
         }
     };
 
     const onRegister = async () => {
         try {
-            let profilePicUrl = "";
-            if (selectedFile) {
+            if (selectedFile && needUpload) {
                 // Generate a unique file name based on the username and current timestamp.
                 const fileExt = selectedFile.name.split('.').pop();
                 const fileName = `${username}-${Date.now()}.${fileExt}`;
@@ -44,10 +46,11 @@ function RegisterPage({ changeState }: { changeState: React.Dispatch<React.SetSt
                 }
                 // Retrieve the public URL for the uploaded image.
                 const { data } = supabase.storage.from("profile-pictures").getPublicUrl(filePath);
-                profilePicUrl = data.publicUrl;
+                setPicUrl(data.publicUrl);
+                setNeedUpload(false);
             }
             // Pass the profilePicUrl as an extra parameter.
-            let token = await register(username, password, name, email, phone, birthDate, profilePicUrl);
+            let token = await register(username, password, name, email, phone, birthDate, picUrl);
             localStorage.setItem("username", username);
             localStorage.setItem("token", token);
             changeState(false);

@@ -1,0 +1,48 @@
+.infoinfo-container {
+    position: relative;
+    display: inline-block;
+    align-items: center;
+}
+
+.infoinfo-button {
+    font-size: 14px;
+    padding: 5px 10px;
+    border: none;
+    background-color: #515151;
+    opacity: 80%;
+    color: white;
+    border-radius: 45%;
+    cursor: pointer;
+    margin: 2px;
+}
+
+
+.infoinfo-tooltip {
+    visibility: visible;
+    opacity: 1;
+    position: absolute;
+    top: 100%; /* Positions it below the button */
+    left: 50%;
+    transform: translateX(-50%); /* Centers it */
+    background-color: #037b7bb0;
+    color: #ffffff;
+    text-align: center;
+    padding: 8px;
+    border-radius: 5px;
+    z-index: 10;
+    font-size: 14px;
+    transition: opacity 0.3s ease;
+    font-family: 'Montserrat', sans-serif;
+    white-space: nowrap; /* Prevents wrapping */
+}
+
+.infoinfo-tooltip::before {
+    content: '';
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent #333 transparent;
+}

@@ -749,6 +749,17 @@ public class VolunteeringFacade {
         return volunteering.getGroupLocations(groupId);
     }
 
+    public Map<String, LocationDTO> getGroupLocationMapping(String userId, int volunteeringId, int groupId){
+        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        if(volunteering == null){
+            throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
+        }
+        if(!isManager(userId, volunteering.getOrganizationId())){
+            throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId() + " of volunteering " + volunteeringId);
+        }
+        return volunteering.getGroupLocationMapping(groupId);
+    }
+
     public List<Integer> getVolunteeringGroups(int volunteeringId){
         Volunteering volunteering = repository.getVolunteering(volunteeringId);
         if(volunteering == null){

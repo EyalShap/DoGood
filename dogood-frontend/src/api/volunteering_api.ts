@@ -6,7 +6,7 @@ import HourApprovalRequest from "../models/HourApprovalRequest";
 import JoinRequest from "../models/JoinRequest";
 import { host } from "./general";
 import ScheduleRange from "../models/ScheduleRange";
-import Location from "../models/Location";
+import Location, {VolunteersToLocation} from "../models/Location";
 import { ApprovalType, ScanType } from "../models/ScanTypes";
 
 const server = host;
@@ -267,6 +267,18 @@ export const getGroupLocations = async (volunteeringId: number, groupId: number)
     };
     let res = await axios.get(`${server}/api/volunteering/getGroupLocations?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}&groupId=${groupId}`, config);
     const response: APIResponse<Location[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const getGroupLocationMapping = async (volunteeringId: number, groupId: number): Promise<VolunteersToLocation> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.get(`${server}/api/volunteering/getGroupLocationMapping?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}&groupId=${groupId}`, config);
+    const response: APIResponse<VolunteersToLocation> = await res.data;
     if(response.error){
         throw response.errorString;
     }

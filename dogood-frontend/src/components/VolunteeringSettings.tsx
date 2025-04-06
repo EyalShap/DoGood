@@ -27,6 +27,7 @@ import { FormControl, FormControlLabel, FormLabel, Radio, RadioGroup } from "@mu
 import VolunteeringModel from "../models/VolunteeringModel";
 import { QRCodeCanvas } from "qrcode.react";
 import {supabase} from "../api/general.ts";
+import Info from "./Info.tsx";
 
 interface LocationFormData {
     name: string;
@@ -404,6 +405,7 @@ function VolunteeringSettings() {
             </div>
             <div className="container">
             <h1>Volunteering Skills:</h1>
+                <Info text="Defining the skills and categories of your volunteering will help volunteers find this volunteering"/>
                 <div className="stringlist">
                     {skills.map(skill =>
                         <div className="skillcateg">
@@ -416,6 +418,7 @@ function VolunteeringSettings() {
             </div>
             <div className="container">
                 <h1>Volunteeering Categories:</h1>
+                <Info text="Defining the skills and categories of your volunteering will help volunteers find this volunteering"/>
                 <div className="stringlist">
                     {categories.map(category =>
                         <div className="skillcateg">
@@ -443,6 +446,7 @@ function VolunteeringSettings() {
             </div>
             <div className="container">
                 <h1>Volunteer Scanning:</h1>
+                <Info text="You can allow your volunteers to confirm their arrival automatically by showing a QR code to them."/>
                 <FormControl>
                     <FormLabel>Choose type of confirming arrival using QR codes</FormLabel>
                     <RadioGroup
@@ -450,8 +454,8 @@ function VolunteeringSettings() {
                         onChange={e => setScanType(e.target.value as ScanType)}
                         name="radio-buttons-group">
                         <FormControlLabel value="NO_SCAN" control={<Radio/>} label="Disable Scanning"/>
-                        <FormControlLabel value="ONE_SCAN" control={<Radio/>} label="One Scan"/>
-                        <FormControlLabel value="DOUBLE_SCAN" control={<Radio/>} label="Scan At the Start and End"/>
+                        <FormControlLabel value="ONE_SCAN" control={<Radio/>} label={<span>One Scan<Info text="Volunteers will only need to scan a QR code once during an activity to confirm their arrival to the entire activity"/></span>}/>
+                        <FormControlLabel value="DOUBLE_SCAN" control={<Radio/>} label={<span>Scan At the Start and End<Info text="Volunteers will have to confirm their arrival at the start of an activity and once again at the end."/></span>}/>
                     </RadioGroup>
                 </FormControl>
                 {scanType != "NO_SCAN" &&
@@ -461,15 +465,16 @@ function VolunteeringSettings() {
                             value={approvalType}
                             onChange={e => setApprovalType(e.target.value as ApprovalType)}
                             name="radio-buttons-group">
-                            <FormControlLabel value="MANUAL" control={<Radio/>} label="Request Hours Approval"/>
+                            <FormControlLabel value="MANUAL" control={<Radio/>} label={<span>Request Hours Approval<Info text="You will be able to manually confirm or deny the volunteer's reported hours"/></span>}/>
                             <FormControlLabel value="AUTO_FROM_SCAN" control={<Radio/>}
-                                              label="Automatically Approve Hours"/>
+                                              label={<span>Automatically Approve Hours <Info text="Activities reported by volunteers via QR code scanning will be automatically approved"/></span>}/>
                         </RadioGroup>
                     </FormControl>}
                 <button className="orangeCircularButton" onClick={sendScanDetails}>Confirm</button>
             </div>
             <div className="container">
                 <h1>Manage Constant Codes:</h1>
+                <Info text="These QR codes will remain valid as long as they appear here. You can print them out and show them at the volunteering activity"/>
                 <div className="codes">
                     {codes.map((code, index) =>
                         <div className="code">
