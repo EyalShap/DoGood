@@ -12,6 +12,8 @@ import { createVolunteeringPostReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
 import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
+import { getUserByUsername } from '../api/user_api';
 
 function VolunteeringPost() {
     const navigate = useNavigate();
@@ -26,7 +28,7 @@ function VolunteeringPost() {
     const [joinFreeText, setJoinFreeText] = useState("");
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
-    const [pastExperiences, setPastExperiences] = useState<PastExperienceModel[]>([]);
+    const [pastExperiences, setPastExperiences] = useState<ListItem[]>([]);
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isHovered, setIsHovered] = useState(false);
     const [dropdownOpen, setDropdownOpen] = useState(false);
@@ -93,16 +95,27 @@ function VolunteeringPost() {
 
     const fetchPastExperiences = async () => {
         try {
-            //if(ready) {
-                if(id !== undefined) {
-                    let pastExperiences: PastExperienceModel[] = await getPostPastExperiences(parseInt(id));                    
-                    setPastExperiences(pastExperiences);
-                    setReady(true);
+            if(id !== undefined) {
+                let pastExperiences: PastExperienceModel[] = await getPostPastExperiences(parseInt(id));                    
+                console.log(pastExperiences);
+                let listItems: ListItem[] = [];
+
+                for(let expr of pastExperiences) {
+                    let user = await getUserByUsername(expr.userId);
+
+                    listItems = listItems.concat([{
+                        id: expr.userId,
+                        image: user.profilePicUrl !== "" ? user.profilePicUrl : defaultProfilePic, 
+                        title: expr.text,  
+                        description: `By ${expr.userId} on ${fixDate(expr.when, true)}.`,
+                    }]);
                 }
-                else {
-                    alert("Error");
-                }
-            //}
+                setPastExperiences(listItems);
+                setReady(true);
+            }
+            else {
+                alert("Error");
+            }
         }
         catch(e) {
             alert(e);
@@ -361,15 +374,7 @@ function VolunteeringPost() {
         <div className="learnMore">
                     <h1 className="relatedVolunteersHeader">Volunteers Past Experiences</h1>
                     {pastExperiences.length > 0 ? (
-                        <div id="pastExperienceItem" className="pastExperienceItem">
-                            <button id="prevExperienceButton" onClick={handlePrev}>&lt;</button>
-                            <div id="currentExperience" className="currentExperience">
-                                <h3 id="experienceUserId">{pastExperiences[currentIndex].userId}</h3>
-                                <p id="experienceText">{pastExperiences[currentIndex].text}</p>
-                                <p id="experienceDate">{fixDate(pastExperiences[currentIndex].when, false)}</p>
-                            </div>
-                            <button id="nextExperienceButton" onClick={handleNext}>&gt;</button>
-                        </div>
+                        <ListWithArrows data={pastExperiences} limit={3} navigateTo={"profile"} clickable={(id: number | string) => true}></ListWithArrows>
                     ) : (
                         <p id="noPastExperiences">No past experiences available.</p>
                     )}
