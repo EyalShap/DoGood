@@ -9,7 +9,7 @@ public class AISkillsAndCategoriesExtractor implements SkillsAndCategoriesExtrac
     private AI ai;
     private ObjectMapper objectMapper;
     private final String basicPrompt = "I am going to give you the Name and description of a Volunteering Gig. Please analyze the required skills and possible categories for the volunteering gig from its name and the contents of its description. %s Please output only a list of skills and a list of categories, like this: \"{skills: [...],\ncategories: [...]}\" (you should return a json with a \"skill\" list field and a \"categories\" list field.). Make sure each skill/categories has the first letter capitalized only.\nIf for any reason you are unable to get the skills and preferences, SEND A JSON WITH EMPTY ARRAYS, do NOT TRY TO ANSWER THE USER, do NOT COMMUNICATE WITH THE USER.\nThank you. Here is the name of the volunteering: %s. Here is the description of the volunteering: %s";
-    private final String currentSkillsAndCategories = "I will give you the current available skills and categories. Use them as a guide to the style of skills/categories expected. You can create new skills/categories or use existing ones in the list. The current skills are: %s. The current categories are: %s.";
+    private final String currentSkillsAndCategories = "I will give you the current available skills and categories. You are encouraged to take inspiration from them when deciding on skills and categories. You are encouraged to make new ones as needed. The current skills are: %s. The current categories are: %s.";
 
     public AISkillsAndCategoriesExtractor(AI ai) {
         this.ai = ai;

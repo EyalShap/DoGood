@@ -552,7 +552,6 @@ public class VolunteeringService {
     public Response<List<String>> getVolunteeringSkills(String token, String userId, int volunteeringId) {
         try {
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId, volunteeringId);
             List<String> skills = facadeManager.getVolunteeringFacade().getVolunteeringSkills(volunteeringId);
             return Response.createResponse(skills);
         } catch (Exception e) {
@@ -563,7 +562,6 @@ public class VolunteeringService {
     public Response<List<String>> getVolunteeringCategories(String token, String userId, int volunteeringId) {
         try {
             checkToken(token, userId);
-            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId, volunteeringId);
             List<String> categs = facadeManager.getVolunteeringFacade().getVolunteeringCategories(volunteeringId);
             return Response.createResponse(categs);
         } catch (Exception e) {
@@ -588,6 +586,17 @@ public class VolunteeringService {
             facadeManager.getVolunteeringFacade().checkViewingPermissions(userId, volunteeringId);
             List<LocationDTO> dtos = facadeManager.getVolunteeringFacade().getGroupLocations(volunteeringId, groupId);
             return Response.createResponse(dtos);
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Map<String,LocationDTO>> getGroupLocationMapping(String token, String userId, int volunteeringId, int groupId) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().checkViewingPermissions(userId, volunteeringId);
+            Map<String,LocationDTO> dtosMap = facadeManager.getVolunteeringFacade().getGroupLocationMapping(userId, volunteeringId, groupId);
+            return Response.createResponse(dtosMap);
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }

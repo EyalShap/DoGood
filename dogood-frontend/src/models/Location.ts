@@ -10,4 +10,8 @@ type AddressTuple = {
     address: string
 }
 
+export interface VolunteersToLocation {
+    [Key: string]: Location;
+}
+
 export default Location;

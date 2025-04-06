@@ -300,6 +300,12 @@ public class VolunteeringAPI {
         return volunteeringService.getGroupLocations(token, userId, volunteeringId, groupId);
     }
 
+    @GetMapping("/getGroupLocationMapping")
+    public Response<Map<String, LocationDTO>> getGroupLocationMapping(@RequestParam String userId, @RequestParam int volunteeringId, @RequestParam int groupId, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.getGroupLocationMapping(token, userId, volunteeringId, groupId);
+    }
+
     @GetMapping("/getVolunteeringGroups")
     public Response<List<Integer>> getVolunteeringGroups(@RequestParam String userId, @RequestParam int volunteeringId, HttpServletRequest request){
         String token = getToken(request);

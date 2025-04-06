@@ -522,4 +522,17 @@ public class Volunteering {
         Location loc = new Location(-1,id,"Locations Disabled",null);
         this.locations.put(loc.getId(), loc);
     }
+
+    public Map<String, LocationDTO> getGroupLocationMapping(int groupId) {
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        Group g = groups.get(groupId);
+        Map<String, LocationDTO> mappingData = new HashMap<>();
+        Map<String, Integer> mapping = g.getVolunteersToLocation();
+        for(String userId : mapping.keySet()){
+            mappingData.put(userId,locations.get(mapping.get(userId)).getDTO());
+        }
+        return mappingData;
+    }
 }
