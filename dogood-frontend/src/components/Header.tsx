@@ -121,7 +121,7 @@ const Header: React.FC<Props> = ({ user }) => {
             
           <div className="logo" onClick = {onLogo}>
               <img className="logoicon" src={logoIcon}/>
-              <img className="logotitle" src={logoTitle}/>
+              {!isMobile && <img className="logotitle" src={logoTitle}/>}
           </div>
           <nav className="nav">
             <ul className="menuList">
