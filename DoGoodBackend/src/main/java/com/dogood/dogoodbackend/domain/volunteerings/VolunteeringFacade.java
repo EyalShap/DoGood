@@ -100,8 +100,14 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
         SkillsAndCategories skag = extractor.getSkillsAndCategories(volunteering.getName(), volunteering.getDescription(), new HashSet<>(getAllVolunteeringSkills()), new HashSet<>(getAllVolunteeringCategories()));
-        repository.updateVolunteeringSkills(volunteeringId, skag.getSkills());
-        repository.updateVolunteeringCategories(volunteeringId, skag.getCategories());
+        Set<String> newSkills = new HashSet<>();
+        Set<String> newCategs = new HashSet<>();
+        newSkills.addAll(volunteering.getSkills());
+        newSkills.addAll(skag.getSkills());
+        newCategs.addAll(volunteering.getCategories());
+        newCategs.addAll(skag.getCategories());
+        repository.updateVolunteeringSkills(volunteeringId, newSkills);
+        repository.updateVolunteeringCategories(volunteeringId, newCategs);
     }
 
 
@@ -114,6 +120,10 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " cannot remove volunteering " + volunteeringId);
         }
         repository.disableVolunteering(volunteeringId);
+        for(String volunteer : volunteering.getVolunteerToGroup().keySet()){
+            usersFacade.addUserVolunteeringHistory(volunteer, volunteering.getDTO());
+            usersFacade.removeUserVolunteering(volunteer, volunteeringId);
+        }
         postsFacade.removePostsByVolunteeringId(volunteeringId);
         schedulingFacade.removeAppointmentsAndRequestsForVolunteering(volunteeringId);
         organizationFacade.removeVolunteering(volunteering.getOrganizationId(), volunteeringId, userId);
