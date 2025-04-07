@@ -19,11 +19,10 @@ function LeaderboardMap() {
         setLeaderboardData(res);
         console.log(Object.entries(leaderboardData));
         
-        for (let [username, score] of Object.entries(leaderboardData)) {
+        for (let [username, score] of Object.entries(res)) {
             try {
                 const user: User = await getUserByUsername(username);
                 const image: string = (user.profilePicUrl !== null && user.profilePicUrl !== "") ? user.profilePicUrl : defaultProfilePic;
-                                        
                 setUserImages((prev) => ({
                     ...prev,
                     [username]: image,
