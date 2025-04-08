@@ -552,8 +552,8 @@ function Organization() {
                 <h2 className='listHeader'>Our Managers</h2>
                 <div className='generalList'>
                 <ListWithArrows 
-                    data={managers} 
-                    limit = {isMobile ? 1 : Math.min(3,volunteerings.length)}
+                    data={managers}
+                    limit = {isMobile ? 1 : Math.min(3,managers.length)}
                     navigateTo={`profile`} 
                     onRemove={(username) => handleRemoveManagerOnClick(username)} 
                     showResign = {(username) => localStorage.getItem("username") === username && username !== model.founderUsername}
