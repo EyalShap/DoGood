@@ -396,15 +396,14 @@ function VolunteerPost() {
             <div className="relatedUsersContainer">
                 <h2 className='relatedVolunteersHeader'>Friends In This Post</h2>
                 <div className='generalList'>
-                <ListWithArrows 
-                    data={relatedUsers} 
-                    limit = {isMobile ? 1 : 3} 
-                    navigateTo={`profile`} 
-                    clickable={() => true}
-                    showFire={(username) => username !== model.posterUsername}
-                    fireHandler={onRemoveVolunteer}
-                    >
-                </ListWithArrows>
+                    <ListWithArrows
+                        data={relatedUsers}
+                        limit = {isMobile ? 1 : 3}
+                        navigateTo={`profile`}
+                        clickable={() => true}
+                        showFire={(username) => isPoster && (username !== model.posterUsername)}
+                        fireHandler={onRemoveVolunteer}
+                    ></ListWithArrows>
                 </div>
                 
 
