@@ -8,6 +8,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 
 public class VolunteeringUnitTests {
@@ -62,7 +63,7 @@ public class VolunteeringUnitTests {
     @Test
     public void whenRemoveRange_givenRange_removeRange() {
         int lId = volunteering.addLocation("Test", null);
-        int rId = volunteering.addRangeToGroup(0, lId, LocalTime.of(0,0), LocalTime.of(1,0), -1, -1);
+        int rId = volunteering.addRangeToGroup(0, lId, LocalTime.of(0,0), LocalTime.of(1,0), -1, -1,null, LocalDate.now());
         Assertions.assertDoesNotThrow(() -> volunteering.removeRange(rId));
         Assertions.assertEquals(0, volunteering.getScheduleRanges().size());
     }
@@ -70,7 +71,7 @@ public class VolunteeringUnitTests {
     @Test
     public void whenRemoveRange_givenNonExistentRange_throwError() {
         int lId = volunteering.addLocation("Test", null);
-        int rId = volunteering.addRangeToGroup(0, lId, LocalTime.of(0,0), LocalTime.of(1,0), -1, -1);
+        int rId = volunteering.addRangeToGroup(0, lId, LocalTime.of(0,0), LocalTime.of(1,0), -1, -1, null, LocalDate.now());
         Assertions.assertThrows(UnsupportedOperationException.class, () -> volunteering.removeRange(rId+2));
         Assertions.assertEquals(1, volunteering.getScheduleRanges().size());
     }
