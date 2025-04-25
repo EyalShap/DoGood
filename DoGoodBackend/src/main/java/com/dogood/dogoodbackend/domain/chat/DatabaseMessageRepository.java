@@ -15,6 +15,9 @@ public class DatabaseMessageRepository implements MessageRepository{
 
     @Override
     public Message createMessage(String content, String senderId, String receiverId, ReceiverType type) {
+        if(content == null || content.isBlank()){
+            throw new IllegalArgumentException("Message cannot be empty");
+        }
         Message m = new Message(content, senderId, receiverId, type, new Date());
         jpa.save(m);
         return m;

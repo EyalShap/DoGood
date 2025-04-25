@@ -49,6 +49,9 @@ public class ChatFacade {
         if(postsFacade.hasRelatedUser(postId, with)){
             throw new IllegalArgumentException("You cannot send messages to yourself");
         }
+        if(postsFacade.hasRelatedUser(postId, username) && !getOpenPostChats(username,postId).contains(with)){
+            throw new IllegalArgumentException("Chat is closed");
+        }
         Message m = repository.createMessage(content,username,with + "@" + postId,ReceiverType.POST);
         chatSocketSender.sendMessagePost(m.getDtoForUser(""),with,postId);
         if(!chatSocketSender.userOnChat(with, with + "@" + postId,ReceiverType.POST)){
