@@ -57,6 +57,88 @@
     padding: 10px 0; /* Added spacing for consistency */
 }
 
+.schedules {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+}
+
+.triangle{
+    transition: transform 0.2s ease 0s;
+}
+
+.schedule {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    color: #ffffff;
+    margin: 5px;
+    padding: 15px;
+    background-color: #4295ac;
+    border-radius: 10px;
+    transition: background-color 0.3s ease 0s;
+}
+
+.schedule:hover {
+    background-color: #166880;
+}
+
+.schedInfo {
+    max-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out 0s;
+}
+
+.opened {
+    max-height: 500px;
+}
+
+.rotriangle{
+    transform: rotate(180deg);
+}
+
+.dayBoxes {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: white;
+    font-size: 25px;
+}
+
+.empty {
+    color: white;
+    filter: blur(0.025rem);
+    opacity: 50%;
+}
+
+.schedule p{
+    margin: 0;
+}
+
+.schedule h2{
+    font-weight: bolder;
+    margin: 0;
+}
+
+.filled{
+    transition: transform 0.2s ease 0s;
+}
+
+.filled:hover{
+    transform: translateY(-5px);
+}
+
+.restrict {
+
+}
+
 @media (max-width: 500px) {
     .weekButton {
         width: 90%; /* Increased for better usability on smaller screens */
