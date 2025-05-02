@@ -79,8 +79,6 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
 
     return (
         <div className='maker'>
-            <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
-            {range.oneTime !== null && <p>At {range.oneTime}</p>}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
                 <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
@@ -152,31 +150,38 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
     )
 }
 
-function AvailableRange({model, setter}: {model: ScheduleRange, setter:  React.Dispatch<React.SetStateAction<ScheduleRange | null | undefined>>}){
+function AvailableRange({model, setter, volunteeringId, selected}: {model: ScheduleRange, setter:  React.Dispatch<React.SetStateAction<ScheduleRange | null | undefined>>, volunteeringId: number, selected: ScheduleRange | null | undefined}){
     const [opened, setOpened] = useState(false);
 
     return (
-        <div onClick={() => setter(model)} className="schedule" onMouseEnter={() => setOpened(true)} onMouseLeave={() => setOpened(false)}>
-            <h2>{model.startTime.slice(0,-3)}-{model.endTime.slice(0,-3)}</h2>
-            {model.oneTime !== null ? <p className="oneTime">On {format(new Date(model.oneTime), "MMMM do, yyyy (E)")}</p> :
-            <div className="dayBoxes">
-                {model.weekDays.map((val,i) => val ? daysFilled[i] : daysEmpty[i])}
-            </div>}
-            <div className={`schedInfo${opened? " opened" : ""}`}>
-                {model.minimumAppointmentMinutes > -1 && model.maximumAppointmentMinutes === -1 ?
-                    <p>Must sign up to at least {model.minimumAppointmentMinutes} minutes</p> :
-                    model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes === -1 ?
-                        <p>Must sign up to at most {model.maximumAppointmentMinutes} minutes</p> :
-                        model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes > -1 &&
-                        <p>Must sign up to
-                            between {model.minimumAppointmentMinutes} and {model.maximumAppointmentMinutes} minutes</p>}
-                {model.restrict.length > 0 && <br/>}
-                {model.restrict.map(restrict =>
-                    <p className="restrict">Limited to {restrict.amount} volunteers
-                        from <b>{restrict.startTime.slice(0,-3)}</b> to <b>{restrict.endTime.slice(0,-3)}</b></p>)}
+        <div className="scheduleWrapper">
+            <div onClick={() => setter(prev => prev === model ? null : model)} className="schedule" onMouseEnter={() => setOpened(true)}
+                 onMouseLeave={() => setOpened(false)}>
+                <h2>{model.startTime.slice(0, -3)}-{model.endTime.slice(0, -3)}</h2>
+                {model.oneTime !== null ?
+                    <p className="oneTime">On {format(new Date(model.oneTime), "dd/MM/yyyy (E)")}</p> :
+                    <div className="dayBoxes">
+                        {model.weekDays.map((val, i) => val ? daysFilled[i] : daysEmpty[i])}
+                    </div>}
+                <div className={`schedInfo${(opened || model === selected) ? " opened" : ""}`}>
+                    {model.minimumAppointmentMinutes > -1 && model.maximumAppointmentMinutes === -1 ?
+                        <p>Must sign up to at least {model.minimumAppointmentMinutes} minutes</p> :
+                        model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes === -1 ?
+                            <p>Must sign up to at most {model.maximumAppointmentMinutes} minutes</p> :
+                            model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes > -1 &&
+                            <p>Must sign up to between {model.minimumAppointmentMinutes} and {model.maximumAppointmentMinutes} minutes</p>}
+                    {model.restrict.length > 0 && <br/>}
+                    {model.restrict.map(restrict =>
+                        <p className="restrict">Limited to {restrict.amount} volunteers
+                            from <b>{restrict.startTime.slice(0, -3)}</b> to <b>{restrict.endTime.slice(0, -3)}</b>
+                        </p>)}
+                </div>
+                {(model.restrict.length > 0 || model.minimumAppointmentMinutes > -1 || model.maximumAppointmentMinutes > -1) &&
+                    <FaChevronDown className={`triangle${(opened || model === selected) ? " rotriangle" : ""}`}/>}
             </div>
-            {(model.restrict.length > 0 || model.minimumAppointmentMinutes > -1 || model.maximumAppointmentMinutes > -1) &&
-                <FaChevronDown className={`triangle${opened ? " rotriangle" : ""}`}/>}
+            <div className={`makerWrapper${model === selected ? " chosen" : ""}`}>
+                <ActualAppointmentMaker key={model.id} volunteeringId={volunteeringId} range={model}/>
+            </div>
         </div>
     )
 }
@@ -212,11 +217,9 @@ function MakeAppointment() {
         <div className='makeAppointment'>
             <h1>{location.id == -1 ? `Available appointment ranges for Group ${group} for ${localStorage.getItem("username")}` : `Available appointment ranges for Group ${group} at ${location.name} for ${localStorage.getItem("username")}`}</h1>
             <div className='schedules'>
-                {ranges.map(range => <AvailableRange model={range} setter={setSelectedRange}/>)}
+                {ranges.map(range => <AvailableRange model={range} setter={setSelectedRange} volunteeringId={parseInt(id!)}
+                                                     selected={selectedRange}/>)}
             </div>
-            {selectedRange === null || selectedRange === undefined ? <></> :
-                <ActualAppointmentMaker key={selectedRange!.id} volunteeringId={parseInt(id!)} range={selectedRange!} />
-            }
         </div>
     )
 }

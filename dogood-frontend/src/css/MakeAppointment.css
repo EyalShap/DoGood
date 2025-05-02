@@ -17,17 +17,30 @@
     margin-bottom: 15px; /* Increased spacing for consistency */
 }
 
+.makerWrapper{
+    border-radius: 10px;
+    background-color: white;
+    width: 70%;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out 0s,
+    padding 0.3s ease-in-out 0s,
+    margin-top 0.3s ease-in-out 0s,
+    margin-bottom 0.3s ease-in-out 0s;
+    max-height: 0;
+}
+
 .maker {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px 0;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .timePicker {
-    margin: 10px 0; /* Unified spacing */
+    margin-bottom: 5px;
     font-size: 1rem;
-    color: #555; /* Matches text styling */
+    color: #555;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .sendButton {
@@ -54,7 +67,7 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0; /* Added spacing for consistency */
+    padding: 10px 0;
 }
 
 .schedules {
@@ -69,15 +82,25 @@
     transition: transform 0.2s ease 0s;
 }
 
-.schedule {
+.scheduleWrapper {
     width: 80%;
     display: flex;
     flex-direction: column;
     align-items: center;
     font-family: 'Montserrat', sans-serif;
-    color: #ffffff;
+    background-color: #166880;
+    border-radius: 10px;
     margin: 5px;
+    transition: background-color 0.3s ease 0s;
+}
+
+.schedule {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
     padding: 15px;
+    color: #ffffff;
     background-color: #4295ac;
     border-radius: 10px;
     transition: background-color 0.3s ease 0s;
@@ -98,6 +121,13 @@
 
 .opened {
     max-height: 500px;
+}
+
+.chosen {
+    max-height: 1000px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 
 .rotriangle{
