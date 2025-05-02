@@ -9,7 +9,8 @@ this.addEventListener("install", (event) => {
                 "/offline.html",
                 "/snail.png",
                 "/family.png",
-                "/logodogood.png"
+                "/logodogood.png",
+                "/fcm-icon.png"
             ])
         })
     )

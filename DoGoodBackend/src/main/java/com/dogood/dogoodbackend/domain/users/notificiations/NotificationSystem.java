@@ -28,16 +28,16 @@ public class NotificationSystem {
 
     public void notifyUser(String username, String message, String navigationURL) {
         Notification notification = repository.createNotification(username, message, navigationURL);
-        sender.sendNotification(username, notification);
         Set<String> expiredTokens = new HashSet<>();
         List<String> fcmTokens = new ArrayList<>(usersFacade.getFcmTokens(username));
         if(firebaseMessaging != null && fcmTokens.size() > 0) {
                 try {
                     BatchResponse response = firebaseMessaging
-                            .sendEach(fcmTokens.stream().map(fcmToken -> com.google.firebase.messaging.Message.builder().setNotification(com.google.firebase.messaging
-                                    .Notification.builder()
-                                    .setTitle("New Notification from DoGood")
-                                    .setBody(message).build()).setToken(fcmToken).build()).toList());
+                            .sendEach(fcmTokens.stream().map(fcmToken -> com.google.firebase.messaging.Message.builder()
+                                    .putData("body",message)
+                                    .putData("title","New Notification from DoGood")
+                                    .putData("click_action",navigationURL)
+                                    .setToken(fcmToken).build()).toList());
                     if(response.getFailureCount() > 0){
                         List<SendResponse> responses = response.getResponses();
                         for(int i = 0; i < responses.size(); i++){
@@ -51,6 +51,7 @@ public class NotificationSystem {
                 }
         }
         usersFacade.expireFcmTokens(username, expiredTokens);
+        sender.sendNotification(username, notification);
     }
 
     public void setFirebaseMessaging(FirebaseMessaging firebaseMessaging) {
