@@ -9,6 +9,7 @@ import com.dogood.dogoodbackend.service.*;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import com.dogood.dogoodbackend.utils.PostErrors;
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,6 +32,11 @@ public class ChatAcceptanceTests {
     @MockitoBean
     NotificationSocketSender notificationSocketSender;
 
+    //THIS IS ALSO VERY IMPORTANT
+    @MockitoBean
+    FirebaseMessaging firebaseMessaging;
+
+    //THE INTERNET WILL BREAK IF WE DONT DO THIS IN EVERY ACCEPTANCE TEST
     @MockitoBean
     Gemini gemini;
 

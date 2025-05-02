@@ -4,9 +4,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 @Entity
 public class User {
@@ -34,6 +32,10 @@ public class User {
     private boolean isStudent;
     private boolean isAdmin;
     private boolean leaderboard;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @JsonIgnore
+    private Set<String> fcmTokens;
 
     @Lob
     @Column(name = "cv", columnDefinition = "LONGBLOB")
@@ -236,6 +238,23 @@ public class User {
     public void removeOrganization(int organizationId) {
         if(myOrganizationIds.contains(organizationId)){
             myOrganizationIds.remove(Integer.valueOf(organizationId));
+        }
+    }
+
+    public Set<String> getFcmTokens() {
+        return fcmTokens;
+    }
+
+    public void addToken(String fcmToken) {
+        if(fcmTokens == null){
+            fcmTokens = new HashSet<>();
+        }
+        fcmTokens.add(fcmToken);
+    }
+
+    public void expireToken(String fcmToken) {
+        if(fcmTokens != null){
+            fcmTokens.remove(fcmToken);
         }
     }
 

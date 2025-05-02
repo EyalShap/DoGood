@@ -106,11 +106,12 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
 export function register(config?: Config) {
     window.addEventListener('load', () => {
         const swUrl = '/worker.js';
+        const firebaseSw = '/firebase-messaging-sw.js';
 
         if (isLocalhost) {
             // This is running on localhost. Let's check if a service worker still exists or not.
             checkValidServiceWorker(swUrl, config);
-
+            checkValidServiceWorker(firebaseSw, config)
             // Add some additional logging to localhost, pointing developers to the
             // service worker/PWA documentation.
             navigator.serviceWorker.ready.then(() => {
@@ -123,6 +124,7 @@ export function register(config?: Config) {
         } else {
             // Is not localhost. Just register service worker
             registerValidSW(swUrl, config);
+            registerValidSW(firebaseSw,config);
         }
     });
 }
