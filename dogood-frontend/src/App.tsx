@@ -24,13 +24,14 @@ import LeaderboardMap from './components/LeaderboardMap'
 import VolunteerPost from './components/VolunteerPost'
 import VolunteeringChat from "./components/VolunteeringChat.tsx";
 import UserModel from "./models/UserModel.ts";
-import {getUserByToken} from "./api/user_api.ts";
+import {getUserByToken, registerFcmToken} from "./api/user_api.ts";
 import LoginAndRegister from "./components/LoginAndRegister.tsx";
 import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
 import EasterEgg from './components/EasterEgg.tsx'
 import MyVolunteerings from "./components/MyVolunteerings.tsx";
 import VolunteerPostChat from "./components/VolunteerPostChat.tsx";
+import {requestForToken} from "./api/firebase/firebase.ts";
 
 
 function App() {
