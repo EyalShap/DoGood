@@ -47,4 +47,9 @@ public class AISkillsAndCategoriesExtractor implements SkillsAndCategoriesExtrac
             return skillsAndCategories;
         }
     }
+
+    @Override
+    public void setAI(AI ai) {
+        this.ai = ai;
+    }
 }

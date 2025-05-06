@@ -79,8 +79,8 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
               alt={item.title}
               className="listItemImg"
             />
-            <h3 className="listItemHeader">{item.title}</h3>
-            <p className="listItemDesc">{item.description}</p>
+            <h3 className="listItemHeader" style={{overflowWrap: "break-word"}}>{item.title}</h3>
+            <p className="listItemDesc" style={{overflowWrap: "break-word"}}>{item.description}</p>
             <div className="listItemButtons">
               {showResign && showResign(item.id.toString()) && resignHandler && <button onClick={(e) => {e.stopPropagation(); resignHandler(item.id.toString());}} className='orangeCircularButton'>Resign</button>}
               {showFire && showFire(item.id.toString()) && fireHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); fireHandler(item.id.toString());}}>X</button>}

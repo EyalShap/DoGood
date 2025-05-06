@@ -4,6 +4,7 @@ package com.dogood.dogoodbackend.domain.requests;
 import com.dogood.dogoodbackend.domain.requests.RequestKey;
 import jakarta.persistence.*;
 
+import java.time.LocalDateTime;
 import java.util.Objects;
 
 @Entity
@@ -25,11 +26,15 @@ public class Request {
     @Column(name = "request_object")
     private RequestObject requestObject;
 
+    @Column(name = "date")
+    private LocalDateTime date;
+
     public Request(String assigneeUsername, String assignerUsername, int objectId, RequestObject requestObject) {
         this.assigneeUsername = assigneeUsername;
         this.assignerUsername = assignerUsername;
         this.objectId = objectId;
         this.requestObject = requestObject;
+        this.date = LocalDateTime.now();
     }
 
     public Request() {
@@ -67,16 +72,24 @@ public class Request {
         this.requestObject = requestObject;
     }
 
+    public LocalDateTime getDate() {
+        return date;
+    }
+
+    public void setDate(LocalDateTime date) {
+        this.date = date;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Request request = (Request) o;
-        return objectId == request.objectId && Objects.equals(assigneeUsername, request.assigneeUsername) && Objects.equals(assignerUsername, request.assignerUsername) && requestObject == request.requestObject;
+        return objectId == request.objectId && Objects.equals(assigneeUsername, request.assigneeUsername) && Objects.equals(assignerUsername, request.assignerUsername) && requestObject == request.requestObject && Objects.equals(date, request.date);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(assigneeUsername, assignerUsername, objectId, requestObject);
+        return Objects.hash(assigneeUsername, assignerUsername, objectId, requestObject, date);
     }
 }

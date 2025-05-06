@@ -26,30 +26,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 @SpringBootTest
-class OrganizationRepositoryUnitTest {
-    private static MemoryOrganizationRepository memoryOrganizationRepository;
-    private static DBOrganizationRepository dbOrganizationRepository;
-    private int memOrgId, dbOrgId, orgId;
+class OrganizationRepositoryUnitTest extends AbstractOrganizationRepositoryTest{
 
-    @Mock
-    private Organization organizationMock1;
-
-    @Mock
-    private Organization organizationMock2;
-
-    @Autowired
-    private ApplicationContext applicationContext;
-    private OrganizationJPA organizationJPA;
-
-    @BeforeAll
-    static void setUpBeforeAll() {
-        memoryOrganizationRepository = new MemoryOrganizationRepository();
-        dbOrganizationRepository = new DBOrganizationRepository();
+    @Override
+    protected OrganizationRepository createRepository() {
+        return new MemoryOrganizationRepository();
     }
 
-    @BeforeEach
+    /*@BeforeEach
     void setUpBeforeEach() {
         MockitoAnnotations.openMocks(OrganizationRepositoryUnitTest.class);
 
@@ -84,7 +69,7 @@ class OrganizationRepositoryUnitTest {
         return Stream.of(memoryOrganizationRepository);
     }
 
-    /*@ParameterizedTest
+    @ParameterizedTest
     @MethodSource("repoProvider")
     void givenValidFieldsOrganization_whenCreateOrganization_thenCreate(OrganizationRepository organizationRepository) {
         List<Organization> expectedBeforeAdd = new ArrayList<>();
@@ -100,7 +85,7 @@ class OrganizationRepositoryUnitTest {
         organizationRepository.createOrganization("NewOrganization", "NewDescription", "0541987067", "neworg@gmail.com", "TheDoctor");
         List<Organization> resAfterAdd = organizationRepository.getAllOrganizations();
         assertEquals(expectedAfterAdd, resAfterAdd);
-    }*/
+    }
 
     @ParameterizedTest
     @MethodSource("repoProvider")
@@ -155,7 +140,7 @@ class OrganizationRepositoryUnitTest {
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(orgId + 1), exception.getMessage());
     }
 
-    /*@ParameterizedTest
+    @ParameterizedTest
     @MethodSource("repoProvider")
     void givenExistingId_whenGetOrganization_thenNoThrownException(OrganizationRepository organizationRepository) {
         setIdByRepo(organizationRepository);
@@ -164,7 +149,7 @@ class OrganizationRepositoryUnitTest {
 
 
         assertEquals(organizationMock1, organization[0]);
-    }*/
+    }
 
     @ParameterizedTest
     @MethodSource("repoProvider")
@@ -177,16 +162,16 @@ class OrganizationRepositoryUnitTest {
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(orgId + 1), exception.getMessage());
     }
 
-    /*@ParameterizedTest
+    @ParameterizedTest
     @MethodSource("repoProvider")
     void getAllOrganizations(OrganizationRepository organizationRepository) {
         List<Organization> expected = new ArrayList<>();
         expected.add(organizationMock1);
         List<Organization> res = organizationRepository.getAllOrganizations();
         assertEquals(expected, res);
-    }*/
+    }
     
     private void setIdByRepo(OrganizationRepository repository) {
         this.orgId = repository == memoryOrganizationRepository ? memOrgId : dbOrgId;
-    }
+    }*/
 }

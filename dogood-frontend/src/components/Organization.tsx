@@ -517,8 +517,8 @@ function Organization() {
                 </div>
 
                 <div className='orgInfoText'>
-                    <h1 className='bigHeader'>{model.name}</h1>
-                    <p className='smallHeader'>{model.description}</p>
+                    <h1 className='bigHeader' style={{maxWidth:"500px"}}>{model.name}</h1>
+                    <p className='smallHeader' style={{maxWidth:"500px"}}>{model.description}</p>
 
                     <div className = "contact">
                         <h2 className='smallHeader'>Contact Us:</h2>

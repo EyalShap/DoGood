@@ -91,4 +91,5 @@ public class FacadeManager {
     public NotificationSystem getNotificationSystem() {
         return notificationSystem;
     }
+
 }

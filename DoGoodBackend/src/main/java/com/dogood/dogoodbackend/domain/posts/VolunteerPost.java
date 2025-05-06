@@ -3,9 +3,7 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.utils.PostErrors;
 import jakarta.persistence.*;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "volunteer_posts")
@@ -67,7 +65,7 @@ public class VolunteerPost extends Post {
             throw new IllegalArgumentException(PostErrors.makePosterCanNotBeRemovedFromPost(actor, this.title));
         }
         if(!relatedUsers.contains(username)) {
-            throw new IllegalArgumentException(PostErrors.makeUserIsRelatedToPost(actor, this.title, false));
+            throw new IllegalArgumentException(PostErrors.makeUserIsRelatedToPost(username, this.title, false));
         }
         this.relatedUsers.remove(username);
     }
@@ -77,7 +75,7 @@ public class VolunteerPost extends Post {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, actor, "set the poster user of"));
         }
         if(!relatedUsers.contains(newPoster)) {
-            throw new IllegalArgumentException(PostErrors.makeUserIsRelatedToPost(actor, this.title, false));
+            throw new IllegalArgumentException(PostErrors.makeUserIsRelatedToPost(newPoster, this.title, false));
         }
         this.posterUsername = newPoster;
     }
@@ -86,13 +84,17 @@ public class VolunteerPost extends Post {
         if(!relatedUsers.contains(actor)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, actor, "add image to"));
         }
-        if(this.images.contains(path)) {
-            throw new IllegalArgumentException(PostErrors.makeImagePathExists(path, actor, true));
+        if(path == null || path.isBlank()) {
+            throw new IllegalArgumentException(PostErrors.makeImagePathIsNotValid(path));
         }
         if(path.charAt(0) == '\"') {
             int len = path.length();
             path = path.substring(1, len - 1);
         }
+        if(this.images.contains(path)) {
+            throw new IllegalArgumentException(PostErrors.makeImagePathExists(path, actor, true));
+        }
+
         this.images.add(path);
     }
 
@@ -132,5 +134,18 @@ public class VolunteerPost extends Post {
 
     public boolean hasRelatedUser(String username) {
         return username.equals(posterUsername) || relatedUsers.contains(username);
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VolunteerPost post = (VolunteerPost) o;
+        return Objects.equals(new HashSet<>(relatedUsers), new HashSet<>(post.relatedUsers)) && Objects.equals(new HashSet<>(images), new HashSet<>(post.images)) && Objects.equals(new HashSet<>(skills), new HashSet<>(post.skills)) && Objects.equals(new HashSet<>(categories), new HashSet<>(post.categories));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(relatedUsers, images, skills, categories);
     }
 }

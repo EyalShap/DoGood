@@ -56,6 +56,22 @@ public class PostsFacade {
         this.notificationSystem = notificationSystem;
     }
 
+    public void setOrganizationsFacade(OrganizationsFacade organizationsFacade) {
+        this.organizationsFacade = organizationsFacade;
+    }
+
+    public void setKeywordExtractor(KeywordExtractor keywordExtractor) {
+        this.keywordExtractor = keywordExtractor;
+    }
+
+    public void setSkillsAndCategoriesExtractor(SkillsAndCategoriesExtractor skillsAndCategoriesExtractor) {
+        this.skillsAndCategoriesExtractor = skillsAndCategoriesExtractor;
+    }
+
+    public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
+        this.volunteeringFacade = volunteeringFacade;
+    }
+
     // ----------------------------------------------------
     // ---------------- VOLUNTEERING POSTS ----------------
 
@@ -478,9 +494,6 @@ public class PostsFacade {
     }
 
     public List<String> getAllPostsCategories() {
-        //TODO
-        //return volunteeringFacade.getAllVolunteeringCategories();
-
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         Set<String> allCategories = new HashSet<>();
 
@@ -494,9 +507,6 @@ public class PostsFacade {
     }
 
     public List<String> getAllPostsSkills() {
-        //TODO
-        //return volunteeringFacade.getAllVolunteeringSkills();
-
         List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPosts();
         Set<String> allSkills = new HashSet<>();
 
@@ -510,9 +520,6 @@ public class PostsFacade {
     }
 
     public List<String> getAllVolunteerPostsCategories() {
-        //TODO
-        //return volunteeringFacade.getAllVolunteeringCategories();
-
         List<VolunteerPost> allPosts = volunteerPostRepository.getAllVolunteerPosts();
         Set<String> allCategories = new HashSet<>();
 
@@ -526,9 +533,6 @@ public class PostsFacade {
     }
 
     public List<String> getAllVolunteerPostsSkills() {
-        //TODO
-        //return volunteeringFacade.getAllVolunteeringSkills();
-
         List<VolunteerPost> allPosts = volunteerPostRepository.getAllVolunteerPosts();
         Set<String> allSkills = new HashSet<>();
 
@@ -622,8 +626,6 @@ public class PostsFacade {
         SkillsAndCategories postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
         List<String> postSkills = postSkillsAndCategories.getSkills();
         List<String> postCategories = postSkillsAndCategories.getCategories();
-        //List<String> postSkills = new LinkedList<>();
-        //List<String> postCategories = new LinkedList<>();
         int postId = volunteerPostRepository.createVolunteerPost(title, description, postKeywords, posterUsername, postSkills, postCategories);
         return postId;
     }
@@ -673,9 +675,19 @@ public class PostsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User " + username + " doesn't exist");
+        }
+
+        VolunteerPostDTO post = getVolunteerPost(postId, actor); // check if post exists
+
+        if(post.getRelatedUsers().contains(username)) {
+            throw new IllegalArgumentException("User " + username + " is already a related user of the post " + post.getTitle() + ".");
+        }
+
         requestRepository.createRequest(username, actor, postId, RequestObject.VOLUNTEER_POST);
 
-        String title = getVolunteerPost(postId, actor).getTitle();
+        String title = post.getTitle();
         String message = String.format("%s asked you to join the volunteer post \"%s\".", actor, title);
         notificationSystem.notifyUser(username, message, NotificationNavigations.requests);
     }
@@ -702,15 +714,15 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         String title = getVolunteerPost(postId, actor).getTitle();
+
+        volunteerPostRepository.removeRelatedUser(postId, username, actor);
         List<String> allRelatedUsersButRemoved = getRelatedUsers(postId);
-        allRelatedUsersButRemoved.remove(username);
+
         for(String user : allRelatedUsersButRemoved) {
             String message = String.format("%s was removed from the post \"%s\".", username, title);
             notificationSystem.notifyUser(user, message, NotificationNavigations.volunteerPost(postId));
         }
         notificationSystem.notifyUser(username, String.format("You were removed from the post \"%s\".", title), NotificationNavigations.volunteerPost(postId));
-
-        volunteerPostRepository.removeRelatedUser(postId, username, actor);
     }
 
     public boolean hasRelatedUser(int postId, String username) {
@@ -774,7 +786,7 @@ public class PostsFacade {
         return result;
     }
 
-    public Set<String> getPostKeywords(PostDTO postDTO) {
+    private Set<String> getPostKeywords(PostDTO postDTO) {
         Set<String> postKeywords = postDTO.getKeywords();
         Set<String> skills = new HashSet<>(postDTO.getSkills(this));
         Set<String> categories = new HashSet<>(postDTO.getCategories(this));
@@ -836,5 +848,17 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         return requestRepository.getUserRequests(actor, RequestObject.VOLUNTEER_POST);
+    }
+
+    public KeywordExtractor getKeywordExtractor() {
+        return this.keywordExtractor;
+    }
+
+    public SkillsAndCategoriesExtractor getSkillsAndCategoriesExtractor() {
+        return this.skillsAndCategoriesExtractor;
+    }
+
+    public RequestRepository getRequestRepository() {
+        return requestRepository;
     }
 }

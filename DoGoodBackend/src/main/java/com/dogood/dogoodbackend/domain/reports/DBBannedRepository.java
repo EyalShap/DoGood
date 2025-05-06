@@ -17,17 +17,29 @@ public class DBBannedRepository implements BannedRepository{
 
     @Override
     public void ban(String email) {
+        if(email.startsWith("\"") && email.endsWith("\"")) {
+            int len = email.length();
+            email = email.substring(1, len - 1);
+        }
         Banned banned = new Banned(email);
         jpa.save(banned);
     }
 
     @Override
     public void unban(String email) {
+        if(email.startsWith("\"") && email.endsWith("\"")) {
+            int len = email.length();
+            email = email.substring(1, len - 1);
+        }
         jpa.deleteById(email);
     }
 
     @Override
     public boolean isBanned(String email) {
+        if(email.startsWith("\"") && email.endsWith("\"")) {
+            int len = email.length();
+            email = email.substring(1, len - 1);
+        }
         return jpa.existsById(email);
     }
 
