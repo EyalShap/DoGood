@@ -274,8 +274,8 @@ function VolunteeringPost() {
 
             <div className = "volunteeringPostHeaderContainer">
             <div className='headers'>
-                <h1 className='bigHeader'>{model.title}</h1>
-                <p className='smallHeader'>{model.description}</p>
+                <h1 className='bigHeader' style={{maxWidth:"500px"}}>{model.title}</h1>
+                <p className='smallHeader' style={{maxWidth:"500px"}}>{model.description}</p>
 
                 <div className="info-container">
                     <button
@@ -331,7 +331,7 @@ function VolunteeringPost() {
                     <ul className='catsList'>
                         <div>
                     {categories.length > 0 ? categories.map((item, index) => (
-                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                        <li key={index} style={{fontSize:"1.2rem"}}>{item}</li> // Always add a unique 'key' prop when rendering lists
                     )) : <p className='notFound'>No Categories Found</p>}
                     </div>
                     </ul>
@@ -342,7 +342,7 @@ function VolunteeringPost() {
                     <ul className='skillsList'>
                     <div>
                     {skills.length > 0 ? skills.map((item, index) => (
-                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
+                        <li key={index} style={{fontSize:"1.2rem"}}>{item}</li> // Always add a unique 'key' prop when rendering lists
                     )) : <p className='notFound'>No Skills Found</p>}
                     </div>
                     </ul>

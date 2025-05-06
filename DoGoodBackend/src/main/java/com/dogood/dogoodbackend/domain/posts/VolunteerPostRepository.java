@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 public interface VolunteerPostRepository {
+    public void clear();
     public int createVolunteerPost(String title, String description, Set<String> keywords, String posterUsername, List<String> skills, List<String> categories);
     public void removeVolunteerPost(int postId);
     public void editVolunteerPost(int postId, String title, String description, Set<String> keywords);

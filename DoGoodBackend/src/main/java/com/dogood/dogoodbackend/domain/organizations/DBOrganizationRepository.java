@@ -89,7 +89,6 @@ public class DBOrganizationRepository implements OrganizationRepository{
         }
     }
 
-
     @Override
     public byte[] getSignature(int organizationId, String actor) {
         Organization toSet = getOrganization(organizationId);
@@ -111,5 +110,10 @@ public class DBOrganizationRepository implements OrganizationRepository{
     @Override
     public List<Organization> getAllOrganizations() {
         return jpa.findAll();
+    }
+
+    @Override
+    public void clear() {
+        jpa.deleteAll();
     }
 }

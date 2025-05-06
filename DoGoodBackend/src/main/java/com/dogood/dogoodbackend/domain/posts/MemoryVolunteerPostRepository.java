@@ -9,6 +9,11 @@ public class MemoryVolunteerPostRepository implements VolunteerPostRepository{
     private int nextPostId;
 
     public MemoryVolunteerPostRepository() {
+        clear();
+    }
+
+    @Override
+    public void clear() {
         this.posts = new HashMap<>();
         this.nextPostId = 0;
     }

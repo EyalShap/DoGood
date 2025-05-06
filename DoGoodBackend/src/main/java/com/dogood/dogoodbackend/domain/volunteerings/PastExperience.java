@@ -4,6 +4,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.util.Date;
+import java.util.Objects;
 
 @Embeddable
 public class PastExperience {
@@ -33,5 +34,18 @@ public class PastExperience {
 
     public Date getWhen() {
         return when;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        PastExperience that = (PastExperience) o;
+        return Objects.equals(userId, that.userId) && Objects.equals(text, that.text) && Objects.equals(when, that.when);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, text, when);
     }
 }

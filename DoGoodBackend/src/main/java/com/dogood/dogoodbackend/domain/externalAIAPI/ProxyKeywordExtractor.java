@@ -25,6 +25,11 @@ public class ProxyKeywordExtractor implements KeywordExtractor{
         return getKeywords(str);
     }
 
+    @Override
+    public void setAI(AI ai) {
+
+    }
+
     private Set<String> getKeywords(String str) {
         String[] split = str.split("\\s+");
         Set<String> keywords = Arrays.stream(split)

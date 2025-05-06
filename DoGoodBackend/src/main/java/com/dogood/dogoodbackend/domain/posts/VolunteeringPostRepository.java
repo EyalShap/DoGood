@@ -2,12 +2,15 @@ package com.dogood.dogoodbackend.domain.posts;
 
 
 import com.dogood.dogoodbackend.utils.PostErrors;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+@Repository
 public interface VolunteeringPostRepository {
+    public void clear();
     public int createVolunteeringPost(String title, String description, Set<String> keywords, String posterUsername, int volunteeringId, int organizationId);
     public void removeVolunteeringPost(int postId);
     public void removePostsByVolunteeringId(int volunteeringId);

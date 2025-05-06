@@ -79,7 +79,7 @@ public class VolunteeringService {
 
 
         // Step 1: Register Managers
-        this.facadeManager.getUsersFacade().register("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
+        this.facadeManager.getUsersFacade().registerAdmin("AliceManager", "password123", "Alice Manager", "alice.manager@gmail.com", "0521234567", new Date());
         this.facadeManager.getUsersFacade().register("BobManager", "password456", "Bob Manager", "bob.manager@gmail.com", "0529876543", new Date());
         this.facadeManager.getUsersFacade().register("CharlieManager", "password789", "Charlie Manager", "charlie.manager@gmail.com", "0531112233", new Date());
         this.facadeManager.getUsersFacade().register("DinaManager", "password321", "Dina Manager", "dina.manager@gmail.com", "0541239876", new Date());

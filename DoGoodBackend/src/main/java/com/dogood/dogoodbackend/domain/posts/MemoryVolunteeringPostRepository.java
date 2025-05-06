@@ -11,6 +11,11 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     private int nextPostId;
 
     public MemoryVolunteeringPostRepository() {
+        clear();
+    }
+
+    @Override
+    public void clear() {
         this.posts = new HashMap<>();
         this.nextPostId = 0;
     }
@@ -38,9 +43,10 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
 
     @Override
     public void removePostsByVolunteeringId(int volunteeringId) {
-        for(VolunteeringPost post : posts.values()) {
+        List<VolunteeringPost> allPosts = new ArrayList<>(posts.values());
+        for(VolunteeringPost post : allPosts) {
             if(post.getVolunteeringId() == volunteeringId) {
-                posts.remove(post);
+                posts.remove(post.getId());
             }
         }
     }

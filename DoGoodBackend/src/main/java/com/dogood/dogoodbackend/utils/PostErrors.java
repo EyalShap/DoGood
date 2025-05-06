@@ -40,4 +40,8 @@ public class PostErrors {
         String sStr = exist ? "s" : "";
         return String.format("The image %s %s exist%sStr in the post \"%s\".", path, existStr, sStr, title);
     }
+
+    public static String makeImagePathIsNotValid(String path) {
+        return String.format("The image path \"%s\" is not valid", path);
+    }
 }

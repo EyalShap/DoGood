@@ -22,6 +22,11 @@ public class DBVolunteerPostRepository implements VolunteerPostRepository{
     }
 
     @Override
+    public void clear() {
+        jpa.deleteAll();
+    }
+
+    @Override
     public int createVolunteerPost(String title, String description, Set<String> keywords, String posterUsername, List<String> skills, List<String> categories) {
         VolunteerPost post = new VolunteerPost(title, description, keywords, posterUsername, skills, categories);
         jpa.save(post);

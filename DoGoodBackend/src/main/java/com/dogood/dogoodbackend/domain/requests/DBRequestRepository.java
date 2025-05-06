@@ -14,9 +14,16 @@ public class DBRequestRepository implements RequestRepository{
 
     @Override
     public Request createRequest(String assigneeUsername, String assignerUsername, int objectId, RequestObject requestObject) {
-        Request request = new Request(assigneeUsername, assignerUsername, objectId, requestObject);
-        jpa.save(request);
-        return request;
+        RequestKey key = new RequestKey(assigneeUsername, objectId, requestObject);
+        Optional<Request> optionalRequest = jpa.findById(key);
+        if(optionalRequest.isPresent()) {
+            throw new IllegalArgumentException(String.format("A request to assign %s to %s with id %d already exists.", assigneeUsername, requestObject.getString(), objectId));
+        }
+        else {
+            Request request = new Request(assigneeUsername, assignerUsername, objectId, requestObject);
+            jpa.save(request);
+            return request;
+        }
     }
 
     @Override

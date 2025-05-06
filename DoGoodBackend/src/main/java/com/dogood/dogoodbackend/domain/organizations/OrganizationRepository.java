@@ -19,6 +19,7 @@ public interface OrganizationRepository {
     public byte[] getSignature(int organizationId, String actor);
     public Organization getOrganization(int organizationId);
     public List<Organization> getAllOrganizations();
+    public void clear();
 
     public default List<OrganizationDTO> getAllOrganizationDTOs() {
         List<Organization> organizations = getAllOrganizations();
