@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from 'react-router-dom';
-import { login } from "../api/user_api";
+import {login, registerFcmToken} from "../api/user_api";
 import "../css/LoginPage.css"
+import {requestForToken} from "../api/firebase/firebase.ts";
 
 function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetStateAction<boolean>>}) {
     const [username, setUsername] = useState("");
@@ -13,6 +14,10 @@ function LoginPage({ changeState } : { changeState:  React.Dispatch<React.SetSta
             let token = await login(username, password);
             localStorage.setItem("username", username);
             localStorage.setItem("token", token);
+            let fcmToken = await requestForToken();
+            if(fcmToken){
+                await registerFcmToken(username,fcmToken);
+            }
             window.dispatchEvent(new Event('login'))
         } catch (e) {
             alert(e);

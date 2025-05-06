@@ -333,3 +333,15 @@ export const updateProfilePicture = async (username: string, profilePicUrl: stri
     }
     return response.data; // Assuming backend sends back a success message or the URL itself
 };
+
+export const registerFcmToken = async (username: string, fcmToken: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    let res = await axios.post(`${server}/registerFcmToken?username=${localStorage.getItem('username')}`, fcmToken,config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+};

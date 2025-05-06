@@ -426,7 +426,10 @@ public class Volunteering {
 
     public List<ScheduleRangeDTO> getVolunteerAvailableRanges(String userId){
         Group g = groups.get(volunteerToGroup.get(userId));
-        return g.getRangesForUser(userId).stream().map(rangeId -> scheduleRanges.get(rangeId).getDTO()).toList();
+        return g.getRangesForUser(userId)
+                .stream().map(rangeId -> scheduleRanges.get(rangeId))
+                .filter(range -> range.getOneTime() == null || !range.getOneTime().isBefore(LocalDate.now()))
+                .map(ScheduleRange::getDTO).toList();
     }
 
     public int getAssignedLocation(String volunteerId){
