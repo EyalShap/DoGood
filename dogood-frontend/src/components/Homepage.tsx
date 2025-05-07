@@ -68,7 +68,7 @@ function Homepage() {
             />
             <div className="headers">
                 <h1 className = "bigHeader">Discover Meaningful Volunteering Opportunities</h1>
-                <h1 className = "smallHeader">​Find the perfect volunteering opportunities - start making a real impact today</h1>
+                <p className = "smallHeader">Find the perfect volunteering opportunities - start making a real impact today</p>
                 <button id = "browseButton" className = "orangeCircularButton" onClick={handleBrowseOnClick}>BROWSE VOLUNTEERING OPPORTUNITIES</button>
                 <button id = "browseButton" className = "orangeCircularButton" onClick={addOnClick}>ADD YOUR OWN VOLUNTEERING OPPORTUNITY</button>
             

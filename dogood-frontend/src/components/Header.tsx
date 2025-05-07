@@ -160,6 +160,7 @@ const Header: React.FC<Props> = ({ user }) => {
                             {isMobile && <a href="/myvolunteerings" className="dropdownItem">My Volunteerings</a>}
                               {isMobile && <a href="/leaderboard" className="dropdownItem">Leaderboard</a>}
                             <a href="/my-profile" className="dropdownItem">My Profile</a>
+                            <a href="/summary" className="dropdownItem">Hours Summary</a>
                             <a href="/managerRequestsList" className="dropdownItem">My Requests</a>
                             {isAdmin && <a href="/reportList" className="dropdownItem">Admin Dashboard</a>}
                             <a className="dropdownItem" onClick = {onLogout}>Logout</a>

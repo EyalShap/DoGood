@@ -32,6 +32,7 @@ import EasterEgg from './components/EasterEgg.tsx'
 import MyVolunteerings from "./components/MyVolunteerings.tsx";
 import VolunteerPostChat from "./components/VolunteerPostChat.tsx";
 import {requestForToken} from "./api/firebase/firebase.ts";
+import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
 
 
 function App() {
@@ -74,6 +75,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
+              <Route path = "/summary" element={<ApprovedHoursPage />}/>
               <Route path="/leaderboard" element={<LeaderboardMap />}/>
               <Route path='/profile/:id' element={<ProfilePage/>}/>
               <Route path='/reportList' element={<ReportList/>}/>

@@ -183,4 +183,8 @@
     .innercalender {
         width: 1000px;
     }
+
+    .schedules{
+        width: 80%;
+    }
 }
