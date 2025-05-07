@@ -11,13 +11,20 @@ const firebaseConfig = {
     measurementId: "G-FKCDKBY7EE"
 };
 
-const app = initializeApp(firebaseConfig);
+var messaging: any = null;
+try{
+    const app = initializeApp(firebaseConfig);
 
-const messaging = getMessaging();
+    messaging = getMessaging();
+}catch(e){
+}
 
 export const requestForToken = async (): Promise<string | null> => {
     try{
-        return getToken(messaging,{ vapidKey: `NO` })
+        if(messaging == null){
+            return null;
+        }
+        return getToken(messaging,{ vapidKey: `BG7pYwEVn46W0K0WiLq-m1us2z8z_rEFmVsA8BNLgTBpfcwM6u0bLXVwiK3g280ap7uDTccSfL5e8oKOCrSPOsk` })
     }catch (e){
         return null;
     }
