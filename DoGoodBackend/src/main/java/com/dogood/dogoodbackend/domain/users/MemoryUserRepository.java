@@ -83,4 +83,17 @@ public class MemoryUserRepository implements UserRepository {
     public void saveUser(User user) {
         return;
     }
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return Optional.ofNullable(users.get(username));
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        if (email == null) return Optional.empty();
+        String lowerCaseEmail = email.toLowerCase();
+        return users.values().stream()
+                .filter(user -> user.getEmails() != null && user.getEmails().contains(lowerCaseEmail))
+                .findFirst();
+    }
 }

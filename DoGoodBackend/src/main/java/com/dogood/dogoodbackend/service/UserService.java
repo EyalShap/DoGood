@@ -11,6 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+// VERIFICATION START
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
+// VERIFICATION END
+import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
+
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -71,6 +78,67 @@ public class UserService {
             return Response.createResponse(e.getMessage());
         }
     }
+    // VERIFICATION START
+    public Response<String> verifyEmail(VerifyEmailRequest request) {
+        try {
+            // No token check here as user is not logged in yet.
+            // Verification is based on username and code.
+            String message = usersFacade.verifyEmail(request.getUsername(), request.getCode());
+            if ("Email verified successfully.".equals(message) || "Email already verified.".equals(message)) {
+                return Response.createResponse(message, null);
+            } else {
+                // For other messages like "Invalid code", treat as error string in Response
+                return Response.createResponse(null, message);
+            }
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+    // VERIFICATION END
+    // FORGOT_PASSWORD START
+    public Response<String> forgotPassword(String email) {
+        try {
+            usersFacade.forgotPassword(email);
+            // As per requirement, always return OK to prevent email enumeration
+            return Response.createResponse("If your email address is in our system, you will receive a password reset code.", null);
+        } catch (Exception e) {
+            // Log internal errors, but still return a generic message to the client
+            System.err.println("Internal error during forgotPassword: " + e.getMessage());
+            // This path should ideally not be hit if UsersFacade.forgotPassword handles its internal errors silently for enumeration protection.
+            return Response.createResponse("If your email address is in our system, you will receive a password reset code.", null);
+        }
+    }
+
+    public Response<String> verifyPasswordResetCode(VerifyResetPasswordRequest request) {
+        try {
+            boolean isValid = usersFacade.verifyPasswordResetCode(request.getUsername(), request.getCode());
+            if (isValid) {
+                return Response.createResponse("Verification code is valid.", null);
+            } else {
+                return Response.createResponse(null, "Invalid or expired verification code.");
+            }
+        } catch (Exception e) {
+            System.err.println("Error during verifyPasswordResetCode: " + e.getMessage());
+            return Response.createResponse(null, "An error occurred during verification.");
+        }
+    }
+
+    public Response<String> resetPassword(ResetPasswordRequest request) {
+        try {
+            // No token check here, as this flow is for users who can't log in.
+            // Security is handled by the one-time code.
+            String resultMessage = usersFacade.resetPassword(request.getUsername(), request.getNewPassword(), request.getCode());
+            if ("Password reset successfully.".equals(resultMessage)) {
+                return Response.createResponse(resultMessage, null);
+            } else {
+                return Response.createResponse(null, resultMessage); // e.g., "Invalid code", "User not found"
+            }
+        } catch (Exception e) {
+            System.err.println("Error during resetPassword: " + e.getMessage());
+            return Response.createResponse(null, "An error occurred while resetting the password.");
+        }
+    }
+// FORGOT_PASSWORD END
 
     public Response<String> updateProfilePicture(String token, String username, String profilePicUrl) {
         try {

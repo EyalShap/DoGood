@@ -39,6 +39,9 @@ public class User {
     @Column(name = "cv", columnDefinition = "LONGBLOB")
     private byte[] cv;
 
+    // --- New Fields ---
+    private boolean emailVerified = false;
+
     public User() {
     }
 
@@ -65,6 +68,8 @@ public class User {
         this.isAdmin = false;
         this.leaderboard = true;
         this.profilePicUrl = profilePicUrl;
+        // Initialize new fields to defaults
+        this.emailVerified = false;
     }
 
     public User(String username, String email, String name, String password, String phone, Date birthDate) {
@@ -90,6 +95,8 @@ public class User {
         this.isAdmin = false;
         this.leaderboard = true;
         this.profilePicUrl = "";
+        // Initialize new fields to defaults
+        this.emailVerified = false;
     }
 
     public User(String username, List<String> emails, String name, String password, String phone, Date birthDate, List<String> preferredCategories, List<Integer> volunteeringIds, List<VolunteeringDTO> volunteeringsInHistory, List<Integer> myOrganizationIds, List<String> skills, boolean isStudent, boolean isAdmin) {
@@ -113,7 +120,22 @@ public class User {
         this.isStudent = isStudent;
         this.isAdmin = isAdmin;
         this.profilePicUrl = "";
+        // Initialize new fields to defaults
+        this.emailVerified = false;
     }
+
+    public boolean isEmailVerified() {
+        return emailVerified;
+    }
+
+    public void setEmailVerified(boolean emailVerified) {
+        this.emailVerified = emailVerified;
+    }
+    // --- Other necessary methods ---
+    public void setPasswordHash(String passwordHash) {
+        this.passwordHash = passwordHash;
+    }
+
 
     private boolean isValidUsername(String username) {
         return username != null && username.length() >= 4 && username.chars().allMatch(Character::isLetterOrDigit) && username.chars().anyMatch(Character::isLetter);

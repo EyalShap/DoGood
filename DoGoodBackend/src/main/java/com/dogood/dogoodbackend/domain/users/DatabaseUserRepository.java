@@ -6,6 +6,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public class DatabaseUserRepository implements UserRepository {
     private UserJPA jpa;
@@ -108,5 +109,20 @@ public class DatabaseUserRepository implements UserRepository {
     @Override
     public void saveUser(User user) {
         jpa.save(user);
+    }
+    @Override
+    public Optional<User> findByUsername(String username) {
+        return jpa.findById(username);
+    }
+
+    @Override
+    public Optional<User> findByEmail(String email) {
+        // This requires a method in your UserJPA interface, e.g.,
+        // @Query("SELECT u FROM User u WHERE ?1 MEMBER OF u.emails")
+        // Optional<User> findUserByEmailInEmails(String email);
+        // Or, if 'emails' list typically contains one primary email for new users:
+        return jpa.findFirstByEmailsContains(email.toLowerCase());
+        // If UserJPA does not have such a method, you might need to findAll and filter,
+        // but that's inefficient. It's best to add a query to UserJPA.
     }
 }

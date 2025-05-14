@@ -43,9 +43,9 @@ class OrganizationsFacadeMemoryIntegrationTest {
         //this.requestRepository = new MemoryRequestRepository();
         this.requestRepository = null;
         this.organizationRepository = new MemoryOrganizationRepository();
-        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
+        //this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
         this.organizationId = this.organizationsFacade.createOrganization(name1, description1, phoneNumber1, email1, actor1);
-        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, new MemoryVolunteeringRepository(), new MemorySchedulingManager(), null);
+       // this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, new MemoryVolunteeringRepository(), new MemorySchedulingManager(), null);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);
 
         this.organization1 = new OrganizationDTO(new Organization(organizationId, name1, description1, phoneNumber1, email1, actor1));
