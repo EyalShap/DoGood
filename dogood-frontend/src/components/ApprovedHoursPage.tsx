@@ -7,7 +7,27 @@ import {
 import './../css/MyProfile.css';
 import User from "../models/UserModel";
 import ApprovedHours from "../models/ApprovedHoursModel";
-import {getUserApprovedHoursFormatted} from "../api/volunteering_api";
+import {getUserApprovedHoursFormatted, updateActivityDescription} from "../api/volunteering_api";
+
+
+function DescriptionUpdater({ model }: {model: ApprovedHours}){
+    const [description, setDescription] = useState(model.description)
+    const updateDescription = async () =>{
+        try{
+            await updateActivityDescription(model.volunteeringId, model.startTime,description);
+            model.description = description;
+        }catch (e){
+            alert(e);
+        }
+    }
+
+    return (
+        <div>
+            <input value={description} onChange={e => setDescription(e.target.value)}/>
+            {model.description !== description && <button onClick={updateDescription}>Save</button>}
+        </div>
+    )
+}
 
 function MyProfilePage() {
     const navigate = useNavigate();
@@ -61,6 +81,7 @@ function MyProfilePage() {
                             <th>Date</th>
                             <th>Start time</th>
                             <th>End time</th>
+                            <th>Description</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -70,6 +91,7 @@ function MyProfilePage() {
                                 <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
                                 <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
                                 <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
+                                <td><DescriptionUpdater model={hours}/></td>
                             </tr>
                         ))}
                         </tbody>

@@ -25,6 +25,7 @@ public class TechnionPdfFormat implements PdfFormat{
     final int STARTHOUR_X = 345;
     final int ENDHOUR_X = 250;
     final int TOTAL_X = 170;
+    final int DESCRIPTION_X = 100;
     final int PAGE1_ROW_Y = 490 - ADJUST_Y_BY;
     final int ROW_HEIGHT = 26;
 
@@ -117,6 +118,7 @@ public class TechnionPdfFormat implements PdfFormat{
         double totalHours = approvedHours.getTotalHours();
         String totalHoursString = Math.floor(totalHours) == totalHours ? ""+(int)totalHours : String.format("%.01f", totalHours);
         addText(TOTAL_X, y, totalHoursString, over);
+        addText(DESCRIPTION_X,y,approvedHours.getDescription(),over);
         current_row++;
         return this;
     }

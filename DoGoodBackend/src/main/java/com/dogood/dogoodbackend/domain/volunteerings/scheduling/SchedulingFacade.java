@@ -112,6 +112,10 @@ public class SchedulingFacade {
         manager.cancelAppointment(userId, volunteeringId, start);
     }
 
+    public void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription){
+        manager.updateRequestDescription(userId, volunteeringId, start, newDescription);
+    }
+
     public void userLeave(int volunteeringId, String userId) {
         manager.userLeave(volunteeringId, userId);
     }
