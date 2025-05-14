@@ -11,6 +11,7 @@ import {host} from "../api/general.ts";
 import defaultImage from '../assets/defaultProfilePic.jpg';
 import logoTitle from "../assets/title_dogood.png"
 import logoIcon from "../assets/logo.png"
+import {format, isToday, isYesterday} from "date-fns";
 
 type Props = { user: UserModel | undefined };
 
@@ -78,6 +79,17 @@ const Header: React.FC<Props> = ({ user }) => {
       navigate(`/`);
     }
 
+    const transformTimestamp = (timestamp: string) => {
+      let date = new Date(timestamp);
+        if(isToday(date)) {
+            return `${format(date, "H:mm")}`
+        } else if(isYesterday(date)) {
+            return `Yesterday at ${format(date, "H:mm")}`
+        } else {
+            return `${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`
+        }
+    }
+
     useEffect(() => {
       fetchNotifications();
         const client = new Client({
@@ -92,7 +104,7 @@ const Header: React.FC<Props> = ({ user }) => {
                     client.subscribe(`/user/queue/notifications`, msg => {
                         let newNotif: Notification = JSON.parse(msg.body);
                         console.log(newNotif)
-                        setNotifications(prevState => prevState.concat([newNotif]));
+                        setNotifications(prevState => prevState.concat([newNotif]).sort((a,b) => b.id - a.id));
                         setNewNotificationsAmount(prevState => prevState+1)
                     });
                     setConnected(true);
@@ -138,10 +150,23 @@ const Header: React.FC<Props> = ({ user }) => {
                  {newNotificationsAmount > 0 &&
                  <div className="buttonBadge">{newNotificationsAmount}</div>}
                   {dropdownOpenNotifications && (
+                    notifications.length == 0 ? 
                     <div className="dropdownMenu notificationsDropDown" onMouseLeave={closeDropdownNotifications}>
-                      {notifications.map((notification: Notification) => 
-                        notification.isRead ? <a href={notification.navigationURL} className={"dropdownNotification"}>{notification.message}</a>
-                        : <a href={notification.navigationURL} className={"dropdownNotificationNew"}>{notification.message}</a>)} 
+                    <p className="emptyNotifications">{"You have no notifications."}</p>
+                    </div> :
+                    <div className="dropdownMenu notificationsDropDown" onMouseLeave={closeDropdownNotifications}>
+                      <div className="notification-scroll-container">
+                        {notifications.map((notification: Notification) => (
+                          <div className="notification-item" key={notification.id}>
+                            <a href={notification.navigationURL}
+                              className={notification.isRead ? "dropdownNotification" : "dropdownNotificationNew"}>
+                              {notification.message}
+                            </a>
+                            <p className="timestamp">{transformTimestamp(notification.timestamp)}</p>
+                          </div>
+                        ))}
+                      </div>
+                      <a href={"/notifications"} className="notificationsPageLink">Notifications Page</a>
                     </div>
                     )}
               </div>

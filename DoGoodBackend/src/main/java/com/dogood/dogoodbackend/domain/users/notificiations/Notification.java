@@ -5,6 +5,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 
+import java.util.Date;
+
 @Entity
 public class Notification {
     @Id
@@ -14,6 +16,7 @@ public class Notification {
     private String message;
     private String navigationURL;
     private boolean isRead;
+    private Date timestamp;
 
     public Notification() {
     }
@@ -23,6 +26,7 @@ public class Notification {
         this.message = message;
         this.navigationURL = navigationURL;
         this.isRead = false;
+        this.timestamp = new Date();
     }
 
     public Notification(int id, String usernameTo, String message, String navigationURL) {
@@ -31,6 +35,7 @@ public class Notification {
         this.message = message;
         this.navigationURL = navigationURL;
         this.isRead = false;
+        this.timestamp = new Date();
     }
 
     public int getId() {
@@ -75,5 +80,9 @@ public class Notification {
 
     public boolean getIsRead() {
         return this.isRead;
+    }
+
+    public Date getTimestamp() {
+        return this.timestamp;
     }
 }
