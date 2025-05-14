@@ -33,6 +33,7 @@ import MyVolunteerings from "./components/MyVolunteerings.tsx";
 import VolunteerPostChat from "./components/VolunteerPostChat.tsx";
 import {requestForToken} from "./api/firebase/firebase.ts";
 import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
+import Notifications from "./components/Notifications.tsx"
 
 
 function App() {
@@ -78,6 +79,7 @@ function App() {
               <Route path = "/summary" element={<ApprovedHoursPage />}/>
               <Route path="/leaderboard" element={<LeaderboardMap />}/>
               <Route path='/profile/:id' element={<ProfilePage/>}/>
+              <Route path='/notifications' element={<Notifications />}/>
               <Route path='/reportList' element={<ReportList/>}/>
               <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
               <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>

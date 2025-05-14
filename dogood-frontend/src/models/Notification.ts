@@ -3,6 +3,7 @@ type Notification = {
     usernameTo: string,
     message: string,
     navigationURL: string,
-    isRead: boolean
+    isRead: boolean,
+    timestamp: string
 }
 export default Notification;
