@@ -1,7 +1,7 @@
 // FORGOT_PASSWORD START
 // src/components/ResetPasswordWithCodePage.tsx
 import { useState } from "react";
-import { resetPassword, verifyPasswordResetCode } from "../api/user_api"; // Import both
+import { resetPassword, verifyPasswordResetCode } from "../api/user_api";
 import "../css/ResetPasswordWithCodePage.css";
 
 interface ResetPasswordWithCodePageProps {
@@ -10,17 +10,19 @@ interface ResetPasswordWithCodePageProps {
 }
 
 function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWithCodePageProps) {
-    const [username, setUsername] = useState(""); // User needs to input their username
+    const [username, setUsername] = useState("");
     const [code, setCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
-    const [isCodeVerified, setIsCodeVerified] = useState(false); // To manage UI flow
+    
+    const [formStep, setFormStep] = useState<"enterCode" | "enterNewPassword">("enterCode");
+    const [verifiedUsername, setVerifiedUsername] = useState<string | null>(null);
 
     const handleVerifyCode = async () => {
-        if (!username) {
+        if (!username.trim()) {
             setError("Please enter your username.");
             return;
         }
@@ -30,12 +32,14 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
         }
         setIsLoading(true);
         setError(null);
+        setSuccessMessage(null);
         try {
             const verificationResponse = await verifyPasswordResetCode(username, code);
-            // Assuming backend returns a specific success message like "Verification code is valid."
             if (verificationResponse.toLowerCase().includes("valid")) {
-                setIsCodeVerified(true);
+                setVerifiedUsername(username);
+                setFormStep("enterNewPassword");
                 setSuccessMessage("Code verified. Please enter your new password.");
+                setError(null);
             } else {
                 setError(verificationResponse || "Invalid or expired verification code.");
             }
@@ -47,6 +51,11 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
     };
 
     const handleResetPassword = async () => {
+        if (!verifiedUsername) {
+            setError("Username not verified. Please verify the code first.");
+            setFormStep("enterCode");
+            return;
+        }
         if (!newPassword || newPassword.length < 6) {
             setError("New password must be at least 6 characters long.");
             return;
@@ -58,23 +67,23 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
 
         setIsLoading(true);
         setError(null);
-        setSuccessMessage(null); // Clear previous success message
+        // setSuccessMessage(null); // Keep the "Code verified" message or clear it. Let's clear for cleaner final message.
+        setSuccessMessage(null);
+
 
         try {
-            // The 'code' is sent again as per ResetPasswordRequest DTO for re-validation
-            const resetResponse = await resetPassword(username, code, newPassword);
+            const resetResponse = await resetPassword(verifiedUsername, code, newPassword);
             if (resetResponse.toLowerCase().includes("success")) {
                 setSuccessMessage("Password has been reset successfully! Redirecting to login...");
+                setError(null);
                 setTimeout(() => {
                     onSwitchToLogin();
                 }, 2500);
             } else {
-                setError(resetResponse || "Failed to reset password.");
-                setIsCodeVerified(false); // If reset fails, likely need to re-verify code or start over
+                setError(resetResponse || "Failed to reset password. The code might have expired or an error occurred.");
             }
         } catch (e: any) {
             setError(e.message || "An error occurred while resetting password.");
-            setIsCodeVerified(false);
         } finally {
             setIsLoading(false);
         }
@@ -90,16 +99,17 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                 <div className="reset-password-section">
                     <h1>Reset Your Password</h1>
                     <p style={{ marginBottom: '5px', color: '#555' }}>
-                        A reset code was sent to: <strong>{email}</strong>.
+                        Password reset initiated for email: <strong>{email}</strong>.
                     </p>
                     
                     {error && <p className="error-message">{error}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
 
-                    {!isCodeVerified && !successMessage && (
+                    {/* Step 1: Enter Username and Code */}
+                    {formStep === "enterCode" && !(successMessage && successMessage.includes("Redirecting to login...")) && (
                         <div className="fields">
                              <p style={{ marginBottom: '10px', color: '#555' }}>
-                                Please enter your username and the 6-digit code.
+                                Please enter your username and the 6-digit code sent to your email.
                             </p>
                             <input
                                 type="text"
@@ -107,7 +117,7 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                                 disabled={isLoading}
-                                className="password-input" // Reusing style, can be specific
+                                className="password-input" 
                             />
                             <input
                                 type="text"
@@ -117,6 +127,7 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                                 maxLength={6}
                                 disabled={isLoading}
                                 className="code-input"
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyCode();}}
                             />
                             <button
                                 onClick={handleVerifyCode}
@@ -128,10 +139,11 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                         </div>
                     )}
 
-                    {isCodeVerified && !successMessage && (
+                    {/* Step 2: Enter New Password */}
+                    {formStep === "enterNewPassword" && !(successMessage && successMessage.includes("Redirecting to login...")) && (
                         <div className="fields">
                              <p style={{ marginBottom: '10px', color: '#555' }}>
-                                Code verified for user <strong>{username}</strong>. Enter your new password.
+                                {successMessage && successMessage.includes("Code verified") ? successMessage : `Enter new password for ${verifiedUsername}.`}
                             </p>
                             <input
                                 type="password"
@@ -148,24 +160,28 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 disabled={isLoading}
                                 className="password-input"
+                                onKeyDown={(e) => { if (e.key === 'Enter') handleResetPassword();}}
                             />
                             <button
                                 onClick={handleResetPassword}
                                 className="orangeCircularButton reset-button"
                                 disabled={isLoading || !newPassword || !confirmPassword}
                             >
-                                {isLoading ? "Resetting Password..." : "Reset Password"}
+                                {isLoading ? "Resetting Password..." : "Set New Password"}
                             </button>
                         </div>
                     )}
 
-                    <a
-                        onClick={onSwitchToLogin}
-                        className="link-button"
-                        style={{ marginTop: '20px' }}
-                    >
-                        Back to Login
-                    </a>
+                    {/* Always show Back to Login unless final success message (redirecting) is shown */}
+                    {!(successMessage && successMessage.includes("Redirecting to login...")) && (
+                        <a
+                            onClick={onSwitchToLogin}
+                            className="link-button"
+                            style={{ marginTop: '20px' }}
+                        >
+                            Back to Login
+                        </a>
+                    )}
                 </div>
             </div>
         </div>
