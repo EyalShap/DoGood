@@ -11,11 +11,11 @@ function Notifications() {
 
     const transformTimestamp = (timestamp: string) => {
       let date = new Date(timestamp);
-        if(isToday(date)){
+        if (isToday(date)) {
             return `${format(date, "H:mm")}`
-        }else if(isYesterday(date)){
+        } else if (isYesterday(date)) {
             return `Yesterday at ${format(date, "H:mm")}`
-        }else{
+        } else {
             return `${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`
         }
     }

@@ -79,7 +79,7 @@ function App() {
               <Route path = "/summary" element={<ApprovedHoursPage />}/>
               <Route path="/leaderboard" element={<LeaderboardMap />}/>
               <Route path='/profile/:id' element={<ProfilePage/>}/>
-              <Route path='/notifications' element={<Notifications />}/>
+              <Route path='/notifications' element={<Notifications/>}/>
               <Route path='/reportList' element={<ReportList/>}/>
               <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
               <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
