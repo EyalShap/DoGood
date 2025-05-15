@@ -1,5 +1,7 @@
 package com.dogood.dogoodbackend.acceptance;
 
+import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
 import com.dogood.dogoodbackend.domain.externalAIAPI.Gemini;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
@@ -8,6 +10,9 @@ import com.dogood.dogoodbackend.domain.reports.ReportDTO;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
+import com.dogood.dogoodbackend.emailverification.EmailSender;
+import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
+import com.dogood.dogoodbackend.emailverification.VerificationData;
 import com.dogood.dogoodbackend.jparepos.*;
 import com.dogood.dogoodbackend.service.*;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
@@ -30,6 +35,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -68,6 +74,12 @@ public class PostAcceptanceTests {
 
     @Autowired
     FacadeManager facadeManager;
+
+    @MockitoBean
+    EmailSender emailSender;
+
+    @MockitoBean
+    VerificationCacheService verificationCacheService;
 
     private final String aliceId = "Alice";
     private final String bobId = "BobTheBuilder";
@@ -113,6 +125,16 @@ public class PostAcceptanceTests {
         userService.register(aliceId, "123456", "Alice Alice", "alice@dogood.com", "052-0520520", new Date(), null);
         userService.register(bobId, "123456", "Bob Bob", "bob@dogood.com", "052-0520520", new Date(), null);
         facadeManager.getUsersFacade().registerAdmin(adminId, "123456", "Admin Admin", "admin@dogood.com", "052-0520520", new Date());
+
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.anyString(),Mockito.anyString()))
+                .thenReturn(Optional.of(new VerificationData("", Instant.MAX,new RegisterRequest())));
+
+        VerifyEmailRequest orgEmailRequest = new VerifyEmailRequest(adminId,"");
+        VerifyEmailRequest alEmailRequest = new VerifyEmailRequest(aliceId,"");
+        VerifyEmailRequest bobEmailRequest = new VerifyEmailRequest(bobId,"");
+        userService.verifyEmail(orgEmailRequest);
+        userService.verifyEmail(alEmailRequest);
+        userService.verifyEmail(bobEmailRequest);
 
         Response<String> login1 = userService.login(aliceId, "123456");
         Response<String> login2 = userService.login(bobId, "123456");
