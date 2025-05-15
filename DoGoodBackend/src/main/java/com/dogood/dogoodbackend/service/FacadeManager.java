@@ -25,6 +25,8 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.SchedulingManage
 // No changes needed for imports here unless EmailService or VerificationCacheService were not previously imported
 import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
 import com.dogood.dogoodbackend.emailverification.EmailSender;
+import com.dogood.dogoodbackend.pdfformats.PdfFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 // VERIFICATION END
 
 public class FacadeManager {
@@ -38,7 +40,7 @@ public class FacadeManager {
     private NotificationSystem notificationSystem;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo, EmailSender emailSender, VerificationCacheService verificationCacheService ){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo, EmailSender emailSender, VerificationCacheService verificationCacheService,PdfFactory pdfFactory){
         this.authFacade = new AuthFacade(jwtSecretKey);
         // Use the constructor for UsersFacade that accepts the new services
         this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt, emailSender, verificationCacheService);
@@ -46,7 +48,7 @@ public class FacadeManager {
         this.notificationSystem = new NotificationSystem(notificationRepo);
         this.notificationSystem.setUsersFacade(usersFacade);
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
-        this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt);
+        this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt,pdfFactory);
         this.postsFacade = new PostsFacade(volunteeringPostRepo, volunteerPostRepo, usersFacade, volunteeringFacade, organizationsFacade, keyExt, skillsCatExt, reqRepo);
         this.reportsFacade = new ReportsFacade(usersFacade, repRepo, bannedRepo, postsFacade, volunteeringFacade, organizationsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);

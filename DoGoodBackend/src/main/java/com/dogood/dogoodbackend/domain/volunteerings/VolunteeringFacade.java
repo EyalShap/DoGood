@@ -39,14 +39,16 @@ public class VolunteeringFacade {
     private SkillsAndCategoriesExtractor extractor;
     private ReportsFacade reportsFacade;
     private NotificationSystem notificationSystem;
+    private PdfFactory pdfFactory;
 
 
-    public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor) {
+    public VolunteeringFacade(UsersFacade usersFacade, OrganizationsFacade organizationsFacade, VolunteeringRepository repository, SchedulingManager schedulingManager, SkillsAndCategoriesExtractor extractor, PdfFactory pdfFactory) {
         this.usersFacade = usersFacade;
         this.schedulingFacade = new SchedulingFacade(schedulingManager);
         this.organizationFacade = organizationsFacade;
         this.repository = repository;
         this.extractor = extractor;
+        this.pdfFactory = pdfFactory;
     }
 
     public void setReportFacade(ReportsFacade reportsFacade) {
@@ -810,10 +812,9 @@ public class VolunteeringFacade {
         }
         User userData = usersFacade.getUser(userId);
         OrganizationDTO orgData = organizationFacade.getOrganization(volunteering.getOrganizationId());
-        PdfFactory factory = new PdfFactory();
         String[] nameSplit = userData.getName().split(" "); //TODO: make this better
         String email = userData.getEmails().get(0); //TODO: make this better
-        return factory.createFormat(userId,University.getUniversity(email),
+        return pdfFactory.createFormat(userId,University.getUniversity(email),
                 orgData.getName(),
                 nameSplit[0],
                 nameSplit.length > 1 ? nameSplit[1] : "",
