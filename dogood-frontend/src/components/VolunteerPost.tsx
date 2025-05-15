@@ -3,7 +3,7 @@ import './../css/Volunteering.css'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeRelatedUser, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest, setPoster } from '../api/post_api';
+import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeRelatedUser, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest, setPoster, setVolunteerPostCategories, setVolunteerPostSkills } from '../api/post_api';
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteerPost.css'
@@ -19,13 +19,13 @@ import User from '../models/UserModel';
 import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
 import defaultVolunteerPostPic from '/src/assets/defaultVolunteerPostDog.jpg';
 
-
 function VolunteerPost() {
     const navigate = useNavigate();
     const [model, setModel] = useState<VolunteerPostModel>({id: -1, title: "", description: "", postedTime: "", lastEditedTime: "", posterUsername: "", relevance: -1, relatedUsers: [], images: [], skills: [], categories: [], keywords: []});
     const [postImages, setPostImages] = useState<ListItem[]>([]);
     const [relatedUsers, setRelatedUsers] = useState<ListItem[]>([]);
     const [isPoster, setIsPoster] = useState<boolean>(false);
+    const [isRelatedUser, setIsRelatedUser] = useState<boolean>(false);
     const [isActorInPost, setIsActorInPost] = useState<boolean>(false);
     const [ready, setReady] = useState(false);
     const [showJoinFreeText, setShowJoinFreeText] = useState(false);
@@ -39,6 +39,9 @@ function VolunteerPost() {
     const [dropdownOpen, setDropdownOpen] = useState(false);
     const [selectedFile, setSelectedFile] = useState<File | null>(null)
     const [key, setKey] = useState(0)
+    const [skillsInput, setSkillsInput] = useState("");
+    const [catsInput, setCatsInput] = useState("");
+
     const isMobile = window.innerWidth <= 768;
 
     let { id } = useParams();
@@ -49,10 +52,14 @@ function VolunteerPost() {
                 let post: VolunteerPostModel = await getVolunteerPost(parseInt(id));
                 setModel(post);
 
+                setSkillsInput(post.skills.join(", "));
+                setCatsInput(post.categories.join(", "));
+
                 await convertUsersToListItems(post.relatedUsers, post.posterUsername);
                 convertImagesToListItems(post.images);
   
                 setIsPoster(localStorage.getItem("username") === post.posterUsername);
+                setIsRelatedUser(post.relatedUsers.includes(localStorage.getItem("username") ?? ""));
 
                 const actorInPost = post.relatedUsers.includes(localStorage.getItem("username") ?? "");
                 setIsActorInPost(actorInPost);
@@ -312,6 +319,44 @@ function VolunteerPost() {
             alert(e);
         }
     };
+
+    const saveSkillsOnClick = async () => {
+        try {
+            const updated = skillsInput.trim() !== "" ? skillsInput.split(",").map(skill => skill.trim()) : [];
+            await setVolunteerPostSkills(model.id, updated);
+            
+            let updatedModel: VolunteerPostModel = {
+                    ...model, 
+                    skills: updated
+                }
+                setModel(updatedModel);
+                        
+            alert("Skills updated successfully!");
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+
+     const saveCatsOnClick = async () => {
+        try {
+            const updated = catsInput.trim() !== "" ? catsInput.split(",").map(skill => skill.trim()) : [];
+            await setVolunteerPostCategories(model.id, updated);
+            
+            let updatedModel: VolunteerPostModel = {
+                    ...model, 
+                    categories: updated
+            }
+            setModel(updatedModel);
+                        
+            alert("Categories updated successfully!");
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
         
     return (
         <div id="postPage" className="postPage">
@@ -455,28 +500,37 @@ function VolunteerPost() {
             </div>
 
             <div className='catsAndSkills'>
-                <div className='cats'>
-                    <h2 className='volunteerPostheader'>Offered Categories</h2>
-                    <h2 className='smallHeader'>Extracted Automatically Using AI</h2>
-                    <ul className='catsList'>
-                        <div>
-                    {model.categories.length > 0 ? model.categories.map((item, index) => (
-                        <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                    )) : <p className='notFound'>No Categories Found</p>}
-                    </div>
-                    </ul>
-                </div>
-    
                 <div className='skills'>
                     <h2 className='volunteerPostheader'>Offered Skills</h2>
                     <h2 className='smallHeader'>Extracted Automatically Using AI</h2>
-                    <ul className='skillsList'>
+                    <div className="list-section">
+                        <textarea
+                            value={skillsInput}
+                            onChange={(e) => setSkillsInput(e.target.value)}
+                            placeholder="Enter skills separated by commas"
+                        />
+                        {isRelatedUser && <button onClick={saveSkillsOnClick} className="orangeCircularButton">Save Changes</button>}
+                    </div>
+                </div>
+    
+                <div className='cats'>
+                    <h2 className='volunteerPostheader'>Offered Categories</h2>
+                    <h2 className='smallHeader'>Extracted Automatically Using AI</h2>
+                    {/*<ul className='skillsList'>
                     <div>
                     {model.skills.length > 0 ? model.skills.map((item, index) => (
                         <li key={index}>{item}</li> // Always add a unique 'key' prop when rendering lists
                     )) : <p className='notFound'>No Skills Found</p>}
                     </div>
-                    </ul>
+                    </ul>*/}
+                    <div className="list-section">
+                        <textarea
+                            value={catsInput}
+                            onChange={(e) => setCatsInput(e.target.value)}
+                            placeholder="Enter categories separated by commas"
+                        />
+                        {isRelatedUser && <button onClick={saveCatsOnClick} className="orangeCircularButton">Save Changes</button>}
+                    </div>
                 </div>
             </div>
         </div>

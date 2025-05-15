@@ -305,4 +305,16 @@ public class PostAPI {
         String token = getToken(request);
         return postService.setPoster(token, postId, actor, newPoster);
     }
+
+    @PutMapping("/setVolunteerPostSkills")
+    public Response<Boolean> setVolunteerPostSkills(@RequestParam int postId, @RequestParam String actor, @RequestParam List<String> skills, HttpServletRequest request) {
+        String token = getToken(request);
+        return postService.setVolunteerPostSkills(token, postId, actor, skills);
+    }
+
+    @PutMapping("/setVolunteerPostCategories")
+    public Response<Boolean> setVolunteerPostCategories(@RequestParam int postId, @RequestParam String actor, @RequestParam List<String> categories, HttpServletRequest request) {
+        String token = getToken(request);
+        return postService.setVolunteerPostCategories(token, postId, actor, categories);
+    }
 }

@@ -878,4 +878,22 @@ public class PostsFacade {
         String message = String.format("You were set as the poster of the post %s.", post.getTitle());
         notificationSystem.notifyUser(newPoster, message, NotificationNavigations.volunteerPost(postId));
     }
+
+    public void setVolunteerPostSkills(int postId, List<String> skills, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        VolunteerPostDTO post = getVolunteerPost(postId, actor);
+        volunteerPostRepository.editVolunteerPost(postId, post.getTitle(), post.getDescription(), post.getKeywords(), skills, post.getCategories());
+    }
+
+    public void setVolunteerPostCategories(int postId, List<String> categories, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        VolunteerPostDTO post = getVolunteerPost(postId, actor);
+        volunteerPostRepository.editVolunteerPost(postId, post.getTitle(), post.getDescription(), post.getKeywords(), post.getSkills(), categories);
+    }
 }
