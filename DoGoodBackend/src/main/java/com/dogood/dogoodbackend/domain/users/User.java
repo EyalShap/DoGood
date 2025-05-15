@@ -147,8 +147,16 @@ public class User {
         return password != null && password.length() >= 6;
     }
 
+    // NOTE: when the user still has the old password hash, we update it to the new bcrypt hash, to support backward compatibility and automatic migration to new secured algorithm
     public boolean checkPassword(String password) {
-        return passwordHash.equals(Cryptography.hashString(password));
+        if(!passwordHash.contains("$")) { // bcrypt check, to support backward compatibility
+           if(!passwordHash.equals(Cryptography.hashStringOld(password))){
+               return false;
+           }
+           passwordHash = Cryptography.hashPassword(password); // update current hash to the new form
+           return true;
+        }
+        return Cryptography.checkPassword(password,passwordHash);
     }
 
     private static boolean checkStudentEmail(String email) {

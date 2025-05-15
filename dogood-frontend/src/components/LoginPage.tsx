@@ -40,7 +40,7 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess, change
         } catch (e: any) {
             console.error("Login failed:", e);
             setError(e.message || "Login failed. Please check your credentials.");
-            //alert(e);
+            alert(e);
         } finally {
             setIsLoading(false);
         }
@@ -87,12 +87,12 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess, change
                 >
                     Login
                 </button>
-                {/* <a
+                <a
                 onClick={onSwitchToForgot} // Navigate to the register page
-                style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                style={{ margin: '10px 0 0 0', padding: '0px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                     Forgot Password?
-            </a> */}
+            </a>
 
                 <a
                 onClick={onSwitchToRegister} // Navigate to the register page
