@@ -83,6 +83,7 @@ public class UsersFacade {
         if (!correctPassword) {
             throw new IllegalArgumentException("Invalid password given for user " + username);
         }
+        repository.saveUser(user);
         String accessToken = authFacade.generateToken(username);
         return accessToken;
     }
@@ -315,8 +316,10 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate,"");
-            repository.setAdmin(username, true);
+            User newUser = repository.createUser(username, email, name, password, phone, birthDate,"");
+            newUser.setAdmin(true);
+            newUser.setEmailVerified(true);
+            repository.saveUser(newUser);
         }
     }
 
