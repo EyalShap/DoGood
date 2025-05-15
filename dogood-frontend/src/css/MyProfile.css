@@ -118,7 +118,7 @@
 }
 
 .history-table th {
-    background-color: #4CAF50;
+    background-color: #008b8b;
     color: white;
     text-transform: uppercase;
     font-weight: bold;
@@ -225,4 +225,21 @@
     justify-content: center;
     height: 100%;
     padding: 10px;
+}
+
+.activity-description {
+    display: flex;
+    flex-direction: column;
+    transition: height;
+}
+
+.saveDescription {
+    margin: 2px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: bold;
+    background-color: #008b8b;
+    color: white;
+    border-style: solid;
+    border-color: #008b8b;
+    border-radius: 5px;
 }

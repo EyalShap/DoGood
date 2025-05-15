@@ -803,4 +803,14 @@ public class VolunteeringService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<String> updateRequestDescription(String token, String userId, int volunteeringId, Date start, String description) {
+        try {
+            checkToken(token, userId);
+            facadeManager.getVolunteeringFacade().updateRequestDescription(userId, volunteeringId,start,description);
+            return Response.createOK();
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

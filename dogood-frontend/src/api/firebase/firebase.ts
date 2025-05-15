@@ -21,6 +21,9 @@ try{
 
 export const requestForToken = async (): Promise<string | null> => {
     try{
+        if (Notification.permission === 'denied') {
+            return null;
+        }
         if(messaging == null){
             return null;
         }

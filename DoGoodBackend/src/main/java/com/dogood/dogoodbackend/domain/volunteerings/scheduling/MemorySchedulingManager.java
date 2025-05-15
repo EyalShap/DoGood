@@ -253,4 +253,22 @@ public class MemorySchedulingManager implements SchedulingManager{
             }
         }
     }
+
+    @Override
+    public void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription) {
+        if(hourApprovalRequestsMapping.containsKey(volunteeringId)){
+            if(hourApprovalRequestsMapping.get(volunteeringId).containsKey(userId)){
+                HourApprovalRequest requestToUpdate = null;
+                for(HourApprovalRequest request : hourApprovalRequestsMapping.get(volunteeringId).get(userId)){
+                    if(request.getStartTime().equals(start)){
+                        requestToUpdate = request;
+                    }
+                }
+                if(requestToUpdate == null){
+                    throw new IllegalArgumentException("Specified Hour Request not found");
+                }
+                requestToUpdate.setDescription(newDescription);
+            }
+        }
+    }
 }

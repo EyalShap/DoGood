@@ -21,12 +21,15 @@ public class HourApprovalRequest {
     private Date endTime;
     private boolean approved;
 
+    private String description;
+
     public HourApprovalRequest(String userId, int volunteeringId, Date startTime, Date endTime) {
         this.userId = userId;
         this.volunteeringId = volunteeringId;
         this.startTime = startTime;
         this.endTime = endTime;
         this.approved = false;
+        this.description = "";
     }
 
     public HourApprovalRequest() {}
@@ -62,5 +65,13 @@ public class HourApprovalRequest {
 
     public Date getEndTime() {
         return endTime;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 }

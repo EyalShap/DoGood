@@ -446,4 +446,10 @@ public class VolunteeringAPI {
         String token = getToken(request);
         return volunteeringService.removeVolunteering(token, userId, volunteeringId);
     }
+
+    @PatchMapping("/updateActivityDescription")
+    public Response<String> updateActivityDescription(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody UpdateActivityDescriptionRequest body, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.updateRequestDescription(token, userId, volunteeringId, body.getStart(), body.getDescription());
+    }
 }

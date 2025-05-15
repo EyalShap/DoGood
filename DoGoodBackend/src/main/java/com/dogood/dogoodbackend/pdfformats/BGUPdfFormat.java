@@ -30,6 +30,7 @@ public class BGUPdfFormat implements PdfFormat{
     final int STARTHOUR_X = 410;
     final int ENDHOUR_X = 355;
     final int TOTAL_X = 300;
+    final int DESCRIPTION_X = 175;
     final int PAGE1_ROWS = 10;
     final int PAGE1_ROW_Y = 415;
     final int PAGE2_ROW_Y = 730;
@@ -142,6 +143,7 @@ public class BGUPdfFormat implements PdfFormat{
         double totalHours = approvedHours.getTotalHours();
         String totalHoursString = Math.floor(totalHours) == totalHours ? ""+(int)totalHours : String.format("%.01f", totalHours);
         addText(TOTAL_X, y, totalHoursString, over);
+        addText(DESCRIPTION_X,y,approvedHours.getDescription(),over);
         if(signature != null && signature.length > 0){
             try {
                 Image signatureImage = Image.getInstance(signature);

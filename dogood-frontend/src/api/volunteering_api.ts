@@ -793,3 +793,19 @@ export const getVolunteeringCategories = async (volunteeringId: number): Promise
     }
     return response.data;
 }
+
+export const updateActivityDescription = async (volunteeringId: number, start: string, description: string): Promise<string[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        start: start,
+        description: description
+    }
+    let res = await axios.patch(`${server}/api/volunteering/updateActivityDescription?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, body,config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}

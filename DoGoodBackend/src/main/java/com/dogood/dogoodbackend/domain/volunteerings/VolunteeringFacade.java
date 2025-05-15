@@ -1051,4 +1051,11 @@ public class VolunteeringFacade {
         members.addAll(organizationFacade.getOrganization(volunteering.getOrganizationId()).getManagerUsernames());
         return members;
     }
+
+    public void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription){
+        if(!userExists(userId)){
+            throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        schedulingFacade.updateRequestDescription(userId, volunteeringId, start,newDescription);
+    }
 }

@@ -27,4 +27,6 @@ public interface SchedulingManager {
     void cancelAppointment(String userId, int volunteeringId, LocalTime start);
 
     void userLeave(int volunteeringId, String userId);
+
+    void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription);
 }
