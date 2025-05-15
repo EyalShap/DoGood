@@ -4,6 +4,14 @@ public class VerifyEmailRequest {
     private String username;
     private String code;
 
+    public VerifyEmailRequest(String username, String code) {
+        this.username = username;
+        this.code = code;
+    }
+
+    public VerifyEmailRequest() {
+    }
+
     public String getUsername() {
         return username;
     }
