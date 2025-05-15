@@ -72,6 +72,12 @@ public class MemoryVolunteerPostRepository implements VolunteerPostRepository{
     }
 
     @Override
+    public void setPoster(int postId, String actor, String newPoster) {
+        VolunteerPost toSet = getVolunteerPost(postId);
+        toSet.setPoster(actor, newPoster);
+    }
+
+    @Override
     public VolunteerPost getVolunteerPost(int postId) {
         if(!posts.containsKey(postId)) {
             throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));

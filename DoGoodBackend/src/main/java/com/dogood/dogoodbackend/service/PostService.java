@@ -422,4 +422,15 @@ public class PostService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<Boolean> setPoster(String token, int postId, String actor, String newPoster) {
+        try {
+            checkToken(token, actor);
+            postsFacade.setPoster(postId, actor, newPoster);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

@@ -79,6 +79,13 @@ public class DBVolunteerPostRepository implements VolunteerPostRepository{
     }
 
     @Override
+    public void setPoster(int postId, String actor, String newPoster) {
+        VolunteerPost toSet = getVolunteerPost(postId);
+        toSet.setPoster(actor, newPoster);
+        jpa.save(toSet);
+    }
+
+    @Override
     public VolunteerPost getVolunteerPost(int postId) {
         Optional<VolunteerPost> post = jpa.findById(postId);
         if(!post.isPresent()) {

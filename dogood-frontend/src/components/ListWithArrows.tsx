@@ -25,9 +25,10 @@ export interface ListProps {
   resignHandler? : (arg0: string) => Promise<void>;
   fireHandler? : (arg0: string) => Promise<void>;
   setFounderHandler? : (arg0: string) => Promise<void>;
+  setFounderOrPoster? : boolean;
 }
 
-const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager, showArrows = true, showResign, showFire, showSetAsFounder, resignHandler, fireHandler, setFounderHandler }) => {
+const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemove, isOrgManager, showArrows = true, showResign, showFire, showSetAsFounder, resignHandler, fireHandler, setFounderHandler, setFounderOrPoster = true }) => {
   const navigate = useNavigate();
   const [startIndex, setStartIndex] = useState(0); 
 
@@ -84,7 +85,8 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
             <div className="listItemButtons">
               {showResign && showResign(item.id.toString()) && resignHandler && <button onClick={(e) => {e.stopPropagation(); resignHandler(item.id.toString());}} className='orangeCircularButton'>Resign</button>}
               {showFire && showFire(item.id.toString()) && fireHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); fireHandler(item.id.toString());}}>X</button>}
-              {showSetAsFounder && showSetAsFounder(item.id.toString()) && setFounderHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); setFounderHandler(item.id.toString());}}>Set As Founder</button>}
+              {setFounderOrPoster && showSetAsFounder && showSetAsFounder(item.id.toString()) && setFounderHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); setFounderHandler(item.id.toString());}}>Set As Founder</button>}
+              {!setFounderOrPoster && showSetAsFounder && showSetAsFounder(item.id.toString()) && setFounderHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); setFounderHandler(item.id.toString());}}>Set As Poster</button>}
             </div>
           </div>
           {(isOrgManager && onRemove && item.image !== defaultOrgImage) && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
