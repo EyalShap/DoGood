@@ -55,6 +55,39 @@ function App() {
     }
   }
 
+  // --- Function: handleAuthSuccess ---
+  // Purpose: To handle the state transition immediately after a successful LOGIN or REGISTER action
+  // Called by: RegisterPage (on successful register API call), LoginPage (on successful login API call)
+  const handleAuthSuccess = async (username: string, token: string) => {
+      console.log(`handleAuthSuccess: Called for ${username}. Setting localStorage and isLoggedIn=true.`); // Debug log
+      // Step 1: Store the received credentials in localStorage
+      localStorage.setItem("username", username);
+      localStorage.setItem("token", token);
+
+      // Step 2: Update the application's state to reflect logged-in status *immediately*
+      // This ensures the UI switches to the logged-in view without waiting for getUserByToken
+      if (!isLoggedIn) {
+           console.log("handleAuthSuccess: Setting isLoggedIn = true"); // Debug
+           setIsLoggedIn(true);
+      }
+
+      // Step 3: Attempt to fetch user data now for the header etc., but handle failure gracefully.
+      try {
+          console.log("handleAuthSuccess: Attempting immediate getUserByToken..."); // Debug
+          const um: UserModel = await getUserByToken(); // Use the token we just set
+          setUser(um); // Update user state if successful
+          console.log("handleAuthSuccess: Immediate getUserByToken successful."); // Debug
+      } catch (e) {
+          // This might happen right after registration due to timing, or network issues.
+          // We *don't* set isLoggedIn back to false. We proceed, trusting the token.
+          console.warn("handleAuthSuccess: Immediate getUserByToken failed (possible timing issue). User state not set yet.", e); // Debug
+          setUser(undefined); // Clear user state if fetch failed initially
+      }
+       // Step 4: Trigger storage event for consistency and cross-tab updates
+       // This also implicitly triggers loggedInCheck if needed in other components/tabs.
+       window.dispatchEvent(new Event('storage'));
+  };
+
   useEffect(() => {
     const handleStorage = () => {
       setIsLoggedIn(localStorage.getItem("token") !== null);
@@ -69,10 +102,21 @@ function App() {
 
   return (
     <>
-      {!isLoggedIn ? <LoginAndRegister/> :
+      {!isLoggedIn ? <LoginAndRegister onAuthSuccess={handleAuthSuccess}/> :
           <BrowserRouter>
-            <Header user={user}/>
-            <div className='Routes'>
+            <Header user={user} onLogout={() => {
+                console.log("Logout requested from Header."); // Debug
+                // Clear localStorage
+                localStorage.removeItem("token");
+                localStorage.removeItem("username");
+                // Update state
+                setUser(undefined);
+                setIsLoggedIn(false);
+                console.log("App state updated: isLoggedIn = false"); // Debug
+                // Manually trigger storage event to ensure consistency and potential cleanup in other listeners
+                window.dispatchEvent(new Event('storage'));
+                // No need to navigate here, the conditional render will switch to LoginAndRegister
+            }}/> <div className='Routes'>
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
@@ -103,6 +147,8 @@ function App() {
               <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>
               <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
               <Route path='/easterEgg' element={<EasterEgg/>}/>
+              {/* Add a catch-all or redirect for logged-in users if needed */}
+              {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
             </Routes>
             </div>
             <Footer/>

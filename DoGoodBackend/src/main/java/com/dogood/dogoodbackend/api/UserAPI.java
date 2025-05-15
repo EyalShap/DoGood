@@ -3,6 +3,14 @@ package com.dogood.dogoodbackend.api;
 import com.dogood.dogoodbackend.api.userrequests.LoginRequest;
 import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
 import com.dogood.dogoodbackend.api.userrequests.UpdateUserRequest;
+// VERIFICATION START
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
+// VERIFICATION END
+// Import new DTOs
+import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
+//Import END
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
@@ -42,6 +50,34 @@ public class UserAPI {
     public Response<String> register(@RequestBody RegisterRequest body) {
         return userService.register(body.getUsername(), body.getPassword(), body.getName(), body.getEmail(), body.getPhone(), body.getBirthDate(), body.getProfilePicUrl());
     }
+    // VERIFICATION START
+    @PostMapping("/verify-email")
+    public Response<String> verifyEmail(@RequestBody VerifyEmailRequest body) {
+        return userService.verifyEmail(body);
+    }
+    // VERIFICATION END
+
+    // FORGOT_PASSWORD START
+
+    @PostMapping("/forgot-password")
+    public Response<String> forgotPassword(@RequestBody ForgotPasswordRequest body) {
+        return userService.forgotPassword(body.getEmail());
+    }
+
+    @PostMapping("/verify-reset-password")
+    public Response<String> verifyResetPassword(@RequestBody VerifyResetPasswordRequest body) {
+        // No token needed for this endpoint as user is not logged in
+        return userService.verifyPasswordResetCode(body);
+    }
+
+    @PostMapping("/reset-password")
+    public Response<String> resetPassword(@RequestBody ResetPasswordRequest body) {
+        // No token needed for this endpoint
+        // The security relies on the short-lived, validated code passed in the body
+        return userService.resetPassword(body);
+    }
+// FORGOT_PASSWORD END
+
 
     @GetMapping("/isAdmin")
     public Response<Boolean> isAdmin(@RequestParam String username) {

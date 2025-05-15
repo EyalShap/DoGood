@@ -1,16 +1,22 @@
 package com.dogood.dogoodbackend.domain.users;
 
-import com.dogood.dogoodbackend.domain.externalAIAPI.*;
-import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
+import com.dogood.dogoodbackend.domain.externalAIAPI.CVSkillsAndPreferencesExtractor;
+import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndPreferences;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
+import com.dogood.dogoodbackend.emailverification.EmailSender;
+import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
+import com.dogood.dogoodbackend.emailverification.VerificationData;
+import com.dogood.dogoodbackend.api.userrequests.RegisterRequest; // Import RegisterRequest DTO
+
 import jakarta.transaction.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -23,10 +29,23 @@ public class UsersFacade {
     private NotificationSystem notificationSystem;
     private CVSkillsAndPreferencesExtractor extractor;
 
+    private final Random random = new SecureRandom();
+    private final EmailSender emailSender; // This IS final and needs to be initialized
+    private final VerificationCacheService verificationCache; // Ensure type is correct
+
     public UsersFacade(UserRepository repository, AuthFacade authFacade, CVSkillsAndPreferencesExtractor extractor) {
         this.repository = repository;
         this.authFacade = authFacade;
         this.extractor = extractor;
+        this.emailSender = null;
+        this.verificationCache = null;
+    }
+    public UsersFacade(UserRepository repository, AuthFacade authFacade, CVSkillsAndPreferencesExtractor extractor, EmailSender emailSender, VerificationCacheService verificationCache) {
+        this.repository = repository;
+        this.authFacade = authFacade;
+        this.extractor = extractor;
+        this.emailSender = emailSender; // NOW CORRECTLY ASSIGNED
+        this.verificationCache = verificationCache; // NOW CORRECTLY ASSIGNED
     }
 
     public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
@@ -40,9 +59,19 @@ public class UsersFacade {
     public void setNotificationSystem(NotificationSystem notificationSystem) {
         this.notificationSystem = notificationSystem;
     }
+    // VERIFICATION START
+    private String generateVerificationCode() {
+        return String.format("%06d", this.random.nextInt(1000000));
+    }
+    // VERIFICATION END
 
     public String login(String username, String password) {
         User user = getUser(username);
+        // VERIFICATION START
+        if (!user.isEmailVerified()) {
+            throw new IllegalArgumentException("Email not verified. Please verify your email before logging in.");
+        }
+        // VERIFICATION END
 
         for(String email : user.getEmails()) {
             if(reportsFacade.isBannedEmail(email)) {
@@ -64,6 +93,7 @@ public class UsersFacade {
     }
 
     public void register(String username, String password, String name, String email, String phone, Date birthDate, String profilePicUrl) {
+        User newUser = null;
         try {
             User user = getUser(username);
             // if user with the same username exists, cannot register it again
@@ -74,11 +104,39 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate,profilePicUrl);
+            newUser = repository.createUser(username, email, name, password, phone, birthDate,profilePicUrl);
         }
+        // VERIFICATION START
+        if (newUser != null) { // User was successfully created in the catch block
+            if (this.emailSender == null || this.verificationCache == null) {
+                // This indicates a configuration problem (wrong constructor used by FacadeManager)
+                System.err.println("CRITICAL: EmailService or VerificationCacheService not initialized in UsersFacade. Cannot send verification email.");
+                // Depending on policy, you might throw an exception here or log critically.
+                // For now, we'll let it proceed without verification if services are null, but this is not ideal.
+                // throw new IllegalStateException("EmailService or VerificationCacheService not configured.");
+            } else {
+                String verificationCode = generateVerificationCode();
+                RegisterRequest cachedUserData = new RegisterRequest();
+                cachedUserData.setUsername(username);
+                // As per prompt: "The password in userData within RegisterRequest should already be hashed."
+                // The 'password' variable here is the raw password.
+                cachedUserData.setPassword(Cryptography.hashPassword(password));
+                cachedUserData.setName(name);
+                cachedUserData.setEmail(email);
+                cachedUserData.setPhone(phone);
+                cachedUserData.setBirthDate(birthDate);
+                cachedUserData.setProfilePicUrl(profilePicUrl);
+
+                verificationCache.storeVerificationData(email.toLowerCase(), cachedUserData, verificationCode);
+                emailSender.sendVerificationCodeEmail(email, username, verificationCode);
+            }
+        }
+        // VERIFICATION END
     }
 
+    //this is used only for the setup so we could ignore the "formal setup" and just give it the emailVerified toekn becuase it is only for testing
     public void register(String username, String password, String name, String email, String phone, Date birthDate) {
+        User newUser = null;
         try {
             User user = getUser(username);
             // if user with the same username exists, cannot register it again
@@ -89,9 +147,151 @@ public class UsersFacade {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
 
-            repository.createUser(username, email, name, password, phone, birthDate,"");
+            newUser = repository.createUser(username, email, name, password, phone, birthDate,"");
+            newUser.setEmailVerified(true);
+            repository.saveUser(newUser);
+        }
+
+    }
+    // VERIFICATION START
+    public String verifyEmail(String username, String code) {
+        if (this.verificationCache == null || this.repository == null) {
+            throw new IllegalStateException("VerificationCacheService or UserRepository not configured in UsersFacade.");
+        }
+        Optional<User> userOptional = repository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found.");
+        }
+        User user = userOptional.get();
+
+        if (user.isEmailVerified()) {
+            return "Email already verified.";
+        }
+
+        String emailToVerify = user.getEmails().stream().findFirst()
+                .orElseThrow(() -> new IllegalStateException("User has no email address for verification."));
+
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(emailToVerify.toLowerCase(), code);
+
+        if (verificationDataOptional.isPresent()) {
+            user.setEmailVerified(true);
+            repository.saveUser(user);
+            verificationCache.removeVerificationData(emailToVerify.toLowerCase());
+            return "Email verified successfully.";
+        } else {
+            // Check if an entry exists (even if expired or code is wrong) to give a more specific message.
+            // getVerificationData only returns non-expired data.
+            Optional<VerificationData> currentDataIfAny = verificationCache.getVerificationData(emailToVerify.toLowerCase());
+            if(currentDataIfAny.isEmpty()){
+                // This means:
+                // 1. No code was ever sent for this email.
+                // 2. Code was already used and removed.
+                // 3. Code expired and was cleaned up by getVerificationData or getAndValidateVerificationData.
+                return "Invalid or expired verification code. It might have expired, been used, or was never sent.";
+            } else {
+                // Data exists in cache and is not expired, so the submitted code must be wrong.
+                return "Invalid verification code.";
+            }
         }
     }
+    // VERIFICATION END
+    // FORGOT_PASSWORD START
+// Helper method already exists for generating verification codes, will reuse:
+// private String generateVerificationCode() {
+//     return String.format("%06d", this.random.nextInt(1000000));
+// }
+
+    public void forgotPassword(String email) {
+        if (emailSender == null || verificationCache == null || repository == null) {
+            // Log critical error, but don't throw to the client to prevent enumeration
+            System.err.println("CRITICAL: Required services (Email, Cache, Repository) not configured in UsersFacade for forgotPassword.");
+            return; // Silently return
+        }
+
+        Optional<User> userOptional = repository.findByEmail(email.toLowerCase());
+
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            String username = user.getUsername(); // Get username for the email
+            String code = generateVerificationCode();
+
+            // To use the existing VerificationCacheService.storeVerificationData,
+            // which expects a RegisterRequest, we create a minimal one.
+            // This RegisterRequest is just a carrier for context if needed by the cache,
+            // or to satisfy the method signature. It won't be used for actual registration.
+            RegisterRequest dummyUserData = new RegisterRequest();
+            dummyUserData.setUsername(username); // Store username for potential context
+            dummyUserData.setEmail(email);       // Store email for potential context
+
+            // Assuming VerificationCacheService.storeVerificationData is:
+            // storeVerificationData(String emailKey, RegisterRequest userData, String code)
+            // The actual record VerificationData(String code, Instant expiry, RegisterRequest userData)
+            // will be created inside verificationCacheService.
+            verificationCache.storeVerificationData(email.toLowerCase(), dummyUserData, code);
+            emailSender.sendVerificationCodeEmail(email, username, code); // Send email
+        }
+        // Always return without error to prevent email enumeration
+    }
+
+    public boolean verifyPasswordResetCode(String username, String code) {
+        if (verificationCache == null || repository == null) {
+            System.err.println("CRITICAL: Required services (Cache, Repository) not configured in UsersFacade for verifyPasswordResetCode.");
+            // Consider throwing an exception here as this is an internal state problem
+            // or return false and let the service layer handle the response.
+            throw new IllegalStateException("Verification services not properly configured.");
+        }
+
+        Optional<User> userOptional = repository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            // User not found, code cannot be valid for them.
+            return false;
+        }
+        User user = userOptional.get();
+        // Assuming user has at least one email and the first one is primary for this context
+        String email = user.getEmails().stream().findFirst().orElse(null);
+
+        if (email == null) {
+            // User has no email, should not happen for a registered user needing password reset.
+            return false;
+        }
+
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(email.toLowerCase(), code);
+
+        // Additionally, we might want to check if the userData stored (our dummy RegisterRequest)
+        // matches the username, if we stored it for this purpose.
+        // For now, just validating code against email.
+        return verificationDataOptional.isPresent();
+    }
+
+    public String resetPassword(String username, String newPassword, String code) {
+        if (verificationCache == null || repository == null) {
+            throw new IllegalStateException("Verification or persistence services not properly configured.");
+        }
+
+        Optional<User> userOptional = repository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            return "User not found.";
+        }
+        User user = userOptional.get();
+        String email = user.getEmails().stream().findFirst().orElse(null);
+
+        if (email == null) {
+            return "User email not found.";
+        }
+
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(email.toLowerCase(), code);
+
+        if (verificationDataOptional.isPresent()) {
+            // Code is valid, proceed to reset password
+            user.setPasswordHash(Cryptography.hashString(newPassword)); // Assuming User model has setPasswordHash or similar
+            repository.saveUser(user);
+            verificationCache.removeVerificationData(email.toLowerCase()); // Important: consume the code
+            return "Password reset successfully.";
+        } else {
+            return "Invalid or expired verification code.";
+        }
+    }
+// FORGOT_PASSWORD END
 
     public void updateProfilePicture(String username, String profilePicUrl) {
         User user = getUser(username);

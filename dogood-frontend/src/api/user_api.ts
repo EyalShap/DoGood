@@ -61,6 +61,72 @@ export const register = async (
     return response.data;
 }
 
+// VERIFICATION START
+export const verifyEmailCode = async (username: string, code: string): Promise<string> => {
+    const body = {
+        username: username,
+        code: code
+    };
+    // No token needed for verification
+    let res = await axios.post(`${server}/verify-email`, body);
+    const response: APIResponse<string> = await res.data; 
+    if(response.error){
+        // The backend now returns the error message directly in response.errorString if response.error is true
+        // For "Invalid or expired verification code." it will be in response.errorString
+        // For "Email verified successfully." or "Email already verified." response.error will be false.
+        throw response.errorString;
+    }
+    // If no error, data should contain the success message like "Email verified successfully."
+    return response.data; 
+}
+// VERIFICATION END
+
+// FORGOT_PASSWORD START
+export const forgotPassword = async (email: string): Promise<string> => {
+    const body = { email };
+    // Backend endpoint: /api/users/forgot-password
+    let res = await axios.post(`${server}/forgot-password`, body);
+    const response: APIResponse<string> = await res.data;
+    // Backend always returns a generic success message in response.data if no internal server error
+    if(response.error){ // This would be for unexpected server errors, not "email not found"
+        throw response.errorString;
+    }
+    return response.data; // This will be "If your email address is in our system..."
+}
+
+// This function might be optional for the frontend if ResetPasswordRequest includes the code
+// and the /reset-password endpoint re-validates it.
+// However, the backend provides it, so we include it.
+export const verifyPasswordResetCode = async (username: string, code: string): Promise<string> => {
+    const body = {
+        username: username,
+        code: code
+    };
+    // Backend endpoint: /api/users/verify-reset-password
+    let res = await axios.post(`${server}/verify-reset-password`, body);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString; // e.g., "Invalid or expired verification code."
+    }
+    return response.data; // e.g., "Verification code is valid."
+}
+
+export const resetPassword = async (username: string, code: string, newPassword: string): Promise<string> => {
+    const body = {
+        username: username,
+        newPassword: newPassword,
+        code: code // Code is included for re-validation
+    };
+    // Backend endpoint: /api/users/reset-password
+    let res = await axios.post(`${server}/reset-password`, body);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString; // e.g., "Invalid code", "User not found"
+    }
+    return response.data; // e.g., "Password reset successfully."
+}
+// FORGOT_PASSWORD END
+
 export const getIsAdmin = async (username: string): Promise<boolean> => {
     let res = await axios.get(`${server}/isAdmin?username=${username}`);
     const response: APIResponse<boolean> = await res.data;

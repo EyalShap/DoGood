@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react';
 import './../css/Header.css'
 import { getNewUserNotificationsAmount, getUserNotifications, logout, readNewUserNotifications } from '../api/user_api';
+// REMOVE useNavigate from here, it's handled by App.tsx now
 import { useNavigate } from 'react-router-dom';
 import UserModel from '../models/UserModel';
-import Notification from '../models/Notification'
+import Notification from '../models/Notification' // Keep importing the original type
 import { FaBell } from 'react-icons/fa';
 import { Badge } from '@mui/material';
 import {Client} from "@stomp/stompjs";
@@ -13,9 +14,12 @@ import logoTitle from "../assets/title_dogood.png"
 import logoIcon from "../assets/logo.png"
 import {format, isToday, isYesterday} from "date-fns";
 
-type Props = { user: UserModel | undefined };
+type Props = {
+    user: UserModel | undefined;
+    onLogout: () => void;
+};
 
-const Header: React.FC<Props> = ({ user }) => {
+const Header: React.FC<Props> = ({ user, onLogout }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpenNotifications, setDropdownOpenNotifications] = useState(false);
@@ -23,61 +27,136 @@ const Header: React.FC<Props> = ({ user }) => {
   const [newNotificationsAmount, setNewNotificationsAmount] = useState<number>(0);
   const isMobile = window.innerWidth <= 768;
   const isAdmin = user === undefined ? false : user.admin;
-    const [connected, setConnected] = useState(false);
-    const profilePicture = user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage;
+  const [connected, setConnected] = useState(false);
+  const profilePicture = user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage;
+  const [currentProfilePic, setCurrentProfilePic] = useState(profilePicture);
 
-    const toggleDropdown = () => {
-        setDropdownOpen(!dropdownOpen);
-    };
+  useEffect(() => {
+      setCurrentProfilePic(user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage);
+  }, [user?.profilePicUrl]);
 
-    const toggleDropdownNotifications = async () => {
-      setDropdownOpenNotifications(!dropdownOpenNotifications);
-    };
+  useEffect(() => {
+      const handleProfilePicUpdate = () => {
+          console.log("Header: Detected profile picture update event.");
+           setCurrentProfilePic(user !== undefined && user!.profilePicUrl && user!.profilePicUrl !== "" ? user!.profilePicUrl : defaultImage);
+      };
+      window.addEventListener('profilePictureUpdated', handleProfilePicUpdate);
+      return () => {
+          window.removeEventListener('profilePictureUpdated', handleProfilePicUpdate);
+      };
+  }, [user]);
 
-    const fetchNotifications = async () => {
-      try {
-        setNotifications(await getUserNotifications());
-        setNewNotificationsAmount(await getNewUserNotificationsAmount());
-      }
-      catch (e) {
-        alert(e);
-      }
+
+  const toggleDropdown = () => {
+      setDropdownOpen(!dropdownOpen);
+  };
+
+  const toggleDropdownNotifications = async () => {
+    setDropdownOpenNotifications(!dropdownOpenNotifications);
+  };
+
+  const fetchNotifications = async () => {
+    if (!localStorage.getItem("token")) return;
+    try {
+      // Fetch notifications and sort them immediately by ID descending
+      const fetchedNotifications = await getUserNotifications();
+      // --- CHANGE 1: Sort by ID immediately after fetching ---
+      const sortedNotifications = fetchedNotifications.sort((a, b) => b.id - a.id);
+      setNotifications(sortedNotifications);
+      // --- CHANGE 1 END ---
+      setNewNotificationsAmount(await getNewUserNotificationsAmount());
     }
+    catch (e) {
+      console.error("Failed to fetch notifications:", e);
+    }
+  }
 
-    const closeDropdown = () => {
-        setDropdownOpen(false);
-    };
-    
-    const closeDropdownNotifications = () => {
-        setDropdownOpenNotifications(false);
-        // mark all new notifications as read
-        console.log("attempting to read new user notifications");
-        var result = readNewUserNotifications(); // ignore result list, already loads the full list in getUserNotifications
-        console.log(result);
-        fetchNotifications();
-    };
-
-    const closeMenu = () => {
+  const closeDropdown = () => {
       setDropdownOpen(false);
+  };
+
+  const closeDropdownNotifications = async () => {
+      setDropdownOpenNotifications(false);
+      console.log("Attempting to read new user notifications");
+      try {
+          await readNewUserNotifications();
+          fetchNotifications(); // Re-fetch potentially updates read status visually if needed
+      } catch(e) {
+          console.error("Failed to mark notifications as read:", e);
+      }
+  };
+
+  const handleLogoutClick = async () => {
+      closeDropdown();
+      try {
+          await logout();
+          console.log("Backend logout successful (optional)");
+      } catch (e) {
+          console.error("Backend logout failed (optional):", e);
+      }
+      onLogout();
+  }
+
+  const onLogo = async () => {
+    navigate(`/`);
+  }
+
+  useEffect(() => {
+    if (localStorage.getItem("token")) {
+        fetchNotifications(); // Initial fetch and sort
     }
 
-    const onLogout = async () => {
-      try{
-        await logout();
+      let client: Client | null = null;
+      if (localStorage.getItem("token") && !connected) {
+           client = new Client({
+              brokerURL: host+"/api/ws-message",
+              connectHeaders: {
+                  "Authorization": localStorage.getItem("token")!
+              },
+              reconnectDelay: 5000,
+              onConnect: () => {
+                  console.log("WS Connected!");
+                  if(!connected) {
+                      client?.subscribe(`/user/queue/notifications`, msg => {
+                          let newNotif: Notification = JSON.parse(msg.body);
+                          console.log("WS Received Notification:", newNotif);
+                          // --- CHANGE 2: Add new notification and re-sort by ID ---
+                          setNotifications(prevState =>
+                              [...prevState, newNotif].sort((a, b) => b.id - a.id)
+                          );
+                          // --- CHANGE 2 END ---
+                          setNewNotificationsAmount(prevState => prevState + 1);
+                      });
+                      setConnected(true);
+                  }
+              },
+              onDisconnect: () => {
+                  console.log("WS Disconnected!");
+                  setConnected(false);
+              },
+              onStompError: (frame) => {
+                   console.error('WS Broker reported error: ' + frame.headers['message']);
+                   console.error('WS Additional details: ' + frame.body);
+              },
+          });
+          console.log("Activating WS client...");
+          client.activate();
       }
-      catch(e){
-        alert(e);
-      }
-        localStorage.removeItem("username");
-        localStorage.removeItem("token");
-        closeMenu();
-        window.dispatchEvent(new Event('storage'))
-        navigate('/');
-    }
 
-    const onLogo = async () => {
-      navigate(`/`);
-    }
+      return () => {
+          if (client && client.active) {
+              console.log("Deactivating WS client...");
+              client.deactivate();
+              setConnected(false);
+          }
+      }
+  }, [localStorage.getItem("token")])
+
+  // --- REMOVE the separate useEffect for sorting, as it's done inline now ---
+  // useEffect(() => {
+  //    // Sorting logic removed from here
+  // }, [notifications.length]);
+  // --- REMOVE END ---
 
     const transformTimestamp = (timestamp: string) => {
       let date = new Date(timestamp);

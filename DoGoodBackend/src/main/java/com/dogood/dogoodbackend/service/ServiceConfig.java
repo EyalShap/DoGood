@@ -13,10 +13,15 @@ import com.dogood.dogoodbackend.domain.users.notificiations.DatabaseNotification
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+// VERIFICATION START
+// Import the services if they are not automatically found by package structure (usually they are)
+import com.dogood.dogoodbackend.emailverification.EmailSender;
+import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
+// VERIFICATION END
 
 @Configuration
 public class ServiceConfig {
@@ -39,7 +44,9 @@ public class ServiceConfig {
                 new AISkillsAndCategoriesExtractor(applicationContext.getBean(Gemini.class)),
                 new AICVSkillsAndPreferencesExtractor(applicationContext.getBean(Gemini.class)),
                 new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)),
-                new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)));
+                new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)),
+                applicationContext.getBean(EmailSender.class),
+                applicationContext.getBean(VerificationCacheService.class));
     }
 
     /*@Bean

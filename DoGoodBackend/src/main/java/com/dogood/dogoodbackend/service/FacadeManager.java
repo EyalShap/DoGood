@@ -5,7 +5,6 @@ import com.dogood.dogoodbackend.domain.chat.MessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.CVSkillsAndPreferencesExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
-import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndPreferences;
 import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.reports.BannedRepository;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
@@ -22,8 +21,11 @@ import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.SchedulingManager;
-import com.dogood.dogoodbackend.socket.ChatSocketSender;
-import org.springframework.beans.factory.annotation.Autowired;
+// VERIFICATION START
+// No changes needed for imports here unless EmailService or VerificationCacheService were not previously imported
+import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
+import com.dogood.dogoodbackend.emailverification.EmailSender;
+// VERIFICATION END
 
 public class FacadeManager {
     private VolunteeringFacade volunteeringFacade;
@@ -36,9 +38,11 @@ public class FacadeManager {
     private NotificationSystem notificationSystem;
 
     public FacadeManager(String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo, EmailSender emailSender, VerificationCacheService verificationCacheService ){
         this.authFacade = new AuthFacade(jwtSecretKey);
-        this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt);
+        // Use the constructor for UsersFacade that accepts the new services
+        this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt, emailSender, verificationCacheService);
+        // VERIFICATION END
         this.notificationSystem = new NotificationSystem(notificationRepo);
         this.notificationSystem.setUsersFacade(usersFacade);
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
@@ -58,6 +62,7 @@ public class FacadeManager {
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
         this.chatFacade.setNotificationSystem(notificationSystem);
         this.postsFacade.setNotificationSystem(notificationSystem);
+        // Initialize new services
     }
 
     public VolunteeringFacade getVolunteeringFacade() {
