@@ -10,26 +10,28 @@ import ApprovedHours from "../models/ApprovedHoursModel";
 import {getUserApprovedHoursFormatted, updateActivityDescription} from "../api/volunteering_api";
 
 
-function DescriptionUpdater({ model }: {model: ApprovedHours}){
-    const [description, setDescription] = useState(model.description)
+function DescriptionUpdater({ model, setModel}: {model: ApprovedHours, setModel: (newModel: ApprovedHours) => void}){
+    const [description,setDescription] = useState(model.description);
+
     const updateDescription = async () =>{
         try{
             await updateActivityDescription(model.volunteeringId, model.startTime,description);
-            model.description = description;
+            let newModel: ApprovedHours = {userId: model.userId, volunteeringId: model.volunteeringId, startTime: model.startTime,endTime:model.endTime,description:description};
+            setModel(newModel)
         }catch (e){
             alert(e);
         }
     }
 
     return (
-        <div>
+        <div className="activity-description">
             <input value={description} onChange={e => setDescription(e.target.value)}/>
-            {model.description !== description && <button onClick={updateDescription}>Save</button>}
+            {model.description !== description && <button className="saveDescription" onClick={updateDescription}>Save</button>}
         </div>
     )
 }
 
-function MyProfilePage() {
+function ApprovedHourPage() {
     const navigate = useNavigate();
 
     const [model, setModel] = useState<User | null>(null);
@@ -40,8 +42,6 @@ function MyProfilePage() {
     const [id, setId] = useState("");
     const [selectedVolunteering, setSelectedVolunteering] = useState(-1);
 
-
-    // Volunteering Now
 
     // Fetch user profile on load
     useEffect(() => {
@@ -91,7 +91,10 @@ function MyProfilePage() {
                                 <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
                                 <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
                                 <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
-                                <td><DescriptionUpdater model={hours}/></td>
+                                <td><DescriptionUpdater model={hours} setModel={newModel => {
+                                    setApprovedHours(prevState => prevState.map(approvedHours =>
+                                        (approvedHours.volunteeringId === newModel.volunteeringId && approvedHours.startTime === newModel.startTime) ? newModel : approvedHours))
+                                }}/></td>
                             </tr>
                         ))}
                         </tbody>
@@ -110,6 +113,7 @@ function MyProfilePage() {
                         value={id}
                         onChange={(e) => setId(e.target.value)}
                     />
+                    <hr/>
                     <label>Select primary volunteering to export hours from:</label>
                     <select defaultValue={-1} onChange={e => setSelectedVolunteering(parseInt(e.target.value))}>
                         <option value={-1}></option>
@@ -117,6 +121,7 @@ function MyProfilePage() {
                         {model.volunteeringsInHistory.map(hist => <option
                             value={hist.id}>{hist.id} ({hist.name})</option>)}
                     </select>
+                    <hr/>
                     <button disabled={selectedVolunteering < 0} onClick={handleExport}
                             className="orangeCircularButton">Export
                     </button>
@@ -125,4 +130,4 @@ function MyProfilePage() {
     );
 }
 
-export default MyProfilePage;
+export default ApprovedHourPage;
