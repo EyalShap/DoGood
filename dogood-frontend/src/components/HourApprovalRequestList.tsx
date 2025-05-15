@@ -9,7 +9,7 @@ function Request({ model, volunteeringId, fetchRequests } : {model: HourApproval
         var seconds = ((new Date(model.endTime)).getTime() - (new Date(model.startTime)).getTime()) / 1000;
         var minutes = Math.floor(seconds/60);
         var hours = Math.floor(minutes/60)
-        return `${hours}:${minutes%60}`
+        return `${formatNumber(hours)}:${formatNumber(minutes%60)}`
     }
 
     const deny = async () => {
@@ -30,18 +30,22 @@ function Request({ model, volunteeringId, fetchRequests } : {model: HourApproval
         }
     }
 
+    const formatNumber = (digit: number) =>{
+        return `${digit > 9 ? "" : "0"}${digit}`
+    }
+
     return (
         <div className="request">
             <div className="requestData">
-                <h1>User: {model.userId}</h1>
-                <p>Date: {((date: Date) => `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`)(new Date(model.startTime))}</p>
-                <p>Start Time: {(new Date(model.startTime)).getHours()}:{(new Date(model.startTime)).getMinutes()}</p>
-                <p>End Time: {(new Date(model.endTime)).getHours()}:{(new Date(model.endTime)).getMinutes()}</p>
-                <p>Total Time: {getTimeBetween()}</p>
+                <h1>{model.userId}</h1>
+                <p><b>Date:</b> {((date: Date) => `${date.getDate()}/${date.getMonth()+1}/${date.getFullYear()}`)(new Date(model.startTime))}</p>
+                <p><b>Start Time:</b> {formatNumber((new Date(model.startTime)).getHours())}:{formatNumber((new Date(model.startTime)).getMinutes())}</p>
+                <p><b>End Time:</b> {formatNumber((new Date(model.endTime)).getHours())}:{formatNumber((new Date(model.endTime)).getMinutes())}</p>
+                <p><b>Total Time:</b> {getTimeBetween()}</p>
             </div>
             <div className="requestButtons">
-                <button onClick = {() => accept()} className="accept">Accept</button>
-                <button onClick = {() => deny()} className="deny">Deny</button>
+                <button onClick = {() => accept()} className="orangeCircularButton accept">Accept</button>
+                <button onClick = {() => deny()} className="orangeCircularButton deny">Deny</button>
             </div>
         </div>
     )

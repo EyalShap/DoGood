@@ -648,30 +648,32 @@ function LocationSelector({volunteeringId, assignUser}: { volunteeringId: number
     }, [groupId, ready])
 
     return (
-        <div className='locationSelector'>
-            <h1 className='chooseLocation'>Choose Location</h1>
-            <div className='locationButtons'>
-                {locations.map(location =>
-                    <button onClick={() => assignUser(location.id)} className='location'>
-                        <h2>{location.name}</h2>
-                        <p>{location.address.city}</p>
-                        <p>{location.address.street}</p>
-                        <p>{location.address.address}</p>
-                    </button>)}
+        <div>
+            <div className="container">
+                <h1>Choose Location</h1>
+                <div className="locations">
+                    {locations.map(location =>
+                        <div onClick={() => assignUser(location.id)} className='location'>
+                            <h2>{location.name}</h2>
+                            <p>{location.address.city}</p>
+                            <p>{location.address.street}</p>
+                            <p>{location.address.address}</p>
+                        </div>)}
+                </div>
             </div>
         </div>
     )
 }
 
-function HourRequestMaker({ volunteerindId, close }: { volunteerindId: number, close: any }) {
+function HourRequestMaker({volunteerindId, close}: { volunteerindId: number, close: any }) {
     const [startTime, setStartTime] = useState<Dayjs | null>(dayjs().startOf('day'));
     const [endTime, setEndTime] = useState<Dayjs | null>(dayjs().startOf('day'));
     const [date, setDate] = useState<Dayjs | null>(dayjs())
 
     const onRequest = async () => {
         try {
-            let startDate = date!.set('hour',startTime!.hour()).set('minute',startTime!.minute()).set('second',0).set('millisecond',0);
-            let endDate = date!.set('hour',endTime!.hour()).set('minute',endTime!.minute()).set('second',0).set('millisecond',0);
+            let startDate = date!.set('hour', startTime!.hour()).set('minute', startTime!.minute()).set('second', 0).set('millisecond', 0);
+            let endDate = date!.set('hour', endTime!.hour()).set('minute', endTime!.minute()).set('second', 0).set('millisecond', 0);
             await requestHoursApproval(volunteerindId, startDate.toISOString(), endDate.toISOString());
             alert("Request Sent Successfully!")
             close();
