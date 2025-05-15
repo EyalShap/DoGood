@@ -47,31 +47,27 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: Logi
 
     return (
         <div className="back">
-            <div className="loginPage">
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
-                    rel="stylesheet"
-                />
-                <link
-                    href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
-                    rel="stylesheet"
-                />
-                {!isMobile && (
-                 <div className="image">
-                     <h2 className="bigHeader welcome">Welcome To DoGood</h2>
-                 </div>
-                )}
-                <div className="loginSection">
-                     <h1 className="mobileLogin">{isMobile ? "DoGood" : "Login"}</h1>
-                     {error && <p style={{ color: 'red', textAlign: 'center', marginBottom: '10px' }}>{error}</p>}
-                    <div className="fields">
+        <div className = "loginPage"> 
+            <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
+            rel="stylesheet"
+            />
+            <link
+            href="https://fonts.googleapis.com/css2?family=Lobster&display=swap"
+            rel="stylesheet"
+            />
+        <div className="image">
+            <h2 className="bigHeader welcome">Welcome To DoGood</h2>
+        </div>
+        <div className="loginSection">
+            <h1 className="mobileLogin">{isMobile ? "Welcome To DoGood" : "Login"}</h1>
+            <div className = 'fields' >
                         <input
                             onKeyDown={(e) => { if (e.key === 'Enter') handleLogin(); }}
                             type="text"
                             placeholder="Username"
                             value={username}
                             onChange={e => setUsername(e.target.value)}
-                            disabled={isLoading}
                             style={{ margin: '5px 0', padding: '10px', fontSize: '16px', fontFamily: 'Montserrat, sans-serif' }}
                         />
                         <input
@@ -80,37 +76,33 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: Logi
                             placeholder="Password"
                             value={password}
                             onChange={e => setPassword(e.target.value)}
-                            disabled={isLoading}
                             style={{ margin: '5px 0', padding: '10px', fontSize: '16px' }}
                         />
-                        <button
-                            onClick={handleLogin}
-                            className="orangeCircularButton"
-                            disabled={isLoading}
-                            style={{ margin: '10px 0', padding: '10px', fontSize: '16px', border: 'none', cursor: isLoading ? 'not-allowed' : 'pointer' }}
-                        >
-                            {isLoading ? "Logging in..." : "Login"}
-                        </button>
+                <button
+                    onClick={handleLogin} 
+                    className="orangeCircularButton"
+                    disabled={isLoading}
+                    style={{ margin: '10px 0', padding: '10px', fontSize: '16px', border: 'none', cursor: 'pointer' }}
+                >
+                    Login
+                </button>
+                <a
+                onClick={onSwitchToForgot} // Navigate to the register page
+                style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                    Forgot Password?
+            </a>
 
-                        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px', marginTop: '10px' }}>
-                            {/* FORGOT_PASSWORD START */}
-                            <a
-                                onClick={onSwitchToForgot} 
-                                style={{ fontSize: '14px', textDecoration: 'underline', color: '#555', cursor: 'pointer' }}
-                            >
-                                Forgot Password?
-                            </a>
-                            {/* FORGOT_PASSWORD END */}
-                            <a
-                                onClick={onSwitchToRegister}
-                                style={{ fontSize: '14px', textDecoration: 'underline', color: '#555', cursor: 'pointer' }}
-                            >
-                                Not registered yet?
-                            </a>
-                        </div>
-                    </div>
-                </div>
+                <a
+                onClick={onSwitchToRegister} // Navigate to the register page
+                style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+                >
+                    Not registered yet?
+            </a>
+
             </div>
+            </div>
+        </div>
         </div>
     );
 }
