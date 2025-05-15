@@ -16,10 +16,9 @@ import {format, isToday, isYesterday} from "date-fns";
 
 type Props = {
     user: UserModel | undefined;
-    onLogout: () => void;
 };
 
-const Header: React.FC<Props> = ({ user, onLogout }) => {
+const Header: React.FC<Props> = ({ user }) => {
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [dropdownOpenNotifications, setDropdownOpenNotifications] = useState(false);
@@ -45,6 +44,20 @@ const Header: React.FC<Props> = ({ user, onLogout }) => {
           window.removeEventListener('profilePictureUpdated', handleProfilePicUpdate);
       };
   }, [user]);
+
+    const onLogout = async () => {
+        try{
+            await logout();
+        }
+        catch(e){
+            alert(e);
+        }
+        localStorage.removeItem("username");
+        localStorage.removeItem("token");
+        setDropdownOpen(false);
+        window.dispatchEvent(new Event('storage'))
+        navigate('/');
+    }
 
 
   const toggleDropdown = () => {

@@ -16,6 +16,8 @@ public class Message {
     private String receiverId;
     private ReceiverType receiverType;
     private Date timeSent;
+    private boolean edited;
+    private Date timeEdited;
 
     public Message(String content, String senderId, String receiverId, ReceiverType receiverType, Date timeSent) {
         this.content = content;
@@ -23,6 +25,8 @@ public class Message {
         this.receiverId = receiverId;
         this.receiverType = receiverType;
         this.timeSent = timeSent;
+        this.edited = false;
+        this.timeEdited = null;
     }
 
     public Message() {
@@ -52,11 +56,29 @@ public class Message {
         return timeSent;
     }
 
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public void setEdited(boolean edited) {
+        this.edited = edited;
+    }
+
+    public Date getTimeEdited() {
+        return timeEdited;
+    }
+
+    public void setTimeEdited(Date timeEdited) {
+        this.timeEdited = timeEdited;
+    }
+
     public void setContent(String content) {
         this.content = content;
+        this.edited = true;
+        this.timeEdited = new Date();
     }
 
     public MessageDTO getDtoForUser(String username){
-        return new MessageDTO(id,senderId,content,timeSent,senderId.equals(username));
+        return new MessageDTO(id,senderId,content,timeSent,senderId.equals(username),edited,timeEdited);
     }
 }
