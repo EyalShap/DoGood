@@ -42,9 +42,11 @@ public class DBVolunteerPostRepository implements VolunteerPostRepository{
     }
 
     @Override
-    public void editVolunteerPost(int postId, String title, String description, Set<String> keywords) {
+    public void editVolunteerPost(int postId, String title, String description, Set<String> keywords, List<String> skills, List<String> categories) {
         VolunteerPost toEdit = getVolunteerPost(postId); // will throw exception if does not exist
         toEdit.edit(title, description, keywords);
+        toEdit.setSkills(skills);
+        toEdit.setCategories(categories);
         jpa.save(toEdit);
     }
 

@@ -666,7 +666,10 @@ public class PostsFacade {
         }
 
         Set<String> postKeywords = keywordExtractor.getVolunteerPostKeywords(title, description);
-        volunteerPostRepository.editVolunteerPost(postId, title, description, postKeywords);
+        SkillsAndCategories postSkillsAndCategories = skillsAndCategoriesExtractor.getSkillsAndCategories(title, description, null, null);
+        List<String> postSkills = postSkillsAndCategories.getSkills();
+        List<String> postCategories = postSkillsAndCategories.getCategories();
+        volunteerPostRepository.editVolunteerPost(postId, title, description, postKeywords, postSkills, postCategories);
 
         notifyRelatedUsers(toEdit.getRelatedUsers(), prevTitle, "edited", NotificationNavigations.volunteerPost(postId));
     }

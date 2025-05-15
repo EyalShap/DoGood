@@ -136,6 +136,14 @@ public class VolunteerPost extends Post {
         return username.equals(posterUsername) || relatedUsers.contains(username);
     }
 
+    public void setSkills(List<String> skills) {
+        this.skills = skills;
+    }
+
+    public void setCategories(List<String> categories) {
+        this.categories = categories;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

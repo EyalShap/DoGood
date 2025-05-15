@@ -151,20 +151,20 @@ abstract class AbstractVolunteerPostRepositoryTest {
     @ParameterizedTest
     @MethodSource("validInputs")
     public void givenExistingPostAndValidFields_whenEditVolunteerPost_thenEdit(String newTitle, String newDescription, Set<String> newKeywords, List<String> newSkills, List<String> newCategories) {
-        assertDoesNotThrow(() -> repository.editVolunteerPost(postId, newTitle, newDescription, newKeywords));
+        assertDoesNotThrow(() -> repository.editVolunteerPost(postId, newTitle, newDescription, newKeywords, newSkills, newCategories));
         assertTrue(verifyPostFields(newTitle, newDescription, newKeywords, skills, categories));
     }
 
     @Test
     public void givenExistingPostAndNonValidFields_whenEditVolunteerPost_thenThrowException() {
-        assertThrows(IllegalArgumentException.class, () -> repository.editVolunteerPost(postId, "", "", null));
+        assertThrows(IllegalArgumentException.class, () -> repository.editVolunteerPost(postId, "", "", null, null, null));
         assertTrue(verifyPostFields(title, description, keywords, skills, categories));
     }
 
     @Test
     public void givenNonExistingPost_whenEditVolunteerPost_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.editVolunteerPost(postId + 1, "title", "description", new HashSet<>());
+            repository.editVolunteerPost(postId + 1, "title", "description", new HashSet<>(), new ArrayList<>(), new ArrayList<>());
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());
     }
