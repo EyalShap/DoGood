@@ -36,6 +36,11 @@ public class AIKeywordExtractor implements KeywordExtractor{
         }
     }
 
+    @Override
+    public void setAI(AI ai) {
+        this.ai = ai;
+    }
+
     private Set<String> getKeywords(String finalPrompt) {
         String result = ai.sendQuery(finalPrompt);
         String[] keywords = result.split(", ");

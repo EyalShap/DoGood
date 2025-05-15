@@ -234,7 +234,7 @@ public class Organization {
 
     public byte[] getSignature(String actor) {
         if(!isManager(actor)) {
-            throw new IllegalArgumentException("Only organization founder can upload signature.");
+            throw new IllegalArgumentException("Only organization manager can get signature.");
         }
         return this.signature;
     }

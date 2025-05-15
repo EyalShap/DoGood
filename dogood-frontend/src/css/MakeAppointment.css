@@ -17,17 +17,30 @@
     margin-bottom: 15px; /* Increased spacing for consistency */
 }
 
+.makerWrapper{
+    border-radius: 10px;
+    background-color: white;
+    width: 70%;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out 0s,
+    padding 0.3s ease-in-out 0s,
+    margin-top 0.3s ease-in-out 0s,
+    margin-bottom 0.3s ease-in-out 0s;
+    max-height: 0;
+}
+
 .maker {
     display: flex;
     flex-direction: column;
     align-items: center;
-    margin: 20px 0;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .timePicker {
-    margin: 10px 0; /* Unified spacing */
+    margin-bottom: 5px;
     font-size: 1rem;
-    color: #555; /* Matches text styling */
+    color: #555;
+    font-family: 'Montserrat', sans-serif;
 }
 
 .sendButton {
@@ -54,7 +67,106 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 10px 0; /* Added spacing for consistency */
+    padding: 10px 0;
+}
+
+.schedules {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    width: 30%;
+}
+
+.triangle{
+    transition: transform 0.2s ease 0s;
+}
+
+.scheduleWrapper {
+    width: 80%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    background-color: #166880;
+    border-radius: 10px;
+    margin: 5px;
+    transition: background-color 0.3s ease 0s;
+}
+
+.schedule {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    color: #ffffff;
+    background-color: #4295ac;
+    border-radius: 10px;
+    transition: background-color 0.3s ease 0s;
+}
+
+.schedule:hover {
+    background-color: #166880;
+}
+
+.schedInfo {
+    max-height: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    transition: max-height 0.3s ease-in-out 0s;
+}
+
+.opened {
+    max-height: 500px;
+}
+
+.chosen {
+    max-height: 1000px;
+    padding: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.rotriangle{
+    transform: rotate(180deg);
+}
+
+.dayBoxes {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    color: white;
+    font-size: 25px;
+}
+
+.empty {
+    color: white;
+    filter: blur(0.025rem);
+    opacity: 50%;
+}
+
+.schedule p{
+    margin: 0;
+}
+
+.schedule h2{
+    font-weight: bolder;
+    margin: 0;
+}
+
+.filled{
+    transition: transform 0.2s ease 0s;
+}
+
+.filled:hover{
+    transform: translateY(-5px);
+}
+
+.restrict {
+
 }
 
 @media (max-width: 500px) {
@@ -70,5 +182,9 @@
 
     .innercalender {
         width: 1000px;
+    }
+
+    .schedules{
+        width: 80%;
     }
 }

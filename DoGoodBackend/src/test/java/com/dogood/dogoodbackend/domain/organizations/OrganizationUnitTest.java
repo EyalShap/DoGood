@@ -234,8 +234,60 @@ class OrganizationUnitTest {
         });
         assertEquals(volunteerings, organization.getVolunteeringIds());
         assertEquals(OrganizationErrors.makeVolunteeringDoesNotExistsError(1, name), exception.getMessage());
-
     }
 
+    @Test
+    void givenFounder_whenUploadSignature_thenUpload() {
+        assertNull(organization.getSignature());
 
+        byte[] randomBytes = new byte[16];
+        new java.security.SecureRandom().nextBytes(randomBytes);
+
+        organization.uploadSignature(actor1, randomBytes);
+
+        assertEquals(randomBytes, organization.getSignature());
+    }
+
+    @Test
+    void givenNonFounder_whenUploadSignature_thenThrowException() {
+        assertNull(organization.getSignature());
+
+        byte[] randomBytes = new byte[16];
+        new java.security.SecureRandom().nextBytes(randomBytes);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            organization.uploadSignature(actor2, randomBytes);
+        });
+        assertEquals("Only organization founder can upload signature.", exception.getMessage());
+
+        assertNull(organization.getSignature());
+    }
+
+    @Test
+    void givenManager_whenGetSignature_thenReturnSignature() {
+        byte[] randomBytes = new byte[16];
+        new java.security.SecureRandom().nextBytes(randomBytes);
+
+        organization.uploadSignature(actor1, randomBytes);
+        organization.addManager(actor2);
+
+        byte[] res1 = organization.getSignature(actor1);
+        byte[] res2 = organization.getSignature(actor2);
+
+        assertEquals(randomBytes, res1);
+        assertEquals(randomBytes, res2);
+    }
+
+    @Test
+    void givenNonManager_whenGetSignature_thenReturnSignature() {
+        byte[] randomBytes = new byte[16];
+        new java.security.SecureRandom().nextBytes(randomBytes);
+
+        organization.uploadSignature(actor1, randomBytes);
+
+        Exception exception = assertThrows(IllegalArgumentException.class, () -> {
+            organization.getSignature(actor2);
+        });
+        assertEquals("Only organization founder can get signature.", exception.getMessage());
+    }
 }

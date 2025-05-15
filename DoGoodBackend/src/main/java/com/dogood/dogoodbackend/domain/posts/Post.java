@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -135,5 +136,20 @@ public abstract class Post {
         this.keywords = keywords;
     }
 
+    public void setId(int id) {
+        this.id = id;
+    }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Post post = (Post) o;
+        return id == post.id && relevance == post.relevance && Objects.equals(title, post.title) && Objects.equals(description, post.description) && Objects.equals(postedTime, post.postedTime) && Objects.equals(lastEditedTime, post.lastEditedTime) && Objects.equals(posterUsername, post.posterUsername) && Objects.equals(keywords, post.keywords);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, title, description, postedTime, lastEditedTime, posterUsername, relevance, keywords);
+    }
 }

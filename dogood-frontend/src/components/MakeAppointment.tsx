@@ -10,6 +10,19 @@ import { DatePicker, LocalizationProvider, TimePicker } from '@mui/x-date-picker
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from 'dayjs';
 import { Checkbox, FormControl, FormControlLabel, FormGroup, FormLabel, Radio, RadioGroup } from '@mui/material';
+import {
+    TbSquareLetterF,
+    TbSquareLetterM,
+    TbSquareLetterT,
+    TbSquareLetterW, TbSquareLetterFFilled,
+    TbSquareLetterMFilled, TbSquareLetterS,
+    TbSquareLetterSFilled, TbSquareLetterTFilled, TbSquareLetterWFilled
+} from "react-icons/tb";
+import {FaChevronDown} from "react-icons/fa";
+import {format} from "date-fns";
+
+const daysEmpty = [<TbSquareLetterS className="empty"/>,<TbSquareLetterM className="empty"/>,<TbSquareLetterT className="empty"/>,<TbSquareLetterW className="empty"/>,<TbSquareLetterT className="empty"/>,<TbSquareLetterF className="empty"/>,<TbSquareLetterS className="empty"/>];
+const daysFilled = [<TbSquareLetterSFilled className="filled"/>,<TbSquareLetterMFilled className="filled"/>,<TbSquareLetterTFilled className="filled"/>,<TbSquareLetterWFilled className="filled"/>,<TbSquareLetterTFilled className="filled"/>,<TbSquareLetterFFilled className="filled"/>,<TbSquareLetterSFilled className="filled"/>];
 
 function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: number, range: ScheduleRange }) {
     const [startTime, setStartTime] = useState(dayjs('2024-01-01T'+range.startTime));
@@ -66,8 +79,6 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
 
     return (
         <div className='maker'>
-            <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
-            {range.oneTime !== null && <p>At {range.oneTime}</p>}
             <LocalizationProvider dateAdapter={AdapterDayjs}>
                 <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
                 <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
@@ -134,7 +145,43 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
                     </FormGroup>
                 </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)}/></LocalizationProvider>}
                 </div>}
-                <button className='sendButton' onClick={send}>Make Appointment</button>
+                <button className='orangeCircularButton' onClick={send}>Make Appointment</button>
+        </div>
+    )
+}
+
+function AvailableRange({model, setter, volunteeringId, selected}: {model: ScheduleRange, setter:  React.Dispatch<React.SetStateAction<ScheduleRange | null | undefined>>, volunteeringId: number, selected: ScheduleRange | null | undefined}){
+    const [opened, setOpened] = useState(false);
+
+    return (
+        <div className="scheduleWrapper">
+            <div onClick={() => setter(prev => prev === model ? null : model)} className="schedule" onMouseEnter={() => setOpened(true)}
+                 onMouseLeave={() => setOpened(false)}>
+                <h2>{model.startTime.slice(0, -3)}-{model.endTime.slice(0, -3)}</h2>
+                {model.oneTime !== null ?
+                    <p className="oneTime">On {format(new Date(model.oneTime), "dd/MM/yyyy (E)")}</p> :
+                    <div className="dayBoxes">
+                        {model.weekDays.map((val, i) => val ? daysFilled[i] : daysEmpty[i])}
+                    </div>}
+                <div className={`schedInfo${(opened || model === selected) ? " opened" : ""}`}>
+                    {model.minimumAppointmentMinutes > -1 && model.maximumAppointmentMinutes === -1 ?
+                        <p>Must sign up to at least {model.minimumAppointmentMinutes} minutes</p> :
+                        model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes === -1 ?
+                            <p>Must sign up to at most {model.maximumAppointmentMinutes} minutes</p> :
+                            model.maximumAppointmentMinutes > -1 && model.minimumAppointmentMinutes > -1 &&
+                            <p>Must sign up to between {model.minimumAppointmentMinutes} and {model.maximumAppointmentMinutes} minutes</p>}
+                    {model.restrict.length > 0 && <br/>}
+                    {model.restrict.map(restrict =>
+                        <p className="restrict">Limited to {restrict.amount} volunteers
+                            from <b>{restrict.startTime.slice(0, -3)}</b> to <b>{restrict.endTime.slice(0, -3)}</b>
+                        </p>)}
+                </div>
+                {(model.restrict.length > 0 || model.minimumAppointmentMinutes > -1 || model.maximumAppointmentMinutes > -1) &&
+                    <FaChevronDown className={`triangle${(opened || model === selected) ? " rotriangle" : ""}`}/>}
+            </div>
+            <div className={`makerWrapper${model === selected ? " chosen" : ""}`}>
+                <ActualAppointmentMaker key={model.id} volunteeringId={volunteeringId} range={model}/>
+            </div>
         </div>
     )
 }
@@ -145,84 +192,19 @@ function MakeAppointment() {
         t.setDate(t.getDate() - t.getDay());
         return t;
     }
-    const [startDate, setStartDate] = useState(getLastSunday(new Date))
     const [ranges, setRanges] = useState<ScheduleRange[]>([])
-    const [events, setEvents] = useState<DayPilot.EventData[]>([])
-    const [ready, setReady] = useState(false)
-    const [width, setWidth] = useState<number>(window.innerWidth);
 
-    const [location, setLocation] = useState<Location>({ id: 0, name: 0, address: { city: "", street: "", address: "" } })
+    const [location, setLocation] = useState<Location>({id: 0, name: "", address: {city: "", street: "", address: ""}})
     const [group, setGroup] = useState(0)
     const [selectedRange, setSelectedRange] = useState<ScheduleRange | null | undefined>(null)
 
-    let { id } = useParams();
-
-    const handleWindowSizeChange = () => {
-        setWidth(window.innerWidth);
-    }
-
-
-    const addWeeks = (d: number) => {
-        let date = new Date(startDate)
-        date.setDate(startDate.getDate() + d * 7)
-        setStartDate(date)
-    }
-
-    const rangeToEvents = (range: ScheduleRange): DayPilot.EventData[] => {
-        var limitText = ``
-        if (range.minimumAppointmentMinutes > 0 && range.minimumAppointmentMinutes > 0) {
-            limitText += `Must do between ${range.minimumAppointmentMinutes} to ${range.maximumAppointmentMinutes} minutes`;
-        }
-        else if (range.minimumAppointmentMinutes > 0) {
-            limitText += `Must do at least ${range.minimumAppointmentMinutes} minutes`;
-        }
-        else if (range.maximumAppointmentMinutes > 0) {
-            limitText += `Must do at most ${range.maximumAppointmentMinutes} minutes`;
-        }
-        if (range.oneTime !== null) {
-            return [{
-                text: `One Time Available Appointment Range\n${limitText}\nID: ${range.id}`,
-                id: range.id,
-                start: `${range.oneTime}T${range.startTime}`,
-                end: `${range.oneTime}T${range.endTime}`,
-            }]
-        }
-        let eventlist: DayPilot.EventData[] = []
-        let days = []
-        for (let i = 0; i < 7; i++) {
-            if (range.weekDays[i]) {
-                days.push(i)
-            }
-        }
-        days.forEach(d => {
-            let appointmentDay = new DayPilot.Date(startDate, true)
-            appointmentDay = appointmentDay.addDays(d)
-            let dayString = appointmentDay.toString().split("T")[0]
-            let ev: DayPilot.EventData = {
-                text: `Weekly Appointment Range\n${limitText}\nID: ${range.id}`,
-                id: range.id,
-                start: `${dayString}T${range.startTime}`,
-                end: `${dayString}T${range.endTime}`
-            }
-            eventlist.push(ev)
-        })
-        return eventlist
-    }
-
-    const updateEvents = () => {
-        let eventList: DayPilot.EventData[] = [];
-        ranges.forEach(appoint => {
-            eventList = eventList.concat(rangeToEvents(appoint))
-        })
-        setEvents(eventList)
-    }
+    let {id} = useParams();
 
     const fetchAppointments = async () => {
         try {
             setRanges(await getVolunteerAvailableRanges(parseInt(id!)))
             setLocation(await getUserAssignedLocationData(parseInt(id!)))
             setGroup(await getVolunteerGroup(parseInt(id!)))
-            setReady(true)
         } catch (e) {
             alert(e)
         }
@@ -230,43 +212,14 @@ function MakeAppointment() {
 
     useEffect(() => {
         fetchAppointments()
-        window.addEventListener('resize', handleWindowSizeChange);
-        return () => {
-            window.removeEventListener('resize', handleWindowSizeChange);
-        }
     }, [])
-
-    useEffect(() => {
-        if (ready) {
-            updateEvents()
-        }
-    }, [ranges, startDate, ready])
-
-    const isMobile = width <= 768;
-
     return (
         <div className='makeAppointment'>
             <h1>{location.id == -1 ? `Available appointment ranges for Group ${group} for ${localStorage.getItem("username")}` : `Available appointment ranges for Group ${group} at ${location.name} for ${localStorage.getItem("username")}`}</h1>
-            <div className='weekButtons'>
-                <button className='orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
-                <button className='orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
+            <div className='schedules'>
+                {ranges.map(range => <AvailableRange model={range} setter={setSelectedRange} volunteeringId={parseInt(id!)}
+                                                     selected={selectedRange}/>)}
             </div>
-            <div className='calender'>
-                <div className='innercalender'>
-                    <DayPilotCalendar
-                        startDate={new DayPilot.Date(startDate, true)}
-                        viewType='Week'
-                        headerDateFormat='dddd dd/MM/yyyy'
-                        events={events}
-                        height={isMobile ? 100 : 300}
-                cellHeight={isMobile ? 15 : 30}
-                headerTextWrappingEnabled={true}
-                eventMoveHandling='Disabled'
-                onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))} />
-                </div></div>
-            {selectedRange === null || selectedRange === undefined ? <></> :
-                <ActualAppointmentMaker volunteeringId={parseInt(id!)} range={selectedRange!} />
-            }
         </div>
     )
 }

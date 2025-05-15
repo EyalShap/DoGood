@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -72,12 +73,20 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
 
     @Override
     public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
+        Organization organization = getOrganization(organizationId);
 
+        try {
+            byte[] signatureBytes = signature != null ? signature.getBytes() : null;
+            organization.uploadSignature(actor, signatureBytes);
+        }
+        catch (IOException exception) {
+            throw new IllegalArgumentException("Problem uploading signature.");
+        }
     }
 
     @Override
     public byte[] getSignature(int organizationId, String actor) {
-        return null;
+        return getOrganization(organizationId).getSignature(actor);
     }
 
     @Override
@@ -91,5 +100,11 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
     @Override
     public List<Organization> getAllOrganizations() {
         return new ArrayList<>(organizations.values());
+    }
+
+    @Override
+    public void clear() {
+        this.nextOrganizationId = 0;
+        this.organizations = new HashMap<>();
     }
 }

@@ -47,12 +47,7 @@ function MyProfilePage() {
 
     // Volunteering History
     const [volunteeringsInHistory, setVolunteeringsInHistory] = useState<VolunteeringInHistory[]>([]);
-    const [approvedHours, setApprovedHours] = useState<ApprovedHours[]>([]);
 
-
-    // Export PDF
-    const [id, setId] = useState("");
-    const [selectedVolunteering, setSelectedVolunteering] = useState(-1);
 
     // Export CSV
     const [numWeeks, setNumWeeks] = useState("");
@@ -80,7 +75,6 @@ function MyProfilePage() {
                 setPreferences(profile.preferredCategories.join(", "));
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
-                setApprovedHours(await getUserApprovedHours(profile.username));
                 setIsLeaderboard(profile.leaderboard);
 
                 try {
@@ -208,14 +202,6 @@ function MyProfilePage() {
             alert("Failed to update preferences: " + e);
         }
     };
-
-    const handleExport = async () => {
-        try{
-            await getUserApprovedHoursFormatted(selectedVolunteering,id)
-        } catch(e){
-            alert("Failed to export approved hours: " + e);
-        }
-    }
 
     const handleExportCsv = async () => {
         try{
@@ -459,34 +445,6 @@ function MyProfilePage() {
                     <p>No volunteering history available.</p>
                 )}
             </div>
-            <div className="history-section">
-                <h2 className="profileSectionHeader">Approved hours</h2>
-                {approvedHours.length > 0 ? (
-                    <table className="history-table">
-                        <thead>
-                        <tr>
-                            <th>Volunteering id</th>
-                            <th>Date</th>
-                            <th>Start time</th>
-                            <th>End time</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {approvedHours.map((hours, index) => (
-                            <tr key={index}>
-                                <td>{hours.volunteeringId}</td>
-                                <td>{(new Date(hours.startTime)).toLocaleDateString()}</td>
-                                <td>{(new Date(hours.startTime)).toLocaleTimeString()}</td>
-                                <td>{(new Date(hours.endTime)).toLocaleTimeString()}</td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p>No Approved Hours available.</p>
-                )}
-            </div>
-
             <div className="status-section">
                 <h2 className="profileSectionHeader">Profile Status</h2>
                 <p><strong>Username:</strong> {username}</p>
@@ -503,27 +461,6 @@ function MyProfilePage() {
                         Reports</button>
                 )}
             </div>
-
-            {model !== null && model.student &&
-                <div className="export-section">
-                    <h2>Export approved hours as PDF</h2>
-                    <label>ID (Teudat Zehut):</label>
-                    <input
-                        placeholder="Enter ID"
-                        value={id}
-                        onChange={(e) => setId(e.target.value)}
-                    />
-                    <label>Select primary volunteering to export hours from:</label>
-                    <select defaultValue={-1} onChange={e => setSelectedVolunteering(parseInt(e.target.value))}>
-                        <option value={-1}></option>
-                        {model.volunteeringIds.map(id => <option value={id}>{id}</option>)}
-                        {model.volunteeringsInHistory.map(hist => <option
-                            value={hist.id}>{hist.id} ({hist.name})</option>)}
-                    </select>
-                    <button disabled={selectedVolunteering < 0} onClick={handleExport}
-                            className="orangeCircularButton">Export
-                    </button>
-                </div>}
 
             <div className="export-section">
                 <h2>Export your appointments as a CSV</h2>

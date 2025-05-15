@@ -110,27 +110,65 @@
   display: inline-block;
   padding: 10px 10px;
 }
+.notification-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 20px;
+  border-bottom: 1px solid #ddd;
+}
 
-.dropdownNotification {
-  display: block;
-  padding: 10px 20px;
+.notification-item:last-child {
+  border-bottom: none;
+}
+
+.timestamp {
+  font-size: 14px;
+  color: #666;
+  white-space: nowrap;
+  margin-left: 10px;
+}
+
+.dropdownNotification,
+.dropdownNotificationNew {
+  flex-grow: 1;
+  padding: 10px 0;
   color: #333;
   text-decoration: none;
   font-size: 16px;
 }
 
 .dropdownNotificationNew {
-  display: block;
-  padding: 10px 20px;
-  color: #333;
-  background-color:rgb(240, 240, 210);
-  text-decoration: none;
-  font-size: 16px;
+  background-color: rgb(240, 240, 210); /* Highlight new notifications */
 }
 
-.dropdownNotification:hover,
-.dropdownNotificationNew:hover {
-  background-color: #f5f5f5;
+.notificationsPageLink {
+  color: #333;
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 300;
+  padding: 10px 20px;
+  float: right;
+}
+
+.notificationsPageLink:hover {
+  text-decoration: underline;
+}
+
+.notification-scroll-container {
+  max-height: 300px; /* adjust as needed */
+  overflow-y: auto;
+  padding-right: 4px; /* avoid scrollbar overlapping text */
+}
+
+/* Optional: smooth scroll or nice look */
+.notification-scroll-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.notification-scroll-container::-webkit-scrollbar-thumb {
+  background-color: #ccc;
+  border-radius: 4px;
 }
 
 .buttonBadge {

@@ -6,7 +6,9 @@ import jakarta.persistence.ElementCollection;
 import jakarta.persistence.JoinColumn;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 
 public class VolunteerPostDTO extends PostDTO{
@@ -75,5 +77,18 @@ public class VolunteerPostDTO extends PostDTO{
     @Override
     public List<String> getCategories(PostsFacade postsFacade) {
         return getCategories();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        VolunteerPostDTO that = (VolunteerPostDTO) o;
+        return Objects.equals(new HashSet<>(relatedUsers), new HashSet<>(that.relatedUsers)) && Objects.equals(new HashSet<>(images), new HashSet<>(that.images)) && Objects.equals(new HashSet<>(skills), new HashSet<>(that.skills)) && Objects.equals(new HashSet<>(categories), new HashSet<>(that.categories));
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(relatedUsers, images, skills, categories);
     }
 }

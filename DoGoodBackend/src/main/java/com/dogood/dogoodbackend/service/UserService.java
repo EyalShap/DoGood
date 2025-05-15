@@ -7,6 +7,7 @@ import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
+import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -29,11 +30,12 @@ public class UserService {
     private NotificationSystem notificationSystem;
 
     @Autowired
-    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender){
+    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender, FirebaseMessaging firebaseMessaging){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
         this.notificationSystem = facadeManager.getNotificationSystem();
         this.notificationSystem.setSender(socketSender);
+        this.notificationSystem.setFirebaseMessaging(firebaseMessaging);
         //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
 
 /*
@@ -309,7 +311,6 @@ public class UserService {
 
     public Response<Boolean> generateSkillsAndPreferences(String token, String actor) {
         try {
-            int x = 0;
             checkToken(token, actor);
             usersFacade.generateSkillsAndPreferences(actor);
             return Response.createResponse(true);
@@ -317,6 +318,14 @@ public class UserService {
             return Response.createResponse(e.getMessage());
         }
     }
-}
 
-// ahhhhhhhhhhhhhhhhhhhh
+    public Response<String> registerFcmToken(String token, String username, String fcmToken){
+        try {
+            checkToken(token, username);
+            usersFacade.registerFcmToken(username, fcmToken);
+            return Response.createOK();
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+}

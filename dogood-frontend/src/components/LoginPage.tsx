@@ -1,7 +1,9 @@
 // src/components/LoginPage.tsx
 import { useState } from "react";
-import { login } from "../api/user_api";
-import "../css/LoginPage.css";
+import { useNavigate } from 'react-router-dom';
+import {login, registerFcmToken} from "../api/user_api";
+import "../css/LoginPage.css"
+import {requestForToken} from "../api/firebase/firebase.ts";
 
 interface LoginPageProps {
     onSwitchToRegister: () => void;
@@ -27,9 +29,17 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: Logi
         try {
             let token = await login(username, password);
             onAuthSuccess(username, token);
+            localStorage.setItem("username", username);
+            localStorage.setItem("token", token);
+            let fcmToken = await requestForToken();
+            if(fcmToken){
+                await registerFcmToken(username,fcmToken);
+            }
+            window.dispatchEvent(new Event('login'))
         } catch (e: any) {
             console.error("Login failed:", e);
             setError(e.message || "Login failed. Please check your credentials.");
+            //alert(e);
         } finally {
             setIsLoading(false);
         }

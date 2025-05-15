@@ -198,4 +198,10 @@ public class UserAPI {
         String profilePicUrl = body.get("profilePicUrl");
         return userService.updateProfilePicture(token, username, profilePicUrl);
     }
+
+    @PostMapping("/registerFcmToken")
+    public Response<String> registerFcmToken(@RequestParam String username, @RequestBody String fcmToken, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.registerFcmToken(token, username, fcmToken.replace("\"",""));
+    }
 }

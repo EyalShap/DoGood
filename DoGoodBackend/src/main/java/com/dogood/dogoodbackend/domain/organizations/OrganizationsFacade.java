@@ -68,7 +68,6 @@ public class OrganizationsFacade {
             volunteeringFacade.removeVolunteering(actor, volunteeringId);
         }
         requestRepository.removeObjectRequests(organizationId, RequestObject.ORGANIZATION);
-        organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
         if(toRemove.isFounder(actor)) {
             usersFacade.removeUserOrganization(actor, organizationId);
@@ -76,6 +75,7 @@ public class OrganizationsFacade {
         reportsFacade.removeOrganizationReports(organizationId);
 
         notifyManagers(String.format("Your organization \"%s\" was removed.", toRemove.getName()), NotificationNavigations.organizationList, organizationId);
+        organizationRepository.setManagers(organizationId, new ArrayList<>());
         organizationRepository.removeOrganization(organizationId);
     }
 
@@ -147,6 +147,9 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
+        if(!userExists(newManager)){
+            throw new IllegalArgumentException("User " + newManager + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(!organization.isManager(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "send assign manager request"));
@@ -197,6 +200,9 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
+        if(!userExists(managerToRemove)){
+            throw new IllegalArgumentException("User " + managerToRemove + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
 
         if(!organization.isFounder(actor) && !isAdmin(actor)) {
@@ -211,6 +217,9 @@ public class OrganizationsFacade {
     public void setFounder(String actor, String newFounder, int organizationId) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+        if(!userExists(newFounder)){
+            throw new IllegalArgumentException("User " + newFounder + " doesn't exist");
         }
         Organization organization = organizationRepository.getOrganization(organizationId);
 
@@ -246,6 +255,9 @@ public class OrganizationsFacade {
     }
 
     public List<Integer> getUserVolunteerings(int organizationId, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         List<Integer> res = new ArrayList<>();
         List<Integer> orgVolunteeringIds = getOrganization(organizationId).getVolunteeringIds();
         for(int volunteeringId : orgVolunteeringIds) {
@@ -261,6 +273,9 @@ public class OrganizationsFacade {
     }
 
     public boolean isManager(String username, int organizationId) {
+        if(!userExists(username)){
+            throw new IllegalArgumentException("User " + username + " doesn't exist");
+        }
         return organizationRepository.getOrganization(organizationId).isManager(username);
     }
 
@@ -278,11 +293,15 @@ public class OrganizationsFacade {
     private boolean isAdmin(String user) {
         return usersFacade.isAdmin(user);
     }
+
     private boolean userExists(String user){
         return usersFacade.userExists(user);
     }
 
     public void changeImageInOrganization(int organizationId, String image, boolean add, String actor) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
         Organization organization = organizationRepository.getOrganization(organizationId);
         if(!organization.isManager(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "add image"));

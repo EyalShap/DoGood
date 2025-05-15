@@ -24,13 +24,16 @@ import LeaderboardMap from './components/LeaderboardMap'
 import VolunteerPost from './components/VolunteerPost'
 import VolunteeringChat from "./components/VolunteeringChat.tsx";
 import UserModel from "./models/UserModel.ts";
-import {getUserByToken} from "./api/user_api.ts";
+import {getUserByToken, registerFcmToken} from "./api/user_api.ts";
 import LoginAndRegister from "./components/LoginAndRegister.tsx";
 import Header from "./components/Header.tsx";
 import Footer from "./components/Footer.tsx";
 import EasterEgg from './components/EasterEgg.tsx'
 import MyVolunteerings from "./components/MyVolunteerings.tsx";
 import VolunteerPostChat from "./components/VolunteerPostChat.tsx";
+import {requestForToken} from "./api/firebase/firebase.ts";
+import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
+import Notifications from "./components/Notifications.tsx"
 
 
 function App() {
@@ -189,8 +192,10 @@ function App() {
               {/* Keep all existing routes */}
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
+              <Route path = "/summary" element={<ApprovedHoursPage />}/>
               <Route path="/leaderboard" element={<LeaderboardMap />}/>
               <Route path='/profile/:id' element={<ProfilePage/>}/>
+              <Route path='/notifications' element={<Notifications/>}/>
               <Route path='/reportList' element={<ReportList/>}/>
               <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
               <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>

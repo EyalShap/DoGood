@@ -333,8 +333,8 @@ function VolunteerPost() {
             <div className = "volunteerPostHeaderContainer">
 
             <div className='headers'>
-                <h1 className='bigHeader'>{model.title}</h1>
-                <p className='smallHeader'>{model.description}</p>
+                <h1 className='bigHeader' style={{overflowWrap: "break-word"}}>{model.title}</h1>
+                <p className='smallHeader' style={{overflowWrap: "break-word"}}>{model.description}</p>
 
                 <div className="info-container">
                     <button

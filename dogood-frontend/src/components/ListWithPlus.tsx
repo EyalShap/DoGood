@@ -33,8 +33,8 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo }) => {
               alt={item.title}
               className="plusListItemImg"
             />
-            <h3 className="plusListItemHeader">{item.title}</h3>
-            <p className="plusListItemDesc">{item.description}</p>
+            <h3 className="plusListItemHeader" style={{overflowWrap: "break-word"}}>{item.title}</h3>
+            <p className="plusListItemDesc" style={{overflowWrap: "break-word"}}>{item.description}</p>
           </div>
         ))}
       </div>

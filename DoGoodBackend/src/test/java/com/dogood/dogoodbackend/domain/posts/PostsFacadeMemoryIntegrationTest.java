@@ -60,10 +60,10 @@ public class PostsFacadeMemoryIntegrationTest {
         this.volunteeringRepository = new MemoryVolunteeringRepository();
         this.reportRepository = new MemoryReportRepository();
 
-        this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
-        this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
-        this.postsFacade = new PostsFacade(volunteeringPostRepository, null, new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor(), null, null);
-        this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, null, postsFacade, null, null);
+        //this.organizationsFacade = new OrganizationsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationRepository, requestRepository);
+        //this.volunteeringFacade = new VolunteeringFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), organizationsFacade, volunteeringRepository, new MemorySchedulingManager(), null);
+        //this.postsFacade = new PostsFacade(volunteeringPostRepository, null, new UsersFacade(new MemoryUserRepository(), new AuthFacade()), volunteeringFacade, organizationsFacade, new ProxyKeywordExtractor(), null, null);
+        //this.reportsFacade = new ReportsFacade(new UsersFacade(new MemoryUserRepository(), new AuthFacade()), reportRepository, null, postsFacade, null, null);
 
         this.postsFacade.setReportsFacade(reportsFacade);
         this.organizationsFacade.setVolunteeringFacade(volunteeringFacade);

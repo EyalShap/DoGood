@@ -333,6 +333,25 @@ public class UsersFacade {
         return getUser(authFacade.getNameFromToken(token));
     }
 
+    public void registerFcmToken(String username, String fcmToken){
+        User user = getUser(username);
+        user.addToken(fcmToken);
+        repository.saveUser(user);
+    }
+
+    public Set<String> getFcmTokens(String username){
+        User user = getUser(username);
+        return user.getFcmTokens();
+    }
+
+    public void expireFcmTokens(String username, Set<String> expiredTokens){
+        User user = getUser(username);
+        for(String fcmToken : expiredTokens){
+            user.expireToken(fcmToken);
+        }
+        repository.saveUser(user);
+    }
+
     public boolean userExists(String username) {
         try {
             User user = getUser(username);

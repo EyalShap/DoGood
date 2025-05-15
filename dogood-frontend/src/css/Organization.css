@@ -258,12 +258,12 @@
   display: flex;
   justify-content: space-between; /* Push image to left and info to right */
   align-items: center; /* Center vertically */
-  gap: 80px; /* Space between image and info */
-  padding: 200px;
+  gap: 40px; /* Space between image and info */
+  padding: 100px;
   padding-top: 10px;
   padding-bottom: 10px;
   margin: 0 auto;
-  max-width: 1200px;
+  width: 900px;
   flex-wrap: wrap; /* Make responsive */
   border-radius: 15px; /* Rounded corners */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); /* Light shadow effect */
@@ -287,7 +287,7 @@
 
 /* === ORGANIZATION INFO TEXT === */
 .orgInfoText {
-  flex: 1.2;
+  max-width: 500px;
   min-width: 300px;
   display: flex;
   flex-direction: column;
@@ -328,6 +328,7 @@
       flex-direction: column;
       gap: 30px;
       padding: 20px;
+      width: 300px;
   }
 
   .organizationImages {
@@ -408,6 +409,19 @@
 
   .or{
     order:2;
+  }
+
+  .orgInfoText > h1 {
+    font-size: 2.2rem;
+  }
+
+  .orgInfoText > p {
+    font-size: 1.1rem;
+  }
+
+  
+  .contact > h2 {
+    font-size: 1rem;
   }
 
 }
