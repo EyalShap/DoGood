@@ -105,7 +105,7 @@ function VolunteeringPost() {
 
                     listItems = listItems.concat([{
                         id: expr.userId,
-                        image: user.profilePicUrl !== "" ? user.profilePicUrl : defaultProfilePic, 
+                        image: user.profilePicUrl ? user.profilePicUrl : defaultProfilePic,
                         title: expr.text,  
                         description: `By ${expr.userId} on ${fixDate(expr.when, true)}.`,
                     }]);

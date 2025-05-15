@@ -43,7 +43,7 @@ function ProfilePage() {
                 setSkillsInput(profile.skills.join(", "));
                 setPreferences(profile.preferredCategories.join(", "));
                 setPreferencesInput(profile.preferredCategories.join(", "));
-                setProfilePic(profile.profilePicUrl !== "" ? profile.profilePicUrl : defaultImage)
+                setProfilePic(profile.profilePicUrl ? profile.profilePicUrl : defaultImage)
             } catch (e) {
                 alert("Failed to load profile: " + e);
             }

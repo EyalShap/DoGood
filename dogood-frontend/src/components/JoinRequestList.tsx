@@ -5,22 +5,24 @@ import JoinRequest from "../models/JoinRequest";
 import '../css/RequestList.css'
 
 function Request({ groups, model, volunteeringId, fetchRequests } : {groups: number[], model: JoinRequest, volunteeringId: number, fetchRequests: () => void}){
-    const [chosenGroup, setChosenGroup] = useState(-1);
     const navigate = useNavigate();
+    const [open, setOpen] = useState(false)
 
     const deny = async () => {
         try{
             await denyUserJoinRequest(volunteeringId, model.userId);
             await fetchRequests();
+            setOpen(false);
         }catch(e){
             alert(e)
         }
     }
 
-    const accept = async () => {
+    const accept = async (chosenGroup: number) => {
         try{
             await acceptUserJoinRequest(volunteeringId, model.userId,chosenGroup);
             await fetchRequests();
+            setOpen(false);
         }catch(e){
             alert(e)
         }
@@ -29,16 +31,16 @@ function Request({ groups, model, volunteeringId, fetchRequests } : {groups: num
     return (
         <div className="request">
             <div className="requestData">
-                <h1 onClick={() => navigate(`/profile/${model.userId}`)} style={{textDecoration: "underline"}}>User: {model.userId}</h1>
-                <p>Request Text: {model.text}</p>
+                <h1 onClick={() => navigate(`/profile/${model.userId}`)}>{model.userId}</h1>
+                <p>{model.text}</p>
             </div>
             <div className="requestButtons">
-                <button disabled={chosenGroup < 0}  onClick = {() => accept()} className="accept">Accept</button>
-                <select onChange={e => setChosenGroup(parseInt(e.target.value))}>
-                    <option value={-1}></option>
-                    {groups.map(group => <option value={group}>Group {group}</option>)}
-                </select>
-                <button onClick = {() => deny()} className="deny">Deny</button>
+                <button onClick={() => setOpen(prevState => !prevState)} className="orangeCircularButton accept">Add to</button>
+                <button onClick={() => deny()} className="orangeCircularButton deny">Deny</button>
+            </div>
+            <div className={`groupButtons${!open ? "" : " showing"}`}>
+                <h2 className="smallHeader">Choose Group To Accept Into</h2>
+                {groups.map(group => <button className="orangeCircularButton" onClick={() => accept(group)}>Group {group}</button>)}
             </div>
         </div>
     )

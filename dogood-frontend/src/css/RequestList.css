@@ -1,73 +1,114 @@
 .requestList {
     background-color: #F0F0FF;
-    padding: 10px;
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    font-family: 'Montserrat', sans-serif;
+    place-items: center;
 }
 
 .request{
+    margin-top: 10px;
+    margin-bottom: 10px;
+    width: 90%;
     display: flex;
-    flex-direction: row;
-    margin-bottom: 2px;
-    margin-top: 2px;
-    margin-left: 15px;
-    margin-right: 30px;
-    background-color: white;
-    padding: 10px;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    color: #ffffff;
+    background-color: #4295ac;
     border-radius: 10px;
-    font-weight: bold;
-    border-color: #959595;
-    border-width: 2px;
-    border-style: solid;
+    transition: background-color 0.3s ease 0s;
+}
+
+.requestData h1:hover{
+    text-decoration: underline;
+}
+
+.selectGroup{
+    margin-left: 5px;
+    border-radius: 5px;
 }
 
 .requestData{
     display: flex;
     flex-direction: column;
     font-size: 15px;
-    margin-left: 10px;
+    align-items: center;
+    margin-bottom: 10px;
 }
 
 .requestData p{
     margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 5px;
+}
+
+.requestData h1{
+    margin-top: 0;
+    margin-bottom: 5px;
 }
 
 .requestButtons{
-    margin-left: auto;
     display: flex;
-    flex-direction: column;
-    width: 20%;
+    flex-direction: row;
+    width: 80%;
     align-items: center;
     justify-content: center;
 }
 
-.requestButtons button{
-    width: 50%;
-    margin-top: 5px;
-    height: 40px;
-    font-size: 15px;
-    border-radius: 10px;
+.deny{
+    color: #9f0000;
     background-color: white;
     font-weight: bold;
-    border-width: 5px;
-    border-style: solid;
-}
-
-.deny{
-    border-color: rgb(193, 0, 0);
-    color: red;
 }
 
 .accept{
-    border-color: green;
-    color: green;
+    color: #009700;
+    background-color: white;
+    font-weight: bold;
 }
 
-.accept:disabled{
-    border-color: rgb(123, 168, 123);
-    color: rgb(123, 168, 123);
+.deny:hover{
+    background-color: #9f0000;
+    color:white;
+    font-weight: bold;
+}
+
+.accept:hover{
+    background-color: #009700;
+    color: white;
+    font-weight: bold;
+}
+
+.groupButtons {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: white;
+    padding: 0;
+    margin: 0;
+    border-radius: 10px;
+    width: 80%;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.1s ease-in-out 0s, padding 0.1s ease-in-out 0s, margin 0.1s ease-in-out 0s;
+}
+
+.groupButtons button{
+    margin: 2px;
+    width: 60%;
+}
+
+.showing {
+    padding: 15px;
+    margin: 5px;
+    max-height: 1000px;
+    overflow-y: scroll;
 }
 
 @media (max-width: 500px) {
+    .requestList {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
 }
