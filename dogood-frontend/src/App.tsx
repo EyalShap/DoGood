@@ -38,65 +38,22 @@ import Notifications from "./components/Notifications.tsx"
 
 function App() {
   const [user, setUser] = useState<UserModel>();
-  // --- CHANGE 1: Initialize isLoggedIn based on localStorage presence ---
-  // Check if token *and* username exist on initial load to set a sensible default.
-  // This helps prevent a brief flash of the login screen if already logged in.
-  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem("token") && !!localStorage.getItem("username"));
-  // --- CHANGE 1 END ---
-
-    // --- Function: loggedInCheck ---
-    // Purpose: Validates token stored in localStorage by calling the backend.
-    // Used for: Initial page load, subsequent checks triggered by events.
-    const loggedInCheck = async () => {
-      const token = localStorage.getItem("token");
-      const username = localStorage.getItem("username"); // Also get username
-
-      // Only proceed if both token and username exist in localStorage
-      if (token && username) {
-          try {
-              console.log("loggedInCheck: Validating token..."); // Debug
-              // Attempt to validate the token and get user data
-              let um: UserModel = await getUserByToken(); // Validate token
-              console.log("loggedInCheck: Token valid, user:", um.username); // Debug
-
-              // Optional but good practice: Check if token's username matches localStorage
-              if (localStorage.getItem("username") !== um.username) {
-                   console.warn("Username mismatch between localStorage and token. Updating localStorage.");
-                   localStorage.setItem("username", um.username); // Correct localStorage if needed
-              }
-
-              // If successful, update user state and logged-in status
-              setUser(um);
-              // Only set loggedIn to true *if it wasn't already* to avoid unnecessary re-renders
-              if (!isLoggedIn) {
-                  console.log("loggedInCheck: Setting isLoggedIn = true"); // Debug
-                   setIsLoggedIn(true);
-              }
-          } catch (e) {
-              // If getUserByToken fails (invalid token, network error, etc.)
-              console.error("loggedInCheck: Token validation failed. Clearing credentials.", e); // Debug
-              // Clear out the invalid/old credentials from localStorage
-              localStorage.removeItem("token");
-              localStorage.removeItem("username");
-              // Reset user state and logged-in status
-              setUser(undefined);
-              if (isLoggedIn) { // Only update if state actually changes
-                    console.log("loggedInCheck: Setting isLoggedIn = false due to validation failure."); // Debug
-                    setIsLoggedIn(false); // Ensure state reflects logged out
-              }
-              // Notify other parts of the app (like Header) if necessary via storage event
-               window.dispatchEvent(new Event('storage')); // Use storage event for consistency
-          }
-      } else {
-          console.log("loggedInCheck: No token/username found in localStorage."); // Debug
-          // Ensure logged out state if no credentials
-          if (isLoggedIn) { // Only update state if it actually changed
-               setUser(undefined);
-               console.log("loggedInCheck: Setting isLoggedIn = false because no credentials found."); // Debug
-               setIsLoggedIn(false);
-          }
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const loggedInCheck = async () => {
+    if(localStorage.getItem("token") != null){
+      try {
+        let um: UserModel = await getUserByToken();
+        localStorage.setItem("username", um.username);
+        setUser(um)
+        window.dispatchEvent(new Event('storage'))
+      }catch (e){
+        localStorage.removeItem("token");
+        localStorage.removeItem("username");
+        window.dispatchEvent(new Event('storage'))
+        alert("Your session has expired, please log in again")
       }
-  };
+    }
+  }
 
   // --- Function: handleAuthSuccess ---
   // Purpose: To handle the state transition immediately after a successful LOGIN or REGISTER action
@@ -131,48 +88,22 @@ function App() {
        window.dispatchEvent(new Event('storage'));
   };
 
- // --- useEffect Hook ---
-    // Purpose: Set up event listeners and perform the initial login check on component mount.
-    useEffect(() => {
-      // Handler for 'storage' event (catches localStorage changes across tabs/windows OR triggered manually)
-      const handleStorage = (event?: StorageEvent) => { // Make event optional for manual dispatch
-          // React if 'token' or 'username' specifically changed/removed, OR if manually dispatched
-          if (event === undefined || event?.key === 'token' || event?.key === 'username') {
-               console.log(`Storage event detected (key: ${event?.key ?? 'manual dispatch'}), running loggedInCheck.`); // Debug log
-               loggedInCheck(); // Re-validate state based on storage change or manual trigger
-          }
-      };
+  useEffect(() => {
+    const handleStorage = () => {
+      setIsLoggedIn(localStorage.getItem("token") !== null);
+    }
 
-      // Add listener when the component mounts
-      window.addEventListener('storage', handleStorage);
-
-      // Perform the initial check when the App component first loads
-      console.log("App Mounted: Performing initial loggedInCheck."); // Debug log
-      loggedInCheck();
-
-      // Cleanup function: Remove listener when the component unmounts
-      return () => {
-          console.log("App Unmounting: Removing storage listener."); // Debug log
-          window.removeEventListener('storage', handleStorage);
-      };
-      // --- CHANGE 2: Depend on isLoggedIn to re-run check if it changes externally ---
-      // This helps ensure consistency if the state is somehow changed outside the normal flow,
-      // although the storage event should generally handle this. Added mostly for robustness.
-  }, [isLoggedIn]);
-  // --- CHANGE 2 END ---
-  // --- End useEffect Hook ---
-
-
-  // --- Render Logic ---
+    window.addEventListener('storage', handleStorage);
+    window.addEventListener('login', loggedInCheck);
+    loggedInCheck();
+    return () => {window.removeEventListener('storage', handleStorage);
+    window.removeEventListener('login',loggedInCheck)}
+  }, []);
 
   return (
     <>
-      {!isLoggedIn ? (
-                 // --- Pass onAuthSuccess prop to LoginAndRegister ---
-                 <LoginAndRegister onAuthSuccess={handleAuthSuccess} />
-             ) :
+      {!isLoggedIn ? <LoginAndRegister onAuthSuccess={handleAuthSuccess}/> :
           <BrowserRouter>
-            {/* --- CHANGE 3: Pass user state and a logout handler to Header --- */}
             <Header user={user} onLogout={() => {
                 console.log("Logout requested from Header."); // Debug
                 // Clear localStorage
@@ -185,11 +116,8 @@ function App() {
                 // Manually trigger storage event to ensure consistency and potential cleanup in other listeners
                 window.dispatchEvent(new Event('storage'));
                 // No need to navigate here, the conditional render will switch to LoginAndRegister
-            }} />
-            {/* --- CHANGE 3 END --- */}
-            <div className='Routes'>
+            }}/> <div className='Routes'>
             <Routes>
-              {/* Keep all existing routes */}
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
               <Route path = "/summary" element={<ApprovedHoursPage />}/>

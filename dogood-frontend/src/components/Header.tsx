@@ -221,28 +221,13 @@ const Header: React.FC<Props> = ({ user, onLogout }) => {
               {!isMobile && <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>}
               {!isMobile && <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>}
 
-        <div className="logo" onClick = {onLogo}>
-            <img className="logoicon" src={logoIcon} alt="DoGood Icon"/>
-            {!isMobile && <img className="logotitle" src={logoTitle} alt="DoGood Title"/>}
-        </div>
-        <nav className="nav">
-          <ul className="menuList">
-            {/* Navigation Links */}
-            {!isMobile && <li className="menuListItem"><a href="/volunteeringPostList" className="navLink">Browse Posts</a></li>}
-            {!isMobile && <li className="menuListItem"><a href="/organizationList" className="navLink">Browse Organizations</a></li>}
-            {!isMobile && <li className="menuListItem"><a href="/myvolunteerings" className="navLink">My Volunteerings</a></li>}
-            {!isMobile && <li className="menuListItem"><a href="/leaderboard" className="navLink">Leaderboard</a></li>}
-
-            {/* Notifications Bell */}
-             <li className="menuListItem"> {/* Wrap in li for structure */}
               <div className="notification">
-                  <Badge badgeContent={newNotificationsAmount} color="error" overlap="circular">
-                      <FaBell
-                          size={isMobile ? 20 : 24}
-                          style={{ cursor: 'pointer', color: 'white' }}
-                          onClick={toggleDropdownNotifications}
-                      />
-                  </Badge>
+                <FaBell
+                    className="notificationBell"
+                    onClick={toggleDropdownNotifications}>
+                 </FaBell>
+                 {newNotificationsAmount > 0 &&
+                 <div className="buttonBadge">{newNotificationsAmount}</div>}
                   {dropdownOpenNotifications && (
                     notifications.length == 0 ? 
                     <div className="dropdownMenu notificationsDropDown" onMouseLeave={closeDropdownNotifications}>
@@ -264,7 +249,6 @@ const Header: React.FC<Props> = ({ user, onLogout }) => {
                     </div>
                     )}
               </div>
-             </li>
 
               <div className="profileWrapper">
                     <img

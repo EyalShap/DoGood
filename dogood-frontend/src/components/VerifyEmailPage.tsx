@@ -52,7 +52,7 @@ function VerifyEmailPage({ username, onSwitchToLogin }: VerifyEmailPageProps) {
                 <div className="verify-email-section">
                     <h1>Verify Your Email</h1>
                     <p style={{ marginBottom: '20px', color: '#555' }}>
-                        A 6-digit verification code has been sent to your email address.
+                        A 6-digit verification code has been sent to your email address (check your spam folder if needed).
                         Please enter it below to complete your registration for user: <strong>{username}</strong>.
                     </p>
 
