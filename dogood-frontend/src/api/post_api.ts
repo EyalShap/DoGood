@@ -882,3 +882,43 @@ export const setPoster = async (postId: number, newPoster: string) => {
         throw response.errorString;
     }
 }
+
+export const setVolunteerPostSkills = async (postId: number, skills: string[]) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+    
+    let url = `${server}/setVolunteerPostSkills?postId=${postId}&actor=${username}&skills=${skills}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}
+
+export const setVolunteerPostCategories = async (postId: number, categories: string[]) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+    
+    let url = `${server}/setVolunteerPostCategories?postId=${postId}&actor=${username}&categories=${categories}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}
