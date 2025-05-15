@@ -36,7 +36,6 @@ public class HaifaPdfFormat implements PdfFormat{
     final int PAGE1_ROW_Y = 475 + ADJUST_Y_BY;
     final int ROW_HEIGHT = 17;
 
-
     final int FONT_SIZE = 12;
     private int current_row ;
 
