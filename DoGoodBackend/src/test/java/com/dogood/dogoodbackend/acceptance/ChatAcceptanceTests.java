@@ -1,9 +1,14 @@
 package com.dogood.dogoodbackend.acceptance;
 
+import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
 import com.dogood.dogoodbackend.domain.chat.Message;
 import com.dogood.dogoodbackend.domain.chat.MessageDTO;
 import com.dogood.dogoodbackend.domain.externalAIAPI.Gemini;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
+import com.dogood.dogoodbackend.emailverification.EmailSender;
+import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
+import com.dogood.dogoodbackend.emailverification.VerificationData;
 import com.dogood.dogoodbackend.jparepos.*;
 import com.dogood.dogoodbackend.service.*;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
@@ -19,8 +24,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
+import java.time.Instant;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -39,6 +46,12 @@ public class ChatAcceptanceTests {
     //THE INTERNET WILL BREAK IF WE DONT DO THIS IN EVERY ACCEPTANCE TEST
     @MockitoBean
     Gemini gemini;
+
+    @MockitoBean
+    EmailSender emailSender;
+
+    @MockitoBean
+    VerificationCacheService verificationCacheService;
 
     @Autowired
     ChatService chatService;
@@ -108,6 +121,16 @@ public class ChatAcceptanceTests {
                 "052-0520520",
                 new Date(),
                 null);
+
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.anyString(),Mockito.anyString()))
+                .thenReturn(Optional.of(new VerificationData("", Instant.MAX,new RegisterRequest())));
+        VerifyEmailRequest orgEmailRequest = new VerifyEmailRequest(organizationMangerId,"");
+        VerifyEmailRequest alEmailRequest = new VerifyEmailRequest(aliceId,"");
+        VerifyEmailRequest bobEmailRequest = new VerifyEmailRequest(bobId,"");
+        userService.verifyEmail(orgEmailRequest);
+        userService.verifyEmail(alEmailRequest);
+        userService.verifyEmail(bobEmailRequest);
+
         Response<String> login1 = userService.login(organizationMangerId, "123456");
         Response<String> login2 = userService.login(aliceId, "123456");
         Response<String> login3 = userService.login(bobId, "123456");
