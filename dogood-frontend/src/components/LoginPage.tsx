@@ -11,10 +11,11 @@ interface LoginPageProps {
     onSwitchToForgot: () => void; 
     // FORGOT_PASSWORD END
     onAuthSuccess: (username: string, token: string) => void;
+    changeState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // FORGOT_PASSWORD START
-function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: LoginPageProps) {
+function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess, changeState }: LoginPageProps) {
 // FORGOT_PASSWORD END
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -86,12 +87,12 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: Logi
                 >
                     Login
                 </button>
-                <a
+                {/* <a
                 onClick={onSwitchToForgot} // Navigate to the register page
                 style={{ margin: '10px 0', padding: '10px', fontSize: '16px',textDecoration:'underline', textAlign: 'center', color: 'black', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
                 >
                     Forgot Password?
-            </a>
+            </a> */}
 
                 <a
                 onClick={onSwitchToRegister} // Navigate to the register page

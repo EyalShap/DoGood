@@ -23,6 +23,7 @@ function LoginAndRegister({ onAuthSuccess }: LoginAndRegisterProps) {
     // FORGOT_PASSWORD START
     const [emailForPasswordReset, setEmailForPasswordReset] = useState<string | null>(null);
     // FORGOT_PASSWORD END
+     const [register, setRegister] = useState(false);
 
     const switchToRegister = () => setView("register");
     const switchToLogin = () => {
@@ -48,12 +49,13 @@ function LoginAndRegister({ onAuthSuccess }: LoginAndRegisterProps) {
 
 
     return (
-        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', minHeight: '100vh', width: '100%', fontFamily: 'Arial, sans-serif' }}>
+        <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', width: '100%', fontFamily: 'Arial, sans-serif' }}>
             {view === "login" && (
                 <LoginPage
                     onSwitchToRegister={switchToRegister}
                     onSwitchToForgot={switchToForgotPassword} 
                     onAuthSuccess={onAuthSuccess}
+                    changeState={setRegister}
                 />
             )}
             {view === "register" && (
