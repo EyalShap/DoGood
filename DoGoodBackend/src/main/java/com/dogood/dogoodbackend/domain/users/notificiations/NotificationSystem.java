@@ -6,6 +6,7 @@ import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.SendResponse;
+import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -28,30 +29,35 @@ public class NotificationSystem {
 
     public void notifyUser(String username, String message, String navigationURL) {
         Notification notification = repository.createNotification(username, message, navigationURL);
+        sendPush(username,message,navigationURL);
+        sender.sendNotification(username, notification);
+    }
+
+    @Async
+    public void sendPush(String username, String message, String navigationURL){
         Set<String> expiredTokens = new HashSet<>();
         List<String> fcmTokens = new ArrayList<>(usersFacade.getFcmTokens(username));
         if(firebaseMessaging != null && fcmTokens.size() > 0) {
-                try {
-                    BatchResponse response = firebaseMessaging
-                            .sendEach(fcmTokens.stream().map(fcmToken -> com.google.firebase.messaging.Message.builder()
-                                    .putData("body",message)
-                                    .putData("title","New Notification from DoGood")
-                                    .putData("click_action",navigationURL)
-                                    .setToken(fcmToken).build()).toList());
-                    if(response.getFailureCount() > 0){
-                        List<SendResponse> responses = response.getResponses();
-                        for(int i = 0; i < responses.size(); i++){
-                            if(!responses.get(i).isSuccessful()){
-                                expiredTokens.add(fcmTokens.get(i));
-                            }
+            try {
+                BatchResponse response = firebaseMessaging
+                        .sendEach(fcmTokens.stream().map(fcmToken -> com.google.firebase.messaging.Message.builder()
+                                .putData("body",message)
+                                .putData("title","New Notification from DoGood")
+                                .putData("click_action",navigationURL)
+                                .setToken(fcmToken).build()).toList());
+                if(response.getFailureCount() > 0){
+                    List<SendResponse> responses = response.getResponses();
+                    for(int i = 0; i < responses.size(); i++){
+                        if(!responses.get(i).isSuccessful()){
+                            expiredTokens.add(fcmTokens.get(i));
                         }
                     }
-                }catch (Exception e) {
-                    e.printStackTrace();
                 }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
         }
         usersFacade.expireFcmTokens(username, expiredTokens);
-        sender.sendNotification(username, notification);
     }
 
     public void setFirebaseMessaging(FirebaseMessaging firebaseMessaging) {

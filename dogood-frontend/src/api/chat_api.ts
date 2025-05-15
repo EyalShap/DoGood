@@ -66,6 +66,23 @@ export const getPostChatMessages = async (postId: number, userWith: string): Pro
     return response.data;
 }
 
+export const editMessage = async (messageId: number, newContent: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        username: localStorage.getItem("username"),
+        messageId: messageId,
+        newContent: newContent
+    }
+    let res = await axios.patch(`${server}/editMessage`, body,config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
 export const deleteMessage = async (messageId: number): Promise<string> => {
     const config = {
         headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }

@@ -3,7 +3,9 @@ type ChatMessage = {
     sender: string,
     content: string,
     timeSent: string,
-    userIsSender: boolean
+    userIsSender: boolean,
+    edited: boolean,
+    timeEdited: string
 }
 
 export default ChatMessage;

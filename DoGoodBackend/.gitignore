@@ -38,4 +38,4 @@ out/
 
 
 ## Evil Firebase File
-!**/src/main/resources/serviceAccountKey.json
+/src/main/resources/serviceAccountKey.json

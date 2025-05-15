@@ -21,13 +21,17 @@ try{
 
 export const requestForToken = async (): Promise<string | null> => {
     try{
+        await Notification.requestPermission();
         if (Notification.permission === 'denied') {
             return null;
         }
         if(messaging == null){
             return null;
         }
-        return getToken(messaging,{ vapidKey: `BG7pYwEVn46W0K0WiLq-m1us2z8z_rEFmVsA8BNLgTBpfcwM6u0bLXVwiK3g280ap7uDTccSfL5e8oKOCrSPOsk` })
+        if(Notification.permission === 'granted') {
+            return getToken(messaging, {vapidKey: `BG7pYwEVn46W0K0WiLq-m1us2z8z_rEFmVsA8BNLgTBpfcwM6u0bLXVwiK3g280ap7uDTccSfL5e8oKOCrSPOsk`})
+        }
+        return null;
     }catch (e){
         return null;
     }
