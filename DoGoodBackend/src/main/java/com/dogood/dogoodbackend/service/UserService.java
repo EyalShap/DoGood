@@ -11,13 +11,14 @@ import com.google.firebase.messaging.FirebaseMessaging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-// VERIFICATION START
 import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
-// VERIFICATION END
+import com.dogood.dogoodbackend.api.userrequests.RequestEmailUpdateVerificationRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailUpdateCodeRequest;
 import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ChangePasswordRequest;
+
 
 import java.util.Date;
 import java.util.List;
@@ -97,6 +98,52 @@ public class UserService {
         }
     }
     // VERIFICATION END
+    // PASSWORD-CHANGE-NO-EMAIL START
+    public Response<String> changePassword(String token, ChangePasswordRequest request) {
+        try {
+            String usernameFromToken = authFacade.getNameFromToken(token);
+            // The facade will ensure usernameFromToken matches request.getUsername()
+            String message = usersFacade.changePassword(
+                    usernameFromToken,
+                    request.getUsername(),
+                    request.getOldPassword(),
+                    request.getNewPassword()
+            );
+            return Response.createResponse(message, null);
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+    // PASSWORD-CHANGE-NO-EMAIL END
+
+    // UPDATE-EMAIL-VERIFICATION START
+    public Response<String> requestEmailUpdateVerification(String token, RequestEmailUpdateVerificationRequest request) {
+        try {
+            String actorUsername = authFacade.getNameFromToken(token);
+            // The facade method will also check if actorUsername matches the owner of request.getEmail()
+            String message = usersFacade.requestEmailUpdateVerification(request.getEmail(), actorUsername);
+            return Response.createResponse(message, null);
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+
+    public Response<String> verifyEmailUpdateCode(String token, VerifyEmailUpdateCodeRequest request) {
+        try {
+            String actorUsername = authFacade.getNameFromToken(token);
+            // The facade method will also check if actorUsername matches the owner of request.getEmail()
+            String message = usersFacade.verifyEmailUpdateCode(request.getEmail(), request.getCode(), actorUsername);
+            if (message.startsWith("Code verified successfully")) { // Check prefix for success
+                return Response.createResponse(message, null);
+            } else {
+                return Response.createResponse(null, message); // Error messages
+            }
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+    // UPDATE-EMAIL-VERIFICATION END
+
     // FORGOT_PASSWORD START
     public Response<String> forgotPassword(String email) {
         try {
