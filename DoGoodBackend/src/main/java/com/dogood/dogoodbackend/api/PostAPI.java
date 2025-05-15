@@ -299,4 +299,10 @@ public class PostAPI {
 
         return postService.getUserRequests(token, actor);
     }
+
+    @PutMapping("/setPoster")
+    public Response<Boolean> setPoster(@RequestParam int postId, @RequestParam String actor, @RequestParam String newPoster, HttpServletRequest request) {
+        String token = getToken(request);
+        return postService.setPoster(token, postId, actor, newPoster);
+    }
 }

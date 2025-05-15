@@ -58,7 +58,7 @@ public class VolunteerPost extends Post {
     }
 
     public void removeUser(String username, String actor) {
-        if(!this.posterUsername.equals(actor)) {
+        if(!this.posterUsername.equals(actor) && !actor.equals(username)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, actor, "remove user from"));
         }
         if(this.posterUsername.equals(username)) {

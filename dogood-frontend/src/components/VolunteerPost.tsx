@@ -3,7 +3,7 @@ import './../css/Volunteering.css'
 import { getVolunteering } from '../api/volunteering_api'
 import { useParams } from "react-router-dom";
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
-import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeRelatedUser, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest } from '../api/post_api';
+import { addImageToVolunteerPost, getPostPastExperiences, getVolunteeringImages, getVolunteeringName, getVolunteeringPost, getVolunteerPost, joinVolunteeringRequest, removeImageFromVolunteerPost, removeRelatedUser, removeVolunteeringPost, removeVolunteerPost, sendAddRelatedUserRequest, setPoster } from '../api/post_api';
 import { getIsManager, getOrganizationName } from '../api/organization_api';
 import { useNavigate } from 'react-router-dom';
 import './../css/VolunteerPost.css'
@@ -295,6 +295,24 @@ function VolunteerPost() {
         }
     };
         
+    const onSetAsFounder = async (username: string) => {
+        try {
+            if(window.confirm(`Are you sure you want to set ${username} as the poster of this post?`)) {
+                await setPoster(model.id, username);
+                let updatedModel: VolunteerPostModel = {
+                    ...model, 
+                    posterUsername: username
+                }
+                setModel(updatedModel);
+                await convertUsersToListItems(model.relatedUsers, username);
+            }
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+        
     return (
         <div id="postPage" className="postPage">
 
@@ -401,8 +419,13 @@ function VolunteerPost() {
                         limit = {isMobile ? 1 : 3}
                         navigateTo={`profile`}
                         clickable={() => true}
-                        showFire={(username) => isPoster && (username !== model.posterUsername)}
+                        showResign = {(username) => localStorage.getItem("username") === username && username !== model.posterUsername}
+                        showFire = {(username) => localStorage.getItem("username") === model.posterUsername && username !== model.posterUsername}
+                        showSetAsFounder = {(username) => localStorage.getItem("username") === model.posterUsername && username !== model.posterUsername}
                         fireHandler={onRemoveVolunteer}
+                        resignHandler={onRemoveVolunteer}
+                        setFounderHandler={onSetAsFounder}
+                        setFounderOrPoster = {false}
                     ></ListWithArrows>
                 </div>
                 

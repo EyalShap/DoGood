@@ -13,6 +13,7 @@ public interface VolunteerPostRepository {
     public void removeRelatedUser(int postId, String username, String actor);
     public void addImage(int postId, String path, String actor);
     public void removeImage(int postId, String path, String actor);
+    public void setPoster(int postId, String actor, String newPoster);
     public VolunteerPost getVolunteerPost(int postId);
     public List<VolunteerPost> getAllVolunteerPosts();
 

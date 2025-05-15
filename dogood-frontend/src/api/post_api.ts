@@ -862,3 +862,23 @@ export const removeRelatedUser = async (postId: number, toRemove: string) => {
         throw response.errorString;
     }
 }
+
+export const setPoster = async (postId: number, newPoster: string) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+    
+    let url = `${server}/setPoster?postId=${postId}&actor=${username}&newPoster=${newPoster}`;
+
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<number> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+}
