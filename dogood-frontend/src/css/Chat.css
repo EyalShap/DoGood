@@ -4,6 +4,7 @@
     width: 100%;
     align-items: center;
     height: 80vh;
+
 }
 
 .messages {
@@ -18,8 +19,11 @@
     color: white;
     width: fit-content;
     max-width: 50%;
-    padding: 15px;
-    border-radius: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-radius: 20px;
     margin: 5px;
 
 }
@@ -53,13 +57,13 @@
 .messageSender {
     margin-right: auto;
     margin-left: 10%;
-    background: green;
+    background: #a5a5a5;
 }
 
 .messageRecipient {
     margin-left: auto;
     margin-right: 10%;
-    background: #0000a3;
+    background: #008b8b;
 }
 
 .bottom-bar{
@@ -68,6 +72,7 @@
     width: 100%;
     align-items: center;
     justify-content: center;
+    margin-bottom: 10px;
 }
 
 .send {
@@ -103,9 +108,16 @@
 
 .messageOptions button {
     background-color: transparent;
-    color: darkred;
     font-weight: bolder;
     border-width: 0;
     margin: 0;
     font-size: 15px;
+}
+
+.delete{
+    color: #ff0000;
+}
+
+.edit {
+    color: white;
 }

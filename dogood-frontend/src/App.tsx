@@ -35,7 +35,8 @@ import {requestForToken} from "./api/firebase/firebase.ts";
 import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
 import Notifications from "./components/Notifications.tsx";
 import VerifyEmailUpdate from "./components/VerifyEmailUpdate.tsx"; 
-
+import Notifications from "./components/Notifications.tsx"
+import PageNotFound from './components/PageNotFound.tsx'
 
 
 function App() {
@@ -106,19 +107,8 @@ function App() {
     <>
       {!isLoggedIn ? <LoginAndRegister onAuthSuccess={handleAuthSuccess}/> :
           <BrowserRouter>
-            <Header user={user} onLogout={() => {
-                console.log("Logout requested from Header."); // Debug
-                // Clear localStorage
-                localStorage.removeItem("token");
-                localStorage.removeItem("username");
-                // Update state
-                setUser(undefined);
-                setIsLoggedIn(false);
-                console.log("App state updated: isLoggedIn = false"); // Debug
-                // Manually trigger storage event to ensure consistency and potential cleanup in other listeners
-                window.dispatchEvent(new Event('storage'));
-                // No need to navigate here, the conditional render will switch to LoginAndRegister
-            }}/> <div className='Routes'>
+            <Header user={user}/>
+              <div className='Routes'>
             <Routes>
               <Route path="/" element={<Homepage />} />
               <Route path = "/my-profile" element={<MyProfilePage />}/>
@@ -150,6 +140,7 @@ function App() {
               <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>
               <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
               <Route path='/easterEgg' element={<EasterEgg/>}/>
+              <Route path='/pageNotFound' element={<PageNotFound/>}/>
               {/* Add a catch-all or redirect for logged-in users if needed */}
               {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
             </Routes>

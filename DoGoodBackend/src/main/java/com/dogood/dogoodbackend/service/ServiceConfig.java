@@ -13,6 +13,7 @@ import com.dogood.dogoodbackend.domain.users.notificiations.DatabaseNotification
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
+import com.dogood.dogoodbackend.pdfformats.PdfFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -46,7 +47,8 @@ public class ServiceConfig {
                 new DatabaseMessageRepository(applicationContext.getBean(MessageJPA.class)),
                 new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)),
                 applicationContext.getBean(EmailSender.class),
-                applicationContext.getBean(VerificationCacheService.class));
+                applicationContext.getBean(VerificationCacheService.class),
+                applicationContext.getBean(PdfFactory.class));
     }
 
     /*@Bean

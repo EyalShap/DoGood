@@ -422,4 +422,37 @@ public class PostService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    public Response<Boolean> setPoster(String token, int postId, String actor, String newPoster) {
+        try {
+            checkToken(token, actor);
+            postsFacade.setPoster(postId, actor, newPoster);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> setVolunteerPostSkills(String token, int postId, String actor, List<String> skills) {
+        try {
+            checkToken(token, actor);
+            postsFacade.setVolunteerPostSkills(postId, skills, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> setVolunteerPostCategories(String token, int postId, String actor, List<String> categories) {
+        try {
+            checkToken(token, actor);
+            postsFacade.setVolunteerPostCategories(postId, categories, actor);
+            return Response.createResponse(true);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
 }

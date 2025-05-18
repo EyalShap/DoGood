@@ -1,17 +1,18 @@
 import {useNavigate, useParams} from "react-router-dom";
 import ChatMessage from "../models/ChatMessage.ts";
 import {FormEvent, useEffect, useRef, useState} from "react";
-import {deleteMessage, getVolunteeringChatMessages, sendVolunteeringMessage} from "../api/chat_api.ts";
+import {deleteMessage, editMessage, getVolunteeringChatMessages, sendVolunteeringMessage} from "../api/chat_api.ts";
 import {format, isToday, isYesterday} from "date-fns";
 import "../css/Chat.css";
 import {IoSend} from "react-icons/io5";
 import {host} from "../api/general.ts";
 import {Client} from "@stomp/stompjs";
-import {FaRegTrashAlt} from "react-icons/fa";
+import {FaEdit, FaRegTrashAlt, FaSave} from "react-icons/fa";
 
 export function MessageComponent({model} : {model:ChatMessage}) {
-    const [timeSent, setTimeSent] = useState("");
     const navigate = useNavigate();
+    const [enableEdit, setEnableEdit] = useState(false);
+    const [editedText, setEditedText] = useState(model.content);
 
     const deleteSelf = async () => {
         try{
@@ -21,37 +22,58 @@ export function MessageComponent({model} : {model:ChatMessage}) {
         }
     }
 
+    function contains_heb(str) {
+        return (/[\u0590-\u05FF]/).test(str);
+    }
+
+    const editSelf = async () => {
+        try{
+            await editMessage(model.id,editedText);
+            setEnableEdit(false);
+        }catch (e){
+            alert(e)
+        }
+    }
+
     const handleUserOnClick = async () => {
         navigate(`/profile/${model.sender}`);
     }
 
-    useEffect(() => {
-        let date = new Date(model.timeSent);
+    const formatDate = (messageDate: string) => {
+        let date = new Date(messageDate);
         if(isToday(date)){
-            setTimeSent(`Today at ${format(date, "H:mm")}`)
+            return `Today at ${format(date, "H:mm")}`;
         }else if(isYesterday(date)){
-            setTimeSent(`Yesterday at ${format(date, "H:mm")}`)
-        }else{
-            setTimeSent(`${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`)
+            return `Yesterday at ${format(date, "H:mm")}`;
         }
-    }, []);
+        return `${format(date, "MMMM do, yyyy")} at ${format(date, "H:mm")}`
+    }
     return (
         <div className={`message ${model.userIsSender ? "messageSender" : "messageRecipient"}`}>
             <div className="senderRow">
                 <p className="senderName" onClick={() => handleUserOnClick()}>{model.sender}</p>
-                <p className="sentOn">{timeSent}</p>
-            </div>
-            <h2 className="messageContent">{model.content}</h2>
-            {model.userIsSender &&
+                {model.edited ? <p className="sentOn">Edited {formatDate(model.timeEdited)}</p> : <p className="sentOn">{formatDate(model.timeSent)}</p>}
+        </div>
+{!enableEdit ? <h2 dir={contains_heb(model.content) ? "rtl" : "ltr"} className="messageContent">{model.content}</h2> :
+            <input value={editedText} onChange={e => setEditedText(e.target.value)}
+            onKeyDown={e => {
+                if (e.key === 'Enter') {
+                    editSelf()
+            }}}/>}
+            {model.userIsSender && (!enableEdit ?
                 <div className="messageOptions">
-                <button onClick={deleteSelf}><FaRegTrashAlt /></button>
-            </div>}
+                    <button className="delete" onClick={deleteSelf}><FaRegTrashAlt/></button>
+                    <button className="edit" onClick={() => setEnableEdit(true)}><FaEdit/></button>
+                </div> :
+                <div className="messageOptions">
+                    <button className="edit" onClick={editSelf}><FaSave/></button>
+                </div>)}
         </div>
     )
 }
 
 function VolunteeringChat() {
-    let { id } = useParams();
+    let {id} = useParams();
     const [messages, setMessages] = useState<ChatMessage[]>([]);
     const [typedMessage, setTypedMessage] = useState("");
     const [connected, setConnected] = useState(false);
@@ -102,6 +124,12 @@ function VolunteeringChat() {
                         }else if(body.type === "DELETE"){
                             let messageToDelete: ChatMessage = body.payload
                             setMessages(prevState => prevState.filter(message => message.id !== messageToDelete.id))
+                        }else if(body.type === "EDIT"){
+                            let messageToEdit: ChatMessage = body.payload
+                            setMessages(prevState => prevState.map(
+                                message => message.id === messageToEdit.id ?
+                                    ({ ...message, ["content"]: messageToEdit.content, ["edited"]: true, ["timeEdited"]: messageToEdit.timeEdited }) :
+                                    message))
                         }
                     });
                     setConnected(true);

@@ -40,15 +40,16 @@ public class TechnionPdfFormat implements PdfFormat{
 
     private String fullName = "";
 
-    final BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H,true);
+    private BaseFont bf;
 
-    public TechnionPdfFormat(String username, byte[] signature) throws IOException, DocumentException {
+    public TechnionPdfFormat(String username, byte[] signature, String fontLocation) throws IOException, DocumentException {
         current_row = 0;
         InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/tech.pdf");
         reader = new PdfReader(pdf);
         this.signature = signature == null ? signature : signature.clone();
         outputPath = "./"+username + "/"+"tech"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
+        bf = BaseFont.createFont(fontLocation, BaseFont.IDENTITY_H,true);
     }
 
     private void addText(int x, int y, String text, PdfContentByte over){

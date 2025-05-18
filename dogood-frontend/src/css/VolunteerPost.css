@@ -119,9 +119,10 @@ body{
   margin: 0 auto;
   flex-wrap: wrap; /* Make responsive */
   border-radius: 15px; /* Rounded corners */
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2); /* Light shadow effect */
-  background-color: #e6e5e5;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); /* Light shadow effect */
+  background-color: #EED3D3;
   width: 1000px;
+  border: rgba(0, 0, 0, 0.484) solid 1px;
 }
 
 .headers > h1, .headers > p {

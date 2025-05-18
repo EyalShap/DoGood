@@ -56,27 +56,27 @@
 }
 
 .deny{
-    color: #9f0000;
-    background-color: white;
-    font-weight: bold;
+    color: #9f0000 !important;
+    background-color: white !important;
+    font-weight: bold !important;
 }
 
 .accept{
-    color: #009700;
-    background-color: white;
-    font-weight: bold;
+    color: #009700 !important;
+    background-color: white !important;
+    font-weight: bold !important;
 }
 
 .deny:hover{
-    background-color: #9f0000;
-    color:white;
-    font-weight: bold;
+    background-color: #9f0000 !important;
+    color:white !important;
+    font-weight: bold !important;
 }
 
 .accept:hover{
-    background-color: #009700;
-    color: white;
-    font-weight: bold;
+    background-color: #009700 !important;
+    color: white !important;
+    font-weight: bold !important;
 }
 
 .groupButtons {

@@ -13,14 +13,18 @@ public class MessageDTO implements Comparable<MessageDTO> {
     private String content;
     private Date timeSent;
     private boolean userIsSender;
+    private boolean edited;
+    private Date timeEdited;
 
 
-    public MessageDTO(int id, String sender, String content, Date timeSent, boolean userIsSender) {
+    public MessageDTO(int id, String sender, String content, Date timeSent, boolean userIsSender, boolean edited, Date timeEdited) {
         this.id = id;
         this.sender = sender;
         this.content = content;
         this.timeSent = timeSent;
         this.userIsSender = userIsSender;
+        this.edited = edited;
+        this.timeEdited = timeEdited;
     }
 
     public MessageDTO() {
@@ -44,6 +48,14 @@ public class MessageDTO implements Comparable<MessageDTO> {
 
     public String getSender() {
         return sender;
+    }
+
+    public boolean isEdited() {
+        return edited;
+    }
+
+    public Date getTimeEdited() {
+        return timeEdited;
     }
 
     @Override

@@ -47,15 +47,16 @@ public class BGUPdfFormat implements PdfFormat{
     final int SIGNATURE_HOUR_X = 73;
     final int SIGNATURE_HOUR_WIDTH = 100;
 
-    final BaseFont bf = BaseFont.createFont("c:/windows/fonts/arial.ttf", BaseFont.IDENTITY_H,true);
+    private BaseFont bf;
 
-    public BGUPdfFormat(String username, byte[] signature) throws IOException, DocumentException {
+    public BGUPdfFormat(String username, byte[] signature,String fontLocation) throws IOException, DocumentException {
         current_row = 0;
         InputStream pdf = getClass().getClassLoader().getResourceAsStream("templates/bgu.pdf");
         reader = new PdfReader(pdf);
         this.signature = signature == null ? signature : signature.clone();
         outputPath = "./"+username + "/"+"bgu"+username+".pdf";
         stamper = new PdfStamper(reader, new FileOutputStream(outputPath));
+        bf = BaseFont.createFont(fontLocation, BaseFont.IDENTITY_H,true);
     }
 
     private void addText(int x, int y, String text, PdfContentByte over){

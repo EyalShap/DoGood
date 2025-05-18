@@ -10,6 +10,8 @@ import org.springframework.messaging.simp.user.SimpUser;
 import org.springframework.messaging.simp.user.SimpUserRegistry;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
+
 @Service
 public class ChatSocketSender {
     @Autowired
@@ -23,12 +25,12 @@ public class ChatSocketSender {
     }
 
     public void deleteMessage(int messageId, String receiverId, ReceiverType type) {
-        ChatAction action = new ChatAction(ChatActionType.DELETE, new MessageDTO(messageId, "", "", null, false));
+        ChatAction action = new ChatAction(ChatActionType.DELETE, new MessageDTO(messageId, "", "", null, false,false,null));
         sendAction(action, receiverId, type);
     }
 
     public void editMessage(int messageId, String receiverId, String newContent, ReceiverType type) {
-        ChatAction action = new ChatAction(ChatActionType.EDIT, new MessageDTO(messageId, "", newContent, null, false));
+        ChatAction action = new ChatAction(ChatActionType.EDIT, new MessageDTO(messageId, "", newContent, null, false,true,new Date()));
         sendAction(action, receiverId, type);
     }
 

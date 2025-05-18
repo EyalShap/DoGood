@@ -80,6 +80,12 @@ function VolunteerPostChat({ other } : { other: boolean}) {
                         }else if(body.type === "DELETE"){
                             let messageToDelete: ChatMessage = body.payload
                             setMessages(prevState => prevState.filter(message => message.id !== messageToDelete.id))
+                        }else if(body.type === "EDIT"){
+                            let messageToEdit: ChatMessage = body.payload
+                            setMessages(prevState => prevState.map(
+                                message => message.id === messageToEdit.id ?
+                                    ({ ...message, ["content"]: messageToEdit.content, ["edited"]: true, ["timeEdited"]: messageToEdit.timeEdited }) :
+                                    message))
                         }
                         else if(body.type === "CLOSE"){
                             setMessages([]);

@@ -12,7 +12,7 @@ import { PostModel } from '../models/PostModel';
 import { getVolunteering, removeVolunteering } from '../api/volunteering_api';
 import VolunteeringModel from '../models/VolunteeringModel';
 import UserModel from '../models/UserModel';
-import { banUser, getAllUserEmails, getUserByUsername } from '../api/user_api';
+import { banUser, getAllUserEmails, getIsAdmin, getUserByUsername } from '../api/user_api';
 import Select from 'react-select';
 
 function ReportList() {
@@ -34,6 +34,11 @@ function ReportList() {
 
     const fetchReports = async () => {
         try {
+            const isAdmin = await getIsAdmin(localStorage.getItem("username") ?? "");
+            if(!isAdmin) {
+                navigate("/pageNotFound");
+            }
+            else {
             const bannedEmails = await getBannedEmails();
             setBannedEmails(bannedEmails);
             setAllBannedEmails(bannedEmails);
@@ -125,7 +130,7 @@ function ReportList() {
                     alert(e);
                 }
             }
-
+            }
         } catch (e) {
             // send to error page
             alert(e);
