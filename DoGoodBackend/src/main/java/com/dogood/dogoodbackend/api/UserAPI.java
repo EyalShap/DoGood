@@ -1,16 +1,6 @@
 package com.dogood.dogoodbackend.api;
 
-import com.dogood.dogoodbackend.api.userrequests.LoginRequest;
-import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
-import com.dogood.dogoodbackend.api.userrequests.UpdateUserRequest;
-// VERIFICATION START
-import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
-// VERIFICATION END
-// Import new DTOs
-import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
-import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
-import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
-//Import END
+import com.dogood.dogoodbackend.api.userrequests.*;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
@@ -77,7 +67,39 @@ public class UserAPI {
         return userService.resetPassword(body);
     }
 // FORGOT_PASSWORD END
+// UPDATE-EMAIL-VERIFICATION START
+@PostMapping("/request-update-code")
+public Response<String> requestUpdateCode(HttpServletRequest httpRequest, @RequestBody RequestEmailUpdateVerificationRequest body) {
+    String token = getToken(httpRequest);
+    return userService.requestEmailUpdateVerification(token, body);
+}
 
+    @PostMapping("/verify-update-code")
+    public Response<String> verifyUpdateCode(HttpServletRequest httpRequest, @RequestBody VerifyEmailUpdateCodeRequest body) {
+        String token = getToken(httpRequest);
+        return userService.verifyEmailUpdateCode(token, body);
+    }
+    // UPDATE-EMAIL-VERIFICATION END
+
+
+
+    // PASSWORD-CHANGE-NO-EMAIL START
+    @PostMapping("/change-password")
+    public Response<String> changePassword(HttpServletRequest httpRequest, @RequestBody ChangePasswordRequest body) {
+        String token = getToken(httpRequest);
+        return userService.changePassword(token, body);
+    }
+    // PASSWORD-CHANGE-NO-EMAIL END
+
+    // RESEND VERIFICATION START
+    @PostMapping("/resend-verification-code")
+    public Response<String> resendVerificationCode(@RequestBody ResendVerificationCodeRequest body) {
+        // This endpoint is typically called when the user is not logged in (e.g. during registration or forgot password)
+        // Thus, it does not use getToken(httpRequest) for user identification.
+        // The username is taken directly from the request body.
+        return userService.handleResendVerificationCode(body);
+    }
+    // RESEND VERIFICATION END
 
     @GetMapping("/isAdmin")
     public Response<Boolean> isAdmin(@RequestParam String username) {

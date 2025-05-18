@@ -8,6 +8,32 @@ import {Leaderboard} from "../models/Leaderboard";
 import {string} from "yup";
 
 const server = `${host}/api/users`;
+export interface ChangePasswordRequest {
+    username: string;
+    oldPassword: string;
+    newPassword: string;
+}
+
+export const changePassword = async (params: ChangePasswordRequest): Promise<string> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } // Assuming token is needed to identify user context if username isn't solely relied upon
+    };
+    // The backend endpoint should ideally take the username from the validated token
+    // or expect it in the body if it's an admin-like operation (but here it's user-initiated).
+    // For a user changing their own password, the backend can derive the username from the token.
+    // Sending username in the body is okay if the backend re-validates it against the token's subject.
+    const body = {
+        username: params.username, // Or backend derives from token
+        oldPassword: params.oldPassword,
+        newPassword: params.newPassword
+    };
+    const res = await axios.post(`${server}/change-password`, body, config);
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString; // e.g., "Current password incorrect", "User not found"
+    }
+    return response.data; // Expected: "Password updated successfully."
+};
 
 export const login = async (username: string, password: string): Promise<string> => {
     const body = {
@@ -22,6 +48,39 @@ export const login = async (username: string, password: string): Promise<string>
     }
     return response.data;
 }
+export const requestEmailUpdateVerification = async (currentEmail: string): Promise<string> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        email: currentEmail // Backend expects the email to send the code to
+    };
+    // Assuming backend endpoint is /request-update-code and sends code to the provided email
+    const res = await axios.post(`${server}/request-update-code`, body, config);
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+    return response.data; // Expected: "Verification code sent to your email."
+};
+
+export const verifyEmailUpdateCode = async (currentEmail: string, code: string): Promise<string> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        email: currentEmail, // The email the code was sent to and should be verified against
+        code: code
+    };
+    // Assuming backend endpoint is /verify-update-code
+    const res = await axios.post(`${server}/verify-update-code`, body, config);
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+    return response.data; // Expected: "Code verified successfully." or similar
+};
+
 
 export const logout = async (): Promise<string> => {
     const config = {
@@ -80,6 +139,21 @@ export const verifyEmailCode = async (username: string, code: string): Promise<s
     return response.data; 
 }
 // VERIFICATION END
+
+// RESEND-VERIFICATION-CODE START
+export const resendVerificationCode = async (username: string): Promise<string> => {
+    const body = {
+        username: username
+    };
+    // This endpoint does not require JWT authentication as per the backend UserAPI.java
+    const res = await axios.post(`${server}/resend-verification-code`, body);
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString; // e.g., "User not found.", "Email already verified."
+    }
+    return response.data; // Expected: "A new verification code has been sent to your email address."
+};
+// RESEND-VERIFICATION-CODE END
 
 // FORGOT_PASSWORD START
 export const forgotPassword = async (email: string): Promise<string> => {

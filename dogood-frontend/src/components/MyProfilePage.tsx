@@ -12,7 +12,7 @@ import {
     uploadCV,
     downloadCV,
     removeCV,
-    generateSkillsAndPreferences, updateProfilePicture,
+    generateSkillsAndPreferences, updateProfilePicture, requestEmailUpdateVerification,changePassword,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
@@ -31,6 +31,7 @@ function MyProfilePage() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [originalEmail, setOriginalEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [birthDate, setBirthDate] = useState("");
     const [skillsInput, setSkillsInput] = useState("");
@@ -57,6 +58,19 @@ function MyProfilePage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
+    // UPDATE-EMAIL-VERIFICATION START
+    const [isLoadingUpdate, setIsLoadingUpdate] = useState(false); // For profile update process
+    const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
+    // UPDATE-EMAIL-VERIFICATION END
+    // PASSWORD-CHANGE-NO-EMAIL START
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [passwordChangeError, setPasswordChangeError] = useState<string | null>(null);
+    const [passwordChangeSuccess, setPasswordChangeSuccess] = useState<string | null>(null);
+    // PASSWORD-CHANGE-NO-EMAIL END
+
     // Volunteering Now
 
     // Fetch user profile on load
@@ -67,6 +81,7 @@ function MyProfilePage() {
                 setUsername(profile.username);
                 setName(profile.name);
                 setEmail(profile.emails[0]);
+                setOriginalEmail(profile.emails[0]);
                 setPhone(profile.phone);
                 setBirthDate(new Date(profile.birthDate).toISOString().split('T')[0]);
                 setIsAdmin(await getIsAdmin(profile.username));
@@ -170,16 +185,124 @@ function MyProfilePage() {
         }
     };
 
-    // Handlers to update profile
+    // UPDATE-EMAIL-VERIFICATION START
     const handleProfileUpdate = async () => {
-        try {
-            const pass = password.length > 0 ? password : null;
-            await updateUserFields(username, pass, [email], name, phone);
-            alert("Profile updated successfully!");
-        } catch (e) {
-            alert("Failed to update profile: " + e);
+        setErrorUpdate(null);
+        setIsLoadingUpdate(true);
+
+        const newEmailTrimmed = email.trim();
+        const newPasswordTrimmed = password.trim(); // Password from the input field
+
+        const emailActuallyChanged = newEmailTrimmed !== originalEmail;
+        // Password changed if the password field is not empty AND different from some known state (if we stored old pass hash)
+        // For simplicity, we'll consider it "changed" if the field is non-empty, triggering verification.
+        const passwordFieldIsNonEmpty = newPasswordTrimmed.length > 0;
+
+        if (emailActuallyChanged) {
+            // Email has changed, verification is required for the original email
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(newEmailTrimmed)) {
+                alert("Invalid new email address format.");
+                setIsLoadingUpdate(false);
+                return;
+            }
+            if (passwordFieldIsNonEmpty && newPasswordTrimmed.length < 6) {
+                alert("New password must be at least 6 characters long.");
+                setIsLoadingUpdate(false);
+                return;
+            }
+
+            try {
+                await requestEmailUpdateVerification(originalEmail); // Send code to original email
+
+                const pendingUpdateData = {
+                    name: name,
+                    phone: phone,
+                    newEmail: newEmailTrimmed, // The intended new email
+                    newPassword: passwordFieldIsNonEmpty ? newPasswordTrimmed : null,
+                };
+
+                alert("A verification code has been sent to your current email address: " + originalEmail + ". Please verify to update your profile.");
+                navigate('/verify-email-update', {
+                    state: {
+                        originalEmail: originalEmail, // Email where code was sent
+                        pendingUpdateData: pendingUpdateData,
+                        username: username // Pass username for the final updateUserFields call
+                    }
+                });
+            } catch (e: any) {
+                const errorMsg = e.message || e.toString();
+                alert("Failed to initiate email change verification: " + errorMsg);
+                setErrorUpdate("Failed to initiate email change verification: " + errorMsg);
+            } finally {
+                setIsLoadingUpdate(false);
+            }
+        } else {
+            // Email has NOT changed. Update other fields directly.
+            // If password field is non-empty, it means user wants to change password.
+            // The existing updateUserFields can handle this (backend might or might not require verification for password-only change).
+            // For this task, we assume password-only changes don't need this *new* verification flow.
+            // If they do, the logic would be similar to email change, sending code to originalEmail.
+            
+            // Let's assume for now that if email didn't change, we proceed with a direct update.
+            // If password field is empty, pass null.
+            const passwordToUpdate = passwordFieldIsNonEmpty ? newPasswordTrimmed : null;
+            if (passwordToUpdate && passwordToUpdate.length < 6) {
+                 alert("New password must be at least 6 characters long.");
+                 setIsLoadingUpdate(false);
+                 return;
+            }
+
+            try {
+                await updateUserFields(username, passwordToUpdate, [originalEmail], name, phone);
+                alert("Profile updated successfully!");
+                if (passwordToUpdate) setPassword(""); // Clear password field after successful update
+            } catch (e: any) {
+                const errorMsg = e.message || e.toString();
+                alert("Failed to update profile: " + errorMsg);
+                setErrorUpdate("Failed to update profile: " + errorMsg);
+            } finally {
+                setIsLoadingUpdate(false);
+            }
         }
     };
+    // UPDATE-EMAIL-VERIFICATION END
+        // PASSWORD-CHANGE-NO-EMAIL START
+    const handleChangePassword = async () => {
+        setPasswordChangeError(null);
+        setPasswordChangeSuccess(null);
+
+        if (!oldPassword || !newPassword || !confirmNewPassword) {
+            setPasswordChangeError("All password fields are required.");
+            return;
+        }
+        if (newPassword.length < 6) {
+            setPasswordChangeError("New password must be at least 6 characters long.");
+            return;
+        }
+        if (newPassword !== confirmNewPassword) {
+            setPasswordChangeError("New passwords do not match.");
+            return;
+        }
+
+        setIsChangingPassword(true);
+        try {
+            const result = await changePassword({
+                username: username,
+                oldPassword: oldPassword,
+                newPassword: newPassword,
+            });
+            setPasswordChangeSuccess(result || "Password updated successfully!");
+            setOldPassword("");
+            setNewPassword("");
+            setConfirmNewPassword("");
+        } catch (e: any) {
+            setPasswordChangeError(e.message || e.toString() || "Failed to change password.");
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+    // PASSWORD-CHANGE-NO-EMAIL END
 
     const handleSkillsUpdate = async () => {
         try {
@@ -301,6 +424,9 @@ function MyProfilePage() {
     return (
         <div className="my-profile">
             <h1 className="bigHeader">My Profile</h1>
+            {/* UPDATE-EMAIL-VERIFICATION START */}
+            {errorUpdate && <p style={{ color: 'red', textAlign: 'center' }}>{errorUpdate}</p>}
+            {/* UPDATE-EMAIL-VERIFICATION END */}
             {/* Profile Picture Section */}
             <div className="profile-picture-section">
                 <div className="profile-picture-container">
@@ -349,13 +475,6 @@ function MyProfilePage() {
                 <h2 className="profileSectionHeader">Update Profile</h2>
                 <label>Username:</label>
                 <input type="text" value={username} disabled/>
-                <label>Password:</label>
-                <input
-                    type="password"
-                    placeholder="Enter new password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
                 <label>Name:</label>
                 <input
                     type="text"
@@ -376,8 +495,50 @@ function MyProfilePage() {
                 />
                 <label>Birth Date:</label>
                 <input type="date" value={birthDate} disabled/>
-                <button onClick={handleProfileUpdate} className="orangeCircularButton">Update Profile</button>
+                                {/* UPDATE-EMAIL-VERIFICATION START */}
+                <button onClick={handleProfileUpdate} className="orangeCircularButton" disabled={isLoadingUpdate}>
+                    {isLoadingUpdate ? "Processing..." : "Update Profile"}
+                </button>
+                {/* UPDATE-EMAIL-VERIFICATION END */}
             </div>
+   {/* PASSWORD-CHANGE-NO-EMAIL START */}
+            <div className="profile-section">
+                <h2 className="profileSectionHeader">Change Password</h2>
+                {passwordChangeError && <p style={{ color: 'red', textAlign: 'center' }}>{passwordChangeError}</p>}
+                {passwordChangeSuccess && <p style={{ color: 'green', textAlign: 'center' }}>{passwordChangeSuccess}</p>}
+                
+                <label htmlFor="oldPassword">Current Password:</label>
+                <input
+                    id="oldPassword"
+                    type="password"
+                    placeholder="Enter your current password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <label htmlFor="newPassword">New Password:</label>
+                <input
+                    id="newPassword"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <label htmlFor="confirmNewPassword">Confirm New Password:</label>
+                <input
+                    id="confirmNewPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <button onClick={handleChangePassword} className="orangeCircularButton" disabled={isChangingPassword}>
+                    {isChangingPassword ? "Changing..." : "Change Password"}
+                </button>
+            </div>
+            {/* PASSWORD-CHANGE-NO-EMAIL END */}
 
             <div className="cv-section">
                 <h2 className="profileSectionHeader">Upload Your CV</h2>

@@ -1,7 +1,7 @@
 // FORGOT_PASSWORD START
 // src/components/ResetPasswordWithCodePage.tsx
-import { useState } from "react";
-import { resetPassword, verifyPasswordResetCode } from "../api/user_api";
+import { useState, useEffect } from "react";
+import { resetPassword, verifyPasswordResetCode, resendVerificationCode } from "../api/user_api";
 import "../css/ResetPasswordWithCodePage.css";
 
 interface ResetPasswordWithCodePageProps {
@@ -20,6 +20,49 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
     
     const [formStep, setFormStep] = useState<"enterCode" | "enterNewPassword">("enterCode");
     const [verifiedUsername, setVerifiedUsername] = useState<string | null>(null);
+        // RESEND-VERIFICATION-CODE START
+    const [isResending, setIsResending] = useState(false);
+    const [resendError, setResendError] = useState<string | null>(null);
+    const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+    const [resendDisabled, setResendDisabled] = useState(false);
+    const [countdown, setCountdown] = useState(0);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (countdown > 0) {
+            timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+        } else {
+            setResendDisabled(false);
+        }
+        return () => clearTimeout(timer);
+    }, [countdown]);
+
+    const handleResendCode = async () => {
+        if (!username.trim()) { // Use the username entered by the user
+            setResendError("Please enter your username to resend the code.");
+            return;
+        }
+        setIsResending(true);
+        setResendError(null);
+        setResendSuccess(null);
+        setError(null); 
+        setSuccessMessage(null);
+        setResendDisabled(true);
+        setCountdown(60);
+
+        try {
+            // The backend's resendVerificationCode uses the username to find the user and their primary email
+            const responseMessage = await resendVerificationCode(username);
+            setResendSuccess(responseMessage);
+        } catch (e: any) {
+            setResendError(e.message || e.toString() || "Failed to resend verification code.");
+            setResendDisabled(false);
+            setCountdown(0);
+        } finally {
+            setIsResending(false);
+        }
+    };
+    // RESEND-VERIFICATION-CODE END
 
     const handleVerifyCode = async () => {
         if (!username.trim()) {
@@ -104,6 +147,10 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                     
                     {error && <p className="error-message">{error}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
+                    {/* RESEND-VERIFICATION-CODE START */}
+                    {resendError && <p className="error-message" style={{marginTop: '10px'}}>{resendError}</p>}
+                    {resendSuccess && <p className="success-message" style={{marginTop: '10px'}}>{resendSuccess}</p>}
+                    {/* RESEND-VERIFICATION-CODE END */}
 
                     {/* Step 1: Enter Username and Code */}
                     {formStep === "enterCode" && !(successMessage && successMessage.includes("Redirecting to login...")) && (
@@ -136,6 +183,17 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                             >
                                 {isLoading ? "Verifying Code..." : "Verify Code"}
                             </button>
+                                                        {/* RESEND-VERIFICATION-CODE START */}
+                            <div className="resend-section">
+                                <button
+                                    onClick={handleResendCode}
+                                    className="link-button"
+                                    disabled={isResending || resendDisabled || !username.trim() || (!!successMessage && successMessage.includes("Redirecting"))}
+                                >
+                                    {isResending ? "Sending..." : (resendDisabled ? `Resend Code (${countdown}s)` : "Resend Code")}
+                                </button>
+                            </div>
+                            {/* RESEND-VERIFICATION-CODE END */}
                         </div>
                     )}
 
