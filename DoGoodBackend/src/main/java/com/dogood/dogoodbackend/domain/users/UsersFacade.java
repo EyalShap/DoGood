@@ -487,6 +487,12 @@ public class UsersFacade {
         repository.saveUser(user);
     }
 
+    public void removeFcmToken(String username, String fcmToken){
+        User user = getUser(username);
+        user.expireToken(fcmToken);
+        repository.saveUser(user);
+    }
+
     public Set<String> getFcmTokens(String username){
         User user = getUser(username);
         return user.getFcmTokens();

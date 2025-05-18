@@ -17,7 +17,7 @@ import java.security.SecureRandom;
 
 
 public class AuthFacade {
-    public long JWT_VALIDITY_IN_MS = 1000 * 60 * 60 * 24; // 24 hours
+    public long JWT_VALIDITY_IN_MS = 1000 * 60 * 60 * 24 * 3; // 3 days
     private String secretKey;
     private Set<String> invalidatedTokens;
     private String generateSecretKey() {

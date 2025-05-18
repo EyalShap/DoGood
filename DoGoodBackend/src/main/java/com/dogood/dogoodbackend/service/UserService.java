@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
+import com.dogood.dogoodbackend.domain.users.notificiations.PushNotificationSender;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -32,20 +33,14 @@ public class UserService {
     private NotificationSystem notificationSystem;
 
     @Autowired
-    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender, FirebaseMessaging firebaseMessaging){
+    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender, PushNotificationSender pushNotificationSender){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
         this.notificationSystem = facadeManager.getNotificationSystem();
         this.notificationSystem.setSender(socketSender);
-        this.notificationSystem.setFirebaseMessaging(firebaseMessaging);
+        this.notificationSystem.setPushNotificationSender(pushNotificationSender);
+        pushNotificationSender.setUsersFacade(usersFacade);
         //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
-
-
-        this.usersFacade.register("TheDoctor", "DOOMDOOLOOM12345", "The", "doctor@tardis.com", "052-0520520", new Date());
-        this.usersFacade.register("EyalShapiro", "1234EYAL1234", "Eyal", "eyald@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("DanaFriedman", "1234DANA1234", "Dana", "dafr@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("NirAharoni", "1234NIR1234", "Nir", "nirahar@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("GalPinto", "galpinto", "Gal", "pintogal@post.bgu.ac.il", "052-0520520", new Date());
     }
 
     private void checkToken(String token, String username){
@@ -392,6 +387,16 @@ public class UserService {
         try {
             checkToken(token, username);
             usersFacade.registerFcmToken(username, fcmToken);
+            return Response.createOK();
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> removeFcmToken(String token, String username, String fcmToken){
+        try {
+            checkToken(token, username);
+            usersFacade.removeFcmToken(username, fcmToken);
             return Response.createOK();
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());

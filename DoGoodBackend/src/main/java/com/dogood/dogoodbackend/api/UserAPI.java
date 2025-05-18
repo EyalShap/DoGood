@@ -226,4 +226,10 @@ public Response<String> requestUpdateCode(HttpServletRequest httpRequest, @Reque
         String token = getToken(request);
         return userService.registerFcmToken(token, username, fcmToken.replace("\"",""));
     }
+
+    @PatchMapping("/removeFcmToken")
+    public Response<String> removeFcmToken(@RequestParam String username, @RequestBody String fcmToken, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.removeFcmToken(token, username, fcmToken.replace("\"",""));
+    }
 }
