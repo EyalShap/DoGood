@@ -140,6 +140,21 @@ export const verifyEmailCode = async (username: string, code: string): Promise<s
 }
 // VERIFICATION END
 
+// RESEND-VERIFICATION-CODE START
+export const resendVerificationCode = async (username: string): Promise<string> => {
+    const body = {
+        username: username
+    };
+    // This endpoint does not require JWT authentication as per the backend UserAPI.java
+    const res = await axios.post(`${server}/resend-verification-code`, body);
+    const response: APIResponse<string> = res.data;
+    if (response.error) {
+        throw response.errorString; // e.g., "User not found.", "Email already verified."
+    }
+    return response.data; // Expected: "A new verification code has been sent to your email address."
+};
+// RESEND-VERIFICATION-CODE END
+
 // FORGOT_PASSWORD START
 export const forgotPassword = async (email: string): Promise<string> => {
     const body = { email };

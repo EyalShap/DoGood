@@ -1,7 +1,7 @@
 // src/components/VerifyEmailPage.tsx
 // VERIFICATION START
-import { useState } from "react";
-import { verifyEmailCode } from "../api/user_api"; // resendVerificationCode is removed
+import { useState, useEffect } from "react";
+import { verifyEmailCode, resendVerificationCode } from "../api/user_api"; // resendVerificationCode is removed
 import "../css/VerifyEmailPage.css";
 
 interface VerifyEmailPageProps {
@@ -15,6 +15,48 @@ function VerifyEmailPage({ username, onSwitchToLogin }: VerifyEmailPageProps) {
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     // Removed resendDisabled and countdown states
+        // RESEND-VERIFICATION-CODE START
+    const [isResending, setIsResending] = useState(false);
+    const [resendError, setResendError] = useState<string | null>(null);
+    const [resendSuccess, setResendSuccess] = useState<string | null>(null);
+    const [resendDisabled, setResendDisabled] = useState(false);
+    const [countdown, setCountdown] = useState(0);
+
+    useEffect(() => {
+        let timer: NodeJS.Timeout;
+        if (countdown > 0) {
+            timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+        } else {
+            setResendDisabled(false);
+        }
+        return () => clearTimeout(timer);
+    }, [countdown]);
+
+    const handleResendCode = async () => {
+        if (!username) {
+            setResendError("Username is missing, cannot resend code.");
+            return;
+        }
+        setIsResending(true);
+        setResendError(null);
+        setResendSuccess(null);
+        setError(null); // Clear main verify error
+        setSuccessMessage(null); // Clear main verify success
+        setResendDisabled(true);
+        setCountdown(60); // 60-second cooldown
+
+        try {
+            const responseMessage = await resendVerificationCode(username);
+            setResendSuccess(responseMessage);
+        } catch (e: any) {
+            setResendError(e.message || e.toString() || "Failed to resend verification code.");
+            setResendDisabled(false); // Allow retry if sending failed
+            setCountdown(0);
+        } finally {
+            setIsResending(false);
+        }
+    };
+    // RESEND-VERIFICATION-CODE END
 
     const handleVerify = async () => {
         if (code.length !== 6) {
@@ -58,6 +100,10 @@ function VerifyEmailPage({ username, onSwitchToLogin }: VerifyEmailPageProps) {
 
                     {error && <p className="error-message">{error}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
+                    {/* RESEND-VERIFICATION-CODE START */}
+                    {resendError && <p className="error-message" style={{marginTop: '10px'}}>{resendError}</p>}
+                    {resendSuccess && <p className="success-message" style={{marginTop: '10px'}}>{resendSuccess}</p>}
+                    {/* RESEND-VERIFICATION-CODE END */}
 
                     <div className="fields">
                         <input
@@ -78,7 +124,17 @@ function VerifyEmailPage({ username, onSwitchToLogin }: VerifyEmailPageProps) {
                             {isLoading ? "Verifying..." : "Verify Email"}
                         </button>
 
-                        {/* Resend section removed */}
+                        {/* RESEND-VERIFICATION-CODE START */}
+                        <div className="resend-section">
+                            <button
+                                onClick={handleResendCode}
+                                className="link-button"
+                                disabled={isResending || resendDisabled || !!successMessage}
+                            >
+                                {isResending ? "Sending..." : (resendDisabled ? `Resend Code (${countdown}s)` : "Resend Code")}
+                            </button>
+                        </div>
+                        {/* RESEND-VERIFICATION-CODE END */}
 
                         <a
                             onClick={onSwitchToLogin}

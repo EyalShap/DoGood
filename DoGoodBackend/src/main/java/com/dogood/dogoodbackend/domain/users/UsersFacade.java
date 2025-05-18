@@ -335,6 +335,50 @@ public class UsersFacade {
     }
     // PASSWORD-CHANGE-NO-EMAIL END
 
+    // RESEND VERIFICATION START
+    public String resendVerificationCode(String username) {
+        if (this.emailSender == null || this.verificationCache == null || this.repository == null) {
+            throw new IllegalStateException("Required services (Email, Cache, Repository) not configured for resending code.");
+        }
+
+        Optional<User> userOptional = repository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found.");
+        }
+        User user = userOptional.get();
+
+        if (user.isEmailVerified()) {
+            return "Email already verified.";
+        }
+
+        if (user.getEmails() == null || user.getEmails().isEmpty()) {
+            throw new IllegalStateException("User has no registered email address to send verification to.");
+        }
+        String primaryEmail = user.getEmails().get(0); // Use existing primary email
+
+        String newVerificationCode = generateVerificationCode();
+
+        // Construct RegisterRequest for VerificationCacheService compatibility
+        RegisterRequest cachedUserDataForResend = new RegisterRequest();
+        cachedUserDataForResend.setUsername(user.getUsername());
+        // IMPORTANT: Use the user's EXISTING HASHED password for the cache entry
+        // This field in RegisterRequest is expected to be the hashed password by VerificationCacheService
+        cachedUserDataForResend.setPassword(user.getPasswordHash());
+        cachedUserDataForResend.setName(user.getName());
+        cachedUserDataForResend.setEmail(primaryEmail);
+        cachedUserDataForResend.setPhone(user.getPhone());
+        cachedUserDataForResend.setBirthDate(user.getBirthDate());
+        cachedUserDataForResend.setProfilePicUrl(user.getProfilePicUrl());
+        // Note: isStudent and isAdmin flags are part of User, not RegisterRequest DTO.
+        // The cached RegisterRequest is mainly for identity and to fit the VerificationData structure.
+
+        verificationCache.storeVerificationData(primaryEmail.toLowerCase(), cachedUserDataForResend, newVerificationCode);
+        emailSender.sendVerificationCodeEmail(primaryEmail, user.getUsername(), newVerificationCode);
+
+        return "A new verification code has been sent to your email address.";
+    }
+    // RESEND VERIFICATION END
+
     public boolean verifyPasswordResetCode(String username, String code) {
         if (verificationCache == null || repository == null) {
             System.err.println("CRITICAL: Required services (Cache, Repository) not configured in UsersFacade for verifyPasswordResetCode.");

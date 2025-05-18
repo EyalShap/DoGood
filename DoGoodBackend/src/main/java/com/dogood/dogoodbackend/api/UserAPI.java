@@ -1,15 +1,6 @@
 package com.dogood.dogoodbackend.api;
 
-import com.dogood.dogoodbackend.api.userrequests.LoginRequest;
-import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
-import com.dogood.dogoodbackend.api.userrequests.UpdateUserRequest;
-import com.dogood.dogoodbackend.api.userrequests.ChangePasswordRequest;
-import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
-import com.dogood.dogoodbackend.api.userrequests.RequestEmailUpdateVerificationRequest;
-import com.dogood.dogoodbackend.api.userrequests.VerifyEmailUpdateCodeRequest;
-import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
-import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
-import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.*;
 import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
@@ -99,6 +90,16 @@ public Response<String> requestUpdateCode(HttpServletRequest httpRequest, @Reque
         return userService.changePassword(token, body);
     }
     // PASSWORD-CHANGE-NO-EMAIL END
+
+    // RESEND VERIFICATION START
+    @PostMapping("/resend-verification-code")
+    public Response<String> resendVerificationCode(@RequestBody ResendVerificationCodeRequest body) {
+        // This endpoint is typically called when the user is not logged in (e.g. during registration or forgot password)
+        // Thus, it does not use getToken(httpRequest) for user identification.
+        // The username is taken directly from the request body.
+        return userService.handleResendVerificationCode(body);
+    }
+    // RESEND VERIFICATION END
 
     @GetMapping("/isAdmin")
     public Response<Boolean> isAdmin(@RequestParam String username) {

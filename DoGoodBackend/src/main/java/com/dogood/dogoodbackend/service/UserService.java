@@ -18,6 +18,7 @@ import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.ChangePasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ResendVerificationCodeRequest;
 
 
 import java.util.Date;
@@ -143,6 +144,27 @@ public class UserService {
         }
     }
     // UPDATE-EMAIL-VERIFICATION END
+
+    // RESEND VERIFICATION START
+    public Response<String> handleResendVerificationCode(ResendVerificationCodeRequest request) {
+        try {
+            String message = usersFacade.resendVerificationCode(request.getUsername());
+            if ("A new verification code has been sent to your email address.".equals(message) ||
+                    "Email already verified.".equals(message)) {
+                return Response.createResponse(message, null);
+            } else {
+                // Should not happen based on facade logic, but as a fallback
+                return Response.createResponse(null, message);
+            }
+        } catch (IllegalArgumentException e) { // Catch specific exceptions like UserNotFound
+            return Response.createResponse(null, e.getMessage());
+        } catch (IllegalStateException e) { // Catch specific exceptions like UserHasNoEmail
+            return Response.createResponse(null, e.getMessage());
+        } catch (Exception e) { // Generic catch for other unexpected errors
+            return Response.createResponse(null, "An unexpected error occurred while resending the verification code.");
+        }
+    }
+    // RESEND VERIFICATION END
 
     // FORGOT_PASSWORD START
     public Response<String> forgotPassword(String email) {
