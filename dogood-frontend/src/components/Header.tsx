@@ -1,6 +1,12 @@
 import { useState, useEffect } from 'react';
 import './../css/Header.css'
-import { getNewUserNotificationsAmount, getUserNotifications, logout, readNewUserNotifications } from '../api/user_api';
+import {
+    getNewUserNotificationsAmount,
+    getUserNotifications,
+    logout,
+    readNewUserNotifications,
+    registerFcmToken, removeFcmToken
+} from '../api/user_api';
 // REMOVE useNavigate from here, it's handled by App.tsx now
 import { useNavigate } from 'react-router-dom';
 import UserModel from '../models/UserModel';
@@ -47,6 +53,10 @@ const Header: React.FC<Props> = ({ user }) => {
 
     const onLogout = async () => {
         try{
+            if(localStorage.getItem("fcm") !== null){
+                await removeFcmToken();
+                localStorage.removeItem("fcm");
+            }
             await logout();
         }
         catch(e){
@@ -65,18 +75,19 @@ const Header: React.FC<Props> = ({ user }) => {
   };
 
   const toggleDropdownNotifications = async () => {
-    setDropdownOpenNotifications(!dropdownOpenNotifications);
+    if(dropdownOpenNotifications){
+        closeDropdownNotifications();
+    }else{
+        setDropdownOpenNotifications(true);
+    }
   };
 
   const fetchNotifications = async () => {
     if (!localStorage.getItem("token")) return;
     try {
-      // Fetch notifications and sort them immediately by ID descending
       const fetchedNotifications = await getUserNotifications();
-      // --- CHANGE 1: Sort by ID immediately after fetching ---
-      const sortedNotifications = fetchedNotifications.sort((a, b) => b.id - a.id);
+      const sortedNotifications = fetchedNotifications.sort((a, b) => (b.timestamp&&a.timestamp) ? b.timestamp.localeCompare(a.timestamp) : b.id-a.id);
       setNotifications(sortedNotifications);
-      // --- CHANGE 1 END ---
       setNewNotificationsAmount(await getNewUserNotificationsAmount());
     }
     catch (e) {
@@ -93,77 +104,15 @@ const Header: React.FC<Props> = ({ user }) => {
       console.log("Attempting to read new user notifications");
       try {
           await readNewUserNotifications();
-          fetchNotifications(); // Re-fetch potentially updates read status visually if needed
+          fetchNotifications();
       } catch(e) {
           console.error("Failed to mark notifications as read:", e);
       }
   };
 
-  const handleLogoutClick = async () => {
-      closeDropdown();
-      try {
-          await logout();
-          console.log("Backend logout successful (optional)");
-      } catch (e) {
-          console.error("Backend logout failed (optional):", e);
-      }
-      onLogout();
-  }
-
   const onLogo = async () => {
     navigate(`/`);
   }
-
-  useEffect(() => {
-    if (localStorage.getItem("token")) {
-        fetchNotifications(); // Initial fetch and sort
-    }
-
-      let client: Client | null = null;
-      if (localStorage.getItem("token") && !connected) {
-           client = new Client({
-              brokerURL: host+"/api/ws-message",
-              connectHeaders: {
-                  "Authorization": localStorage.getItem("token")!
-              },
-              reconnectDelay: 5000,
-              onConnect: () => {
-                  console.log("WS Connected!");
-                  if(!connected) {
-                      client?.subscribe(`/user/queue/notifications`, msg => {
-                          let newNotif: Notification = JSON.parse(msg.body);
-                          console.log("WS Received Notification:", newNotif);
-                          // --- CHANGE 2: Add new notification and re-sort by ID ---
-                          setNotifications(prevState =>
-                              [...prevState, newNotif].sort((a, b) => b.id - a.id)
-                          );
-                          // --- CHANGE 2 END ---
-                          setNewNotificationsAmount(prevState => prevState + 1);
-                      });
-                      setConnected(true);
-                  }
-              },
-              onDisconnect: () => {
-                  console.log("WS Disconnected!");
-                  setConnected(false);
-              },
-              onStompError: (frame) => {
-                   console.error('WS Broker reported error: ' + frame.headers['message']);
-                   console.error('WS Additional details: ' + frame.body);
-              },
-          });
-          console.log("Activating WS client...");
-          client.activate();
-      }
-
-      return () => {
-          if (client && client.active) {
-              console.log("Deactivating WS client...");
-              client.deactivate();
-              setConnected(false);
-          }
-      }
-  }, [localStorage.getItem("token")])
 
   // --- REMOVE the separate useEffect for sorting, as it's done inline now ---
   // useEffect(() => {
@@ -196,7 +145,7 @@ const Header: React.FC<Props> = ({ user }) => {
                     client.subscribe(`/user/queue/notifications`, msg => {
                         let newNotif: Notification = JSON.parse(msg.body);
                         console.log(newNotif)
-                        setNotifications(prevState => prevState.concat([newNotif]).sort((a,b) => b.id - a.id));
+                        setNotifications(prevState => prevState.concat([newNotif]).sort((a, b) => (b.timestamp&&a.timestamp) ? b.timestamp.localeCompare(a.timestamp) : b.id-a.id));
                         setNewNotificationsAmount(prevState => prevState+1)
                     });
                     setConnected(true);

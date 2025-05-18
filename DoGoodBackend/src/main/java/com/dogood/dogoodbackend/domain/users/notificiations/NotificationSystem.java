@@ -6,6 +6,7 @@ import com.google.firebase.messaging.BatchResponse;
 import com.google.firebase.messaging.FirebaseMessaging;
 import com.google.firebase.messaging.MulticastMessage;
 import com.google.firebase.messaging.SendResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 
 import java.util.ArrayList;
@@ -16,8 +17,7 @@ import java.util.Set;
 public class NotificationSystem {
     private NotificationRepository repository;
     private NotificationSocketSender sender;
-    private FirebaseMessaging firebaseMessaging;
-    private UsersFacade usersFacade;
+    private PushNotificationSender pushNotificationSender;
 
     public NotificationSystem(NotificationRepository repository) {
         this.repository = repository;
@@ -29,39 +29,12 @@ public class NotificationSystem {
 
     public void notifyUser(String username, String message, String navigationURL) {
         Notification notification = repository.createNotification(username, message, navigationURL);
-        sendPush(username,message,navigationURL);
+        pushNotificationSender.sendPush(username,message,navigationURL);
         sender.sendNotification(username, notification);
     }
 
-    @Async
-    public void sendPush(String username, String message, String navigationURL){
-        Set<String> expiredTokens = new HashSet<>();
-        List<String> fcmTokens = new ArrayList<>(usersFacade.getFcmTokens(username));
-        if(firebaseMessaging != null && fcmTokens.size() > 0) {
-            try {
-                BatchResponse response = firebaseMessaging
-                        .sendEach(fcmTokens.stream().map(fcmToken -> com.google.firebase.messaging.Message.builder()
-                                .putData("body",message)
-                                .putData("title","New Notification from DoGood")
-                                .putData("click_action",navigationURL)
-                                .setToken(fcmToken).build()).toList());
-                if(response.getFailureCount() > 0){
-                    List<SendResponse> responses = response.getResponses();
-                    for(int i = 0; i < responses.size(); i++){
-                        if(!responses.get(i).isSuccessful()){
-                            expiredTokens.add(fcmTokens.get(i));
-                        }
-                    }
-                }
-            }catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        usersFacade.expireFcmTokens(username, expiredTokens);
-    }
-
-    public void setFirebaseMessaging(FirebaseMessaging firebaseMessaging) {
-        this.firebaseMessaging = firebaseMessaging;
+    public void setPushNotificationSender(PushNotificationSender pushNotificationSender) {
+        this.pushNotificationSender = pushNotificationSender;
     }
 
     public List<Notification> getUserNotifications(String username) {
@@ -74,9 +47,5 @@ public class NotificationSystem {
 
     public Integer getNewUserNotificationsAmount(String username) {
         return repository.getUserNotifications(username).stream().filter(x-> !x.getIsRead()).toList().size();
-    }
-
-    public void setUsersFacade(UsersFacade usersFacade) {
-        this.usersFacade = usersFacade;
     }
 }
