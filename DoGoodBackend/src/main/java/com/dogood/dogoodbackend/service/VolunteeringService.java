@@ -10,6 +10,7 @@ import com.dogood.dogoodbackend.pdfformats.PdfFactory;
 import com.dogood.dogoodbackend.pdfformats.University;
 import com.itextpdf.text.DocumentException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -812,5 +813,10 @@ public class VolunteeringService {
         } catch (Exception e) {
             return Response.createResponse(e.getMessage());
         }
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    private void remindBeforeActivity(){
+        facadeManager.getVolunteeringFacade().notifyUpcomingAppointments();
     }
 }

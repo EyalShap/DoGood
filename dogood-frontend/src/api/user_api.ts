@@ -316,6 +316,46 @@ export const setLeaderboard = async (isLeaderboard: boolean) => {
     }
 }
 
+export const setNotifyRecommendation = async (notify: boolean) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/setNotifyRecommendation?username=${username}&notify=${notify}`;
+    console.log(url);
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
+export const setRemindActivity = async (remind: boolean) => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if (username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/setRemindActivity?username=${username}&remind=${remind}`;
+    console.log(url);
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+    let res = await axios.put(url, {}, config);
+    const response: APIResponse<boolean> = await res.data;
+    if (response.error) {
+        throw response.errorString;
+    }
+}
+
 export const banUser = async (toBan: string) => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");

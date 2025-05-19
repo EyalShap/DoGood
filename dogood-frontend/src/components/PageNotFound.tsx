@@ -1,4 +1,4 @@
-import snail from "/public/snail.png";
+import snail from "../assets/snail.png";
 
 function PageNotFound() {
     return <div style={{

@@ -35,7 +35,6 @@ import {requestForToken} from "./api/firebase/firebase.ts";
 import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
 import Notifications from "./components/Notifications.tsx";
 import VerifyEmailUpdate from "./components/VerifyEmailUpdate.tsx"; 
-import Notifications from "./components/Notifications.tsx"
 import PageNotFound from './components/PageNotFound.tsx'
 
 
@@ -141,8 +140,6 @@ function App() {
               <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
               <Route path='/easterEgg' element={<EasterEgg/>}/>
               <Route path='/pageNotFound' element={<PageNotFound/>}/>
-              {/* Add a catch-all or redirect for logged-in users if needed */}
-              {/* <Route path="*" element={<Navigate to="/" replace />} /> */}
             </Routes>
             </div>
             <Footer/>

@@ -12,7 +12,11 @@ import {
     uploadCV,
     downloadCV,
     removeCV,
-    generateSkillsAndPreferences, updateProfilePicture, requestEmailUpdateVerification,changePassword,
+    generateSkillsAndPreferences,
+    updateProfilePicture,
+    requestEmailUpdateVerification,
+    changePassword,
+    setNotifyRecommendation, setRemindActivity,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
@@ -40,6 +44,8 @@ function MyProfilePage() {
     const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLeaderboard, setIsLeaderboard] = useState(true);
+    const [isRemind, setIsRemind] = useState(true);
+    const [isNotify, setIsNotify] = useState(true);
     const [selectedCV, setSelectedCV] = useState<File | null>(null);
     const [cv, setCV] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
@@ -91,6 +97,8 @@ function MyProfilePage() {
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
                 setIsLeaderboard(profile.leaderboard);
+                setIsNotify(profile.notifyRecommendations)
+                setIsRemind(profile.remindActivity)
 
                 try {
                     const cvBlob : Blob = await downloadCV();
@@ -306,7 +314,7 @@ function MyProfilePage() {
 
     const handleSkillsUpdate = async () => {
         try {
-            const updatedSkills = skillsInput.split(",").map(skill => skill.trim());
+            const updatedSkills = skillsInput === "" ? [] : skillsInput.split(",").map(skill => skill.trim());
             await updateUserSkills(username, updatedSkills);
             setSkills(updatedSkills.join(", "));
             alert("Skills updated successfully!");
@@ -317,7 +325,7 @@ function MyProfilePage() {
 
     const handlePreferencesUpdate = async () => {
         try {
-            const updatedPreferences = preferencesInput.split(",").map(preference => preference.trim());
+            const updatedPreferences = preferencesInput === "" ? [] : preferencesInput.split(",").map(preference => preference.trim());
             await updateUserPreferences(username, updatedPreferences);
             setPreferences(updatedPreferences.join(", "));
             alert("Preferences updated successfully!");
@@ -336,11 +344,20 @@ function MyProfilePage() {
 
     const toggleSwitch = async () => {
         let newState = !isLeaderboard;
-        console.log(newState);
         setIsLeaderboard(newState);
-        console.log("here1");
         await setLeaderboard(newState);
-        console.log("here");
+    }
+
+    const toggleSwitchNotify = async () => {
+        let newState = !isNotify;
+        setIsNotify(newState);
+        await setNotifyRecommendation(newState);
+    }
+
+    const toggleSwitchRemind = async () => {
+        let newState = !isRemind;
+        setIsRemind(newState);
+        await setRemindActivity(newState);
     }
 
     const displayPic = (!profilePic || profilePic === "") ? defaultImage : profilePic;
@@ -425,7 +442,7 @@ function MyProfilePage() {
         <div className="my-profile">
             <h1 className="bigHeader">My Profile</h1>
             {/* UPDATE-EMAIL-VERIFICATION START */}
-            {errorUpdate && <p style={{ color: 'red', textAlign: 'center' }}>{errorUpdate}</p>}
+            {errorUpdate && <p style={{color: 'red', textAlign: 'center'}}>{errorUpdate}</p>}
             {/* UPDATE-EMAIL-VERIFICATION END */}
             {/* Profile Picture Section */}
             <div className="profile-picture-section">
@@ -445,30 +462,30 @@ function MyProfilePage() {
                     />
                 </div>
                 <div className="profilePicButtons">
-                {/* Hidden file input triggered by the button */}
-                <input
-                    type="file"
-                    accept="image/*" // Accept standard image types
-                    id="profilePicInput"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                />
-                {/* Button to open file selector */}
-                <button
-                    onClick={() => document.getElementById("profilePicInput")?.click()}
-                    className="upload-button orangeCircularButton"
-                    disabled={isUploading} // Disable while upload is in progress
-                >
-                    Choose Picture
-                </button>
-                {/* Button to initiate the upload and backend update */}
-                <button
-                    onClick={handleProfilePictureUpdate}
-                    className="orangeCircularButton" // Using existing style class
-                    disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
-                >
-                    {isUploading ? "Uploading..." : "Save Picture"}
-                </button>
+                    {/* Hidden file input triggered by the button */}
+                    <input
+                        type="file"
+                        accept="image/*" // Accept standard image types
+                        id="profilePicInput"
+                        style={{display: "none"}}
+                        onChange={handleFileChange}
+                    />
+                    {/* Button to open file selector */}
+                    <button
+                        onClick={() => document.getElementById("profilePicInput")?.click()}
+                        className="upload-button orangeCircularButton"
+                        disabled={isUploading} // Disable while upload is in progress
+                    >
+                        Choose Picture
+                    </button>
+                    {/* Button to initiate the upload and backend update */}
+                    <button
+                        onClick={handleProfilePictureUpdate}
+                        className="orangeCircularButton" // Using existing style class
+                        disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
+                    >
+                        {isUploading ? "Uploading..." : "Save Picture"}
+                    </button>
                 </div>
             </div>
             <div className="profile-section">
@@ -495,18 +512,18 @@ function MyProfilePage() {
                 />
                 <label>Birth Date:</label>
                 <input type="date" value={birthDate} disabled/>
-                                {/* UPDATE-EMAIL-VERIFICATION START */}
+                {/* UPDATE-EMAIL-VERIFICATION START */}
                 <button onClick={handleProfileUpdate} className="orangeCircularButton" disabled={isLoadingUpdate}>
                     {isLoadingUpdate ? "Processing..." : "Update Profile"}
                 </button>
                 {/* UPDATE-EMAIL-VERIFICATION END */}
             </div>
-   {/* PASSWORD-CHANGE-NO-EMAIL START */}
+            {/* PASSWORD-CHANGE-NO-EMAIL START */}
             <div className="profile-section">
                 <h2 className="profileSectionHeader">Change Password</h2>
-                {passwordChangeError && <p style={{ color: 'red', textAlign: 'center' }}>{passwordChangeError}</p>}
-                {passwordChangeSuccess && <p style={{ color: 'green', textAlign: 'center' }}>{passwordChangeSuccess}</p>}
-                
+                {passwordChangeError && <p style={{color: 'red', textAlign: 'center'}}>{passwordChangeError}</p>}
+                {passwordChangeSuccess && <p style={{color: 'green', textAlign: 'center'}}>{passwordChangeSuccess}</p>}
+
                 <label htmlFor="oldPassword">Current Password:</label>
                 <input
                     id="oldPassword"
@@ -543,15 +560,25 @@ function MyProfilePage() {
             <div className="cv-section">
                 <h2 className="profileSectionHeader">Upload Your CV</h2>
                 <p>Upload your CV to impress managers and extract your skills and preferences automatically!</p>
-                <input type="file" accept="application/pdf" onChange={onFileUpload}  key={key}/>
+                <input type="file" accept="application/pdf" onChange={onFileUpload} key={key}/>
                 <div className="cvButtons">
-                <div className="fileButtons" style={{marginTop:'20px'}}>
-                <button onClick={onCVSubmit} className={`orangeCircularButton ${selectedCV === null ? 'disabledButton' : ''}`}>Upload CV</button>
-                <button onClick={onCVDownload} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Download CV</button>
-                <button onClick={onCVRemove} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Remove CV</button>
-                </div>
-                <button onClick={onCVExtract} className={`orangeCircularButton ${cv === null || loading ? 'disabledButton' : ''}`} style={{marginTop:'20px'}}>Extract Skills And Preferences Automatically Using AI</button>
-                {loading && <PacmanLoader color="#037b7b" size={25} />}
+                    <div className="fileButtons" style={{marginTop: '20px'}}>
+                        <button onClick={onCVSubmit}
+                                className={`orangeCircularButton ${selectedCV === null ? 'disabledButton' : ''}`}>Upload
+                            CV
+                        </button>
+                        <button onClick={onCVDownload}
+                                className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`}>Download CV
+                        </button>
+                        <button onClick={onCVRemove}
+                                className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`}>Remove CV
+                        </button>
+                    </div>
+                    <button onClick={onCVExtract}
+                            className={`orangeCircularButton ${cv === null || loading ? 'disabledButton' : ''}`}
+                            style={{marginTop: '20px'}}>Extract Skills And Preferences Automatically Using AI
+                    </button>
+                    {loading && <PacmanLoader color="#037b7b" size={25}/>}
                 </div>
             </div>
 
@@ -639,8 +666,20 @@ function MyProfilePage() {
 
             <div className="leaderboard-section">
                 <h2 className="profileSectionHeader">Set Leaderboard</h2>
-                <p>Set here if you would like to apprear in the leaderboard of volunteering hours.</p>
+                <p>Set here if you would like to appear in the leaderboard of volunteering hours.</p>
                 <Switch className='switch' checked={isLeaderboard} onChange={toggleSwitch}/>
+            </div>
+
+            <div className="leaderboard-section">
+                <h2 className="profileSectionHeader">Recommendations Notifications</h2>
+                <p>Set here if you would like to be notified about new posts that might be relevant for you.</p>
+                <Switch className='switch' checked={isNotify} onChange={toggleSwitchNotify}/>
+            </div>
+
+            <div className="leaderboard-section">
+                <h2 className="profileSectionHeader">Remind Me Before Activities</h2>
+                <p>Set here if you would like to be notified an hour before a volunteering appointment.</p>
+                <Switch className='switch' checked={isRemind} onChange={toggleSwitchRemind}/>
             </div>
         </div>
     );

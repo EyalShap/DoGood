@@ -33,6 +33,17 @@ public class MemorySchedulingManager implements SchedulingManager{
     }
 
     @Override
+    public List<ScheduleAppointment> getAllAppointments() {
+        List<ScheduleAppointment> all = new LinkedList<>();
+        for(Map<String, List<ScheduleAppointment>> map : appointmentsMapping.values()){
+            for(List<ScheduleAppointment> list : map.values()){
+                all.addAll(list);
+            }
+        }
+        return all;
+    }
+
+    @Override
     public List<ScheduleAppointment> getUserAppointments(String username, List<Integer> volunteeringIds) {
         List<ScheduleAppointment> appointments = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {

@@ -300,6 +300,26 @@ public class UserService {
         }
     }
 
+    public Response<Boolean> setNotifyRecommendation(String token, String username, boolean notify) {
+        try {
+            checkToken(token, username);
+            usersFacade.setNotifyRecommendation(username, notify);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> setRemindActivity(String token, String username, boolean remind) {
+        try {
+            checkToken(token, username);
+            usersFacade.setRemindActivity(username, remind);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Boolean> banUser(String token, String actor, String username) {
         try {
             checkToken(token, actor);
