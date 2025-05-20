@@ -111,7 +111,7 @@ const Header: React.FC<Props> = ({ user }) => {
   };
 
   const onLogo = async () => {
-    navigate(`/`);
+      window.location.href = "/";
   }
 
   // --- REMOVE the separate useEffect for sorting, as it's done inline now ---
