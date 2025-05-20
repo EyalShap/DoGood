@@ -5,7 +5,7 @@ import Organization from './components/Organization'
 import CreateVolunteering from './components/CreateVolunteering'
 import OrganizationList from './components/OrganizationList'
 import CreateOrganization from './components/CreateOrganization'
-import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
 import HourApprovalRequestList from './components/HourApprovalRequestList';
@@ -36,12 +36,14 @@ import ApprovedHoursPage from "./components/ApprovedHoursPage.tsx";
 import Notifications from "./components/Notifications.tsx";
 import VerifyEmailUpdate from "./components/VerifyEmailUpdate.tsx"; 
 import PageNotFound from './components/PageNotFound.tsx'
+import {DotLoader} from "react-spinners";
 
 
 function App() {
   const [user, setUser] = useState<UserModel>();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const loggedInCheck = async () => {
+  const [isLoading, setIsLoading] = useState(true);
+    const loggedInCheck = async () => {
     if(localStorage.getItem("token") != null){
       try {
         let um: UserModel = await getUserByToken();
@@ -97,55 +99,66 @@ function App() {
 
     window.addEventListener('storage', handleStorage);
     window.addEventListener('login', loggedInCheck);
-    loggedInCheck();
+    loggedInCheck().then(r => setIsLoading(false));
     return () => {window.removeEventListener('storage', handleStorage);
     window.removeEventListener('login',loggedInCheck)}
   }, []);
 
   return (
     <>
-      {!isLoggedIn ? <LoginAndRegister onAuthSuccess={handleAuthSuccess}/> :
-          <BrowserRouter>
-            <Header user={user}/>
-              <div className='Routes'>
-            <Routes>
-              <Route path="/" element={<Homepage />} />
-              <Route path = "/my-profile" element={<MyProfilePage />}/>
-              <Route path = "/summary" element={<ApprovedHoursPage />}/>
-              <Route path="/leaderboard" element={<LeaderboardMap />}/>
-              <Route path='/profile/:id' element={<ProfilePage/>}/>
-              <Route path='/notifications' element={<Notifications/>}/>
-              <Route path='/reportList' element={<ReportList/>}/>
-              <Route path = "/verify-email-update" element={<VerifyEmailUpdate />}/>
-              <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
-              <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
-              <Route path='/organizationList' element={<OrganizationList/>}/>
-              <Route path='/createOrganization/:id/:quickstart' element={<CreateOrganization/>}/>
-              <Route path='/myvolunteerings' element={<MyVolunteerings/>}/>
-              <Route path='/volunteering/:id' element={<Volunteering/>}/>
-              <Route path='/volunteering/:id/createVolunteeringPost/:postId/:quickstart' element={<CreatePost/>}/>
-              <Route path='/createVolunteerPost/:postId' element={<CreatePost/>}/>
-              <Route path='/organization/:id' element={<Organization/>}/>
-              <Route path='/volunteering/:id/code' element={<CodeView/>}/>
-              <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
-              <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
-              <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
-              <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
-              <Route path='/volunteering/:id/chat' element={<VolunteeringChat/>}/>
-              <Route path='/scan' element={<CodeScan/>}/>
-              <Route path='/organization/:id/createVolunteering/:quickstart' element={<CreateVolunteering/>}/>
-              <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
-              <Route path='/volunteerPost/:id' element={<VolunteerPost/>}/>
-              <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>
-              <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
-              <Route path='/easterEgg' element={<EasterEgg/>}/>
-              <Route path='/pageNotFound' element={<PageNotFound/>}/>
-            </Routes>
-            </div>
-            <Footer/>
-          </BrowserRouter>}
-    </>
+        {isLoading ? <LoadingPage/> :
+        <>
+            {!isLoggedIn ? <LoginAndRegister onAuthSuccess={handleAuthSuccess}/> :
+                <BrowserRouter>
+                    <Header user={user}/>
+                    <div className='Routes'>
+                        <Routes>
+                            <Route path="/" element={<Homepage />} />
+                            <Route path = "/my-profile" element={<MyProfilePage />}/>
+                            <Route path = "/summary" element={<ApprovedHoursPage />}/>
+                            <Route path="/leaderboard" element={<LeaderboardMap />}/>
+                            <Route path='/profile/:id' element={<ProfilePage/>}/>
+                            <Route path='/notifications' element={<Notifications/>}/>
+                            <Route path='/reportList' element={<ReportList/>}/>
+                            <Route path = "/verify-email-update" element={<VerifyEmailUpdate />}/>
+                            <Route path='/volunteeringPostList' element={<VolunteeringPostList/>}/>
+                            <Route path='/managerRequestsList' element={<ManagerRequestsList/>}/>
+                            <Route path='/organizationList' element={<OrganizationList/>}/>
+                            <Route path='/createOrganization/:id/:quickstart' element={<CreateOrganization/>}/>
+                            <Route path='/myvolunteerings' element={<MyVolunteerings/>}/>
+                            <Route path='/volunteering/:id' element={<Volunteering/>}/>
+                            <Route path='/volunteering/:id/createVolunteeringPost/:postId/:quickstart' element={<CreatePost/>}/>
+                            <Route path='/createVolunteerPost/:postId' element={<CreatePost/>}/>
+                            <Route path='/organization/:id' element={<Organization/>}/>
+                            <Route path='/volunteering/:id/code' element={<CodeView/>}/>
+                            <Route path='/volunteering/:id/hrrequests' element={<HourApprovalRequestList/>}/>
+                            <Route path='/volunteering/:id/jrequests' element={<JoinRequestList/>}/>
+                            <Route path='/volunteering/:id/appointment' element={<MakeAppointment/>}/>
+                            <Route path='/volunteering/:id/settings' element={<VolunteeringSettings/>}/>
+                            <Route path='/volunteering/:id/chat' element={<VolunteeringChat/>}/>
+                            <Route path='/scan' element={<CodeScan/>}/>
+                            <Route path='/organization/:id/createVolunteering/:quickstart' element={<CreateVolunteering/>}/>
+                            <Route path='/volunteeringPost/:id' element={<VolunteeringPost/>}/>
+                            <Route path='/volunteerPost/:id' element={<VolunteerPost/>}/>
+                            <Route path='/volunteerPost/:id/chat' element={<VolunteerPostChat other={false}/>}/>
+                            <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
+                            <Route path='/easterEgg' element={<EasterEgg/>}/>
+                            <Route path='/pageNotFound' element={<PageNotFound/>}/>
+                        </Routes>
+                    </div>
+                    <Footer/>
+                </BrowserRouter>}
+        </>}
+        </>
   )
+}
+
+function LoadingPage(){
+    return (
+        <div className="loadingPage">
+            <DotLoader color="#037b7b" size={50} />
+        </div>
+    )
 }
 
 export default App

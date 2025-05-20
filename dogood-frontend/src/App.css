@@ -2,3 +2,11 @@ BrowserRouter {
   width: 100%;
 }
 
+/*How do you center a div*/
+.loadingPage {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+
