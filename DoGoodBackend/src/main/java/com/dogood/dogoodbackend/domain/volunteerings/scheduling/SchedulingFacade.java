@@ -116,6 +116,10 @@ public class SchedulingFacade {
         manager.updateRequestDescription(userId, volunteeringId, start, newDescription);
     }
 
+    public List<ScheduleAppointment> getUpcomingAppointments(){
+        return manager.getAllAppointments().stream().filter(ScheduleAppointment::isUpcoming).toList();
+    }
+
     public void userLeave(int volunteeringId, String userId) {
         manager.userLeave(volunteeringId, userId);
     }

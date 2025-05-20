@@ -208,16 +208,11 @@ public class UsersFacade {
             throw new IllegalStateException("Required services (Email, Cache, Repository) not configured in UsersFacade.");
         }
 
-        Optional<User> userOptional = repository.findByEmail(currentEmail.toLowerCase());
+        Optional<User> userOptional = repository.findByUsername(actorUsername);
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User with the provided current email not found.");
+            throw new IllegalArgumentException("User with the provided username not found.");
         }
         User user = userOptional.get();
-
-        // Security check: Ensure the actor (from token) is the owner of this email
-        if (!user.getUsername().equals(actorUsername)) {
-            throw new IllegalArgumentException("Unauthorized: Actor does not match the owner of the email.");
-        }
 
         if (!user.isEmailVerified()) {
             // This check might be redundant if only verified emails can be "current" emails for logged-in users.
@@ -237,17 +232,6 @@ public class UsersFacade {
     public String verifyEmailUpdateCode(String currentEmail, String code, String actorUsername) {
         if (this.verificationCache == null || this.repository == null) {
             throw new IllegalStateException("Required services (Cache, Repository) not configured in UsersFacade.");
-        }
-
-        Optional<User> userOptional = repository.findByEmail(currentEmail.toLowerCase());
-        if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User with the provided current email not found.");
-        }
-        User user = userOptional.get();
-
-        // Security check: Ensure the actor (from token) is the owner of this email
-        if (!user.getUsername().equals(actorUsername)) {
-            throw new IllegalArgumentException("Unauthorized: Actor does not match the owner of the email.");
         }
 
         boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(currentEmail.toLowerCase(), code);
@@ -666,6 +650,36 @@ public class UsersFacade {
         User user = repository.getUser(username);
         user.setLeaderboard(leaderboard);
         repository.saveUser(user);
+    }
+
+    public void setNotifyRecommendation(String username, boolean notify) {
+        User user = repository.getUser(username);
+        user.setNotifyRecommendations(notify);
+        repository.saveUser(user);
+    }
+
+    public void setRemindActivity(String username, boolean remind) {
+        User user = repository.getUser(username);
+        user.setRemindActivity(remind);
+        repository.saveUser(user);
+    }
+
+    public boolean getNotifyRecommendation(String username) {
+        try{
+        User user = repository.getUser(username);
+        return user.isNotifyRecommendations();
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public boolean getRemindActivity(String username) {
+        try {
+            User user = repository.getUser(username);
+            return user.isRemindActivity();
+        }catch (Exception e){
+            return false;
+        }
     }
 
     public boolean isBanned(String username) {

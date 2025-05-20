@@ -1,4 +1,3 @@
-
 export type VolunteeringInHistory = {
     id: number,
     orgId: number,
@@ -25,6 +24,8 @@ type User = {
     leaderboard: boolean;
     cv: File;
     profilePicUrl: string;
+    remindActivity: boolean;
+    notifyRecommendations: boolean;
 };
 
 export default User;

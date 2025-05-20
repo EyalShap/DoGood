@@ -152,6 +152,18 @@ public Response<String> requestUpdateCode(HttpServletRequest httpRequest, @Reque
         return userService.setLeaderboard(token, username, leaderboard);
     }
 
+    @PutMapping("/setNotifyRecommendation")
+    public Response<Boolean> setNotifyRecommendation(@RequestParam String username, @RequestParam boolean notify, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.setNotifyRecommendation(token, username, notify);
+    }
+
+    @PutMapping("/setRemindActivity")
+    public Response<Boolean> setRemindActivity(@RequestParam String username, @RequestParam boolean remind, HttpServletRequest request) {
+        String token = getToken(request);
+        return userService.setRemindActivity(token, username, remind);
+    }
+
     @PatchMapping("/banUser")
     public Response<Boolean> banUser(@RequestParam String actor, @RequestParam String username, HttpServletRequest request){
         String token = getToken(request);

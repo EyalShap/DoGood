@@ -20,6 +20,11 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     }
 
     @Override
+    public List<ScheduleAppointment> getAllAppointments() {
+        return appointmentJPA.findAll();
+    }
+
+    @Override
     public List<ScheduleAppointment> getUserAppointments(String username, List<Integer> volunteeringIds) {
         List<ScheduleAppointment> appointments = new LinkedList<>();
         for(Integer volunteeringId : volunteeringIds) {

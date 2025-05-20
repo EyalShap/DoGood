@@ -236,4 +236,15 @@ public class ScheduleAppointment {
         }
         return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed;
     }
+
+    public boolean isUpcoming(){
+        LocalDateTime now = LocalDateTime.now();
+        if(weekDays > 0 && !valueAtDay(now.getDayOfWeek().getValue()%7)){
+            return false;
+        }
+        if(oneTime != null && !now.toLocalDate().isEqual(oneTime)){
+            return false;
+        }
+        return now.toLocalTime().isBefore(startTime) && MINUTES.between(now.toLocalTime(), startTime) <= 60;
+    }
 }
