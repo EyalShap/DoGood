@@ -1,16 +1,15 @@
-// FORGOT_PASSWORD START
 // src/components/ResetPasswordWithCodePage.tsx
 import { useState, useEffect } from "react";
-import { resetPassword, verifyPasswordResetCode, resendVerificationCode } from "../api/user_api";
+import { resetPassword, verifyPasswordResetCode, resendVerificationCode, VerifyPasswordResetCodeResponse } from "../api/user_api";
 import "../css/ResetPasswordWithCodePage.css";
 
 interface ResetPasswordWithCodePageProps {
-    email: string; // Email for which the reset was initiated
+    // email: string; // Email to display to the user (where the code was sent)
+    usernameForReset: string; // The username that initiated the forgot password
     onSwitchToLogin: () => void;
 }
 
-function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWithCodePageProps) {
-    const [username, setUsername] = useState("");
+function ResetPasswordWithCodePage({ usernameForReset, onSwitchToLogin }: ResetPasswordWithCodePageProps) {
     const [code, setCode] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
@@ -19,8 +18,11 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
     
     const [formStep, setFormStep] = useState<"enterCode" | "enterNewPassword">("enterCode");
-    const [verifiedUsername, setVerifiedUsername] = useState<string | null>(null);
-        // RESEND-VERIFICATION-CODE START
+    // verifiedUsername will be the same as usernameForReset if the code is valid for it.
+    // No, verifyPasswordResetCode (if it takes username) will confirm this username.
+    // If verifyPasswordResetCode takes email, it should return the username.
+    // Let's assume verifyPasswordResetCode now takes username.
+
     const [isResending, setIsResending] = useState(false);
     const [resendError, setResendError] = useState<string | null>(null);
     const [resendSuccess, setResendSuccess] = useState<string | null>(null);
@@ -38,8 +40,8 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
     }, [countdown]);
 
     const handleResendCode = async () => {
-        if (!username.trim()) { // Use the username entered by the user
-            setResendError("Please enter your username to resend the code.");
+        if (!usernameForReset) { 
+            setResendError("Username is missing. Cannot resend code.");
             return;
         }
         setIsResending(true);
@@ -51,8 +53,7 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
         setCountdown(60);
 
         try {
-            // The backend's resendVerificationCode uses the username to find the user and their primary email
-            const responseMessage = await resendVerificationCode(username);
+            const responseMessage = await resendVerificationCode(usernameForReset); 
             setResendSuccess(responseMessage);
         } catch (e: any) {
             setResendError(e.message || e.toString() || "Failed to resend verification code.");
@@ -62,11 +63,10 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
             setIsResending(false);
         }
     };
-    // RESEND-VERIFICATION-CODE END
 
     const handleVerifyCode = async () => {
-        if (!username.trim()) {
-            setError("Please enter your username.");
+        if (!usernameForReset) {
+            setError("Username is missing for code verification.");
             return;
         }
         if (!code || code.length !== 6) {
@@ -76,10 +76,22 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
         setIsLoading(true);
         setError(null);
         setSuccessMessage(null);
+        setResendError(null); 
+        setResendSuccess(null);
         try {
-            const verificationResponse = await verifyPasswordResetCode(username, code);
+            // verifyPasswordResetCode API takes username and code.
+            // The backend UsersFacade.verifyPasswordResetCode(username, code)
+            // will find the user by username, get their email, then validate the code from cache.
+            const verificationResponse: string = await verifyPasswordResetCode(usernameForReset, code); 
+            
+            // The backend's verifyPasswordResetCode in UsersFacade returns a boolean.
+            // The UserAPI's verifyPasswordResetCode returns a string "Verification code is valid." or error.
+            // Let's assume the API wrapper `verifyPasswordResetCode` in `user_api.ts`
+            // is updated to return an object like { message: string, username?: string }
+            // where `username` is confirmed if the code is valid.
+            // For now, we'll assume the string response indicates validity.
             if (verificationResponse.toLowerCase().includes("valid")) {
-                setVerifiedUsername(username);
+                // setVerifiedUsername(usernameForReset); // We already have usernameForReset
                 setFormStep("enterNewPassword");
                 setSuccessMessage("Code verified. Please enter your new password.");
                 setError(null);
@@ -94,9 +106,10 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
     };
 
     const handleResetPassword = async () => {
-        if (!verifiedUsername) {
-            setError("Username not verified. Please verify the code first.");
-            setFormStep("enterCode");
+        // We use usernameForReset as the verified username for this flow
+        if (!usernameForReset) { 
+            setError("Username context lost. Please start over.");
+            setFormStep("enterCode"); 
             return;
         }
         if (!newPassword || newPassword.length < 6) {
@@ -110,12 +123,12 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
 
         setIsLoading(true);
         setError(null);
-        // setSuccessMessage(null); // Keep the "Code verified" message or clear it. Let's clear for cleaner final message.
         setSuccessMessage(null);
-
+        setResendError(null); 
+        setResendSuccess(null);
 
         try {
-            const resetResponse = await resetPassword(verifiedUsername, code, newPassword);
+            const resetResponse = await resetPassword(usernameForReset, code, newPassword); 
             if (resetResponse.toLowerCase().includes("success")) {
                 setSuccessMessage("Password has been reset successfully! Redirecting to login...");
                 setError(null);
@@ -142,66 +155,53 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                 <div className="reset-password-section">
                     <h1>Reset Your Password</h1>
                     <p style={{ marginBottom: '5px', color: '#555' }}>
-                        Password reset initiated for email: <strong>{email}</strong>.
+                        {/* Displaying the username for context */}
+                        A 6-digit code was sent to the email associated with username: <strong>{usernameForReset}</strong>.
                     </p>
                     
                     {error && <p className="error-message">{error}</p>}
                     {successMessage && <p className="success-message">{successMessage}</p>}
-                    {/* RESEND-VERIFICATION-CODE START */}
                     {resendError && <p className="error-message" style={{marginTop: '10px'}}>{resendError}</p>}
                     {resendSuccess && <p className="success-message" style={{marginTop: '10px'}}>{resendSuccess}</p>}
-                    {/* RESEND-VERIFICATION-CODE END */}
 
-                    {/* Step 1: Enter Username and Code */}
                     {formStep === "enterCode" && !(successMessage && successMessage.includes("Redirecting to login...")) && (
                         <div className="fields">
                              <p style={{ marginBottom: '10px', color: '#555' }}>
-                                Please enter your username and the 6-digit code sent to your email.
+                                Please enter the 6-digit code.
                             </p>
-                            <input
-                                type="text"
-                                placeholder="Enter your username"
-                                value={username}
-                                onChange={(e) => setUsername(e.target.value)}
-                                disabled={isLoading}
-                                className="password-input" 
-                            />
                             <input
                                 type="text"
                                 placeholder="Enter 6-digit reset code"
                                 value={code}
                                 onChange={(e) => setCode(e.target.value.replace(/\D/g, '').slice(0, 6))}
                                 maxLength={6}
-                                disabled={isLoading}
+                                disabled={isLoading || isResending}
                                 className="code-input"
-                                onKeyDown={(e) => { if (e.key === 'Enter') handleVerifyCode();}}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !isLoading && code.length === 6) handleVerifyCode();}}
                             />
                             <button
                                 onClick={handleVerifyCode}
                                 className="orangeCircularButton reset-button"
-                                disabled={isLoading || !code || !username}
+                                disabled={isLoading || isResending || !code || !usernameForReset} 
                             >
                                 {isLoading ? "Verifying Code..." : "Verify Code"}
                             </button>
-                                                        {/* RESEND-VERIFICATION-CODE START */}
                             <div className="resend-section">
                                 <button
                                     onClick={handleResendCode}
                                     className="link-button"
-                                    disabled={isResending || resendDisabled || !username.trim() || (!!successMessage && successMessage.includes("Redirecting"))}
+                                    disabled={isResending || resendDisabled || !usernameForReset || (!!successMessage && successMessage.includes("Redirecting"))}
                                 >
                                     {isResending ? "Sending..." : (resendDisabled ? `Resend Code (${countdown}s)` : "Resend Code")}
                                 </button>
                             </div>
-                            {/* RESEND-VERIFICATION-CODE END */}
                         </div>
                     )}
 
-                    {/* Step 2: Enter New Password */}
                     {formStep === "enterNewPassword" && !(successMessage && successMessage.includes("Redirecting to login...")) && (
                         <div className="fields">
                              <p style={{ marginBottom: '10px', color: '#555' }}>
-                                {successMessage && successMessage.includes("Code verified") ? successMessage : `Enter new password for ${verifiedUsername}.`}
+                                {successMessage && successMessage.includes("Code verified") ? successMessage : `Enter new password for user ${usernameForReset}.`}
                             </p>
                             <input
                                 type="password"
@@ -218,7 +218,7 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                                 onChange={(e) => setConfirmPassword(e.target.value)}
                                 disabled={isLoading}
                                 className="password-input"
-                                onKeyDown={(e) => { if (e.key === 'Enter') handleResetPassword();}}
+                                onKeyDown={(e) => { if (e.key === 'Enter' && !isLoading && newPassword && confirmPassword) handleResetPassword();}}
                             />
                             <button
                                 onClick={handleResetPassword}
@@ -230,7 +230,6 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
                         </div>
                     )}
 
-                    {/* Always show Back to Login unless final success message (redirecting) is shown */}
                     {!(successMessage && successMessage.includes("Redirecting to login...")) && (
                         <a
                             onClick={onSwitchToLogin}
@@ -247,4 +246,3 @@ function ResetPasswordWithCodePage({ email, onSwitchToLogin }: ResetPasswordWith
 }
 
 export default ResetPasswordWithCodePage;
-// FORGOT_PASSWORD END

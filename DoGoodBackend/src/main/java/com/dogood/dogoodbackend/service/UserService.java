@@ -162,16 +162,17 @@ public class UserService {
     // RESEND VERIFICATION END
 
     // FORGOT_PASSWORD START
-    public Response<String> forgotPassword(String email) {
+    public Response<String> forgotPassword(ForgotPasswordRequest request) {
         try {
-            usersFacade.forgotPassword(email);
-            // As per requirement, always return OK to prevent email enumeration
-            return Response.createResponse("If your email address is in our system, you will receive a password reset code.", null);
+            // Facade method now takes username.
+            // The facade will handle not throwing errors for non-existent users to prevent enumeration.
+            usersFacade.forgotPassword(request.getUsername());
+            // Always return a generic success message to the client, regardless of whether the user/email existed.
+            return Response.createResponse("If your username is registered, a password reset code has been sent to your email.", null);
         } catch (Exception e) {
-            // Log internal errors, but still return a generic message to the client
-            System.err.println("Internal error during forgotPassword: " + e.getMessage());
-            // This path should ideally not be hit if UsersFacade.forgotPassword handles its internal errors silently for enumeration protection.
-            return Response.createResponse("If your email address is in our system, you will receive a password reset code.", null);
+            // Log internal errors, but still return a generic message to client.
+            System.err.println("Error during forgotPassword process for username " + request.getUsername() + ": " + e.getMessage());
+            return Response.createResponse("If your username is registered, a password reset code has been sent to your email. If you encounter issues, please contact support.", null);
         }
     }
 

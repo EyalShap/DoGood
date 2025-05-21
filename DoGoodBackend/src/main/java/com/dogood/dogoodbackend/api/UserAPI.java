@@ -51,7 +51,7 @@ public class UserAPI {
 
     @PostMapping("/forgot-password")
     public Response<String> forgotPassword(@RequestBody ForgotPasswordRequest body) {
-        return userService.forgotPassword(body.getEmail());
+        return userService.forgotPassword(body);
     }
 
     @PostMapping("/verify-reset-password")

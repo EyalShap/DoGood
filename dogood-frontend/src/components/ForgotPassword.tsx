@@ -1,51 +1,54 @@
 // src/components/ForgotPassword.tsx
-// FORGOT_PASSWORD START
+// FORGOT_PASSWORD_USERNAME_INPUT START
 import { useState } from "react";
-import { forgotPassword } from "../api/user_api";
+import { forgotPassword } from "../api/user_api"; // This API function will be updated
 import "../css/LoginPage.css"; // Reuse styles
 
 interface ForgotPasswordProps {
     onSwitchToLogin: () => void;
-    onEmailSubmitted: (email: string) => void;
+    // Now expects username to be passed to the next step,
+    // as the backend will send the code to the email associated with this username.
+    // The 'email' itself is not directly known by this page anymore for the next step.
+    onUsernameSubmitted: (username: string) => void; 
 }
 
-export default function ForgotPassword({ onSwitchToLogin, onEmailSubmitted }: ForgotPasswordProps) {
-    const [email, setEmail] = useState("");
+export default function ForgotPassword({ onSwitchToLogin, onUsernameSubmitted }: ForgotPasswordProps) {
+    const [username, setUsername] = useState(""); // Changed from email to username
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
 
     const handleSubmit = async () => {
-        if (!email) {
-            setError("Please enter your email address.");
+        if (!username.trim()) { // Validate username
+            setError("Please enter your username.");
             return;
         }
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(email)) {
-            setError("Please enter a valid email address.");
-            return;
-        }
+        // Basic username validation (e.g., length) could be added here if desired
+        // const usernameRegex = /^[a-zA-Z0-9_.-]{3,20}$/; 
+        // if (!usernameRegex.test(username)) {
+        //     setError("Please enter a valid username.");
+        //     return;
+        // }
 
         setIsLoading(true);
         setError(null);
         setSuccessMessage(null);
 
         try {
-            // The backend always returns a generic success message for forgotPassword
-            // to prevent email enumeration.
-            const backendMessage = await forgotPassword(email);
-            setSuccessMessage(backendMessage); // Display the generic message from backend
+            // Call forgotPassword API with username
+            const backendMessage = await forgotPassword(username); 
+            // Backend returns a generic success message to prevent username enumeration.
+            setSuccessMessage(backendMessage + " (If your username is registered, a code will be sent to the associated email.)"); 
             
-            // Proceed to the next step regardless of whether the email was actually found,
-            // as per the backend's security design.
-            // The actual verification of email existence happens implicitly when the user tries to use the code.
             setTimeout(() => {
-                 onEmailSubmitted(email);
-            }, 2500); // Give user time to read the message
+                 // Pass the username to the next step (ResetPasswordWithCodePage)
+                 // The ResetPasswordWithCodePage will need this username to verify the code
+                 // and for the resend functionality.
+                 onUsernameSubmitted(username); 
+            }, 3000); // Give user time to read the message
 
         } catch (e: any) {
-            // This catch block will likely only handle network errors or unexpected server issues,
-            // not "email not found" errors, due to the backend's design.
+            // This catch block will likely only handle network errors or unexpected server issues.
             setError(e.message || "An unexpected error occurred. Please try again.");
         } finally {
             setIsLoading(false);
@@ -64,20 +67,20 @@ export default function ForgotPassword({ onSwitchToLogin, onEmailSubmitted }: Fo
                     {!successMessage && ( 
                         <div className="fields" style={{ width: '80%', maxWidth: '400px' }}> 
                             <p style={{ fontSize: '14px', textAlign: 'center', color: '#555', marginBottom: '15px' }}>
-                                Enter your email address and we'll send you a code to reset your password.
+                                Enter your username and we'll send a code to your registered email address to reset your password.
                             </p>
                             <input
-                                type="email"
-                                placeholder="Enter your email"
-                                value={email}
-                                onChange={e => setEmail(e.target.value)}
+                                type="text" // Changed from email to text
+                                placeholder="Enter your username" // Updated placeholder
+                                value={username}
+                                onChange={e => setUsername(e.target.value)}
                                 disabled={isLoading}
                                 style={{ margin: '5px 0', padding: '10px', fontSize: '16px' }}
                             />
                             <button
                                 onClick={handleSubmit}
                                 className="orangeCircularButton" 
-                                disabled={isLoading}
+                                disabled={isLoading || !username.trim()}
                                 style={{ margin: '10px 0', padding: '10px', fontSize: '16px' }}
                             >
                                 {isLoading ? "Sending..." : "Send Reset Code"}
@@ -96,4 +99,4 @@ export default function ForgotPassword({ onSwitchToLogin, onEmailSubmitted }: Fo
         </div>
     );
 }
-// FORGOT_PASSWORD END
+// FORGOT_PASSWORD_USERNAME_INPUT END

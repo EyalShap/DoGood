@@ -155,22 +155,28 @@ export const resendVerificationCode = async (username: string): Promise<string> 
 };
 // RESEND-VERIFICATION-CODE END
 
-// FORGOT_PASSWORD START
-export const forgotPassword = async (email: string): Promise<string> => {
-    const body = { email };
-    // Backend endpoint: /api/users/forgot-password
+// FORGOT_PASSWORD_USERNAME_INPUT START
+// Updated to take username
+export const forgotPassword = async (username: string): Promise<string> => {
+    const body = { username }; // Request body now contains username
+    // Backend endpoint /api/users/forgot-password needs to expect 'username'
     let res = await axios.post(`${server}/forgot-password`, body);
     const response: APIResponse<string> = await res.data;
-    // Backend always returns a generic success message in response.data if no internal server error
-    if(response.error){ // This would be for unexpected server errors, not "email not found"
-        throw response.errorString;
+    // Backend should always return a generic success message
+    if(response.error){ 
+        throw response.errorString; // Should only be for unexpected server errors
     }
-    return response.data; // This will be "If your email address is in our system..."
+    return response.data; 
 }
+// FORGOT_PASSWORD_USERNAME_INPUT END
 
 // This function might be optional for the frontend if ResetPasswordRequest includes the code
 // and the /reset-password endpoint re-validates it.
 // However, the backend provides it, so we include it.
+export interface VerifyPasswordResetCodeResponse { // Add export here
+    message: string; 
+    username?: string; 
+}
 export const verifyPasswordResetCode = async (username: string, code: string): Promise<string> => {
     const body = {
         username: username,

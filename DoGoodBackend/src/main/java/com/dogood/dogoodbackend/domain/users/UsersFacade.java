@@ -104,7 +104,10 @@ public class UsersFacade {
             if(reportsFacade.isBannedEmail(email)) {
                 throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
             }
-
+            // If the exception is for "username already exists" (thrown above), rethrow it.
+            if (e.getMessage().equals("Register failed - username " + username + " already exists.")) {
+                throw e;
+            }
             newUser = repository.createUser(username, email, name, password, phone, birthDate,profilePicUrl);
         }
         // VERIFICATION START
@@ -128,7 +131,8 @@ public class UsersFacade {
                 cachedUserData.setBirthDate(birthDate);
                 cachedUserData.setProfilePicUrl(profilePicUrl);
 
-                verificationCache.storeVerificationData(email.toLowerCase(), cachedUserData, verificationCode);
+                // Use USERNAME as the key for the cache
+                verificationCache.storeVerificationData(username.toLowerCase(), cachedUserData, verificationCode);
                 emailSender.sendVerificationCodeEmail(email, username, verificationCode);
             }
         }
@@ -155,13 +159,18 @@ public class UsersFacade {
 
     }
     // VERIFICATION START
+    // For initial registration verification
     public String verifyEmail(String username, String code) {
         if (this.verificationCache == null || this.repository == null) {
             throw new IllegalStateException("VerificationCacheService or UserRepository not configured in UsersFacade.");
         }
-        Optional<User> userOptional = repository.findByUsername(username);
+        Optional<User> userOptional = repository.findByUsername(username); // Find user by username
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User not found.");
+            // If user not found by username, it's possible the verification data might exist if registration failed mid-way
+            // but the cache entry was still created. However, a valid verification should correspond to an existing user.
+            // For simplicity and security, if user doesn't exist, verification should fail.
+            // Alternatively, one could check the cache directly with username, but it's less robust.
+            throw new IllegalArgumentException("User not found for verification.");
         }
         User user = userOptional.get();
 
@@ -169,30 +178,26 @@ public class UsersFacade {
             return "Email already verified.";
         }
 
-        String emailToVerify = user.getEmails().stream().findFirst()
-                .orElseThrow(() -> new IllegalStateException("User has no email address for verification."));
-
-        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(emailToVerify.toLowerCase(), code);
+        // Use USERNAME as the key to validate from cache
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(username.toLowerCase(), code);
 
         if (verificationDataOptional.isPresent()) {
+            // Ensure the user data in the cache matches the user being verified, especially the email.
+            VerificationData vData = verificationDataOptional.get();
+            if (!vData.userData().getUsername().equalsIgnoreCase(username) ||
+                    !user.getEmails().contains(vData.userData().getEmail())) {
+                // This is an unlikely scenario if keys are managed well, but a good sanity check.
+                System.err.println("Verification data mismatch for username: " + username);
+                return "Invalid or expired verification code (data mismatch).";
+            }
+
             user.setEmailVerified(true);
             repository.saveUser(user);
-            verificationCache.removeVerificationData(emailToVerify.toLowerCase());
+            // Use USERNAME as the key to remove from cache
+            verificationCache.removeVerificationData(username.toLowerCase());
             return "Email verified successfully.";
         } else {
-            // Check if an entry exists (even if expired or code is wrong) to give a more specific message.
-            // getVerificationData only returns non-expired data.
-            Optional<VerificationData> currentDataIfAny = verificationCache.getVerificationData(emailToVerify.toLowerCase());
-            if(currentDataIfAny.isEmpty()){
-                // This means:
-                // 1. No code was ever sent for this email.
-                // 2. Code was already used and removed.
-                // 3. Code expired and was cleaned up by getVerificationData or getAndValidateVerificationData.
-                return "Invalid or expired verification code. It might have expired, been used, or was never sent.";
-            } else {
-                // Data exists in cache and is not expired, so the submitted code must be wrong.
-                return "Invalid verification code.";
-            }
+            return "Invalid or expired verification code.";
         }
     }
     // VERIFICATION END
@@ -203,88 +208,100 @@ public class UsersFacade {
 // }
 
     // UPDATE-EMAIL-VERIFICATION START
-    public String requestEmailUpdateVerification(String currentEmail, String actorUsername) {
+    public String requestEmailUpdateVerification(String currentEmailFromRequest, String actorUsername) {
         if (this.emailSender == null || this.verificationCache == null || this.repository == null) {
             throw new IllegalStateException("Required services (Email, Cache, Repository) not configured in UsersFacade.");
         }
 
-        Optional<User> userOptional = repository.findByUsername(actorUsername);
+        Optional<User> userOptional = repository.findByUsername(actorUsername); // Find user by actor's username (from token)
         if (userOptional.isEmpty()) {
-            throw new IllegalArgumentException("User with the provided username not found.");
+            throw new IllegalArgumentException("Authenticated user not found.");
         }
         User user = userOptional.get();
 
+        // Security check: Ensure the currentEmailFromRequest belongs to the authenticated user
+        if (user.getEmails() == null || !user.getEmails().stream().anyMatch(email -> email.equalsIgnoreCase(currentEmailFromRequest))) {
+            throw new IllegalArgumentException("Provided email does not match the authenticated user's registered emails.");
+        }
+
+        // It's implied the user's primary email (or the one they are trying to verify for update) should already be verified.
+        // This check might be more nuanced if a user has multiple emails with different verification statuses.
+        // For simplicity, we assume the user account must be 'emailVerified' to use this.
         if (!user.isEmailVerified()) {
-            // This check might be redundant if only verified emails can be "current" emails for logged-in users.
-            // However, it's a good safeguard.
-            throw new IllegalArgumentException("Current email is not verified. Cannot initiate update verification.");
+            throw new IllegalArgumentException("User's primary email is not verified. Cannot initiate this process.");
         }
 
         String verificationCode = generateVerificationCode();
-        verificationCache.storeEmailUpdateVerificationCode(currentEmail.toLowerCase(), verificationCode);
-        // Send a slightly different email for this context
-        emailSender.sendVerificationCodeEmail(currentEmail, user.getUsername(), verificationCode); // Reusing existing email method, context is clear enough
-        // Or, create a new method in EmailService: emailService.sendProfileUpdateVerificationCodeEmail(...)
+        // Use USERNAME of the actor as the key for this specific cache
+        verificationCache.storeEmailUpdateVerificationCode(actorUsername.toLowerCase(), verificationCode);
+        emailSender.sendVerificationCodeEmail(currentEmailFromRequest, user.getUsername(), verificationCode);
 
-        return "Verification code sent to your current email address.";
+        return "Verification code sent to " + currentEmailFromRequest + ".";
     }
 
-    public String verifyEmailUpdateCode(String currentEmail, String code, String actorUsername) {
+    public String verifyEmailUpdateCode(String currentEmailFromRequest, String code, String actorUsername) {
         if (this.verificationCache == null || this.repository == null) {
             throw new IllegalStateException("Required services (Cache, Repository) not configured in UsersFacade.");
         }
 
-        boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(currentEmail.toLowerCase(), code);
+        Optional<User> userOptional = repository.findByUsername(actorUsername); // Find user by actor's username
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("Authenticated user not found.");
+        }
+        User user = userOptional.get();
+
+        // Security check: Ensure the currentEmailFromRequest belongs to the authenticated user
+        if (user.getEmails() == null || !user.getEmails().stream().anyMatch(email -> email.equalsIgnoreCase(currentEmailFromRequest))) {
+            throw new IllegalArgumentException("Provided email for code verification does not match the authenticated user's records.");
+        }
+
+        // Use USERNAME of the actor as the key
+        boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(actorUsername.toLowerCase(), code);
 
         if (isValid) {
-            // Important: Do NOT remove the code here.
-            // The frontend will make one more call to updateUserFields.
-            // The code is a one-time token for authorizing that *next* call.
-            // However, the prompt for verifyEmailUpdateCode in frontend says:
-            // "If the backend confirms the code is valid... It will then call the existing updateUserFields"
-            // This implies verifyEmailUpdateCode itself should confirm and perhaps "consume" the code's validity for a short window
-            // or return a temporary "update token".
-            // For simplicity, let's assume successful validation here means the code is good for the immediate next update.
-            // The cache entry should be removed after the *actual* update in updateUserFields, or if this endpoint is called again with a new code.
-            // For now, let's remove it upon successful validation here, assuming it's a one-time use for this step.
-            verificationCache.removeEmailUpdateVerificationCode(currentEmail.toLowerCase());
+            // Use USERNAME of the actor as the key
+            verificationCache.removeEmailUpdateVerificationCode(actorUsername.toLowerCase());
             return "Code verified successfully. You can now proceed with the update.";
         } else {
             return "Invalid or expired code for email update.";
         }
     }
     // UPDATE-EMAIL-VERIFICATION END
-
-    public void forgotPassword(String email) {
+    // FORGOT_PASSWORD START
+    /**
+     * Initiates the forgot password process for a user.
+     * A verification code is sent to the user's registered email.
+     * The code is stored in the cache keyed by the username.
+     * @param username The username of the user who forgot their password.
+     */
+    public void forgotPassword(String username) { // Changed parameter from email to username
         if (emailSender == null || verificationCache == null || repository == null) {
-            // Log critical error, but don't throw to the client to prevent enumeration
-            System.err.println("CRITICAL: Required services (Email, Cache, Repository) not configured in UsersFacade for forgotPassword.");
-            return; // Silently return
+            System.err.println("CRITICAL: Required services not configured for forgotPassword.");
+            // Silently return to prevent username/email enumeration attacks
+            return;
         }
 
-        Optional<User> userOptional = repository.findByEmail(email.toLowerCase());
+        Optional<User> userOptional = repository.findByUsername(username.toLowerCase()); // Find user by username
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            String username = user.getUsername(); // Get username for the email
+            if (user.getEmails() == null || user.getEmails().isEmpty()) {
+                // User exists but has no email, cannot send code. Silently return.
+                System.err.println("User " + username + " has no email for password reset.");
+                return;
+            }
+            String primaryEmail = user.getEmails().get(0); // Get the user's primary email
             String code = generateVerificationCode();
 
-            // To use the existing VerificationCacheService.storeVerificationData,
-            // which expects a RegisterRequest, we create a minimal one.
-            // This RegisterRequest is just a carrier for context if needed by the cache,
-            // or to satisfy the method signature. It won't be used for actual registration.
             RegisterRequest dummyUserData = new RegisterRequest();
-            dummyUserData.setUsername(username); // Store username for potential context
-            dummyUserData.setEmail(email);       // Store email for potential context
+            dummyUserData.setUsername(username);
+            dummyUserData.setEmail(primaryEmail); // Store the email for context if needed by VerificationData
 
-            // Assuming VerificationCacheService.storeVerificationData is:
-            // storeVerificationData(String emailKey, RegisterRequest userData, String code)
-            // The actual record VerificationData(String code, Instant expiry, RegisterRequest userData)
-            // will be created inside verificationCacheService.
-            verificationCache.storeVerificationData(email.toLowerCase(), dummyUserData, code);
-            emailSender.sendVerificationCodeEmail(email, username, code); // Send email
+            // Use USERNAME as the key for storing forgot password codes
+            verificationCache.storeVerificationData(username.toLowerCase(), dummyUserData, code);
+            emailSender.sendVerificationCodeEmail(primaryEmail, username, code);
         }
-        // Always return without error to prevent email enumeration
+        // Always return without error to prevent username enumeration
     }
 
     // PASSWORD-CHANGE-NO-EMAIL START
@@ -325,38 +342,47 @@ public class UsersFacade {
             throw new IllegalStateException("Required services (Email, Cache, Repository) not configured for resending code.");
         }
 
-        Optional<User> userOptional = repository.findByUsername(username);
+        Optional<User> userOptional = repository.findByUsername(username); // Find user by username
         if (userOptional.isEmpty()) {
             throw new IllegalArgumentException("User not found.");
         }
         User user = userOptional.get();
 
         if (user.isEmailVerified()) {
+            // For forgot password flow, this check might be different.
+            // For now, assuming this resend is primarily for initial verification.
+            // If it's also for "forgot password" where user *is* verified, this message needs adjustment
+            // or a separate flow/flag. Given the prompt, this is for "registration email verification"
+            // and "forgot-password verification" - the latter implies user exists but might be verified.
+            // Let's assume for "forgot-password", we still resend even if verified.
+            // So, we might only return "Already verified" if the context is strictly initial registration.
+            // For now, let's allow resend even if verified, as "forgot password" implies they need access.
+            // The prompt says: "If user is already verified → return message Already verified"
+            // This implies this resend is NOT for forgot password if they are already verified.
+            // This needs clarification or separate endpoints for "resend initial verification" vs "send forgot password code".
+            // Sticking to the prompt:
             return "Email already verified.";
         }
+
 
         if (user.getEmails() == null || user.getEmails().isEmpty()) {
             throw new IllegalStateException("User has no registered email address to send verification to.");
         }
-        String primaryEmail = user.getEmails().get(0); // Use existing primary email
+        String primaryEmail = user.getEmails().get(0);
 
         String newVerificationCode = generateVerificationCode();
 
-        // Construct RegisterRequest for VerificationCacheService compatibility
         RegisterRequest cachedUserDataForResend = new RegisterRequest();
         cachedUserDataForResend.setUsername(user.getUsername());
-        // IMPORTANT: Use the user's EXISTING HASHED password for the cache entry
-        // This field in RegisterRequest is expected to be the hashed password by VerificationCacheService
-        cachedUserDataForResend.setPassword(user.getPasswordHash());
+        cachedUserDataForResend.setPassword(user.getPasswordHash()); // Use existing hash
         cachedUserDataForResend.setName(user.getName());
         cachedUserDataForResend.setEmail(primaryEmail);
         cachedUserDataForResend.setPhone(user.getPhone());
         cachedUserDataForResend.setBirthDate(user.getBirthDate());
         cachedUserDataForResend.setProfilePicUrl(user.getProfilePicUrl());
-        // Note: isStudent and isAdmin flags are part of User, not RegisterRequest DTO.
-        // The cached RegisterRequest is mainly for identity and to fit the VerificationData structure.
 
-        verificationCache.storeVerificationData(primaryEmail.toLowerCase(), cachedUserDataForResend, newVerificationCode);
+        // Use USERNAME as the key for the cache
+        verificationCache.storeVerificationData(username.toLowerCase(), cachedUserDataForResend, newVerificationCode);
         emailSender.sendVerificationCodeEmail(primaryEmail, user.getUsername(), newVerificationCode);
 
         return "A new verification code has been sent to your email address.";
