@@ -34,7 +34,8 @@ function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess, change
             localStorage.setItem("token", token);
             let fcmToken = await requestForToken();
             if(fcmToken){
-                await registerFcmToken(username,fcmToken);
+                await registerFcmToken(fcmToken);
+                localStorage.setItem("fcm",fcmToken);
             }
             window.dispatchEvent(new Event('login'))
         } catch (e: any) {

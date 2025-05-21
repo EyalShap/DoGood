@@ -202,6 +202,59 @@ public class UsersFacade {
 //     return String.format("%06d", this.random.nextInt(1000000));
 // }
 
+    // UPDATE-EMAIL-VERIFICATION START
+    public String requestEmailUpdateVerification(String currentEmail, String actorUsername) {
+        if (this.emailSender == null || this.verificationCache == null || this.repository == null) {
+            throw new IllegalStateException("Required services (Email, Cache, Repository) not configured in UsersFacade.");
+        }
+
+        Optional<User> userOptional = repository.findByUsername(actorUsername);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User with the provided username not found.");
+        }
+        User user = userOptional.get();
+
+        if (!user.isEmailVerified()) {
+            // This check might be redundant if only verified emails can be "current" emails for logged-in users.
+            // However, it's a good safeguard.
+            throw new IllegalArgumentException("Current email is not verified. Cannot initiate update verification.");
+        }
+
+        String verificationCode = generateVerificationCode();
+        verificationCache.storeEmailUpdateVerificationCode(currentEmail.toLowerCase(), verificationCode);
+        // Send a slightly different email for this context
+        emailSender.sendVerificationCodeEmail(currentEmail, user.getUsername(), verificationCode); // Reusing existing email method, context is clear enough
+        // Or, create a new method in EmailService: emailService.sendProfileUpdateVerificationCodeEmail(...)
+
+        return "Verification code sent to your current email address.";
+    }
+
+    public String verifyEmailUpdateCode(String currentEmail, String code, String actorUsername) {
+        if (this.verificationCache == null || this.repository == null) {
+            throw new IllegalStateException("Required services (Cache, Repository) not configured in UsersFacade.");
+        }
+
+        boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(currentEmail.toLowerCase(), code);
+
+        if (isValid) {
+            // Important: Do NOT remove the code here.
+            // The frontend will make one more call to updateUserFields.
+            // The code is a one-time token for authorizing that *next* call.
+            // However, the prompt for verifyEmailUpdateCode in frontend says:
+            // "If the backend confirms the code is valid... It will then call the existing updateUserFields"
+            // This implies verifyEmailUpdateCode itself should confirm and perhaps "consume" the code's validity for a short window
+            // or return a temporary "update token".
+            // For simplicity, let's assume successful validation here means the code is good for the immediate next update.
+            // The cache entry should be removed after the *actual* update in updateUserFields, or if this endpoint is called again with a new code.
+            // For now, let's remove it upon successful validation here, assuming it's a one-time use for this step.
+            verificationCache.removeEmailUpdateVerificationCode(currentEmail.toLowerCase());
+            return "Code verified successfully. You can now proceed with the update.";
+        } else {
+            return "Invalid or expired code for email update.";
+        }
+    }
+    // UPDATE-EMAIL-VERIFICATION END
+
     public void forgotPassword(String email) {
         if (emailSender == null || verificationCache == null || repository == null) {
             // Log critical error, but don't throw to the client to prevent enumeration
@@ -233,6 +286,82 @@ public class UsersFacade {
         }
         // Always return without error to prevent email enumeration
     }
+
+    // PASSWORD-CHANGE-NO-EMAIL START
+    public String changePassword(String usernameFromToken, String requestUsername, String oldPassword, String newPassword) {
+        if (this.repository == null) {
+            throw new IllegalStateException("UserRepository not configured in UsersFacade.");
+        }
+        // Ensure the user performing the action is the one whose password is to be changed.
+        // The username from the token is the authenticated user.
+        if (!usernameFromToken.equals(requestUsername)) {
+            // Optional: Allow admin to change password, but that would require an admin check here.
+            // For now, strictly user changing their own password.
+            throw new IllegalArgumentException("Unauthorized: You can only change your own password.");
+        }
+
+        User user = repository.findByUsername(requestUsername)
+                .orElseThrow(() -> new IllegalArgumentException("User not found: " + requestUsername));
+
+        if (!user.checkPassword(oldPassword)) {
+            throw new IllegalArgumentException("Current password is incorrect.");
+        }
+
+        // Validate new password length (backend validation is crucial)
+        if (newPassword == null || newPassword.trim().length() < 6) {
+            throw new IllegalArgumentException("New password must be at least 6 characters long.");
+        }
+
+        user.updatePassword(newPassword); // This method in User.java should hash the new password
+        repository.saveUser(user);
+
+        return "Password updated successfully.";
+    }
+    // PASSWORD-CHANGE-NO-EMAIL END
+
+    // RESEND VERIFICATION START
+    public String resendVerificationCode(String username) {
+        if (this.emailSender == null || this.verificationCache == null || this.repository == null) {
+            throw new IllegalStateException("Required services (Email, Cache, Repository) not configured for resending code.");
+        }
+
+        Optional<User> userOptional = repository.findByUsername(username);
+        if (userOptional.isEmpty()) {
+            throw new IllegalArgumentException("User not found.");
+        }
+        User user = userOptional.get();
+
+        if (user.isEmailVerified()) {
+            return "Email already verified.";
+        }
+
+        if (user.getEmails() == null || user.getEmails().isEmpty()) {
+            throw new IllegalStateException("User has no registered email address to send verification to.");
+        }
+        String primaryEmail = user.getEmails().get(0); // Use existing primary email
+
+        String newVerificationCode = generateVerificationCode();
+
+        // Construct RegisterRequest for VerificationCacheService compatibility
+        RegisterRequest cachedUserDataForResend = new RegisterRequest();
+        cachedUserDataForResend.setUsername(user.getUsername());
+        // IMPORTANT: Use the user's EXISTING HASHED password for the cache entry
+        // This field in RegisterRequest is expected to be the hashed password by VerificationCacheService
+        cachedUserDataForResend.setPassword(user.getPasswordHash());
+        cachedUserDataForResend.setName(user.getName());
+        cachedUserDataForResend.setEmail(primaryEmail);
+        cachedUserDataForResend.setPhone(user.getPhone());
+        cachedUserDataForResend.setBirthDate(user.getBirthDate());
+        cachedUserDataForResend.setProfilePicUrl(user.getProfilePicUrl());
+        // Note: isStudent and isAdmin flags are part of User, not RegisterRequest DTO.
+        // The cached RegisterRequest is mainly for identity and to fit the VerificationData structure.
+
+        verificationCache.storeVerificationData(primaryEmail.toLowerCase(), cachedUserDataForResend, newVerificationCode);
+        emailSender.sendVerificationCodeEmail(primaryEmail, user.getUsername(), newVerificationCode);
+
+        return "A new verification code has been sent to your email address.";
+    }
+    // RESEND VERIFICATION END
 
     public boolean verifyPasswordResetCode(String username, String code) {
         if (verificationCache == null || repository == null) {
@@ -339,6 +468,12 @@ public class UsersFacade {
     public void registerFcmToken(String username, String fcmToken){
         User user = getUser(username);
         user.addToken(fcmToken);
+        repository.saveUser(user);
+    }
+
+    public void removeFcmToken(String username, String fcmToken){
+        User user = getUser(username);
+        user.expireToken(fcmToken);
         repository.saveUser(user);
     }
 
@@ -515,6 +650,36 @@ public class UsersFacade {
         User user = repository.getUser(username);
         user.setLeaderboard(leaderboard);
         repository.saveUser(user);
+    }
+
+    public void setNotifyRecommendation(String username, boolean notify) {
+        User user = repository.getUser(username);
+        user.setNotifyRecommendations(notify);
+        repository.saveUser(user);
+    }
+
+    public void setRemindActivity(String username, boolean remind) {
+        User user = repository.getUser(username);
+        user.setRemindActivity(remind);
+        repository.saveUser(user);
+    }
+
+    public boolean getNotifyRecommendation(String username) {
+        try{
+        User user = repository.getUser(username);
+        return user.isNotifyRecommendations();
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    public boolean getRemindActivity(String username) {
+        try {
+            User user = repository.getUser(username);
+            return user.isRemindActivity();
+        }catch (Exception e){
+            return false;
+        }
     }
 
     public boolean isBanned(String username) {

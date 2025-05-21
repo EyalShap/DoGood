@@ -24,7 +24,17 @@ public class VerificationCacheService {
     private static final long CLEANUP_INTERVAL_MINUTES = 5;
     private static final long ENTRY_EXPIRY_MINUTES = 5;
 
+    // UPDATE-EMAIL-VERIFICATION START
+    // Simple record for storing update verification codes and their expiry
+    record UpdateVerificationCodeEntry(String code, Instant expiry) {}
+    // UPDATE-EMAIL-VERIFICATION END
+
+    // UPDATE-EMAIL-VERIFICATION START
+    // New cache specifically for email update verifications
+    private final ConcurrentHashMap<String, UpdateVerificationCodeEntry> emailUpdateVerificationCache = new ConcurrentHashMap<>();
+    // UPDATE-EMAIL-VERIFICATION END
     public VerificationCacheService() {
+
         cleanupScheduler.scheduleAtFixedRate(this::removeExpiredEntries,
                 CLEANUP_INTERVAL_MINUTES, CLEANUP_INTERVAL_MINUTES, TimeUnit.MINUTES);
         System.out.println("Verification Cache Service Initialized. Cleanup scheduled.");
@@ -111,6 +121,62 @@ public class VerificationCacheService {
         verificationCache.remove(emailKey.toLowerCase());
         System.out.println("Explicitly removed verification data for: " + emailKey.toLowerCase());
     }
+    // UPDATE-EMAIL-VERIFICATION START
+    /**
+     * Stores a verification code for an email update operation.
+     * @param emailKey The email address (lowercased) to use as the cache key.
+     * @param code The generated verification code.
+     */
+    public void storeEmailUpdateVerificationCode(String emailKey, String code) {
+        Instant expiry = Instant.now().plus(Duration.ofMinutes(ENTRY_EXPIRY_MINUTES));
+        UpdateVerificationCodeEntry entry = new UpdateVerificationCodeEntry(code, expiry);
+        emailUpdateVerificationCache.put(emailKey.toLowerCase(), entry);
+        System.out.println("Stored email update verification code for: " + emailKey.toLowerCase());
+    }
+
+    /**
+     * Retrieves and validates an email update verification code.
+     * Removes the entry if expired or if the code matches (successful validation).
+     * @param emailKey The email of the user.
+     * @param submittedCode The code submitted by the user.
+     * @return true if the code is valid and not expired, false otherwise.
+     */
+    public boolean getAndValidateEmailUpdateVerificationCode(String emailKey, String submittedCode) {
+        String lowerCaseEmail = emailKey.toLowerCase();
+        UpdateVerificationCodeEntry entry = emailUpdateVerificationCache.get(lowerCaseEmail);
+
+        if (entry == null) {
+            System.out.println("No email update verification code found for: " + lowerCaseEmail);
+            return false;
+        }
+
+        if (entry.expiry().isBefore(Instant.now())) {
+            System.out.println("Email update verification code EXPIRED for: " + lowerCaseEmail);
+            emailUpdateVerificationCache.remove(lowerCaseEmail); // Clean up expired entry
+            return false;
+        }
+
+        if (entry.code().equals(submittedCode)) {
+            System.out.println("Email update verification code VALID for: " + lowerCaseEmail);
+            // emailUpdateVerificationCache.remove(lowerCaseEmail); // Remove after successful validation
+            // Decided to remove it in the facade after successful use, to align with registration flow.
+            return true;
+        } else {
+            System.out.println("INVALID email update verification code for: " + lowerCaseEmail);
+            return false;
+        }
+    }
+
+    /**
+     * Removes an email update verification code from the cache.
+     * Typically called after successful use or explicit invalidation.
+     * @param emailKey The email key for the code to remove.
+     */
+    public void removeEmailUpdateVerificationCode(String emailKey) {
+        emailUpdateVerificationCache.remove(emailKey.toLowerCase());
+        System.out.println("Explicitly removed email update verification data for: " + emailKey.toLowerCase());
+    }
+    // UPDATE-EMAIL-VERIFICATION END
 
     private void removeExpiredEntries() {
         Instant now = Instant.now();
@@ -126,6 +192,20 @@ public class VerificationCacheService {
         if (initialSize > 0 || finalSize < initialSize) {
             System.out.printf("Ran verification cache cleanup. Removed %d expired entries. Current cache size: %d%n", initialSize - finalSize, finalSize);
         }
+        // UPDATE-EMAIL-VERIFICATION START
+        int initialUpdateSize = emailUpdateVerificationCache.size();
+        emailUpdateVerificationCache.entrySet().removeIf(entry -> {
+            boolean expired = entry.getValue().expiry().isBefore(now);
+            if (expired) {
+                System.out.println("Cache cleanup removing expired email update entry for: " + entry.getKey());
+            }
+            return expired;
+        });
+        int finalUpdateSize = emailUpdateVerificationCache.size();
+        if (initialUpdateSize > 0 || finalUpdateSize < initialUpdateSize) {
+            System.out.printf("Ran email update verification cache cleanup. Removed %d expired entries. Current cache size: %d%n", initialUpdateSize - finalUpdateSize, finalUpdateSize);
+        }
+        // UPDATE-EMAIL-VERIFICATION END
     }
 
     @PreDestroy

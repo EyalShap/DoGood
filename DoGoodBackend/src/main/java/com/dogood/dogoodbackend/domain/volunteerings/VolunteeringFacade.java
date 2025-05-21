@@ -1059,4 +1059,14 @@ public class VolunteeringFacade {
         }
         schedulingFacade.updateRequestDescription(userId, volunteeringId, start,newDescription);
     }
+
+    public void notifyUpcomingAppointments(){
+        List<ScheduleAppointment> upcomingAppointments = schedulingFacade.getUpcomingAppointments();
+        for(ScheduleAppointment appointment : upcomingAppointments){
+            Volunteering volunteering = repository.getVolunteering(appointment.getVolunteeringId());
+            if(usersFacade.getRemindActivity(appointment.getUserId()) && volunteering != null){
+                notificationSystem.notifyUser(appointment.getUserId(), "You have an upcoming activity in volunteering " + volunteering.getName(), NotificationNavigations.volunteering(volunteering.getId()));
+            }
+        }
+    }
 }

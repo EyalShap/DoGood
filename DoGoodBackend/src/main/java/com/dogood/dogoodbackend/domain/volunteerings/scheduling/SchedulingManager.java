@@ -6,6 +6,7 @@ import java.util.Date;
 import java.util.List;
 
 public interface SchedulingManager {
+    public List<ScheduleAppointment> getAllAppointments();
     public List<ScheduleAppointment> getUserAppointments(String username, List<Integer> volunteeringIds);
     public ScheduleAppointment getUserAppointmentInRange(String username, int volunteeringId, Date start, Date end, int minutesAllowed);
     public ScheduleAppointment getUserAppointmentInRange(String username, int volunteeringId, Date include, int minutesAllowed);

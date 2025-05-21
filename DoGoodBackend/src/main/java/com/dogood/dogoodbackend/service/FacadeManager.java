@@ -46,7 +46,6 @@ public class FacadeManager {
         this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt, emailSender, verificationCacheService);
         // VERIFICATION END
         this.notificationSystem = new NotificationSystem(notificationRepo);
-        this.notificationSystem.setUsersFacade(usersFacade);
         this.organizationsFacade = new OrganizationsFacade(usersFacade, orgRepo, reqRepo);
         this.volunteeringFacade = new VolunteeringFacade(usersFacade, this.organizationsFacade, volRepo, schedMan, skillsCatExt,pdfFactory);
         this.postsFacade = new PostsFacade(volunteeringPostRepo, volunteerPostRepo, usersFacade, volunteeringFacade, organizationsFacade, keyExt, skillsCatExt, reqRepo);
