@@ -267,37 +267,41 @@ public class UsersFacade {
         }
     }
     // UPDATE-EMAIL-VERIFICATION END
-
-    public void forgotPassword(String email) {
+    // FORGOT_PASSWORD START
+    /**
+     * Initiates the forgot password process for a user.
+     * A verification code is sent to the user's registered email.
+     * The code is stored in the cache keyed by the username.
+     * @param username The username of the user who forgot their password.
+     */
+    public void forgotPassword(String username) { // Changed parameter from email to username
         if (emailSender == null || verificationCache == null || repository == null) {
-            // Log critical error, but don't throw to the client to prevent enumeration
-            System.err.println("CRITICAL: Required services (Email, Cache, Repository) not configured in UsersFacade for forgotPassword.");
-            return; // Silently return
+            System.err.println("CRITICAL: Required services not configured for forgotPassword.");
+            // Silently return to prevent username/email enumeration attacks
+            return;
         }
 
-        Optional<User> userOptional = repository.findByEmail(email.toLowerCase());
+        Optional<User> userOptional = repository.findByUsername(username.toLowerCase()); // Find user by username
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
-            String username = user.getUsername(); // Get username for the email
+            if (user.getEmails() == null || user.getEmails().isEmpty()) {
+                // User exists but has no email, cannot send code. Silently return.
+                System.err.println("User " + username + " has no email for password reset.");
+                return;
+            }
+            String primaryEmail = user.getEmails().get(0); // Get the user's primary email
             String code = generateVerificationCode();
 
-            // To use the existing VerificationCacheService.storeVerificationData,
-            // which expects a RegisterRequest, we create a minimal one.
-            // This RegisterRequest is just a carrier for context if needed by the cache,
-            // or to satisfy the method signature. It won't be used for actual registration.
             RegisterRequest dummyUserData = new RegisterRequest();
-            dummyUserData.setUsername(username); // Store username for potential context
-            dummyUserData.setEmail(email);       // Store email for potential context
+            dummyUserData.setUsername(username);
+            dummyUserData.setEmail(primaryEmail); // Store the email for context if needed by VerificationData
 
-            // Assuming VerificationCacheService.storeVerificationData is:
-            // storeVerificationData(String emailKey, RegisterRequest userData, String code)
-            // The actual record VerificationData(String code, Instant expiry, RegisterRequest userData)
-            // will be created inside verificationCacheService.
-            verificationCache.storeVerificationData(email.toLowerCase(), dummyUserData, code);
-            emailSender.sendVerificationCodeEmail(email, username, code); // Send email
+            // Use USERNAME as the key for storing forgot password codes
+            verificationCache.storeVerificationData(username.toLowerCase(), dummyUserData, code);
+            emailSender.sendVerificationCodeEmail(primaryEmail, username, code);
         }
-        // Always return without error to prevent email enumeration
+        // Always return without error to prevent username enumeration
     }
 
     // PASSWORD-CHANGE-NO-EMAIL START

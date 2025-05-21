@@ -11,11 +11,10 @@ interface LoginPageProps {
     onSwitchToForgot: () => void; 
     // FORGOT_PASSWORD END
     onAuthSuccess: (username: string, token: string) => void;
-    changeState: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // FORGOT_PASSWORD START
-function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess, changeState }: LoginPageProps) {
+function LoginPage({ onSwitchToRegister, onSwitchToForgot, onAuthSuccess }: LoginPageProps) {
 // FORGOT_PASSWORD END
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
