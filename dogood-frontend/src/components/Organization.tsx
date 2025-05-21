@@ -344,7 +344,7 @@ function Organization() {
         }
     };
     
-    const onAddImage = async () => {
+    const onAddImage = async (selectedFile: File) => {
         try {
             let {data,error} =
                 await supabase.storage.from("organization-photos")
@@ -379,14 +379,22 @@ function Organization() {
         };
     
         const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedFile(e.target.files![0])
+            const file = e.target.files?.[0];
+            if (file) {
+                setSelectedFile(file); 
+                await onAddImage(file); 
+            }
         }
 
         const onSelectedSignature = async (e: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedSignature(e.target.files![0])
+            const signature = e.target.files?.[0];
+            if (signature) {
+                setSelectedSignature(signature); 
+                await onUploadSignatureOnClick(signature); 
+            }
         }
 
-        const onUploadSignatureOnClick = async () => {
+        const onUploadSignatureOnClick = async (selectedSignature: File) => {
             try {
                 if(selectedSignature === null) {
                     alert("Did not upload signature.");
@@ -471,9 +479,9 @@ function Organization() {
             
     
     return (
-        <div className='generalPageDiv'>
+        <div id="postPage" className="postPage">
             
-            <div className="orgActionsMenu">
+            <div className="actionsMenu">
                 <img
                     src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
                     alt="Profile"
@@ -508,20 +516,24 @@ function Organization() {
             </div>
 
             <div className = "orgHeaderContainer">
+                
                 <div className="organizationImages">
                     <ListWithArrows data = {orgImages} limit = {1} navigateTo={''} onRemove={onRemoveImage} isOrgManager={isManager}></ListWithArrows>
                     {isManager && <div className='uplaodImage'>
-                    <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
-                    <button onClick={onAddImage} className="orangeCircularButton">Upload Image</button>
+                    <input id="image-upload" type="file" onChange={onFileUpload} accept="image/*" key={key} style={{display: 'none'}}/>
+                    <label htmlFor="image-upload" className="orangeCircularButton" style={{cursor: 'pointer' }}>
+                        Upload Image
+                    </label>
                     </div>}
                 </div>
 
-                <div className='orgInfoText'>
-                    <h1 className='bigHeader' style={{maxWidth:"500px"}}>{model.name}</h1>
-                    <p className='smallHeader' style={{maxWidth:"500px"}}>{model.description}</p>
+                <div className='orgInfoText volunteeringPostHeaders'>
+                    <h1 className='bigHeader volunteeringPostHeaders' style={{maxWidth: '500px', overflowWrap: 'break-word'}}>{model.name}</h1>
+                    <p className='smallHeader volunteeringPostHeaders' style={{maxWidth: '500px', overflowWrap: 'break-word'}}>{model.description}</p>
 
                     <div className = "contact">
                         <h2 className='smallHeader'>Contact Us:</h2>
+                        <div className='emailAndNumber'>
                         <div className='email'>
                             <img src = 'https://static.vecteezy.com/system/resources/previews/021/454/517/non_2x/email-confirmation-app-icon-email-icon-free-png.png'></img>
                             <a href={`mailto:${model.email}`}>{model.email}</a>
@@ -529,6 +541,7 @@ function Organization() {
                         <div className='phone'>
                             <img src = 'https://static.vecteezy.com/system/resources/thumbnails/019/923/706/small_2x/telephone-and-mobile-phone-icon-calling-icon-transparent-background-free-png.png'></img>
                             <p>{model.phoneNumber}</p>
+                        </div>
                         </div>
                     </div>
                 </div>
@@ -591,7 +604,7 @@ function Organization() {
             {isManager && <div className='signature' style={{marginTop:'40px'}}>
                 <h2 className='listHeader'>Organization Signature</h2>
                 <h2 className='sigDesc'>Upload the organization signature to automatically sign forms for volunteers!</h2>
-                {signature !== "" && <img src={signature}></img>}
+                {signature !== "" && <img src={signature} style={{maxHeight: '200px', width:'auto'}}></img>}
                 {signature === "" && <p style={{marginBottom:'-10px'}}>No signature available.</p>}
                 {signature !== "" && localStorage.getItem("username") === model.founderUsername && <button className="removeButton" onClick = {handleRemoveSignatureOnClick}>X</button>}
 
@@ -599,8 +612,10 @@ function Organization() {
                     <div className='upload uploadSig'>
                         <h2 className='sigDesc uploadHeader'>Upload your signature as a picture</h2>
                         <div className='uploadInput'>
-                        <input type="file" accept="image/*" onChange={onSelectedSignature} key={keySignature}/>
-                        <button onClick={onUploadSignatureOnClick} className={`orangeCircularButton ${selectedSignature === null ? 'disabledButton' : ''}`}>Upload Signature</button>
+                        <input id="sig-upload" type="file" accept="image/*" onChange={onSelectedSignature} key={keySignature} style={{display: 'None'}}/>
+                        <label htmlFor="sig-upload" className="orangeCircularButton" style={{cursor: 'pointer' }}>
+                            Upload Signature
+                        </label>                        
                         </div>
                     </div>
 

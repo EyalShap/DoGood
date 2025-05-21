@@ -4,12 +4,14 @@ import com.dogood.dogoodbackend.domain.chat.Message;
 import com.dogood.dogoodbackend.domain.chat.MessageDTO;
 import com.dogood.dogoodbackend.domain.chat.ReceiverType;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@Transactional
 public class ChatService {
     private FacadeManager facadeManager;
 

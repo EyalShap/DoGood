@@ -7,6 +7,7 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     margin-top: 20px;
+    align-items: center;
 }
 
 .my-profile h1 {
@@ -23,6 +24,14 @@
     border: 1px solid #ddd;
     border-radius: 8px;
     background-color: #fff;
+}
+
+.reportSection {
+    width: fit-content;
+      display: inline-block;
+    margin-left: 50%;
+      transform: translateX(-50%);
+
 }
 
 .profile-section h2,
@@ -178,14 +187,7 @@
     flex-direction: column;
 }
 
-.reportSection {
-    display: flex;
-      justify-content: center; /* Centers vertically */
-      align-items: center; /* Centers horizontally */
-      width: 100%;
-      gap:10px;
-      margin-top: 10px;
-}
+
 
 .disabledButton {
     opacity: 0.5; /* Makes the button look faded */

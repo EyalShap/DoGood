@@ -66,12 +66,13 @@ function Homepage() {
             href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
             rel="stylesheet"
             />
-            <div className="headers">
-                <h1 className = "bigHeader">Discover Meaningful Volunteering Opportunities</h1>
-                <p className = "smallHeader">Find the perfect volunteering opportunities - start making a real impact today</p>
-                <button id = "browseButton" className = "orangeCircularButton" onClick={handleBrowseOnClick}>BROWSE VOLUNTEERING OPPORTUNITIES</button>
-                <button id = "browseButton" className = "orangeCircularButton" onClick={addOnClick}>ADD YOUR OWN VOLUNTEERING OPPORTUNITY</button>
-            
+            <div className="homepageHedaers">
+                <h1 className = "homepageHeader">Discover Meaningful Volunteering Opportunities</h1>
+                <p className = "homepageDescHeader">Find the perfect volunteering opportunities - start making a real impact today</p>
+                <div className='buttons'>
+                  <button id = "browseButton" className = "orangeCircularButton" onClick={handleBrowseOnClick}>BROWSE VOLUNTEERING OPPORTUNITIES</button>
+                  <button id = "browseButton" className = "orangeCircularButton" onClick={addOnClick}>ADD YOUR OWN VOLUNTEERING OPPORTUNITY</button>
+                </div>
                 {addInfoVisible && (
                         <div className="popup-window">
                             <div className="popup-header">
@@ -90,7 +91,7 @@ function Homepage() {
                     )}
             </div>
 
-            <div className='generalList'>
+            <div className='generalList recommendedList'>
                 <h1 className='recommendedDesc'>Handpicked Volunteering Opportunities, Just For You</h1>
                 <ListWithArrows data={posts} limit = {!isMobile ? 3 : posts.length} navigateTo = 'volunteeringPost' clickable={() => true} showArrows={!isMobile}></ListWithArrows>
             </div>

@@ -301,7 +301,7 @@ function VolunteeringPostList() {
             rel="stylesheet"
             />
             <div className="Posts">
-                <div className='headers'>
+                <div className='postListHeaders'>
                 <h1 className = "bigHeader">Your Opportunity To Volunteer</h1>
 
 

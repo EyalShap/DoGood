@@ -48,6 +48,10 @@
   font-family: 'Montserrat', sans-serif;
 }
 
+.requestSender:hover {
+  text-decoration: underline;
+}
+
   /* No requests available */
   #noRequests {
     font-size: 1.2rem;
@@ -55,7 +59,7 @@
     font-family: 'Montserrat', sans-serif;
   }
 
- .buttons {
+ .requestsButtons {
   display: flex; /* Optional: if you want internal content centering */
   flex-direction: column; /* Optional: if you need vertical stacking inside */
   justify-content: center; /* Center vertically */
@@ -70,7 +74,6 @@
   display: flex;             /* Use Flexbox for centering content */
   justify-content: center;   /* Horizontally center the text */
   align-items: center;       /* Vertically center the text */
-  padding: 10px 20px;        /* Optional: control padding around the text */
   text-align: center;
  }
 

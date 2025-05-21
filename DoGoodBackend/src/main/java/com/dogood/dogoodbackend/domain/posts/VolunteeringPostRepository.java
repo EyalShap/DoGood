@@ -18,6 +18,7 @@ public interface VolunteeringPostRepository {
     public void incNumOfPeopleRequestedToJoin(int postId);
     public VolunteeringPost getVolunteeringPost(int postId);
     public List<VolunteeringPost> getAllVolunteeringPosts();
+    public List<VolunteeringPost> getAllVolunteeringPostsOfVolunteering(int volunteeringId);
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId);
     public int getVolunteeringIdByPostId(int postId);
 

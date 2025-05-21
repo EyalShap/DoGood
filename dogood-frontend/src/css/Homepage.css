@@ -4,26 +4,20 @@
   text-align: center;
 }
 
-/* Headers */
-.headers {
-  margin-bottom: 20px;
-}
 
-.bigHeader {
-  font-size: 2.5rem;
+.homepageHeader {
+  font-size: 2.7rem;
   font-family: "Lobster", cursive;
   margin-bottom: 10px;
+  word-spacing: 0.2em;
 }
 
-.smallHeader {
-  font-size: 1.2rem;
+.homepageDescHeader {
+  font-size: 1.3rem;
   font-family: "Montserrat", sans-serif;
   font-weight: 400;
   color: #555;
 }
-
-
-
 
 /* Recommended Title */
 .recommendedDesc {
@@ -35,40 +29,52 @@
 
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .bigHeader {
-    font-size: 2rem;
-  }
-
-  .smallHeader {
-    font-size: 1rem;
-  }
 
   .recommendedDesc {
     font-size: 1.5rem;
   }
 
-  .orangeCircularButton {
-    font-size: 0.9rem;
-    padding: 10px 18px;
-  }
+
+}
+
+.buttons {
+  display: flex;
+  flex-direction: row;
+  gap: 10px;
 }
 
 @media (max-width: 480px) {
-  .bigHeader {
-    font-size: 1.8rem;
+  .homepageHeader {
+    font-size: 2rem;
+    font-weight: bolder;
   }
 
-  .smallHeader {
-    font-size: 0.9rem;
+  .homepageDescHeader {
+    font-size: 1.1rem;
   }
 
   .recommendedDesc {
     font-size: 1.3rem;
   }
 
-  .orangeCircularButton {
-    font-size: 0.85rem;
-    padding: 10px 16px;
-    border-radius: 20px;
+
+
+  .buttons {
+  display: flex;
+  flex-direction: column;
   }
+
+  .recommendedList .listItemHeader, .recommendedList .listItemDesc {
+    max-width: 260px;
+  }
+}
+
+.homepageHeader {
+  white-space: normal;
+  word-wrap: break-word;
+}
+
+.homepageDescHeader {
+  white-space: normal;
+  word-wrap: break-word;
 }

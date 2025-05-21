@@ -3,11 +3,13 @@ package com.dogood.dogoodbackend.domain.posts;
 import com.dogood.dogoodbackend.jparepos.VolunteerPostJPA;
 import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
 import com.dogood.dogoodbackend.utils.PostErrors;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+@Transactional
 public class DBVolunteerPostRepository implements VolunteerPostRepository{
     private VolunteerPostJPA jpa;
 
@@ -87,7 +89,7 @@ public class DBVolunteerPostRepository implements VolunteerPostRepository{
 
     @Override
     public VolunteerPost getVolunteerPost(int postId) {
-        Optional<VolunteerPost> post = jpa.findById(postId);
+        Optional<VolunteerPost> post = jpa.findByIdForUpdate(postId);
         if(!post.isPresent()) {
             throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
         }

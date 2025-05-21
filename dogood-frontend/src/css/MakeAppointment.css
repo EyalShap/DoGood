@@ -75,8 +75,10 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    width: 30%;
+    width: 50%;
 }
+
+
 
 .triangle{
     transition: transform 0.2s ease 0s;
@@ -165,9 +167,6 @@
     transform: translateY(-5px);
 }
 
-.restrict {
-
-}
 
 @media (max-width: 500px) {
     .weekButton {

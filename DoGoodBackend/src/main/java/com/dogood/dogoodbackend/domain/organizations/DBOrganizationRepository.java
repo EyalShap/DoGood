@@ -48,6 +48,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public void setVolunteeringIds(int organizationId, List<Integer> volunteeringIds) {
         Organization toSet = getOrganization(organizationId);
         toSet.setVolunteeringIds(volunteeringIds);
@@ -55,6 +56,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public void setManagers(int organizationId, List<String> managers) {
         Organization toSet = getOrganization(organizationId);
         toSet.setManagers(managers);
@@ -62,6 +64,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public void setFounder(int organizationId, String newFounder) {
         Organization toSet = getOrganization(organizationId);
         toSet.setFounder(newFounder);
@@ -69,6 +72,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public void setImages(int organizationId, List<String> images) {
         Organization toSet = getOrganization(organizationId);
         toSet.setImagePaths(images);
@@ -76,6 +80,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
         Organization organization = getOrganization(organizationId);
 
@@ -90,6 +95,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public byte[] getSignature(int organizationId, String actor) {
         Organization toSet = getOrganization(organizationId);
         return toSet.getSignature(actor);
@@ -98,7 +104,7 @@ public class DBOrganizationRepository implements OrganizationRepository{
     @Override
     @Transactional
     public Organization getOrganization(int organizationId) {
-        Optional<Organization> organization = jpa.findById(organizationId);
+        Optional<Organization> organization = jpa.findByIdForUpdate(organizationId); // locks org
         if(!organization.isPresent()) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
         }

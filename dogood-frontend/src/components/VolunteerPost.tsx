@@ -227,7 +227,7 @@ function VolunteerPost() {
         }
     };
     
-    const onAddImage = async () => {
+    const onAddImage = async (selectedFile: File) => {
         try {
             let {data,error} =
                 await supabase.storage.from("volunteer-post-photos")
@@ -262,7 +262,11 @@ function VolunteerPost() {
         };
     
         const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-            setSelectedFile(e.target.files![0])
+            const file = e.target.files?.[0];
+            if (file) {
+                setSelectedFile(file); 
+                await onAddImage(file); 
+            }
         }
 
     const handleChatOnClick = () => {
@@ -395,9 +399,9 @@ function VolunteerPost() {
 
             <div className = "volunteerPostHeaderContainer">
 
-            <div className='headers'>
-                <h1 className='bigHeader' style={{overflowWrap: "break-word"}}>{model.title}</h1>
-                <p className='smallHeader' style={{overflowWrap: "break-word"}}>{model.description}</p>
+            <div className='headers volunteeringPostHeaders'>
+                <h1 className='bigHeader volunteeringPostHeader' style={{overflowWrap: "break-word"}}>{model.title}</h1>
+                <p className='smallHeader volunteeringPostHeader' style={{overflowWrap: "break-word"}}>{model.description}</p>
 
                 <div className="info-container">
                     <button
@@ -417,13 +421,13 @@ function VolunteerPost() {
                 </div>
             </div>
 
-                <div className="postImages">
-                    <ListWithArrows data = {postImages} limit = {1} navigateTo={''} onRemove={onRemoveImage} isOrgManager={isPoster}></ListWithArrows>
-                    {isPoster && <div className='uplaodImage'>
-                    <input type="file" onChange={onFileUpload} accept="image/*" key={key}/>
-                    <button onClick={onAddImage} className="orangeCircularButton">Upload Image</button>
-                    </div>}
-                </div>
+            <div className='volunteerPostImages'>
+                <ListWithArrows data = {postImages} limit = {1} navigateTo={''} onRemove={onRemoveImage} isOrgManager={isPoster}></ListWithArrows>
+                <input id="image-upload" type="file" onChange={onFileUpload} accept="image/*" key={key} style={{display: 'none'}}/>
+                {isPoster && <label htmlFor="image-upload" className="orangeCircularButton uploadButton" style={{cursor: 'pointer' }}>
+                        Upload Image
+                    </label>}
+            </div>
             </div>
 
             <div className="relatedUsersContainer">

@@ -80,8 +80,8 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
     return (
         <div className='maker'>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
-                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} />
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T'+range.startTime)} maxTime={dayjs('2024-01-01T'+range.endTime)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
             </LocalizationProvider>
             {range.weekDays !== null &&
             <div className='selector'> 
@@ -145,7 +145,7 @@ function ActualAppointmentMaker({ volunteeringId, range }: { volunteeringId: num
                     </FormGroup>
                 </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)}/></LocalizationProvider>}
                 </div>}
-                <button className='orangeCircularButton' onClick={send}>Make Appointment</button>
+                <button className='orangeCircularButton' onClick={send} style={{marginTop:'10px'}}>Make Appointment</button>
         </div>
     )
 }
@@ -215,7 +215,7 @@ function MakeAppointment() {
     }, [])
     return (
         <div className='makeAppointment'>
-            <h1>{location.id == -1 ? `Available appointment ranges for Group ${group} for ${localStorage.getItem("username")}` : `Available appointment ranges for Group ${group} at ${location.name} for ${localStorage.getItem("username")}`}</h1>
+            <h1 className='bigHeader' style={{marginBottom:'20px', textAlign:'center'}}>{location.id == -1 ? `Available appointment ranges for Group ${group} for ${localStorage.getItem("username")}` : `Available appointment ranges for Group ${group} at ${location.name} for ${localStorage.getItem("username")}`}</h1>
             <div className='schedules'>
                 {ranges.map(range => <AvailableRange model={range} setter={setSelectedRange} volunteeringId={parseInt(id!)}
                                                      selected={selectedRange}/>)}

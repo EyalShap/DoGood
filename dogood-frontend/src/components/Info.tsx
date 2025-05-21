@@ -16,9 +16,11 @@ function Info({text}:{text: string}){
             </FaInfo>
             {isHovered && (
                 <div className="infoinfo-tooltip">
-                    <p>{text}</p>
+                    {text.split('~').map((line, index) => (
+                    <p key={index}>{line}</p>
+                    ))}
                 </div>
-            )}
+                )}
         </div>
     )
 }

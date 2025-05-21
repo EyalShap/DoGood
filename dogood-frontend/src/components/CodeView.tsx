@@ -31,7 +31,7 @@ function CodeView() {
              alignItems: "center",
              fontFamily: 'Montserrat, sans-serif',
              marginBottom: "20px"}}>
-            <h1>Changing Code</h1>
+            <h1 className="bigHeader" style={{marginBottom: '50px', marginTop: '50px'}}>Changing Code</h1>
             <QRCode size={300} value={code}/>
         </div>
     )

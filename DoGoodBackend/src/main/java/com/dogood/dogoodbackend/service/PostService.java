@@ -9,6 +9,7 @@ import com.dogood.dogoodbackend.domain.users.User;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.PastExperience;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -16,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 @Service
+@Transactional
 public class PostService {
     private PostsFacade postsFacade;
     private AuthFacade authFacade;
@@ -92,11 +94,21 @@ public class PostService {
         }
     }
 
-
     public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(String token, String actor) {
         try {
             checkToken(token,actor);
             List<VolunteeringPostDTO> posts = postsFacade.getAllVolunteeringPosts(actor);
+            return Response.createResponse(posts);
+        }
+        catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPostsOfVolunteering(String token, String actor, int volunteeringId) {
+        try {
+            checkToken(token,actor);
+            List<VolunteeringPostDTO> posts = postsFacade.getAllVolunteeringPostsOfVolunteering(actor, volunteeringId);
             return Response.createResponse(posts);
         }
         catch (Exception e) {

@@ -77,6 +77,18 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
+    public List<VolunteeringPost> getAllVolunteeringPostsOfVolunteering(int volunteeringId) {
+        List<VolunteeringPost> res = new ArrayList<>();
+
+        for(VolunteeringPost post : getAllVolunteeringPosts()) {
+            if(post.getVolunteeringId() == volunteeringId) {
+                res.add(post);
+            }
+        }
+        return res;
+    }
+
+    @Override
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId) {
         List<VolunteeringPost> res = new ArrayList<>();
         for(VolunteeringPost post : posts.values()) {

@@ -69,7 +69,7 @@ public class OrganizationsFacade {
         }
         requestRepository.removeObjectRequests(organizationId, RequestObject.ORGANIZATION);
         organizationRepository.setVolunteeringIds(organizationId, new ArrayList<>());
-        if(toRemove.isFounder(actor)) {
+        if(toRemove.isManager(actor)) {
             usersFacade.removeUserOrganization(actor, organizationId);
         }
         reportsFacade.removeOrganizationReports(organizationId);

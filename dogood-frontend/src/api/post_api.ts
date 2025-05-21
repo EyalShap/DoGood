@@ -228,6 +228,30 @@ export const getAllVolunteeringPosts = async (): Promise<VolunteeringPostModel[]
     return posts;
 }
 
+export const getAllVolunteeringPostsOfVolunteering = async (volunteeringId: number): Promise<VolunteeringPostModel[]> => {
+    let username: string | null = localStorage.getItem("username");
+    let token: string | null = localStorage.getItem("token");
+
+    if(username === null) {
+        throw new Error("Error");
+    }
+
+    let url = `${server}/getAllVolunteeringPostsOfVolunteering?actor=${username}&volunteeringId=${volunteeringId}`;
+    console.log(url);
+    const config = {
+        headers: { Authorization: `Bearer ${token}` }
+    };
+
+    let res = await axios.get(url, config);
+    const response: APIResponse<VolunteeringPostModel[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    let posts: VolunteeringPostModel[] = response.data;
+    return posts;
+}
+
+
 export const getOrganizationVolunteeringPosts = async (organizationId: number): Promise<VolunteeringPostModel[]> => {
     let username: string | null = localStorage.getItem("username");
     let token: string | null = localStorage.getItem("token");

@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
+@Transactional
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     private VolunteeringPostJPA jpa;
 
@@ -46,7 +47,6 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     }
 
     @Override
-    @Transactional
     public void removePostsByVolunteeringId(int volunteeringId) {
         jpa.deleteByVolunteeringId(volunteeringId);
     }
@@ -67,7 +67,7 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
 
     @Override
     public VolunteeringPost getVolunteeringPost(int postId) {
-        Optional<VolunteeringPost> post = jpa.findById(postId);
+        Optional<VolunteeringPost> post = jpa.findByIdForUpdate(postId);
         if(!post.isPresent()) {
             throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
         }
@@ -78,6 +78,11 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     @Override
     public List<VolunteeringPost> getAllVolunteeringPosts() {
         return jpa.findAll();
+    }
+
+    @Override
+    public List<VolunteeringPost> getAllVolunteeringPostsOfVolunteering(int volunteeringId) {
+        return jpa.findByVolunteeringId(volunteeringId);
     }
 
     @Override

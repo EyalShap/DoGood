@@ -111,8 +111,6 @@
   justify-content: center;
   position: relative;
   width: 100%;
-  max-width: 900px;
-  margin: auto;
   padding: 10px;
 }
 
@@ -155,13 +153,13 @@
 
 /* Text */
 .listItemHeader {
-  font-size: 18px;
+  font-size: 25px;
   font-weight: bold;
   margin: 10px 0;
 }
 
 .listItemDesc {
-  font-size: 14px;
+  font-size: 18px;
   color: #555;
   line-height: 1.4;
 }
@@ -250,11 +248,11 @@
 
 
   .listItemHeader {
-    font-size: 18px;
+    font-size: 23px;
   }
 
   .listItemDesc {
-    font-size: 15px;
+    font-size: 18px;
   }
 }
 

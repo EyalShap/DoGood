@@ -2,11 +2,13 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.jparepos.ReportJPA;
 import com.dogood.dogoodbackend.utils.ReportErrors;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 public class DBReportRepository implements ReportRepository{
     private ReportJPA jpa;
 
@@ -51,7 +53,7 @@ public class DBReportRepository implements ReportRepository{
     @Override
     public Report getReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
         ReportKey key = new ReportKey(reportingUser, date, reportedId, reportObject);
-        Optional<Report> report = jpa.findById(key);
+        Optional<Report> report = jpa.findByIdForUpdate(reportingUser, date, reportedId, reportObject);
         if(!report.isPresent()) {
             throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(key));
         }

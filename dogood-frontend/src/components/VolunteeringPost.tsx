@@ -272,10 +272,10 @@ function VolunteeringPost() {
                 </div>
 
 
-            <div className = "volunteeringPostHeaderContainer">
-            <div className='headers'>
-                <h1 className='bigHeader' style={{maxWidth:"500px"}}>{model.title}</h1>
-                <p className='smallHeader' style={{maxWidth:"500px"}}>{model.description}</p>
+            <div className = "volunteerPostHeaderContainer">
+            <div className='headers volunteeringPostHeaders'>
+                <h1 className='bigHeader volunteeringPostHeader'>{model.title}</h1>
+                <p className='smallHeader volunteeringPostHeader'>{model.description}</p>
 
                 <div className="info-container">
                     <button
@@ -305,7 +305,7 @@ function VolunteeringPost() {
             <div id="postInfo" className="postInfo">
                 
 
-                <button className='joinButton' onClick={handleJoinVolunteeringOnClick}>I Want To Join</button>
+                {!isManager && !isVolunteer && <button className='joinButton' onClick={handleJoinVolunteeringOnClick}>I Want To Join</button>}
     
                     {showJoinFreeText && (
                         <div className="popup-window">
@@ -327,23 +327,23 @@ function VolunteeringPost() {
 
             <div className='catsAndSkills'>
                 <div className='cats'>
-                    <h2 className='volunteerPostheader'>Volunteering Categories</h2>
+                    <h2 className='relatedVolunteersHeader' style={{fontSize:"1.6rem"}}>Volunteering Categories</h2>
                     <ul className='catsList'>
                         <div>
                     {categories.length > 0 ? categories.map((item, index) => (
                         <li key={index} style={{fontSize:"1.2rem"}}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                    )) : <p className='notFound'>No Categories Found</p>}
+                    )) : <p className='notFound' style={{fontSize:"1.2rem"}}>No Categories Found</p>}
                     </div>
                     </ul>
                 </div>
     
                 <div className='skills'>
-                    <h2 className='volunteerPostheader'>Required Skills</h2>
+                    <h2 className='relatedVolunteersHeader' style={{fontSize:"1.6rem"}}>Required Skills</h2>
                     <ul className='skillsList'>
                     <div>
                     {skills.length > 0 ? skills.map((item, index) => (
                         <li key={index} style={{fontSize:"1.2rem"}}>{item}</li> // Always add a unique 'key' prop when rendering lists
-                    )) : <p className='notFound'>No Skills Found</p>}
+                    )) : <p className='notFound' style={{fontSize:"1.2rem"}}>No Skills Found</p>}
                     </div>
                     </ul>
                 </div>
@@ -360,7 +360,7 @@ function VolunteeringPost() {
                         style={{ pointerEvents: isVolunteer ? 'auto' : 'none' }}
                         >
                         <p className='volunteeringOrganizationBoxHeader'>Volunteering</p>
-                        <p id="postVolunteering">{volunteeringName}</p>
+                        <p id="postVolunteering" >{volunteeringName}</p>
                     </div>
                     <div className="volunteeringOrganizationBox" onClick={handleShowOrganizationOnClick}>
                         <p className='volunteeringOrganizationBoxHeader'>Organization</p>

@@ -74,6 +74,13 @@ public class PostAPI {
         return postService.getAllVolunteeringPosts(token, actor);
     }
 
+    @GetMapping("/getAllVolunteeringPostsOfVolunteering")
+    public Response<List<VolunteeringPostDTO>> getAllVolunteeringPosts(@RequestParam String actor, @RequestParam int volunteeringId, HttpServletRequest request) {
+        String token = getToken(request);
+
+        return postService.getAllVolunteeringPostsOfVolunteering(token, actor, volunteeringId);
+    }
+
     @GetMapping("/getOrganizationVolunteeringPosts")
     public Response<List<VolunteeringPostDTO>> getOrganizationVolunteeringPosts(@RequestParam int orgId, @RequestParam String actor, HttpServletRequest request) {
         String token = getToken(request);

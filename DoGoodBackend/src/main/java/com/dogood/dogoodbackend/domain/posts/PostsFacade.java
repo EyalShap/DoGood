@@ -240,6 +240,15 @@ public class PostsFacade {
         return volunteeringPostRepository.getVolunteeringPostDTOs(allPosts);
     }
 
+    public List<VolunteeringPostDTO> getAllVolunteeringPostsOfVolunteering(String actor, int volunteeringId) {
+        if(!userExists(actor)){
+            throw new IllegalArgumentException("User " + actor + " doesn't exist");
+        }
+
+        List<VolunteeringPost> allPosts = volunteeringPostRepository.getAllVolunteeringPostsOfVolunteering(volunteeringId);
+        return volunteeringPostRepository.getVolunteeringPostDTOs(allPosts);
+    }
+
     public List<VolunteeringPostDTO> getOrganizationVolunteeringPosts(int organizationId, String actor) {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");

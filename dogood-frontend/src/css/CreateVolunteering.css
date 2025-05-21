@@ -71,6 +71,9 @@
   max-width: 450px;
   text-align: center;
   gap: 30px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
 
