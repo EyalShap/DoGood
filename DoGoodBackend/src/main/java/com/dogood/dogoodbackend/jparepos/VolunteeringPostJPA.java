@@ -21,6 +21,9 @@ public interface VolunteeringPostJPA extends JpaRepository<VolunteeringPost, Int
     @Query("SELECT o FROM VolunteeringPost o WHERE o.id = :id")
     Optional<VolunteeringPost> findByIdForUpdate(@Param("id") int id);
 
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    Optional<VolunteeringPost> findById(@Param("id") int id);
+
     List<VolunteeringPost> findByVolunteeringId(int volunteeringId);
 
     List<VolunteeringPost> findByOrganizationId(int organizationId);

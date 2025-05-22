@@ -24,10 +24,6 @@ public interface ReportJPA extends JpaRepository<Report, ReportKey> {
     //@Query("DELETE FROM Report WHERE reportedPostId = :reportedPostId")
     //void deletePostId(@Param("reportedPostId") int reportedPostId);
 
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT r FROM Report r WHERE r.reportingUser = :reportingUser AND r.date = :date AND r.reportedId = :reportedId AND r.reportObject = :reportObject")
-    Optional<Report> findByIdForUpdate(@Param("reportingUser") String reportingUser, @Param("date") LocalDate date, @Param("reportedId") String reportedId, @Param("reportObject") ReportObject reportObject);
-
     @Modifying
     @Transactional
     Long deleteByReportedIdAndReportObject(String reportedId, ReportObject reportObject);

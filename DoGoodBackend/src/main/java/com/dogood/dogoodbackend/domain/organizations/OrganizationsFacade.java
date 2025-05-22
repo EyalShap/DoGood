@@ -57,7 +57,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization toRemove = organizationRepository.getOrganization(organizationId);
+        Organization toRemove = organizationRepository.getOrganizationForWrite(organizationId);
 
         if(!toRemove.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, toRemove.getName(), "remove the organization"));
@@ -83,7 +83,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization toEdit = organizationRepository.getOrganization(organizationId);
+        Organization toEdit = organizationRepository.getOrganizationForWrite(organizationId);
         String prevName = toEdit.getName();
 
         if(!toEdit.isManager(actor) && !isAdmin(actor)) {
@@ -98,7 +98,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
         if(!isManager(actor, organizationId) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "create a new volunteering"));
         }
@@ -116,7 +116,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
 
         if(!organization.isManager(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "remove a volunteering"));
@@ -131,7 +131,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
         String volunteeringName = volunteeringFacade.getVolunteeringDTO(volunteeringId).getName();
 
         if(!organization.isManager(actor) && !isAdmin(actor)) {
@@ -150,7 +150,7 @@ public class OrganizationsFacade {
         if(!userExists(newManager)){
             throw new IllegalArgumentException("User " + newManager + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
         if(!organization.isManager(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "send assign manager request"));
         }
@@ -173,7 +173,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         Request request = requestRepository.getRequest(actor, organizationId, RequestObject.ORGANIZATION);
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
         if(approved) {
             organization.addManager(actor);
             organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
@@ -189,7 +189,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
         organization.resign(actor);
         organizationRepository.setManagers(organizationId, organization.getManagerUsernames());
 
@@ -203,7 +203,7 @@ public class OrganizationsFacade {
         if(!userExists(managerToRemove)){
             throw new IllegalArgumentException("User " + managerToRemove + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
 
         if(!organization.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, organization.getName(), "remove a manager from organization"));
@@ -221,13 +221,13 @@ public class OrganizationsFacade {
         if(!userExists(newFounder)){
             throw new IllegalArgumentException("User " + newFounder + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
 
         if(!organization.isFounder(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonFounderCanNotPreformActionError(actor, organization.getName(), "set a new founder to the organization"));
         }
 
-        organizationRepository.setFounder(organizationId, newFounder);
+        organizationRepository.setFounder(organizationId, newFounder); // will lock org for read
 
         notifyManagers(String.format("%s is the new founder of your organization \"%s\".", newFounder, organization.getName()), NotificationNavigations.organization(organizationId), organizationId);
     }
@@ -235,7 +235,7 @@ public class OrganizationsFacade {
     public void notifyManagers(String message, String nav, int orgId){
         //Hi dana this is function eyal added
         //You can change it if you want
-        Organization organization = organizationRepository.getOrganization(orgId);
+        Organization organization = organizationRepository.getOrganizationForRead(orgId);
         for(String username : organization.getManagerUsernames()){
             notificationSystem.notifyUser(username, message, nav);
         }
@@ -249,7 +249,7 @@ public class OrganizationsFacade {
     }
 
     public OrganizationDTO getOrganization(int organizationId) {
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
         OrganizationDTO organizationDTO = new OrganizationDTO(organization);
         return organizationDTO;
     }
@@ -259,7 +259,7 @@ public class OrganizationsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
         List<Integer> res = new ArrayList<>();
-        List<Integer> orgVolunteeringIds = getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> orgVolunteeringIds = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         for(int volunteeringId : orgVolunteeringIds) {
             if(volunteeringFacade.getHasVolunteer(actor, volunteeringId)) {
                 res.add(volunteeringId);
@@ -276,11 +276,11 @@ public class OrganizationsFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User " + username + " doesn't exist");
         }
-        return organizationRepository.getOrganization(organizationId).isManager(username);
+        return organizationRepository.getOrganizationForRead(organizationId).isManager(username);
     }
 
     public List<VolunteeringDTO> getOrganizationVolunteerings(int organizationId) {
-        OrganizationDTO organization = getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
         List<Integer> volunteeringIds = organization.getVolunteeringIds();
         List<VolunteeringDTO> volunteeringDTOS = new ArrayList<>();
 
@@ -302,7 +302,7 @@ public class OrganizationsFacade {
         if(!userExists(actor)){
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganization(organizationId);
+        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
         if(!organization.isManager(actor) && !isAdmin(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "add image"));
         }
@@ -319,7 +319,7 @@ public class OrganizationsFacade {
         else {
             newImages.remove(image);
         }
-        organizationRepository.setImages(organizationId, newImages);
+        organizationRepository.setImages(organizationId, newImages); // will lock org for write
     }
 
     public void uploadSignature(int organizationId, String actor, MultipartFile signature) {

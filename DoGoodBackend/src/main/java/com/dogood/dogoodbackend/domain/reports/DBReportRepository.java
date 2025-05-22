@@ -53,7 +53,7 @@ public class DBReportRepository implements ReportRepository{
     @Override
     public Report getReport(String reportingUser, LocalDate date, String reportedId, ReportObject reportObject) {
         ReportKey key = new ReportKey(reportingUser, date, reportedId, reportObject);
-        Optional<Report> report = jpa.findByIdForUpdate(reportingUser, date, reportedId, reportObject);
+        Optional<Report> report = jpa.findById(key);
         if(!report.isPresent()) {
             throw new IllegalArgumentException(ReportErrors.makeReportDoesNotExistError(key));
         }

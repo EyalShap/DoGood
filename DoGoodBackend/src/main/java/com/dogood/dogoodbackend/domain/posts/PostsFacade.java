@@ -135,7 +135,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteeringPost toRemove = volunteeringPostRepository.getVolunteeringPost(postId);
+        VolunteeringPost toRemove = volunteeringPostRepository.getVolunteeringPostForWrite(postId);
 
         if(!isAllowedToMakePostAction(actor, toRemove)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.title, actor, "remove"));
@@ -159,7 +159,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteeringPost toEdit = volunteeringPostRepository.getVolunteeringPost(postId);
+        VolunteeringPost toEdit = volunteeringPostRepository.getVolunteeringPostForWrite(postId);
         String prevTitle = toEdit.getTitle();
         VolunteeringDTO volunteeringDTO = volunteeringFacade.getVolunteeringDTO(toEdit.getVolunteeringId());
 
@@ -195,7 +195,7 @@ public class PostsFacade {
 
     public boolean doesVolunteeringPostExist(int postId) {
         try {
-            volunteeringPostRepository.getVolunteeringPost(postId);
+            volunteeringPostRepository.getVolunteeringPostForRead(postId);
             return true;
         }
         catch (Exception e) {
@@ -205,7 +205,7 @@ public class PostsFacade {
 
     public boolean doesVolunteerPostExist(int postId) {
         try {
-            volunteerPostRepository.getVolunteerPost(postId);
+            volunteerPostRepository.getVolunteerPostForRead(postId);
             return true;
         }
         catch (Exception e) {
@@ -218,7 +218,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteeringPost post = volunteeringPostRepository.getVolunteeringPost(postId);
+        VolunteeringPost post = volunteeringPostRepository.getVolunteeringPostForRead(postId);
         return new VolunteeringPostDTO(post);
     }
 
@@ -227,7 +227,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost post = volunteerPostRepository.getVolunteerPostForRead(postId);
         return new VolunteerPostDTO(post);
     }
 
@@ -420,7 +420,7 @@ public class PostsFacade {
         }
 
         List<VolunteeringPostDTO> sorted = allPosts.stream()
-                .sorted(Comparator.comparingInt(post -> -1 * volunteeringPostRepository.getVolunteeringPost(post.getId()).evaluatePopularity()))
+                .sorted(Comparator.comparingInt(post -> -1 * volunteeringPostRepository.getVolunteeringPostForRead(post.getId()).evaluatePopularity()))
                 .collect(Collectors.toList());
 
         return sorted;
@@ -445,7 +445,7 @@ public class PostsFacade {
         List<VolunteeringPostDTO> result = new ArrayList<>();
 
         for(int postId : allPostIds) {
-            VolunteeringPost post = volunteeringPostRepository.getVolunteeringPost(postId);
+            VolunteeringPost post = volunteeringPostRepository.getVolunteeringPostForRead(postId);
             int volunteeringId = post.getVolunteeringId();
             Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
             Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
@@ -486,7 +486,7 @@ public class PostsFacade {
         List<VolunteerPostDTO> result = new ArrayList<>();
 
         for(int postId : allPosts) {
-            VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+            VolunteerPost post = volunteerPostRepository.getVolunteerPostForRead(postId);
             Set<String> volunteeringCategories = new HashSet<>(post.getCategories(this));
             Set<String> volunteeringSkills = new HashSet<>(post.getSkills(this));
             Set<String> postKeywords = post.getKeywords();
@@ -651,7 +651,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteerPost toRemove = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost toRemove = volunteerPostRepository.getVolunteerPostForWrite(postId);
 
         if(!toRemove.getPosterUsername().equals(actor)) {
             throw new IllegalArgumentException(PostErrors.makeUserIsNotAllowedToMakePostActionError(toRemove.getTitle(), actor, "remove"));
@@ -667,7 +667,7 @@ public class PostsFacade {
             throw new IllegalArgumentException("User " + actor + " doesn't exist");
         }
 
-        VolunteerPost toEdit = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost toEdit = volunteerPostRepository.getVolunteerPostForWrite(postId);
         String prevTitle = toEdit.getTitle();
 
         if(!toEdit.getPosterUsername().equals(actor)) {
@@ -741,12 +741,12 @@ public class PostsFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User " + username + " doesn't exist");
         }
-        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost post = volunteerPostRepository.getVolunteerPostForRead(postId);
         return post.hasRelatedUser(username);
     }
 
     public List<String> getRelatedUsers(int postId) {
-        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost post = volunteerPostRepository.getVolunteerPostForRead(postId);
         return new LinkedList<>(post.getRelatedUsers());
     }
 
@@ -883,7 +883,7 @@ public class PostsFacade {
         }
         volunteerPostRepository.setPoster(postId, actor, newPoster);
 
-        VolunteerPost post = volunteerPostRepository.getVolunteerPost(postId);
+        VolunteerPost post = volunteerPostRepository.getVolunteerPostForWrite(postId);
         String message = String.format("You were set as the poster of the post %s.", post.getTitle());
         notificationSystem.notifyUser(newPoster, message, NotificationNavigations.volunteerPost(postId));
     }

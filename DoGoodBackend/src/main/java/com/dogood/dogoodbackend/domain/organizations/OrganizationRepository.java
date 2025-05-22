@@ -17,7 +17,8 @@ public interface OrganizationRepository {
     public void setImages(int organizationId, List<String> images);
     public void uploadSignature(int organizationId, String actor, MultipartFile signature);
     public byte[] getSignature(int organizationId, String actor);
-    public Organization getOrganization(int organizationId);
+    public Organization getOrganizationForRead(int organizationId);
+    public Organization getOrganizationForWrite(int organizationId);
     public List<Organization> getAllOrganizations();
     public void clear();
 

@@ -64,7 +64,16 @@ public class MemoryVolunteeringPostRepository implements VolunteeringPostReposit
     }
 
     @Override
-    public VolunteeringPost getVolunteeringPost(int postId) {
+    public VolunteeringPost getVolunteeringPostForRead(int postId) {
+        return getVolunteeringPost(postId);
+    }
+
+    @Override
+    public VolunteeringPost getVolunteeringPostForWrite(int postId) {
+        return getVolunteeringPost(postId);
+    }
+
+    private VolunteeringPost getVolunteeringPost(int postId) {
         if(!posts.containsKey(postId)) {
             throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
         }

@@ -14,7 +14,8 @@ public interface VolunteerPostRepository {
     public void addImage(int postId, String path, String actor);
     public void removeImage(int postId, String path, String actor);
     public void setPoster(int postId, String actor, String newPoster);
-    public VolunteerPost getVolunteerPost(int postId);
+    public VolunteerPost getVolunteerPostForRead(int postId);
+    public VolunteerPost getVolunteerPostForWrite(int postId);
     public List<VolunteerPost> getAllVolunteerPosts();
 
     public default List<VolunteerPostDTO> getVolunteerPostDTOs(List<VolunteerPost> posts) {

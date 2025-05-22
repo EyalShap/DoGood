@@ -18,4 +18,7 @@ public interface VolunteerPostJPA extends JpaRepository<VolunteerPost, Integer> 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT o FROM VolunteerPost o WHERE o.id = :id")
     Optional<VolunteerPost> findByIdForUpdate(@Param("id") int id);
+
+    @Lock(LockModeType.PESSIMISTIC_READ)
+    Optional<VolunteerPost> findById(@Param("id") int id);
 }
