@@ -132,7 +132,7 @@ public class UsersFacade {
                 cachedUserData.setProfilePicUrl(profilePicUrl);
 
                 // Use USERNAME as the key for the cache
-                verificationCache.storeVerificationData(username.toLowerCase(), cachedUserData, verificationCode);
+                verificationCache.storeVerificationData(username, cachedUserData, verificationCode);
                 emailSender.sendVerificationCodeEmail(email, username, verificationCode);
             }
         }
@@ -179,7 +179,7 @@ public class UsersFacade {
         }
 
         // Use USERNAME as the key to validate from cache
-        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(username.toLowerCase(), code);
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(username, code);
 
         if (verificationDataOptional.isPresent()) {
             // Ensure the user data in the cache matches the user being verified, especially the email.
@@ -194,7 +194,7 @@ public class UsersFacade {
             user.setEmailVerified(true);
             repository.saveUser(user);
             // Use USERNAME as the key to remove from cache
-            verificationCache.removeVerificationData(username.toLowerCase());
+            verificationCache.removeVerificationData(username);
             return "Email verified successfully.";
         } else {
             return "Invalid or expired verification code.";
@@ -232,8 +232,7 @@ public class UsersFacade {
         }
 
         String verificationCode = generateVerificationCode();
-        // Use USERNAME of the actor as the key for this specific cache
-        verificationCache.storeEmailUpdateVerificationCode(actorUsername.toLowerCase(), verificationCode);
+        verificationCache.storeEmailUpdateVerificationCode(actorUsername, verificationCode);
         emailSender.sendVerificationCodeEmail(currentEmailFromRequest, user.getUsername(), verificationCode);
 
         return "Verification code sent to " + currentEmailFromRequest + ".";
@@ -256,11 +255,11 @@ public class UsersFacade {
         }
 
         // Use USERNAME of the actor as the key
-        boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(actorUsername.toLowerCase(), code);
+        boolean isValid = verificationCache.getAndValidateEmailUpdateVerificationCode(actorUsername, code);
 
         if (isValid) {
             // Use USERNAME of the actor as the key
-            verificationCache.removeEmailUpdateVerificationCode(actorUsername.toLowerCase());
+            verificationCache.removeEmailUpdateVerificationCode(actorUsername);
             return "Code verified successfully. You can now proceed with the update.";
         } else {
             return "Invalid or expired code for email update.";
@@ -281,7 +280,7 @@ public class UsersFacade {
             return;
         }
 
-        Optional<User> userOptional = repository.findByUsername(username.toLowerCase()); // Find user by username
+        Optional<User> userOptional = repository.findByUsername(username); // Find user by username
 
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -298,7 +297,7 @@ public class UsersFacade {
             dummyUserData.setEmail(primaryEmail); // Store the email for context if needed by VerificationData
 
             // Use USERNAME as the key for storing forgot password codes
-            verificationCache.storeVerificationData(username.toLowerCase(), dummyUserData, code);
+            verificationCache.storeVerificationData(username, dummyUserData, code);
             emailSender.sendVerificationCodeEmail(primaryEmail, username, code);
         }
         // Always return without error to prevent username enumeration
@@ -382,7 +381,7 @@ public class UsersFacade {
         cachedUserDataForResend.setProfilePicUrl(user.getProfilePicUrl());
 
         // Use USERNAME as the key for the cache
-        verificationCache.storeVerificationData(username.toLowerCase(), cachedUserDataForResend, newVerificationCode);
+        verificationCache.storeVerificationData(username, cachedUserDataForResend, newVerificationCode);
         emailSender.sendVerificationCodeEmail(primaryEmail, user.getUsername(), newVerificationCode);
 
         return "A new verification code has been sent to your email address.";
@@ -411,7 +410,7 @@ public class UsersFacade {
             return false;
         }
 
-        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(email.toLowerCase(), code);
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(username, code);
 
         // Additionally, we might want to check if the userData stored (our dummy RegisterRequest)
         // matches the username, if we stored it for this purpose.
@@ -435,13 +434,13 @@ public class UsersFacade {
             return "User email not found.";
         }
 
-        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(email.toLowerCase(), code);
+        Optional<VerificationData> verificationDataOptional = verificationCache.getAndValidateVerificationData(username, code);
 
         if (verificationDataOptional.isPresent()) {
             // Code is valid, proceed to reset password
             user.setPasswordHash(Cryptography.hashString(newPassword)); // Assuming User model has setPasswordHash or similar
             repository.saveUser(user);
-            verificationCache.removeVerificationData(email.toLowerCase()); // Important: consume the code
+            verificationCache.removeVerificationData(username); // Important: consume the code
             return "Password reset successfully.";
         } else {
             return "Invalid or expired verification code.";

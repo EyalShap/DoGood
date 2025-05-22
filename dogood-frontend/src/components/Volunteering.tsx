@@ -27,7 +27,7 @@ import {
     removeRange,
     removeRestrictionFromRange,
     removeVolunteering,
-    requestHoursApproval
+    requestHoursApproval, sendUpdateToVolunteers
 } from '../api/volunteering_api'
 import { useNavigate, useParams } from "react-router-dom";
 import ScheduleAppointment from '../models/ScheduleAppointment';
@@ -72,12 +72,22 @@ interface GroupToVolunteers {
 
 function GroupRow({ groupId, volunteeringId, volunteers, deleteGroup, onDragStart, onDrop }: { groupId: number, volunteeringId: number, volunteers: string[], deleteGroup: (groupId: number) => void, onDragStart: (e: React.DragEvent<HTMLParagraphElement>, volunteer: string, from: number) => void, onDrop: (e: any, to: number) => void }) {
     const [locationMapping, setLocationMapping] = useState<VolunteersToLocation>({});
+    const [availableLocations, setAvailableLocations] = useState<Location[]>([])
+    const [userToAssign, setUserToAssign] = useState<string | null>(null);
+    const assignVolunteerLocation = async (volunteerId: string, locId: number) => {
+        try {
+            await assignVolunteerToLocation(volunteerId, volunteeringId, locId);
+            await fetchLocations();
+        } catch (e) {
+            alert(e);
+        }
+    }
 
     const fetchLocations = async () => {
         try{
             let fetchedMapping = await getGroupLocationMapping(volunteeringId,groupId);
             setLocationMapping(fetchedMapping);
-            console.log(fetchedMapping)
+            setAvailableLocations(await getGroupLocations(volunteeringId,groupId))
         }catch(e){
             alert(e)
         }
@@ -93,13 +103,24 @@ function GroupRow({ groupId, volunteeringId, volunteers, deleteGroup, onDragStar
                 <h1 className='groupId'>Group {groupId}</h1>
                 <button className="cancelButton" onClick={() => deleteGroup(groupId)}>Remove Group</button>
             </div>
-            {volunteers.map(volunteer => <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)} className='volunteerUsername'>{volunteer} {locationMapping.hasOwnProperty(volunteer) && `(Volunteers at ${locationMapping[volunteer].name})`}</p>)}
+            {volunteers.map(volunteer =>
+                <div className='volunteerRow'>
+                    <div className='volunteerData'>
+                        <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)}
+                        >{volunteer} {locationMapping.hasOwnProperty(volunteer) && `(Volunteers at ${locationMapping[volunteer].name})`}
+                        </p>
+                        <button className="orangeCircularButton" onClick={() => setUserToAssign(userToAssign === volunteer ? null : volunteer)}>Assign Location</button>
+                    </div>
+                    <div className={`locationAssignment${userToAssign === volunteer ? " openLocationAssignment" : ""}`}>
+                        {availableLocations.map(location => <button disabled={locationMapping[volunteer] && locationMapping[volunteer].id === location.id} className="orangeCircularButton locationOption" onClick={() => assignVolunteerLocation(volunteer, location.id)}>{location.name}</button>)}
+                    </div>
+                </div>)}
             <hr/>
         </div>
     )
 }
 
-function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
+function AppointmentCalender({volunteeringId}: { volunteeringId: number }) {
     const getLastSunday = (d: Date) => {
         var t = new Date(d);
         t.setDate(t.getDate() - t.getDay());
@@ -934,9 +955,10 @@ function Volunteering() {
         }
     }
 
+
     const assignUserToLocation = async (locId: number) => {
         try {
-            await assignVolunteerToLocation(parseInt(id!), locId);
+            await assignVolunteerToLocation(localStorage.getItem("username")!, parseInt(id!), locId);
             fetchVolunteering();
             updateHasLocation();
         } catch (e) {
@@ -961,8 +983,13 @@ function Volunteering() {
     }
 
     const handleSubmitNotificationOnClick = async () => {
-        // hi
-        alert(notification); // dummy notify
+        try {
+            await sendUpdateToVolunteers(model.id, notification);
+            alert("Notification Sent!");
+        }
+        catch(e) {
+            alert(e);
+        }
         setShowNotifyVolunteers(false);
         setNotification("");
     }

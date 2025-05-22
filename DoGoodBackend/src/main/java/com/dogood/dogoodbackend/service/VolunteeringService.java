@@ -817,6 +817,16 @@ public class VolunteeringService {
         }
     }
 
+    public Response<String> sendUpdatesToVolunteers(String token, String actor, int volunteeringId, String message){
+        try {
+            checkToken(token, actor);
+            facadeManager.getVolunteeringFacade().sendUpdatesToVolunteers(actor, volunteeringId,message);
+            return Response.createOK();
+        } catch (Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     @Scheduled(cron = "0 0 * * * *")
     protected void remindBeforeActivity(){
         facadeManager.getVolunteeringFacade().notifyUpcomingAppointments();
