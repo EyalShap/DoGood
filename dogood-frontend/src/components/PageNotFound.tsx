@@ -1,5 +1,6 @@
 import snail from "../assets/snail.png";
 
+
 function PageNotFound() {
     return <div style={{
       textAlign: "center",

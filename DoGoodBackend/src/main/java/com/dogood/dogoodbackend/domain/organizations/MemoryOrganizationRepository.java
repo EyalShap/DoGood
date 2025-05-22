@@ -89,12 +89,21 @@ public class MemoryOrganizationRepository implements OrganizationRepository{
         return getOrganization(organizationId).getSignature(actor);
     }
 
-    @Override
-    public Organization getOrganization(int organizationId) {
+    private Organization getOrganization(int organizationId) {
         if(!organizations.containsKey(organizationId)) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
         }
         return organizations.get(organizationId);
+    }
+
+    @Override
+    public Organization getOrganizationForRead(int organizationId) {
+        return getOrganization(organizationId);
+    }
+
+    @Override
+    public Organization getOrganizationForWrite(int organizationId) {
+        return getOrganization(organizationId);
     }
 
     @Override

@@ -52,14 +52,14 @@
   }
   
   .plusListItemHeader {
-    font-size: 20px;
+    font-size: 25px;
     font-weight: bold;
     margin: 10px 0;
     font-family: 'Montserrat', sans-serif;
   }
   
   .plusListItemDesc {
-    font-size: 16px;
+    font-size: 18px;
     color: #555;
     font-family: 'Montserrat', sans-serif;
   }

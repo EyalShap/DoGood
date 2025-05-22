@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.reports.ReportObject;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +13,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @Service
+@Transactional
 public class ReportService {
     private ReportsFacade reportsFacade;
     private AuthFacade authFacade;

@@ -3,6 +3,8 @@ import './../css/ListWithArrows.css'
 import './../css/CommonElements.css'
 import { useNavigate } from "react-router-dom";
 import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
+import defaultVolunteerPostDog from "/src/assets/defaultVolunteerPostDog.jpg";
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
 
 export interface ListItem {
   id: number | string;
@@ -89,7 +91,7 @@ const List: React.FC<ListProps> = ({ data, limit, navigateTo, clickable, onRemov
               {!setFounderOrPoster && showSetAsFounder && showSetAsFounder(item.id.toString()) && setFounderHandler && <button className='orangeCircularButton' onClick={(e) => {e.stopPropagation(); setFounderHandler(item.id.toString());}}>Set As Poster</button>}
             </div>
           </div>
-          {(isOrgManager && onRemove && item.image !== defaultOrgImage) && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
+          {(isOrgManager && onRemove && item.image !== defaultOrgImage && item.image !== defaultVolunteerPostDog && item.image !== defaultVolunteeringPic) && <button onClick={(e) => {e.stopPropagation(); onRemove(item.image);}} className="removeButton">X</button>}
                                               
           </div>
         ))}

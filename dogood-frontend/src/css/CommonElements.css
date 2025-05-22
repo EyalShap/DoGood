@@ -23,7 +23,7 @@
   /* Main Title */
   .bigHeader {
     font-family: 'Lobster', cursive;
-    font-size: 3.5rem;
+    font-size: 2.7rem;
     margin: 0;
     color: black;
     line-height: 1.2;
@@ -32,10 +32,10 @@
   /* Sub Title */
   .smallHeader {
     font-family: 'Montserrat', sans-serif;
-    font-size: 1.2rem;
+    font-size: 1.3rem;
     margin: 0;
     color: black;
-    max-width: 800px;
+    max-width: 90%;
     line-height: 1.4;
     font-weight: 300;
   }
@@ -52,6 +52,7 @@
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-weight: 400;
+    word-spacing: 0.2em;
 
   }
 
@@ -101,11 +102,11 @@
 
   @media (max-width: 480px) {
     .bigHeader {
-      font-size: 1.8rem;
+      font-size: 2.2rem;
     }
 
     .smallHeader {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
     }
 
     .orangeCircularButton {

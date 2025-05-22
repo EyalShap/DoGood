@@ -16,8 +16,10 @@ public interface VolunteeringPostRepository {
     public void removePostsByVolunteeringId(int volunteeringId);
     public void editVolunteeringPost(int postId, String title, String description, Set<String> keywords);
     public void incNumOfPeopleRequestedToJoin(int postId);
-    public VolunteeringPost getVolunteeringPost(int postId);
+    public VolunteeringPost getVolunteeringPostForRead(int postId);
+    public VolunteeringPost getVolunteeringPostForWrite(int postId);
     public List<VolunteeringPost> getAllVolunteeringPosts();
+    public List<VolunteeringPost> getAllVolunteeringPostsOfVolunteering(int volunteeringId);
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId);
     public int getVolunteeringIdByPostId(int postId);
 

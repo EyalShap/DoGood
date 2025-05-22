@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 
 @Repository
+@Transactional
 public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     private VolunteeringPostJPA jpa;
 
@@ -46,28 +47,37 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     }
 
     @Override
-    @Transactional
     public void removePostsByVolunteeringId(int volunteeringId) {
         jpa.deleteByVolunteeringId(volunteeringId);
     }
 
     @Override
     public void editVolunteeringPost(int postId, String title, String description, Set<String> keywords) {
-        VolunteeringPost toEdit = getVolunteeringPost(postId); // will throw exception if does not exist
+        VolunteeringPost toEdit = getVolunteeringPostForWrite(postId); // will throw exception if does not exist
         toEdit.edit(title, description, keywords);
         jpa.save(toEdit);
     }
 
     @Override
     public void incNumOfPeopleRequestedToJoin(int postId) {
-        VolunteeringPost toInc = getVolunteeringPost(postId); // will throw exception if does not exist
+        VolunteeringPost toInc = getVolunteeringPostForWrite(postId); // will throw exception if does not exist
         toInc.incNumOfPeopleRequestedToJoin();
         jpa.save(toInc);
     }
 
     @Override
-    public VolunteeringPost getVolunteeringPost(int postId) {
+    public VolunteeringPost getVolunteeringPostForRead(int postId) {
         Optional<VolunteeringPost> post = jpa.findById(postId);
+        if(!post.isPresent()) {
+            throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
+        }
+
+        return post.get();
+    }
+
+    @Override
+    public VolunteeringPost getVolunteeringPostForWrite(int postId) {
+        Optional<VolunteeringPost> post = jpa.findByIdForUpdate(postId);
         if(!post.isPresent()) {
             throw new IllegalArgumentException(PostErrors.makePostIdDoesNotExistError(postId));
         }
@@ -81,13 +91,18 @@ public class DBVolunteeringPostRepository implements VolunteeringPostRepository{
     }
 
     @Override
+    public List<VolunteeringPost> getAllVolunteeringPostsOfVolunteering(int volunteeringId) {
+        return jpa.findByVolunteeringId(volunteeringId);
+    }
+
+    @Override
     public List<VolunteeringPost> getOrganizationVolunteeringPosts(int organizationId) {
         return jpa.findByOrganizationId(organizationId);
     }
 
     @Override
     public int getVolunteeringIdByPostId(int postId) {
-        return getVolunteeringPost(postId).getVolunteeringId();
+        return getVolunteeringPostForRead(postId).getVolunteeringId();
     }
 
 }

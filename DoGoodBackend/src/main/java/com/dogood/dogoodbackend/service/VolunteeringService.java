@@ -9,6 +9,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointm
 import com.dogood.dogoodbackend.pdfformats.PdfFactory;
 import com.dogood.dogoodbackend.pdfformats.University;
 import com.itextpdf.text.DocumentException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ import java.util.*;
 import static java.lang.Thread.sleep;
 
 @Service
+@Transactional
 public class VolunteeringService {
 
     private FacadeManager facadeManager;
@@ -816,7 +818,7 @@ public class VolunteeringService {
     }
 
     @Scheduled(cron = "0 0 * * * *")
-    private void remindBeforeActivity(){
+    protected void remindBeforeActivity(){
         facadeManager.getVolunteeringFacade().notifyUpcomingAppointments();
     }
 }

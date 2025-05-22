@@ -46,13 +46,13 @@
     margin-top: 5px;
     margin-bottom: 5px;
     padding: 20px;
-    background: rgba(255,0,0,0.5);
+    background: rgba(255, 0, 0, 0.098);
     color: #800000;
     font-weight: bold;
-    width: 80%;
+    width: 100%;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    text-shadow:1px 1px 10px rgba(218, 0, 0, 0.6);
+    /*text-shadow:1px 1px 10px rgba(218, 0, 0, 0.6);*/
     transition: 1s
 }
 
@@ -91,8 +91,8 @@
     padding: 20px;
     display: flex;
     flex-direction: column;
-    border-radius: 12px;
-    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    border: #037b7b solid 2px;
 }
 
 .groupRow {
@@ -193,11 +193,15 @@
     border: 2px solid #901010;
     border-radius: 8px;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    width: 90%;
+    align-items: center;
 }
 
 .restrictionData {
     font-weight: bold;
     margin: 5px 10px;
+    width:100%;
+
 }
 
 .restriction button {
@@ -210,6 +214,7 @@
     border-radius: 8px;
     cursor: pointer;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+    height: fit-content;
 }
 
 .restriction button:hover {
@@ -257,4 +262,129 @@
     .calender{
         width: 100%;
     }
+
+    .manageVolunteersButtons {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
 }
+
+.manageTab {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 22px;
+    margin-left: -40px;
+}
+
+.volunteersHeader {
+    width: 100%;
+    text-align: center;
+}
+
+.manageVolunteersActions, .groups {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.volunteers {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 50px;
+}
+
+.volunteeringActions { 
+  width: 90%;
+  margin: auto;
+  height: 100%;
+  margin-top: 30px;
+  padding: 20px;
+  text-align: center; /* Center text */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap: 10px;
+}
+
+.weekButtons {
+    margin-top:20px;
+    width:100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.rangeLabels {
+    font-family: 'Montserrat', sans-serif;
+    color:red;
+}
+
+.disabled {
+    display: none;
+}
+
+.rs__control,
+.rs__single-value,
+.rs__menu,
+.rs__option,
+.rs__placeholder {
+  font-family: 'Montserrat', sans-serif;
+}
+
+.maker {
+    width: 100%;
+    position: relative; 
+    overflow: visible; 
+
+}
+
+.myLocation {
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #037b7bb5;
+    border-width: 2px;
+    border-style: solid;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    color: #037b7bb5;
+}
+
+.selectedLocation {
+    font-size: 15px;
+    background-color: white;
+    border-radius: 10px;
+    font-weight: bold;
+    border-color: #7996a3;
+    border-width: 2px;
+    border-style: solid;
+    margin-left: 5px;
+    margin-right: 5px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    font-family: 'Montserrat', sans-serif;
+    color: #7996a3;
+}
+
+.volunteeringButtons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    justify-content: center;
+}
+

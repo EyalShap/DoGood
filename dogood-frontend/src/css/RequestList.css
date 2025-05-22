@@ -1,9 +1,9 @@
 .requestList {
-    background-color: #F0F0FF;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     font-family: 'Montserrat', sans-serif;
     place-items: center;
+    width: 100%;
 }
 
 .request{

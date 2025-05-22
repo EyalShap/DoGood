@@ -16,12 +16,12 @@ function ManagerRequestsList() {
     
     const fetchRequests = async () => {
         try {
-            const managerRequests = await getUserRequests();
+            let managerRequests = await getUserRequests();
             setManagerRequests(managerRequests);
 
             for (let request of managerRequests) {
                 try {
-                    const name = await getOrganizationName(request.objectId);
+                    let name = await getOrganizationName(request.objectId);    
                     
                     setOrganizationNames((prevNames) => ({
                         ...prevNames,
@@ -61,6 +61,10 @@ function ManagerRequestsList() {
 
     const handleShowOrgOnClick = (organizationId: number) => {
         navigate(`/organization/${organizationId}`);
+    };
+
+    const handleShowAssignerOnClick = (username: string) => {
+        navigate(`/profile/${username}`);
     };
 
     const handleShowPostOnClick = (postId: number) => {
@@ -104,18 +108,18 @@ function ManagerRequestsList() {
         <div className = 'requests'>
             <div className="requestsList">
                 <div className='headers'>
-                    <h2 className='bigHeader listHeader'>Manager Requests</h2>
+                    <h2 className='bigHeader'>Become A Manager Requests</h2>
                     <h2 className='smallHeader'>These are organizations that have requested you to become a manager</h2>
                 </div>
                 {managerRequests.length > 0 ? (
                     managerRequests.map((request, index) => (
                         <div key={index} className="requestItem">
                             <div className = "info">
-                                <h3 className = "requestHeader" onClick={() => handleShowOrgOnClick(request.objectId)}>Organization name: {organizationNames[request.objectId]}</h3>
-                                <p className = "requestSender">Sent by: {request.assignerUsername}</p>
+                                <h3 className = "requestHeader" onClick={() => handleShowOrgOnClick(request.objectId)}>Organization name: <br /> {organizationNames[request.objectId]?.length > 10 ? "" + organizationNames[request.objectId].slice(0, 10) + "..." : "" + organizationNames[request.objectId]}</h3>
+                                <p className = "requestSender" onClick={() => handleShowAssignerOnClick(request.assignerUsername)}>Sent by: <br /> {request.assignerUsername?.length > 10 ? "" + request.assignerUsername.slice(0, 10) + "..." : "" + request.assignerUsername}</p>
                             </div>
 
-                            <div className = "buttons"> 
+                            <div className = "requestsButtons"> 
                                 <button className = 'orangeCircularButton requestButton' onClick={() => handleApproveManagerRequestOnClick(request.objectId)}>Accept</button>
                                 <button className = 'orangeCircularButton requestButton' onClick={() => handleDenyManagerRequestOnClick(request.objectId)}>Deny</button>
                             </div>
@@ -128,18 +132,18 @@ function ManagerRequestsList() {
 
             <div className="requestsList">
                 <div className='headers'>
-                    <h2 className='bigHeader listHeader'>Join Volunteer Post Requests</h2>
+                    <h2 className='bigHeader'>Join Volunteer Post Requests</h2>
                     <h2 className='smallHeader'>These are volunteering opportunities that have requested you to join</h2>
                 </div>
                 {volunteerPostsRequests.length > 0 ? (
                     volunteerPostsRequests.map((request, index) => (
                         <div key={index} className="requestItem">
                             <div className = "info">
-                                <h3 className = "requestHeader" onClick={() => handleShowPostOnClick(request.objectId)}>Post title: {postTitles[request.objectId]}</h3>
-                                <p className = "requestSender">Sent by: {request.assignerUsername}</p>
+                                <h3 className = "requestHeader" onClick={() => handleShowPostOnClick(request.objectId)}>Post title: <br />{postTitles[request.objectId]?.length > 10 ? postTitles[request.objectId].slice(0, 10) + "..." : "" + postTitles[request.objectId]}</h3>
+                                <p className = "requestSender" onClick={() => handleShowAssignerOnClick(request.assignerUsername)}>Sent by: <br />{request.assignerUsername?.length ? "" + request.assignerUsername.slice(0, 10) + "..." : "" + request.assignerUsername}</p>
                             </div>
 
-                            <div className = "buttons"> 
+                            <div className = "requestsButtons"> 
                                 <button className = 'orangeCircularButton requestButton' onClick={() => handleApproveJoinVolunteerPostRequestOnClick(request.objectId)}>Accept</button>
                                 <button className = 'orangeCircularButton requestButton' onClick={() => handleDenyVolunteerPostRequestOnClick(request.objectId)}>Deny</button>
                             </div>

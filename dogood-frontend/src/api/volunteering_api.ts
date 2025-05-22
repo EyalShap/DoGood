@@ -768,6 +768,22 @@ export const removeVolunteering = async (volunteeringId: number): Promise<string
     return response.data;
 }
 
+export const editVolunteering = async (volunteeringId: number, newName: string, newDesc: string): Promise<string> => {
+    const config = {
+        headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+
+    const body = {
+        name: newName,
+        description: newDesc,
+    };
+    let res = await axios.patch(`${server}/api/volunteering/updateVolunteering?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, body, config);
+    const response: APIResponse<string> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
 
 export const getVolunteeringSkills = async (volunteeringId: number): Promise<string[]> => {
     const config = {

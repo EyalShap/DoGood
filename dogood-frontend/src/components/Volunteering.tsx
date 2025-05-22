@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react'
 import './../css/Volunteering.css'
 import VolunteeringModel, { VolunteersToGroup } from '../models/VolunteeringModel'
 import {
+    addImageToVolunteering,
     addRestrictionToRange,
     addScheduleRangeToGroup,
     assignVolunteerToLocation,
@@ -22,6 +23,7 @@ import {
     getVolunteeringWarnings,
     moveVolunteerGroup,
     removeGroup,
+    removeImageFromVolunteering,
     removeRange,
     removeRestrictionFromRange,
     removeVolunteering,
@@ -52,11 +54,16 @@ import Popup from 'reactjs-popup';
 import {Tab, TabList, TabPanel, Tabs} from 'react-tabs';
 import 'react-tabs/style/react-tabs.css';
 import Select from "react-select";
-import { createVolunteeringPost } from '../api/post_api';
+import { createVolunteeringPost, getAllVolunteeringPostsOfVolunteering, getVolunteeringImages } from '../api/post_api';
 import { createVolunteeringReport } from '../api/report_api';
 import { getOrganizationName } from '../api/organization_api';
 import Info from "./Info.tsx";
 
+import ListWithArrows, { ListItem } from './ListWithArrows.tsx';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import { supabase } from '../api/general.ts';
+import { VolunteeringPostModel } from '../models/VolunteeringPostModel.ts';
+import { PostModel } from '../models/PostModel.ts';
 
 
 interface GroupToVolunteers {
@@ -103,6 +110,8 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
     const [events, setEvents] = useState<DayPilot.EventData[]>([])
     const [ready, setReady] = useState(false)
     const [width, setWidth] = useState<number>(window.innerWidth);
+
+    const navigate = useNavigate();
 
     const handleWindowSizeChange = () => {
         setWidth(window.innerWidth);
@@ -201,10 +210,13 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
     const isMobile = width <= 768;
 
     return (
-        <div>
-            <br/>
-            <h2 className='listHeader'>My Appointments</h2>
-            <br/>
+        <div className='volunteeringActions'>
+            
+            <h2 className='relatedVolunteersHeader'>My Activities</h2>
+            
+            
+            <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Schedule An Activity</button>
+            
             {appointments.length > 0 ? <>
             <div className='weekButtons'>
                 <button className='orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
@@ -238,12 +250,12 @@ function AppointmentCalender({ volunteeringId }: { volunteeringId: number }) {
                         headerTextWrappingEnabled={true}/>
                 </div>
             </div>
-            </> : <p className="smallHeader">No Appointments</p>}
+            </> : <p className="smallHeader">No Activities</p>}
         </div>
     )
 }
 
-function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId: number, locId: number, volunteeringId: number, refreshRanges: () => void }) {
+function RangeMaker({groupId, locId, volunteeringId, refreshRanges, show, setShow }: { groupId: number, locId: number, volunteeringId: number, refreshRanges: () => void, show: Boolean, setShow: (arg0: boolean) => void }) {
     const [startTime, setStartTime] = useState(dayjs('2024-01-01T00:00'));
     const [endTime, setEndTime] = useState(dayjs('2024-01-01T00:00'));
     const [weekOrOne, setWeekOrOne] = useState("one");
@@ -295,22 +307,21 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId:
 
     return (
         <div className='maker'>
-            <p>Create a new range</p>
             <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} />
-                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} />
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)}  slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}} />
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
             </LocalizationProvider>
             <div className='selector'>
                 <FormControl>
-                    <FormLabel>Weekly or One Time?</FormLabel>
+                    <FormLabel sx={{ fontFamily: 'Montserrat, sans-serif', textAlign:'center' }}>Weekly or One Time?</FormLabel>
                     <RadioGroup
                         value={weekOrOne}
                         onChange={e => setWeekOrOne(e.target.value)}
                         name="radio-buttons-group"
                         row
                     >
-                        <FormControlLabel value="week" control={<Radio />} label="Weekly" />
-                        <FormControlLabel value="one" control={<Radio />} label="One Time" />
+                        <FormControlLabel value="week" control={<Radio />} label="Weekly" sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}/>
+                        <FormControlLabel value="one" control={<Radio />} label="One Time" sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}/>
                     </RadioGroup>
                 </FormControl>
                 {weekOrOne === "week" ?
@@ -327,57 +338,63 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges }: { groupId:
                                     <Checkbox disabled={!hasDay(1)} checked={monday} onChange={e => setMonday(e.target.checked)} name="monday" />
                                 }
                                 label="Monday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                             <FormControlLabel
                                 control={
                                     <Checkbox disabled={!hasDay(2)} checked={tuesday} onChange={e => setTuesday(e.target.checked)} name="tuesday" />
                                 }
                                 label="Tuesday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                             <FormControlLabel
                                 control={
                                     <Checkbox disabled={!hasDay(3)} checked={wednesday} onChange={e => setWednesday(e.target.checked)} name="wednesday" />
                                 }
                                 label="Wednesday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                             <FormControlLabel
                                 control={
                                     <Checkbox disabled={!hasDay(4)} checked={thursday} onChange={e => setThursday(e.target.checked)} name="thursday" />
                                 }
                                 label="Thursday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                             <FormControlLabel
                                 control={
                                     <Checkbox disabled={!hasDay(5)} checked={friday} onChange={e => setFriday(e.target.checked)} name="friday" />
                                 }
                                 label="Friday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                             <FormControlLabel
                                 control={
                                     <Checkbox disabled={!hasDay(6)} checked={saturday} onChange={e => setSaturday(e.target.checked)} name="saturday" />
                                 }
                                 label="Saturday"
+                                sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}
                             />
                         </FormGroup>
-                    </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)} /></LocalizationProvider>}
+                    </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)} format='DD/MM/YYYY' slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/></LocalizationProvider>}
             </div>
-            <div>
+            <div style={{display: 'flex', flexDirection:'row', alignItems:'center'}}>
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMinMin(e.target.checked)
                     e.target.checked ? setMinimumMinutes(0) : setMinimumMinutes(-1)
-                }} />} label="Minimum Appointment Minutes?" />
+                }} />} label="Minimum Appointment Minutes?" sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}/>
                 <Info text="Minimum number of minutes volunteers will have to sign up for"/>
                 {showMinMin && <NumberInput value={minimumMinutes} onChange={(_, val) => val != null && setMinimumMinutes(val)} min={0} />}
             </div>
-            <div>
+            <div style={{display: 'flex', flexDirection:'row', alignItems:'center'}}>
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMaxMin(e.target.checked)
                     e.target.checked ? setMaximumMinutes(0) : setMaximumMinutes(-1)
-                }} />} label="Maximum Appointment Minutes?" />
+                }} />} label="Maximum Appointment Minutes?" sx={{'& .MuiFormControlLabel-label': {fontFamily: 'Montserrat, sans-serif',textAlign: 'center',},}}/>
                 <Info text="Maximum number of minutes volunteers will have to sign up for"/>
                 {showMaxMin && <NumberInput value={maximumMinutes} onChange={(_, val) => val != null && setMaximumMinutes(val)} min={Math.max(0, minimumMinutes)} />}
             </div>
-            <button className='sendButton' onClick={send}>Create Range</button>
+            <button className='orangeCircularButton' onClick={() => {send(); setShow(false);}} style={{marginBottom:'10px'}}>Create Range</button>
         </div>
     )
 }
@@ -386,6 +403,7 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
     const [startTime, setStartTime] = useState(dayjs('2024-01-01T' + range.startTime));
     const [endTime, setEndTime] = useState(dayjs('2024-01-01T' + range.endTime));
     const [amount, setAmount] = useState(0);
+    const [showAddRange, setShowAddRange] = useState(false);
 
     const send = async () => {
         try {
@@ -417,25 +435,33 @@ function RestrictionMaker({ volunteeringId, groupId, locId, range, refreshRange 
 
     return (
         <div className='maker'>
-            <p>Selected Range: {range.startTime}-{range.endTime}, ID: {range.id}</p>
-            {range.oneTime !== null && <p>At {range.oneTime}</p>}
-            <p>Current Restrictions:</p>
-            <Info text="Restrictions are times when the amount of volunteers is limited."/>
+            {range.oneTime === null && <p className='smallHeader' style={{textAlign: 'center'}}>Selected Range: {range.startTime}-{range.endTime}</p>}
+            {range.oneTime !== null && <p className='smallHeader' style={{textAlign: 'center', wordSpacing:'10px'}}>Selected Range: {range.startTime}-{range.endTime} At {range.oneTime}</p>}
+            <p className='smallHeader' style={{marginTop:'20px', textAlign:'center'}}>{range.restrict.length === 0 ? 'No Current Restrictions' : 'Current Restrictions:'}</p>
+            <Info text="Restrictions are times when ~ the amount of volunteers is limited."/>
             {range.restrict.map(restriction => <div className='restriction'>
                 <div className='restrictionData'>
-                    <p>Starts at: {restriction.startTime}</p>
-                    <p>Ends at: {restriction.endTime}</p>
-                    <p>Limited to {restriction.amount} volunteers</p>
+                    <p className='smallHeader'>Starts at: {restriction.startTime}</p>
+                    <p className='smallHeader'>Ends at: {restriction.endTime}</p>
+                    <p className='smallHeader'>Limited to {restriction.amount} volunteers</p>
                 </div>
-                <button onClick={() => remove(restriction)}>Remove</button>
+                <button onClick={() => remove(restriction)} className='orangeCircularButton'>Remove</button>
             </div>)}
-            <LocalizationProvider dateAdapter={AdapterDayjs}>
-                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} />
-                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} />
-            </LocalizationProvider>
-            <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0} />
-            <button className='sendButton' onClick={send}>Add Restriction</button>
-            <button className='sendButton' onClick={onDelete}>Delete Range</button>
+
+            <button className='orangeCircularButton' onClick={onDelete} style={{marginTop:'20px'}}>Delete Range</button>
+            <button className='orangeCircularButton' onClick={() => {setShowAddRange(!showAddRange);}} style={{marginBottom:'20px', marginTop:'20px'}}>Add Restriction</button>
+
+            {showAddRange && <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <TimePicker className='timePicker' ampm={false} label="Start Time" value={startTime} onChange={newValue => newValue != null && setStartTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+                <TimePicker className='timePicker' ampm={false} label="End Time" value={endTime} onChange={newValue => newValue != null && setEndTime(newValue)} minTime={dayjs('2024-01-01T' + range.startTime)} maxTime={dayjs('2024-01-01T' + range.endTime)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+            </LocalizationProvider>}
+
+            {showAddRange && <div>
+                <p style={{fontSize:'16px'}}>Maximal Amount Of Volunteers: </p>
+                <NumberInput value={amount} onChange={(_, val) => val != null && setAmount(val)} min={0} />
+            </div>}
+
+            {showAddRange && <button className='orangeCircularButton' onClick={() => {send(); setShowAddRange(false);}} style={{marginTop:'20px'}}>Save</button>}
         </div>
     )
 }
@@ -455,6 +481,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
     const [width, setWidth] = useState<number>(window.innerWidth);
     const [events, setEvents] = useState<DayPilot.EventData[]>([])
     const [selectedRange, setSelectedRange] = useState<ScheduleRange | null | undefined>(null)
+    const [showRangeMaker, setShowRangeMaker] = useState<Boolean>(false);
 
     const fetchLocations = async () => {
         try{
@@ -564,8 +591,13 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
         }
     }, [selectedGroup, selectedLocation])
 
+                
+    const handleCancelOnClick = () => {
+        setSelectedRange(null);
+    }
+
     return (
-        <div>
+        <div className='volunteers'>
             <div className="selectorsRow">
                 {!locationsDisabled && <Select
                     value={selectedLocation}
@@ -573,6 +605,7 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
                     onChange={e => setSelectedLocation(e!)}
                     options={locations.map(location => ({value: location.id, label: location.name}))}
                     placeholder="Select Location"
+                    classNamePrefix="rs"
                 />}
                 <Select
                     value={selectedGroup}
@@ -580,18 +613,22 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
                     onChange={e => setSelectedGroup(e!)}
                     options={groups.map(group => ({value: group, label: `Group ${group}`}))}
                     placeholder="Select Group"
+                    classNamePrefix="rs"
                 />
             </div>
             {selectedGroup.value > -1 && (locationsDisabled || selectedLocation.value > -1) &&
                 <div className='rangePanel'>
-                    <h1 className="listHeader">Current Schedule Ranges for Group {selectedGroup.value}</h1>
-                    <p className="smallHeader">These are the times your volunteers can sign up to come and help out.</p>
-                    <p className="smallHeader">You can scroll down to define more ranges.</p>
-                    <p className="smallHeader">You can select a range and scroll down to edit it.</p>
+                    <h1 className='relatedVolunteersHeader volunteersHeader' style={{marginTop:'-50px', marginBottom:'20px', textAlign:'center'}}>Current Schedule Ranges for Group {selectedGroup.value}</h1>
+                    <p className="smallHeader" style={{textAlign:'center'}}>These are the times your volunteers can sign up to come and help out.</p>
+                    {/*<p className="smallHeader">You can scroll down to define more ranges.</p>*/}
+                    <p className="smallHeader" style={{textAlign:'center'}}>You can click on a range for more information.</p>
                     <div className='weekButtons'>
                         <button className='left orangeCircularButton' onClick={() => addWeeks(-1)}>← Last Week</button>
                         <button className='right orangeCircularButton' onClick={() => addWeeks(1)}>Next Week →</button>
                     </div>
+                    <button className="orangeCircularButton" onClick={() => setShowRangeMaker(!showRangeMaker)} style={{marginBottom:'20px'}}>Create A New Range</button>
+                    {showRangeMaker && <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup.value}
+                                locId={selectedLocation.value} refreshRanges={fetchRanges} show={showRangeMaker} setShow={setShowRangeMaker}/>}
                     <div className='calender'>
                         <div className='innercalender'>
                             <DayPilotCalendar
@@ -606,21 +643,33 @@ function ManageRangesPanel({ rerender, volunteeringId, groups }: { rerender: num
                                 onEventClicked={args => setSelectedRange(ranges.find(range => range.id == args.e.id()))}/>
                         </div>
                     </div>
-                    <RangeMaker volunteeringId={volunteeringId} groupId={selectedGroup.value}
-                                locId={selectedLocation.value} refreshRanges={fetchRanges}/>
-                    {selectedRange === null || selectedRange === undefined ? <></> :
-                        <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId}
-                                          groupId={selectedGroup.value} locId={selectedLocation.value}
-                                          range={selectedRange!}/>}
+
+                    {!(selectedRange === null || selectedRange === undefined) && (
+                        <div className="popup-window"  style={{width: '90%', overflowY:'scroll', overflowX:'hidden', maxHeight:'80%', display:'flex', flexDirection:'column', alignItems:'center'}}>
+                            <div className="popup-header" style={{width:'100%'}}>
+                                <span className="popup-title" style={{marginLeft:'20px'}}>Range Info</span>
+                                <button className="cancelButton" onClick={handleCancelOnClick}>
+                                            X
+                                        </button>
+                                        </div>
+                                        <div className="popup-body"  style={{width: '90%'}}>
+                                            <RestrictionMaker refreshRange={refreshRange} volunteeringId={volunteeringId}
+                                                groupId={selectedGroup.value} locId={selectedLocation.value}
+                                                range={selectedRange!}/>
+                                        </div>
+                                    </div>
+                    )}
+                    
                 </div>}
         </div>
     )
 }
 
-function LocationSelector({volunteeringId, assignUser}: { volunteeringId: number, assignUser: (locId: number) => void }) {
+function LocationSelector({volunteeringId, assignUser, currentLocation}: { volunteeringId: number, assignUser: (locId: number) => void, currentLocation: number }) {
     const [groupId, setGroupId] = useState(-1);
     const [ready, setReady] = useState(false);
     const [locations, setLocations] = useState<Location[]>([]);
+    const [selectedLocation, setSelectedLocation] = useState(-2);
 
     const fetchGroup = async () => {
         setGroupId(await getVolunteerGroup(volunteeringId));
@@ -632,6 +681,8 @@ function LocationSelector({volunteeringId, assignUser}: { volunteeringId: number
             let fetchedLocations: Location[] = await getGroupLocations(volunteeringId, groupId)
             fetchedLocations.forEach(location => location.id === -1 && assignUser(-1));
             setLocations(fetchedLocations)
+
+            console.log(fetchLocations);
         }catch(e){
             alert(e);
         }
@@ -648,20 +699,21 @@ function LocationSelector({volunteeringId, assignUser}: { volunteeringId: number
     }, [groupId, ready])
 
     return (
-        <div>
-            <div className="container">
-                <h1>Choose Location</h1>
+            <div className="volunteeringActions">
+                <h1 className='relatedVolunteersHeader' style={{marginBottom:'20px'}}>Volunteering Locations</h1>
+                {locations.length === 0 && <h2 className='smallHeader'>No Locations Found</h2>}
                 <div className="locations">
                     {locations.map(location =>
-                        <div onClick={() => assignUser(location.id)} className='location'>
+                        <div onClick={() => setSelectedLocation(location.id)} className={location.id === currentLocation ? 'myLocation' : location.id === selectedLocation ? 'selectedLocation' : 'location'}>
                             <h2>{location.name}</h2>
                             <p>{location.address.city}</p>
                             <p>{location.address.street}</p>
                             <p>{location.address.address}</p>
                         </div>)}
                 </div>
+                {locations.length > 0 && <button className={(selectedLocation !== -2 && selectedLocation !== currentLocation) ? 'orangeCircularButton' : 'orangeCircularButton disabledButton'} onClick={() => assignUser(selectedLocation)}>Save Selection</button>}
             </div>
-        </div>
+        
     )
 }
 
@@ -684,14 +736,20 @@ function HourRequestMaker({volunteerindId, close}: { volunteerindId: number, clo
 
     return (
         <div className='maker'>
-            <div className='pickers'>
+            <div className='pickers' style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%'}}>
+                <h2 className='smallHeader' style={{marginTop:'10px', marginBottom:'20px'}}>Please Choose Hours To Approve:</h2>
+                
                 <LocalizationProvider dateAdapter={AdapterDayjs}>
-                    <DatePicker className='datetimepicker' label="Date" value={date} onChange={newValue => setDate(newValue)} maxDate={dayjs()}/>
-                    <TimePicker ampm={false} className='datetimepicker' label="Start Time" value={startTime} onChange={(newValue) => setStartTime(newValue)}/>
-                    <TimePicker ampm={false} className='datetimepicker' label="End Time" value={endTime} onChange={(newValue) => setEndTime(newValue)} minTime={endTime!}/>
+                    <div style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%', gap:'10px'}} >
+                        <DatePicker className='datetimepicker' label="Date" value={date} onChange={newValue => setDate(newValue)} maxDate={dayjs()} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+                        <TimePicker ampm={false} className='datetimepicker' label="Start Time" value={startTime} onChange={(newValue) => setStartTime(newValue)} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+                        <TimePicker ampm={false} className='datetimepicker' label="End Time" value={endTime} onChange={(newValue) => setEndTime(newValue)} minTime={endTime!} slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/>
+                    </div>
                 </LocalizationProvider>
+
             </div>
-            <button onClick={onRequest}>Request</button>
+            <button onClick={onRequest} className='orangeCircularButton'>Request</button>
+
         </div>
     )
 }
@@ -713,11 +771,12 @@ function Leaver({ volunteerindId, close }: { volunteerindId: number, close: any 
 
     return (
         <div className='maker'>
-            <div className='leave'>
-                <h1>We're sad to see you go! Please leave your experience</h1>
+            <div className='leave' style={{display:'flex', flexDirection:'column', alignItems:'center', width:'100%', height:'150px', gap:'20px', padding:'20px'}}>
+                <h1 className='smallHeader' style={{textAlign:'center'}}>We're sad to see you go! Please leave your experience</h1>
                 <input value={experience} onChange={e => setExperience(e.target.value)}/>
+                <button onClick={onRequest} className='orangeCircularButton'>Goodbye</button>
+
             </div>
-            <button onClick={onRequest}>Goodbye</button>
         </div>
     )
 }
@@ -731,6 +790,8 @@ function Volunteering() {
     const [ready, setReady] = useState(false);
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
     const [hasLocation, setHasLocation] = useState(false)
+    const [currentLocation, setCurrentLocation] = useState(-2)
+
     const [warnings, setWarnings] = useState<string[]>([]);
     const [rerenderManager, setRenenderManager] = useState(3);
 
@@ -739,6 +800,16 @@ function Volunteering() {
 
     const [showReportDescription, setShowReportDescription] = useState(false);
     const [reportDescription, setReportDescription] = useState("");
+
+    const [volunteeringImages, setVolunteeringImages] = useState<ListItem[]>([]);
+    const [selectedFile, setSelectedFile] = useState<File | null>(null)
+    const [key, setKey] = useState(0)
+    const [dropdownOpen, setDropdownOpen] = useState(false);
+
+    const [showNotifyVolunteers, setShowNotifyVolunteers] = useState(false);
+    const [notification, setNotification] = useState("");
+
+    const [postsListItems, setPostsListItems] = useState<ListItem[]>([]);
 
     const fetchVolunteering = async () => {
         try {
@@ -754,6 +825,17 @@ function Volunteering() {
                 fetchedGroups[value].push(key)
             })
             setGroups(fetchedGroups);
+
+            let imagesListItems = await convertToListItems(found.imagePaths || []);
+            setVolunteeringImages(imagesListItems);
+
+            let fetchedPosts = await getAllVolunteeringPostsOfVolunteering(found.id);
+            
+            const imagesArray = await getVolunteeringImages(found.id);
+            const firstImage = imagesArray.length > 0 ? imagesArray[0] : defaultVolunteeringPic;
+            let listItems = convertPostsToListItems(fetchedPosts, firstImage);
+            setPostsListItems(listItems);
+
             setReady(true);
         } catch (e) {
             //send to error page
@@ -773,7 +855,9 @@ function Volunteering() {
 
     const updateHasLocation = async () => {
         try {
-            setHasLocation((await getUserAssignedLocation(parseInt(id!))) > -2)
+            let location = await getUserAssignedLocation(parseInt(id!));
+            setHasLocation(location > -2);
+            setCurrentLocation(location);
         } catch (e) {
             //send to error page
             alert(e)
@@ -811,18 +895,7 @@ function Volunteering() {
         navigate(`./createVolunteeringPost/-1/0`);
     }
 
-    const handleRemoveVolunteeringOnClick = async () => {
-        if(window.confirm("Are you sure you want to remove this volunteering?")) {
-            try {
-                await removeVolunteering(model.id);
-                alert("Volunteering removed successfully!");
-                navigate(`/myvolunteerings`);
-            }
-            catch(e) {
-                alert(e);
-            }
-        }
-    }
+
 
     const deleteGroup = async (groupId: number) => {
         try {
@@ -886,15 +959,256 @@ function Volunteering() {
         setShowReportDescription(false);
         setReportDescription("");
     }
+
+    const handleSubmitNotificationOnClick = async () => {
+        // hi
+        alert(notification); // dummy notify
+        setShowNotifyVolunteers(false);
+        setNotification("");
+    }
             
     const handleCancelReportOnClick = () => {
         setShowReportDescription(false);
         setReportDescription("");
     }
 
+    const handleCancelNotificationOnClick = () => {
+        setShowNotifyVolunteers(false);
+        setNotification("");
+    }
+
+    const convertToListItems = async (images: string[]) => {
+        try {
+            if(images.length === 0) {
+                images = [defaultVolunteeringPic];
+            }
+            const listItems: ListItem[] = images.map((image) => ({
+                id: "",
+                image: image, 
+                title: "",  
+                description: "", 
+            }));
+            return listItems;
+        }
+        catch(e) {
+            alert(e);
+        }
+        return [];
+    }
+
+    const onFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            setSelectedFile(file); 
+            await onAddImage(file); 
+        }
+    }
+
+    const onAddImage = async (selectedFile: File) => {
+        try {
+            let {data,error} =
+                await supabase.storage.from("volunteering-photos")
+                    .upload(`${id}/${selectedFile!.name!}`, selectedFile!, {
+                        cacheControl: '3600',
+                        upsert: false,
+                    })
+                if(data == null || error !== null){
+                    alert(error)
+                    console.log(error)
+                }else {
+                    let filePath = data!.path;
+                    let response = await supabase.storage.from("volunteering-photos").getPublicUrl(filePath);
+                    let url = response.data.publicUrl;
+                    await addImageToVolunteering(parseInt(id!), url);
+
+                    let newImages : string[] = Array.isArray(model.imagePaths) ? [...model.imagePaths, url] : [url];
+                    let updatedModel: VolunteeringModel = {
+                        ...model,  // Spread the existing properties of model
+                        imagePaths: newImages,  // Safely update images
+                    };
+                    setModel(updatedModel);
+                    let imagesListItems = await convertToListItems(newImages);
+                    setVolunteeringImages(imagesListItems);
+                    
+                    setSelectedFile(null)
+                    setKey(prevState => 1-prevState)
+
+                    let listItems = changePostsImage(postsListItems, url);
+                    setPostsListItems(listItems);
+                }
+            }
+            catch (e) {
+                //send to error page
+                alert(e);
+            }
+        };
+
+    const onRemoveImage = async (image: string) => {
+        try {
+            await removeImageFromVolunteering(parseInt(id!), `"${image}"`);
+
+            let newImages : string[] = Array.isArray(model.imagePaths) ? model.imagePaths.filter(img => image !== img) : [];
+            let updatedModel: VolunteeringModel = {
+                ...model,  // Spread the existing properties of model
+                imagePaths: newImages,  // Safely update images
+            };
+            setModel(updatedModel);
+            let imagesListItems = await convertToListItems(newImages);
+            setVolunteeringImages(imagesListItems);
+
+            let url = newImages.length > 0 ? newImages[1] : defaultVolunteeringPic;
+            let listItems = changePostsImage(postsListItems, url);
+            setPostsListItems(listItems);
+        }
+        catch (e) {
+            //send to error page
+            alert(e);
+        }
+    };
+
+    const toggleDropdown = () => {
+        setDropdownOpen(!dropdownOpen);
+    };
+
+    const convertPostsToListItems = (posts: PostModel[], firstImage: string) => {
+        const listItems: ListItem[] = posts.map((post) => ({
+            id: post.id,
+            image: firstImage ?? defaultVolunteeringPic, 
+            title: post.title,  
+            description: post.description, // assuming 'summary' is a short description
+        }));
+        return listItems;
+    }
+
+    const changePostsImage = (posts: ListItem[], image: string) => {
+        const listItems: ListItem[] = posts.map((post) => ({
+            id: post.id,
+            image: image, 
+            title: post.title,  
+            description: post.description, // assuming 'summary' is a short description
+        }));
+        return listItems;
+    }
+
     return (
-        <div>
-            <div className="volInfo">
+        <div id="postPage" className="postPage">
+            {isManager && <div className="actionsMenu">
+                <img
+                    src="https://cdn-icons-png.flaticon.com/512/126/126472.png"
+                    alt="Profile"
+                    className="dotsMenu"
+                    onClick={() => navigate("./settings")}
+                />        
+            </div>}
+            {!isManager && <div className="actionsMenu">
+                <div className="actionsMenu" style={{marginTop:'5px'}}>
+                    <img
+                        src="https://icon-icons.com/icons2/2954/PNG/512/three_dots_vertical_menu_icon_184615.png"
+                        alt="Profile"
+                        className="dotsMenu"
+                        onClick={toggleDropdown}
+                    />
+                    {dropdownOpen && (
+                        <div className="actionDropdownMenu" onClick={toggleDropdown}>
+                            <p className="actionDropdownItem" onClick={(e) => { e.stopPropagation(); handleReportOnClick();}}>Report</p>
+                        
+                            {showReportDescription && (
+                                    <div className="popup-window">
+                                        <div className="popup-header">
+                                        <span className="popup-title">Report</span>
+                                        <button className="cancelButton" onClick={handleCancelReportOnClick}>
+                                            X
+                                        </button>
+                                        </div>
+                                        <div className="popup-body">
+                                            <textarea placeholder="What went wrong?..." onClick={(e) => { e.stopPropagation()}} onChange={(e) => setReportDescription(e.target.value)}></textarea>
+                                            <button className="orangeCircularButton" onClick={handleSubmitReportOnClick}>
+                                                Submit
+                                            </button>
+                                        </div>
+                                    </div>
+                            )}
+                        </div>
+                    )}
+                </div>   
+            </div>}
+
+            <div className = "volunteerPostHeaderContainer">
+                <div className='headers volunteeringPostHeaders'>
+                    <h1 className='bigHeader volunteeringPostHeader' style={{overflowWrap: "break-word"}}>{model.name}</h1>
+                    <p className='smallHeader volunteeringPostHeader' style={{overflowWrap: "break-word"}}>{model.description}</p>
+                </div>
+            
+                <div className='volunteerPostImages'>
+                    <ListWithArrows data = {volunteeringImages} limit = {1} navigateTo={''} isOrgManager={isManager} onRemove={onRemoveImage}></ListWithArrows>
+                    <input id="image-upload" type="file" onChange={onFileUpload} accept="image/*" key={key} style={{display: 'none'}}/>
+                    {isManager && <label htmlFor="image-upload" className="orangeCircularButton uploadButton" style={{cursor: 'pointer' }}>
+                        Upload Image
+                        </label>}
+                </div>
+            </div>
+
+            {isManager ?
+                <div className='warnings'>
+                    {warnings.map(warning =>
+                        <div className='warning' style={{display: 'flex', flexDirection:'row', alignItems:'center'}}>
+                            <img src="https://cdn-icons-png.flaticon.com/512/552/552871.png" style={{width:'40px', height:'40px', marginRight: '10px', borderRadius:'0px', boxShadow: 'none'}}></img>
+                            <p>{warning}</p>
+                        </div>)}
+                </div> : <></>}
+
+            <div className="volunteeringActions">
+                <h2 className='relatedVolunteersHeader'>Volunteering Actions</h2>
+                <div className='volunteeringButtons'>
+                    <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
+                    {isManager && <button className="orangeCircularButton" onClick={() => setShowNotifyVolunteers(true)}>Notify Volunteers</button>}
+                    
+                    {showNotifyVolunteers && (
+                                    <div className="popup-window">
+                                        <div className="popup-header">
+                                        <span className="popup-title">Notify Volunterrs</span>
+                                        <button className="cancelButton" onClick={handleCancelNotificationOnClick}>
+                                            X
+                                        </button>
+                                        </div>
+                                        <div className="popup-body">
+                                            <p className='smallHeader'>This notification will be sent to all volunteers of this volunteering</p>
+                                            <textarea placeholder="Please enter your notification" onClick={(e) => { e.stopPropagation()}} onChange={(e) => setNotification(e.target.value)}></textarea>
+                                            <button className="orangeCircularButton" onClick={handleSubmitNotificationOnClick}>
+                                                Notify
+                                            </button>
+                                        </div>
+                                    </div>
+                            )}
+                    
+                    {isManager && <button className="orangeCircularButton" onClick={() => navigate("./code")}>Show Changing QR Code</button>}
+                    {isManager && <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>}
+
+                    {!isManager &&
+                        <Popup trigger={<button className="orangeCircularButton">Request Hour Approvals Manually</button>} modal nested>
+                            {/*
+                        // @ts-ignore */}
+                            {close => (
+                                <div className="modal">
+                                    <HourRequestMaker close={close} volunteerindId={parseInt(id!)} />
+                                </div>
+                            )}
+                        </Popup>
+                    }
+
+                    {!isManager && <Popup trigger={<button className="orangeCircularButton">Leave</button>} modal nested>
+                        {/* 
+                    // @ts-ignore */}
+                        {close => (
+                            <div className="modal">
+                                <Leaver close={close} volunteerindId={parseInt(id!)}/>
+                            </div>
+                        )}
+                    </Popup>}
+                </div>
+            </div>
+
+            {/*<div className="volInfo">
                 <div className='volInfoText'>
                     <h1 className="bigHeader">{model.name}</h1>
                     <p className="smallHeader">{model.description}</p>
@@ -907,32 +1221,29 @@ function Volunteering() {
                         <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>
                         <button className="orangeCircularButton" onClick={handleRemoveVolunteeringOnClick}>Remove Volunteering</button>
                     </div> : <></>}
-            </div>
-            {isManager ?
-                <div className='warnings'>
-                    {warnings.map(warning =>
-                        <p className='warning'>{warning}</p>)}
-                </div> : <></>}
-            {isManager ?
+            </div>*/}
+
+            {/*isManager &&
                 <div className='scanButtons'>
                     <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
                     <button className="orangeCircularButton" onClick={() => navigate("./code")}>Show Changing QR Code</button>
                     <button className="orangeCircularButton" onClick={handleReportOnClick}>Report</button>
-                </div> :
+                </div>*/}
+                {/*{!isManager &&
                 <div className='scanButtons'>
-                    <button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
+                    {/*<button className="orangeCircularButton" onClick={() => navigate("./chat")}>Chat</button>
                     <button className="orangeCircularButton" onClick={() => navigate("/scan")}>Scan QR Code</button>
                     <button className="orangeCircularButton" onClick={handleReportOnClick}>Report</button>
                     <Popup trigger={<button className="orangeCircularButton">Leave</button>} modal nested>
-                        {/* 
-                    // @ts-ignore */}
+                        { 
+                    // @ts-ignore }
                         {close => (
                             <div className="modal">
                                 <Leaver close={close} volunteerindId={parseInt(id!)}/>
                             </div>
                         )}
                     </Popup>
-                </div>}
+                </div>}*/}
 
                 {showReportDescription && (
                     <div className="popup-window">
@@ -947,43 +1258,51 @@ function Volunteering() {
                     </div>
                 )}
 
+            {isManager && <p className='smallHeader' style ={{textAlign:'center', marginTop:'30px', marginBottom:'-35px', fontSize:'16px', color:"#037b7b"}}>Click A Tab To Switch Between Volunteers And Schedule</p>}
             {isManager && <Tabs>
-                <TabList>
+                <TabList className="manageTab">
                     <Tab>View and Manage Volunteers</Tab>
                     <Tab>View and Manage Schedule</Tab>
                 </TabList>
-                <TabPanel>
+                <TabPanel style={{marginTop:'-16px'}}>
                     <div className="volunteers">
-                        <button className="orangeCircularButton" onClick={() => onAddNewGroup()}>New Group</button>
-                        {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart}
-                                                                                onDrop={onDrop}
-                                                                                deleteGroup={deleteGroup}
-                                                                                groupId={parseInt(key)}
-                                                                                volunteeringId={parseInt(id!)}
-                                                                                volunteers={value}/>)}
+                        <div className='manageVolunteersActions'>
+                            <h2 className='relatedVolunteersHeader volunteersHeader'>Manage Volunteers</h2>
+                            <div className='manageVolunteersButtons'>
+                                <button className="orangeCircularButton" onClick={() => navigate("./jrequests")}>View Join Requests</button>
+                                <button className="orangeCircularButton" onClick={() => navigate("./hrrequests")}>View Hour Approval Requests</button>
+                            </div>
+                        </div>
+
+                        <div className='groups'>
+                            <h2 className='relatedVolunteersHeader volunteersHeader'>Volunteering Groups</h2>
+                            {Object.entries(groups).map(([key, value]) => <GroupRow onDragStart={onDragStart}
+                                                                                    onDrop={onDrop}
+                                                                                    deleteGroup={deleteGroup}
+                                                                                    groupId={parseInt(key)}
+                                                                                    volunteeringId={parseInt(id!)}
+                                                                                    volunteers={value}/>)}
+                            <button className="orangeCircularButton" onClick={() => onAddNewGroup()}>New Group</button>
+                        </div>
                     </div>
                 </TabPanel>
-                <TabPanel>
+                <TabPanel style={{marginTop:'-16px'}}>
                     <ManageRangesPanel rerender={rerenderManager} volunteeringId={parseInt(id!)} groups={Object.keys(groups).map(group => parseInt(group))} />
                 </TabPanel>
             </Tabs>}
-            {!isManager && hasLocation ?
-                <div className='scanButtons'>
-                    <button className="orangeCircularButton" onClick={() => navigate("./appointment")}>Make An
-                        Appointment</button>
-                    <Popup trigger={<button className="orangeCircularButton">Request Hours Manually</button>} modal nested>
-                        {/*
-                    // @ts-ignore */}
-                        {close => (
-                            <div className="modal">
-                                <HourRequestMaker close={close} volunteerindId={parseInt(id!)} />
-                            </div>
-                        )}
-                    </Popup>
-                </div> : <></>}
-            {permissionsLoaded && !isManager && hasLocation ?
-                <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
-            {!isManager && !hasLocation && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} />}
+
+            {!isManager && currentLocation !== -1 && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} currentLocation={currentLocation} />}
+            
+            {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
+        
+            <div className="volunteeringActions">
+                <h2 className='relatedVolunteersHeader'>Posts Of This Volunteering</h2>
+                {postsListItems.length > 0 ?
+                    <ListWithArrows data={postsListItems} limit = {9} navigateTo={'volunteeringPost'} clickable={() => true}></ListWithArrows>
+                    :
+                    <p className='noPosts'>No posts available.</p>
+                }
+            </div>
         </div>
     )
 }

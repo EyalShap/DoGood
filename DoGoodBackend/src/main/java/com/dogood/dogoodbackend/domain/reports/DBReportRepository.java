@@ -2,11 +2,13 @@ package com.dogood.dogoodbackend.domain.reports;
 
 import com.dogood.dogoodbackend.jparepos.ReportJPA;
 import com.dogood.dogoodbackend.utils.ReportErrors;
+import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 public class DBReportRepository implements ReportRepository{
     private ReportJPA jpa;
 

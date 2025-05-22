@@ -70,25 +70,22 @@ textarea {
     gap: 50px;
 }
 
-.learnMore {
-       
+.learnMore { 
   width: 90%;
   margin: auto;
-
   height: 100%;
   margin-top: 30px;
   padding: 20px;
   text-align: center; /* Center text */
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   display:flex;
-    flex-direction:column;
-    align-items:center;
-    justify-content:center;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
 }
 
 .volunteeringOrganizationBox {
     flex: 0 1 400px;  /* This sets the base size for the boxes and prevents them from stretching */
-    max-width: 400px; /* Optional: Set a maximum width to ensure they don't stretch too much */
     border: 0px solid black;
     border-radius: 0px;
     background: #4295ac;
@@ -97,8 +94,12 @@ textarea {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
     text-align: center;
-    width: 100%;
+    width: 400px;
     color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: auto;
 }
 
 .volunteeringOrganizationBox:hover {
@@ -120,6 +121,10 @@ background: #42a0acc7;
     font-size: 1.3rem;
     color: #ffffff;
     margin: 0;
+    width: 100%;
+    text-align: center;
+    overflow-wrap: break-word;
+
 }
 
 /* Volunteers Past Experiences */
@@ -183,6 +188,10 @@ background: #42a0acc7;
     line-height: 1.5;
 }
 
+.volunteeringPostHeader {
+    overflow-wrap: break-word;
+}
+
 /* Responsive styles */
 @media (max-width: 768px) {
     #postInfo {
@@ -230,6 +239,20 @@ background: #42a0acc7;
         font-size: 1.6rem;
     }
 
+    .volunteeringPostHeader {
+        overflow-wrap: break-word;
+    }
+
+    
+  .volunteeringPostHeaders {
+    width: 80%;
+  }
+
+  .volunteeringOrganizationBox {
+    width: 200px;
+    height: auto;
+  }
+    
 }
 
 /* InfoButton.css */
@@ -346,7 +369,7 @@ background: #42a0acc7;
     display: flex;
     justify-content: center; /* Push image to left and info to right */
     align-items: center; /* Center vertically */
-    gap: 50px; /* Space between image and info */
+    gap: 0px; /* Space between image and info */
     padding-top: 10px;
     padding-bottom: 10px;
     margin: 0 auto;

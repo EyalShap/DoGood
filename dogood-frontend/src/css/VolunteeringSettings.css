@@ -6,18 +6,31 @@
 }
 
 .container {
-    background-color: #F0F0FF;
+    /*background-color: #F0F0FF;
     width: 100%;
     align-items: center;
     padding: 10px;
     display: flex;
     flex-direction: column;
-    margin-bottom: 10px;
+    margin-bottom: 10px;*/
+    width: 90%;
+    margin: auto;
+    height: 100%;
+    margin-top: 30px;
+    padding: 20px;
+    text-align: center; /* Center text */
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
 }
 
 .locations {
     display: flex;
     flex-direction: row;
+    margin-bottom: 10px;
+    margin-top: -10px;
 }
 
 .location {
@@ -37,13 +50,10 @@
     font-family: 'Montserrat', sans-serif;
 }
 
-.settings h1, .settings p{
-    font-family: 'Montserrat', sans-serif;
-}
 
 .disabledLocation {
-    padding-left: 100px;
-    padding-right: 100px;
+    width: fit-content;
+    padding: 20px;
 }
 
 .disabledLocation h2 {
@@ -56,7 +66,7 @@
     width: 100% !important;
 }
 
-.location p {
+.location p, .myLocation p, .selectedLocation p {
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -85,7 +95,9 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    width: 100%;
 }
+
 .modal form{
     display: flex;
     flex-direction: column;
@@ -162,4 +174,44 @@
 }
 .code button{
     width: 100%;
+}
+
+
+.settingHeader {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 2rem;
+  margin: 0;
+  color: black;
+  max-width: 800px;
+  line-height: 1.4;
+  font-weight: 300;
+  border-bottom: 1px solid #555;
+  margin-bottom: 10px;
+}
+
+.selectCode,
+.selectCode * {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 16px;
+}
+
+.create-location-form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    align-items: center;
+}
+
+.editInput {
+width: 80%;
+  height: 2.5rem;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-bottom: 3px solid #ccc;
+  border-radius: 5px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s ease-in-out;
+  box-sizing: border-box;
+  font-family: 'Montserrat', sans-serif;
 }

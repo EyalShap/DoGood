@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
+@Transactional
 public class DBOrganizationRepository implements OrganizationRepository{
     private OrganizationJPA jpa;
 
@@ -40,44 +41,48 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
-    @Transactional
     public void editOrganization(int organizationId, String name, String description, String phoneNumber, String email) {
-        Organization toEdit = getOrganization(organizationId); // will throw exception if does not exist
+        Organization toEdit = getOrganizationForWrite(organizationId); // will throw exception if does not exist
         toEdit.editOrganization(name, description, phoneNumber, email);
         jpa.save(toEdit);
     }
 
     @Override
+    @Transactional
     public void setVolunteeringIds(int organizationId, List<Integer> volunteeringIds) {
-        Organization toSet = getOrganization(organizationId);
+        Organization toSet = getOrganizationForWrite(organizationId);
         toSet.setVolunteeringIds(volunteeringIds);
         jpa.save(toSet);
     }
 
     @Override
+    @Transactional
     public void setManagers(int organizationId, List<String> managers) {
-        Organization toSet = getOrganization(organizationId);
+        Organization toSet = getOrganizationForWrite(organizationId);
         toSet.setManagers(managers);
         jpa.save(toSet);
     }
 
     @Override
+    @Transactional
     public void setFounder(int organizationId, String newFounder) {
-        Organization toSet = getOrganization(organizationId);
+        Organization toSet = getOrganizationForWrite(organizationId);
         toSet.setFounder(newFounder);
         jpa.save(toSet);
     }
 
     @Override
+    @Transactional
     public void setImages(int organizationId, List<String> images) {
-        Organization toSet = getOrganization(organizationId);
+        Organization toSet = getOrganizationForWrite(organizationId);
         toSet.setImagePaths(images);
         jpa.save(toSet);
     }
 
     @Override
+    @Transactional
     public void uploadSignature(int organizationId, String actor, MultipartFile signature) {
-        Organization organization = getOrganization(organizationId);
+        Organization organization = getOrganizationForWrite(organizationId);
 
         try {
             byte[] signatureBytes = signature != null ? signature.getBytes() : null;
@@ -90,15 +95,26 @@ public class DBOrganizationRepository implements OrganizationRepository{
     }
 
     @Override
+    @Transactional
     public byte[] getSignature(int organizationId, String actor) {
-        Organization toSet = getOrganization(organizationId);
+        Organization toSet = getOrganizationForRead(organizationId);
         return toSet.getSignature(actor);
     }
 
     @Override
-    @Transactional
-    public Organization getOrganization(int organizationId) {
-        Optional<Organization> organization = jpa.findById(organizationId);
+    public Organization getOrganizationForRead(int organizationId) {
+        Optional<Organization> organization = jpa.findById(organizationId); // does not lock org
+        if(!organization.isPresent()) {
+            throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
+        }
+
+        Organization o = organization.get();
+        return o;
+    }
+
+    @Override
+    public Organization getOrganizationForWrite(int organizationId) {
+        Optional<Organization> organization = jpa.findByIdForUpdate(organizationId); // locks org
         if(!organization.isPresent()) {
             throw new IllegalArgumentException(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId));
         }

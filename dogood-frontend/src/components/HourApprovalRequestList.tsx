@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { approveHourRequest, denyHourRequest, getIsManager, getVolunteering, getVolunteeringHourRequests } from "../api/volunteering_api";
 import HourApprovalRequest from "../models/HourApprovalRequest";
 import './../css/RequestList.css'
+import { getVolunteeringName } from "../api/post_api";
 
 function Request({ model, volunteeringId, fetchRequests } : {model: HourApprovalRequest, volunteeringId: number, fetchRequests: () => void}){
     const getTimeBetween = () => {
@@ -53,13 +54,19 @@ function Request({ model, volunteeringId, fetchRequests } : {model: HourApproval
 
 function HourApprovalRequestList() {
     const [model, setModel] = useState<HourApprovalRequest[]>([]);
+    const [voluneeringName, setVolunteeringName] = useState<string>("");
+
     let { id } = useParams();
+
     const fetchRequests = async () => {
         try{
             let found = await getVolunteeringHourRequests(parseInt(id!));
             console.log(found)
 
+            let name = await getVolunteeringName(parseInt(id!));
+            
             await setModel(found);
+            await setVolunteeringName(name);
         }catch(e){
             //send to error page
             alert(e)
@@ -69,7 +76,9 @@ function HourApprovalRequestList() {
         fetchRequests();
     }, [])
   return (
-    <div className="requestList">
+    <div className="requestList" style={{display:'flex', flexDirection:'column', alignItems:'center'}}>
+        <h2 className="bigHeader" style={{marginTop: '50px', textAlign:'center'}}>{voluneeringName} Volunteers Hour Approval Requests</h2>
+        {model.length === 0 && <p className="smallHeader" style={{marginTop: '50px', marginBottom: '50px'}}>No Requests Found</p>}
         {model.map(request => <Request model={request} volunteeringId={parseInt(id!)} fetchRequests={fetchRequests}/>)}
     </div>
   )
