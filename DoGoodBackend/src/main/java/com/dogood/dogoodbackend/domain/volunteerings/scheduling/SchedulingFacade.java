@@ -123,4 +123,8 @@ public class SchedulingFacade {
     public void userLeave(int volunteeringId, String userId) {
         manager.userLeave(volunteeringId, userId);
     }
+
+    public void removeAppointmentsOfVolunteer(int volunteeringId, String volunteerId) {
+        manager.removeAppointmentsOfVolunteer(volunteeringId,volunteerId);
+    }
 }

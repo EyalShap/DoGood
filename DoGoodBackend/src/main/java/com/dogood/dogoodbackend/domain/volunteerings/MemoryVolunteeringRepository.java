@@ -19,6 +19,11 @@ public class MemoryVolunteeringRepository implements VolunteeringRepository{
     }
 
     @Override
+    public Volunteering getVolunteeringForWrite(int volunteeringId) {
+        return volunteerings.get(volunteeringId);
+    }
+
+    @Override
     public List<Volunteering> getAllVolunteerings() {
         return new LinkedList<>(volunteerings.values());
     }

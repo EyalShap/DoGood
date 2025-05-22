@@ -20,6 +20,11 @@ public class DatabaseVolunteeringRepository implements VolunteeringRepository{
     }
 
     @Override
+    public Volunteering getVolunteeringForWrite(int volunteeringId) {
+        return jpa.findAndWriteById(volunteeringId).orElse(null);
+    }
+
+    @Override
     public List<Volunteering> getAllVolunteerings() {
         return jpa.findAll();
     }

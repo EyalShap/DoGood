@@ -177,6 +177,11 @@ public class DatabaseSchedulingManager implements SchedulingManager{
     }
 
     @Override
+    public void removeAppointmentsOfVolunteer(int volunteeringId, String userId) {
+        appointmentJPA.deleteByUserIdAndVolunteeringId(userId, volunteeringId);
+    }
+
+    @Override
     public void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription) {
         HourApprovalRequest request = hourRequestJPA.getReferenceById(new UserVolunteerDateKT(userId,volunteeringId,start));
         request.setDescription(newDescription);
