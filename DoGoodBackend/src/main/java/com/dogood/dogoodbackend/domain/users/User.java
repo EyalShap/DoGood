@@ -33,6 +33,9 @@ public class User {
     private boolean isAdmin;
     private boolean leaderboard;
 
+    private boolean remindActivity;
+    private boolean notifyRecommendations;
+
     @ElementCollection(fetch = FetchType.EAGER)
     @JsonIgnore
     private Set<String> fcmTokens;
@@ -72,6 +75,8 @@ public class User {
         this.profilePicUrl = profilePicUrl;
         // Initialize new fields to defaults
         this.emailVerified = false;
+        this.remindActivity = false;
+        this.notifyRecommendations = true;
     }
 
     public User(String username, String email, String name, String password, String phone, Date birthDate) {
@@ -99,6 +104,8 @@ public class User {
         this.profilePicUrl = "";
         // Initialize new fields to defaults
         this.emailVerified = false;
+        this.remindActivity = false;
+        this.notifyRecommendations = true;
     }
 
     public User(String username, List<String> emails, String name, String password, String phone, Date birthDate, List<String> preferredCategories, List<Integer> volunteeringIds, List<VolunteeringDTO> volunteeringsInHistory, List<Integer> myOrganizationIds, List<String> skills, boolean isStudent, boolean isAdmin) {
@@ -124,6 +131,8 @@ public class User {
         this.profilePicUrl = "";
         // Initialize new fields to defaults
         this.emailVerified = false;
+        this.remindActivity = false;
+        this.notifyRecommendations = true;
     }
 
     public boolean isEmailVerified() {
@@ -306,6 +315,22 @@ public class User {
 
     public void setCv(byte[] cv) {
         this.cv = cv;
+    }
+
+    public boolean isRemindActivity() {
+        return remindActivity;
+    }
+
+    public void setRemindActivity(boolean remindActivity) {
+        this.remindActivity = remindActivity;
+    }
+
+    public boolean isNotifyRecommendations() {
+        return notifyRecommendations;
+    }
+
+    public void setNotifyRecommendations(boolean notifyRecommendations) {
+        this.notifyRecommendations = notifyRecommendations;
     }
 
     public String getProfilePicUrl() {

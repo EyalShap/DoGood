@@ -5,6 +5,7 @@ import com.dogood.dogoodbackend.domain.users.UsersFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
+import com.dogood.dogoodbackend.domain.users.notificiations.PushNotificationSender;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import com.google.firebase.messaging.FirebaseMessaging;
@@ -12,13 +13,15 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-
-// VERIFICATION START
 import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
-// VERIFICATION END
+import com.dogood.dogoodbackend.api.userrequests.RequestEmailUpdateVerificationRequest;
+import com.dogood.dogoodbackend.api.userrequests.VerifyEmailUpdateCodeRequest;
 import com.dogood.dogoodbackend.api.userrequests.ForgotPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.VerifyResetPasswordRequest;
 import com.dogood.dogoodbackend.api.userrequests.ResetPasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ChangePasswordRequest;
+import com.dogood.dogoodbackend.api.userrequests.ResendVerificationCodeRequest;
+
 
 import java.util.Date;
 import java.util.List;
@@ -32,20 +35,14 @@ public class UserService {
     private NotificationSystem notificationSystem;
 
     @Autowired
-    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender, FirebaseMessaging firebaseMessaging){
+    public UserService(FacadeManager facadeManager, NotificationSocketSender socketSender, PushNotificationSender pushNotificationSender){
         this.usersFacade = facadeManager.getUsersFacade();
         this.authFacade = facadeManager.getAuthFacade();
         this.notificationSystem = facadeManager.getNotificationSystem();
         this.notificationSystem.setSender(socketSender);
-        this.notificationSystem.setFirebaseMessaging(firebaseMessaging);
+        this.notificationSystem.setPushNotificationSender(pushNotificationSender);
+        pushNotificationSender.setUsersFacade(usersFacade);
         //this.usersFacade.registerAdmin("admin","password","admin","admin@gmail.com","052-0520520", new Date());
-
-
-        this.usersFacade.register("TheDoctor", "DOOMDOOLOOM12345", "The", "doctor@tardis.com", "052-0520520", new Date());
-        this.usersFacade.register("EyalShapiro", "1234EYAL1234", "Eyal", "eyald@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("DanaFriedman", "1234DANA1234", "Dana", "dafr@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("NirAharoni", "1234NIR1234", "Nir", "nirahar@post.bgu.ac.il", "052-0520520", new Date());
-        this.usersFacade.register("GalPinto", "galpinto", "Gal", "pintogal@post.bgu.ac.il", "052-0520520", new Date());
     }
 
     private void checkToken(String token, String username){
@@ -99,6 +96,73 @@ public class UserService {
         }
     }
     // VERIFICATION END
+    // PASSWORD-CHANGE-NO-EMAIL START
+    public Response<String> changePassword(String token, ChangePasswordRequest request) {
+        try {
+            String usernameFromToken = authFacade.getNameFromToken(token);
+            // The facade will ensure usernameFromToken matches request.getUsername()
+            String message = usersFacade.changePassword(
+                    usernameFromToken,
+                    request.getUsername(),
+                    request.getOldPassword(),
+                    request.getNewPassword()
+            );
+            return Response.createResponse(message, null);
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+    // PASSWORD-CHANGE-NO-EMAIL END
+
+    // UPDATE-EMAIL-VERIFICATION START
+    public Response<String> requestEmailUpdateVerification(String token, RequestEmailUpdateVerificationRequest request) {
+        try {
+            String actorUsername = authFacade.getNameFromToken(token);
+            // The facade method will also check if actorUsername matches the owner of request.getEmail()
+            String message = usersFacade.requestEmailUpdateVerification(request.getEmail(), actorUsername);
+            return Response.createResponse(message, null);
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+
+    public Response<String> verifyEmailUpdateCode(String token, VerifyEmailUpdateCodeRequest request) {
+        try {
+            String actorUsername = authFacade.getNameFromToken(token);
+            // The facade method will also check if actorUsername matches the owner of request.getEmail()
+            String message = usersFacade.verifyEmailUpdateCode(request.getEmail(), request.getCode(), actorUsername);
+            if (message.startsWith("Code verified successfully")) { // Check prefix for success
+                return Response.createResponse(message, null);
+            } else {
+                return Response.createResponse(null, message); // Error messages
+            }
+        } catch (Exception e) {
+            return Response.createResponse(null, e.getMessage());
+        }
+    }
+    // UPDATE-EMAIL-VERIFICATION END
+
+    // RESEND VERIFICATION START
+    public Response<String> handleResendVerificationCode(ResendVerificationCodeRequest request) {
+        try {
+            String message = usersFacade.resendVerificationCode(request.getUsername());
+            if ("A new verification code has been sent to your email address.".equals(message) ||
+                    "Email already verified.".equals(message)) {
+                return Response.createResponse(message, null);
+            } else {
+                // Should not happen based on facade logic, but as a fallback
+                return Response.createResponse(null, message);
+            }
+        } catch (IllegalArgumentException e) { // Catch specific exceptions like UserNotFound
+            return Response.createResponse(null, e.getMessage());
+        } catch (IllegalStateException e) { // Catch specific exceptions like UserHasNoEmail
+            return Response.createResponse(null, e.getMessage());
+        } catch (Exception e) { // Generic catch for other unexpected errors
+            return Response.createResponse(null, "An unexpected error occurred while resending the verification code.");
+        }
+    }
+    // RESEND VERIFICATION END
+
     // FORGOT_PASSWORD START
     public Response<String> forgotPassword(String email) {
         try {
@@ -238,6 +302,26 @@ public class UserService {
         }
     }
 
+    public Response<Boolean> setNotifyRecommendation(String token, String username, boolean notify) {
+        try {
+            checkToken(token, username);
+            usersFacade.setNotifyRecommendation(username, notify);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<Boolean> setRemindActivity(String token, String username, boolean remind) {
+        try {
+            checkToken(token, username);
+            usersFacade.setRemindActivity(username, remind);
+            return Response.createResponse(true);
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     public Response<Boolean> banUser(String token, String actor, String username) {
         try {
             checkToken(token, actor);
@@ -325,6 +409,16 @@ public class UserService {
         try {
             checkToken(token, username);
             usersFacade.registerFcmToken(username, fcmToken);
+            return Response.createOK();
+        } catch(Exception e) {
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
+    public Response<String> removeFcmToken(String token, String username, String fcmToken){
+        try {
+            checkToken(token, username);
+            usersFacade.removeFcmToken(username, fcmToken);
             return Response.createOK();
         } catch(Exception e) {
             return Response.createResponse(e.getMessage());

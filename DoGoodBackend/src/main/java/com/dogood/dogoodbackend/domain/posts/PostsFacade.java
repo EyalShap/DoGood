@@ -109,7 +109,7 @@ public class PostsFacade {
         for(int i = 0; i < Math.min(allUsernames.size(), NOTIFY_NEW_POST); i++) {
             String notifyUsername = allUsernames.get(i);
             int relevance = evaluatePostRelevance(post, notifyUsername);
-            if(relevance > 0) {
+            if(usersFacade.getNotifyRecommendation(notifyUsername) && relevance > 0) {
                 String message = String.format("The new post \"%s\" might be relevant for you!", post.getTitle());
                 notificationSystem.notifyUser(notifyUsername, message, NotificationNavigations.volunteeringPost(postId));
             }

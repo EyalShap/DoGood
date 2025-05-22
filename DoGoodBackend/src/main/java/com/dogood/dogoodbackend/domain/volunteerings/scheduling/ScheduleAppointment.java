@@ -165,7 +165,7 @@ public class ScheduleAppointment {
         if(weekDays >= 0 && !valueAtDay(startDateTime.getDayOfWeek().getValue()%7)){
             return false;
         }
-        return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed && MINUTES.between(endDateTime.toLocalTime(), endTime) <= minutesAllowed;
+        return Math.abs(MINUTES.between(startDateTime.toLocalTime(), startTime)) <= minutesAllowed && Math.abs(MINUTES.between(endDateTime.toLocalTime(), endTime)) <= minutesAllowed;
     }
 
     public DatePair getDefiniteRange(LocalDate day){
@@ -234,6 +234,17 @@ public class ScheduleAppointment {
         if(weekDays >= 0 && !valueAtDay(startDateTime.getDayOfWeek().getValue()%7)){
             return false;
         }
-        return MINUTES.between(startDateTime.toLocalTime(), startTime) <= minutesAllowed;
+        return Math.abs(MINUTES.between(startDateTime.toLocalTime(), startTime)) <= minutesAllowed;
+    }
+
+    public boolean isUpcoming(){
+        LocalDateTime now = LocalDateTime.now();
+        if(weekDays > 0 && !valueAtDay(now.getDayOfWeek().getValue()%7)){
+            return false;
+        }
+        if(oneTime != null && !now.toLocalDate().isEqual(oneTime)){
+            return false;
+        }
+        return now.toLocalTime().isBefore(startTime) && MINUTES.between(now.toLocalTime(), startTime) <= 60;
     }
 }

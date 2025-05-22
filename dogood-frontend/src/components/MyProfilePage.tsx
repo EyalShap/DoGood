@@ -12,7 +12,11 @@ import {
     uploadCV,
     downloadCV,
     removeCV,
-    generateSkillsAndPreferences, updateProfilePicture,
+    generateSkillsAndPreferences,
+    updateProfilePicture,
+    requestEmailUpdateVerification,
+    changePassword,
+    setNotifyRecommendation, setRemindActivity,
 } from "../api/user_api";
 import './../css/MyProfile.css';
 import User, { VolunteeringInHistory } from "../models/UserModel";
@@ -31,6 +35,7 @@ function MyProfilePage() {
     const [password, setPassword] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [originalEmail, setOriginalEmail] = useState("");
     const [phone, setPhone] = useState("");
     const [birthDate, setBirthDate] = useState("");
     const [skillsInput, setSkillsInput] = useState("");
@@ -39,6 +44,8 @@ function MyProfilePage() {
     const [preferences, setPreferences] = useState("");
     const [isAdmin, setIsAdmin] = useState(false);
     const [isLeaderboard, setIsLeaderboard] = useState(true);
+    const [isRemind, setIsRemind] = useState(true);
+    const [isNotify, setIsNotify] = useState(true);
     const [selectedCV, setSelectedCV] = useState<File | null>(null);
     const [cv, setCV] = useState<File | null>(null);
     const [loading, setLoading] = useState(false);
@@ -57,6 +64,19 @@ function MyProfilePage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const [isUploading, setIsUploading] = useState<boolean>(false);
 
+    // UPDATE-EMAIL-VERIFICATION START
+    const [isLoadingUpdate, setIsLoadingUpdate] = useState(false); // For profile update process
+    const [errorUpdate, setErrorUpdate] = useState<string | null>(null);
+    // UPDATE-EMAIL-VERIFICATION END
+    // PASSWORD-CHANGE-NO-EMAIL START
+    const [oldPassword, setOldPassword] = useState("");
+    const [newPassword, setNewPassword] = useState("");
+    const [confirmNewPassword, setConfirmNewPassword] = useState("");
+    const [isChangingPassword, setIsChangingPassword] = useState(false);
+    const [passwordChangeError, setPasswordChangeError] = useState<string | null>(null);
+    const [passwordChangeSuccess, setPasswordChangeSuccess] = useState<string | null>(null);
+    // PASSWORD-CHANGE-NO-EMAIL END
+
     // Volunteering Now
 
     // Fetch user profile on load
@@ -67,6 +87,7 @@ function MyProfilePage() {
                 setUsername(profile.username);
                 setName(profile.name);
                 setEmail(profile.emails[0]);
+                setOriginalEmail(profile.emails[0]);
                 setPhone(profile.phone);
                 setBirthDate(new Date(profile.birthDate).toISOString().split('T')[0]);
                 setIsAdmin(await getIsAdmin(profile.username));
@@ -76,6 +97,8 @@ function MyProfilePage() {
                 setPreferencesInput(profile.preferredCategories.join(", "));
                 setVolunteeringsInHistory(profile.volunteeringsInHistory);
                 setIsLeaderboard(profile.leaderboard);
+                setIsNotify(profile.notifyRecommendations)
+                setIsRemind(profile.remindActivity)
 
                 try {
                     const cvBlob : Blob = await downloadCV();
@@ -170,20 +193,128 @@ function MyProfilePage() {
         }
     };
 
-    // Handlers to update profile
+    // UPDATE-EMAIL-VERIFICATION START
     const handleProfileUpdate = async () => {
-        try {
-            const pass = password.length > 0 ? password : null;
-            await updateUserFields(username, pass, [email], name, phone);
-            alert("Profile updated successfully!");
-        } catch (e) {
-            alert("Failed to update profile: " + e);
+        setErrorUpdate(null);
+        setIsLoadingUpdate(true);
+
+        const newEmailTrimmed = email.trim();
+        const newPasswordTrimmed = password.trim(); // Password from the input field
+
+        const emailActuallyChanged = newEmailTrimmed !== originalEmail;
+        // Password changed if the password field is not empty AND different from some known state (if we stored old pass hash)
+        // For simplicity, we'll consider it "changed" if the field is non-empty, triggering verification.
+        const passwordFieldIsNonEmpty = newPasswordTrimmed.length > 0;
+
+        if (emailActuallyChanged) {
+            // Email has changed, verification is required for the original email
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(newEmailTrimmed)) {
+                alert("Invalid new email address format.");
+                setIsLoadingUpdate(false);
+                return;
+            }
+            if (passwordFieldIsNonEmpty && newPasswordTrimmed.length < 6) {
+                alert("New password must be at least 6 characters long.");
+                setIsLoadingUpdate(false);
+                return;
+            }
+
+            try {
+                await requestEmailUpdateVerification(originalEmail); // Send code to original email
+
+                const pendingUpdateData = {
+                    name: name,
+                    phone: phone,
+                    newEmail: newEmailTrimmed, // The intended new email
+                    newPassword: passwordFieldIsNonEmpty ? newPasswordTrimmed : null,
+                };
+
+                alert("A verification code has been sent to your current email address: " + originalEmail + ". Please verify to update your profile.");
+                navigate('/verify-email-update', {
+                    state: {
+                        originalEmail: originalEmail, // Email where code was sent
+                        pendingUpdateData: pendingUpdateData,
+                        username: username // Pass username for the final updateUserFields call
+                    }
+                });
+            } catch (e: any) {
+                const errorMsg = e.message || e.toString();
+                alert("Failed to initiate email change verification: " + errorMsg);
+                setErrorUpdate("Failed to initiate email change verification: " + errorMsg);
+            } finally {
+                setIsLoadingUpdate(false);
+            }
+        } else {
+            // Email has NOT changed. Update other fields directly.
+            // If password field is non-empty, it means user wants to change password.
+            // The existing updateUserFields can handle this (backend might or might not require verification for password-only change).
+            // For this task, we assume password-only changes don't need this *new* verification flow.
+            // If they do, the logic would be similar to email change, sending code to originalEmail.
+            
+            // Let's assume for now that if email didn't change, we proceed with a direct update.
+            // If password field is empty, pass null.
+            const passwordToUpdate = passwordFieldIsNonEmpty ? newPasswordTrimmed : null;
+            if (passwordToUpdate && passwordToUpdate.length < 6) {
+                 alert("New password must be at least 6 characters long.");
+                 setIsLoadingUpdate(false);
+                 return;
+            }
+
+            try {
+                await updateUserFields(username, passwordToUpdate, [originalEmail], name, phone);
+                alert("Profile updated successfully!");
+                if (passwordToUpdate) setPassword(""); // Clear password field after successful update
+            } catch (e: any) {
+                const errorMsg = e.message || e.toString();
+                alert("Failed to update profile: " + errorMsg);
+                setErrorUpdate("Failed to update profile: " + errorMsg);
+            } finally {
+                setIsLoadingUpdate(false);
+            }
         }
     };
+    // UPDATE-EMAIL-VERIFICATION END
+        // PASSWORD-CHANGE-NO-EMAIL START
+    const handleChangePassword = async () => {
+        setPasswordChangeError(null);
+        setPasswordChangeSuccess(null);
+
+        if (!oldPassword || !newPassword || !confirmNewPassword) {
+            setPasswordChangeError("All password fields are required.");
+            return;
+        }
+        if (newPassword.length < 6) {
+            setPasswordChangeError("New password must be at least 6 characters long.");
+            return;
+        }
+        if (newPassword !== confirmNewPassword) {
+            setPasswordChangeError("New passwords do not match.");
+            return;
+        }
+
+        setIsChangingPassword(true);
+        try {
+            const result = await changePassword({
+                username: username,
+                oldPassword: oldPassword,
+                newPassword: newPassword,
+            });
+            setPasswordChangeSuccess(result || "Password updated successfully!");
+            setOldPassword("");
+            setNewPassword("");
+            setConfirmNewPassword("");
+        } catch (e: any) {
+            setPasswordChangeError(e.message || e.toString() || "Failed to change password.");
+        } finally {
+            setIsChangingPassword(false);
+        }
+    };
+    // PASSWORD-CHANGE-NO-EMAIL END
 
     const handleSkillsUpdate = async () => {
         try {
-            const updatedSkills = skillsInput.split(",").map(skill => skill.trim());
+            const updatedSkills = skillsInput === "" ? [] : skillsInput.split(",").map(skill => skill.trim());
             await updateUserSkills(username, updatedSkills);
             setSkills(updatedSkills.join(", "));
             alert("Skills updated successfully!");
@@ -194,7 +325,7 @@ function MyProfilePage() {
 
     const handlePreferencesUpdate = async () => {
         try {
-            const updatedPreferences = preferencesInput.split(",").map(preference => preference.trim());
+            const updatedPreferences = preferencesInput === "" ? [] : preferencesInput.split(",").map(preference => preference.trim());
             await updateUserPreferences(username, updatedPreferences);
             setPreferences(updatedPreferences.join(", "));
             alert("Preferences updated successfully!");
@@ -213,11 +344,20 @@ function MyProfilePage() {
 
     const toggleSwitch = async () => {
         let newState = !isLeaderboard;
-        console.log(newState);
         setIsLeaderboard(newState);
-        console.log("here1");
         await setLeaderboard(newState);
-        console.log("here");
+    }
+
+    const toggleSwitchNotify = async () => {
+        let newState = !isNotify;
+        setIsNotify(newState);
+        await setNotifyRecommendation(newState);
+    }
+
+    const toggleSwitchRemind = async () => {
+        let newState = !isRemind;
+        setIsRemind(newState);
+        await setRemindActivity(newState);
     }
 
     const displayPic = (!profilePic || profilePic === "") ? defaultImage : profilePic;
@@ -301,6 +441,9 @@ function MyProfilePage() {
     return (
         <div className="my-profile">
             <h1 className="bigHeader">My Profile</h1>
+            {/* UPDATE-EMAIL-VERIFICATION START */}
+            {errorUpdate && <p style={{color: 'red', textAlign: 'center'}}>{errorUpdate}</p>}
+            {/* UPDATE-EMAIL-VERIFICATION END */}
             {/* Profile Picture Section */}
             <div className="profile-picture-section">
                 <div className="profile-picture-container">
@@ -319,43 +462,36 @@ function MyProfilePage() {
                     />
                 </div>
                 <div className="profilePicButtons">
-                {/* Hidden file input triggered by the button */}
-                <input
-                    type="file"
-                    accept="image/*" // Accept standard image types
-                    id="profilePicInput"
-                    style={{ display: "none" }}
-                    onChange={handleFileChange}
-                />
-                {/* Button to open file selector */}
-                <button
-                    onClick={() => document.getElementById("profilePicInput")?.click()}
-                    className="upload-button orangeCircularButton"
-                    disabled={isUploading} // Disable while upload is in progress
-                >
-                    Choose Picture
-                </button>
-                {/* Button to initiate the upload and backend update */}
-                <button
-                    onClick={handleProfilePictureUpdate}
-                    className="orangeCircularButton" // Using existing style class
-                    disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
-                >
-                    {isUploading ? "Uploading..." : "Save Picture"}
-                </button>
+                    {/* Hidden file input triggered by the button */}
+                    <input
+                        type="file"
+                        accept="image/*" // Accept standard image types
+                        id="profilePicInput"
+                        style={{display: "none"}}
+                        onChange={handleFileChange}
+                    />
+                    {/* Button to open file selector */}
+                    <button
+                        onClick={() => document.getElementById("profilePicInput")?.click()}
+                        className="upload-button orangeCircularButton"
+                        disabled={isUploading} // Disable while upload is in progress
+                    >
+                        Choose Picture
+                    </button>
+                    {/* Button to initiate the upload and backend update */}
+                    <button
+                        onClick={handleProfilePictureUpdate}
+                        className="orangeCircularButton" // Using existing style class
+                        disabled={!selectedFile || isUploading} // Disable if no file is selected or already uploading
+                    >
+                        {isUploading ? "Uploading..." : "Save Picture"}
+                    </button>
                 </div>
             </div>
             <div className="profile-section">
                 <h2 className="profileSectionHeader">Update Profile</h2>
                 <label>Username:</label>
                 <input type="text" value={username} disabled/>
-                <label>Password:</label>
-                <input
-                    type="password"
-                    placeholder="Enter new password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                />
                 <label>Name:</label>
                 <input
                     type="text"
@@ -376,21 +512,73 @@ function MyProfilePage() {
                 />
                 <label>Birth Date:</label>
                 <input type="date" value={birthDate} disabled/>
-                <button onClick={handleProfileUpdate} className="orangeCircularButton">Update Profile</button>
+                {/* UPDATE-EMAIL-VERIFICATION START */}
+                <button onClick={handleProfileUpdate} className="orangeCircularButton" disabled={isLoadingUpdate}>
+                    {isLoadingUpdate ? "Processing..." : "Update Profile"}
+                </button>
+                {/* UPDATE-EMAIL-VERIFICATION END */}
             </div>
+            {/* PASSWORD-CHANGE-NO-EMAIL START */}
+            <div className="profile-section">
+                <h2 className="profileSectionHeader">Change Password</h2>
+                {passwordChangeError && <p style={{color: 'red', textAlign: 'center'}}>{passwordChangeError}</p>}
+                {passwordChangeSuccess && <p style={{color: 'green', textAlign: 'center'}}>{passwordChangeSuccess}</p>}
+
+                <label htmlFor="oldPassword">Current Password:</label>
+                <input
+                    id="oldPassword"
+                    type="password"
+                    placeholder="Enter your current password"
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <label htmlFor="newPassword">New Password:</label>
+                <input
+                    id="newPassword"
+                    type="password"
+                    placeholder="Enter new password"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <label htmlFor="confirmNewPassword">Confirm New Password:</label>
+                <input
+                    id="confirmNewPassword"
+                    type="password"
+                    placeholder="Confirm new password"
+                    value={confirmNewPassword}
+                    onChange={(e) => setConfirmNewPassword(e.target.value)}
+                    disabled={isChangingPassword}
+                />
+                <button onClick={handleChangePassword} className="orangeCircularButton" disabled={isChangingPassword}>
+                    {isChangingPassword ? "Changing..." : "Change Password"}
+                </button>
+            </div>
+            {/* PASSWORD-CHANGE-NO-EMAIL END */}
 
             <div className="cv-section">
                 <h2 className="profileSectionHeader">Upload Your CV</h2>
                 <p>Upload your CV to impress managers and extract your skills and preferences automatically!</p>
-                <input type="file" accept="application/pdf" onChange={onFileUpload}  key={key}/>
+                <input type="file" accept="application/pdf" onChange={onFileUpload} key={key}/>
                 <div className="cvButtons">
-                <div className="fileButtons" style={{marginTop:'20px'}}>
-                <button onClick={onCVSubmit} className={`orangeCircularButton ${selectedCV === null ? 'disabledButton' : ''}`}>Upload CV</button>
-                <button onClick={onCVDownload} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Download CV</button>
-                <button onClick={onCVRemove} className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`} >Remove CV</button>
-                </div>
-                <button onClick={onCVExtract} className={`orangeCircularButton ${cv === null || loading ? 'disabledButton' : ''}`} style={{marginTop:'20px'}}>Extract Skills And Preferences Automatically Using AI</button>
-                {loading && <PacmanLoader color="#037b7b" size={25} />}
+                    <div className="fileButtons" style={{marginTop: '20px'}}>
+                        <button onClick={onCVSubmit}
+                                className={`orangeCircularButton ${selectedCV === null ? 'disabledButton' : ''}`}>Upload
+                            CV
+                        </button>
+                        <button onClick={onCVDownload}
+                                className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`}>Download CV
+                        </button>
+                        <button onClick={onCVRemove}
+                                className={`orangeCircularButton ${cv === null ? 'disabledButton' : ''}`}>Remove CV
+                        </button>
+                    </div>
+                    <button onClick={onCVExtract}
+                            className={`orangeCircularButton ${cv === null || loading ? 'disabledButton' : ''}`}
+                            style={{marginTop: '20px'}}>Extract Skills And Preferences Automatically Using AI
+                    </button>
+                    {loading && <PacmanLoader color="#037b7b" size={25}/>}
                 </div>
             </div>
 
@@ -478,8 +666,20 @@ function MyProfilePage() {
 
             <div className="leaderboard-section">
                 <h2 className="profileSectionHeader">Set Leaderboard</h2>
-                <p>Set here if you would like to apprear in the leaderboard of volunteering hours.</p>
+                <p>Set here if you would like to appear in the leaderboard of volunteering hours.</p>
                 <Switch className='switch' checked={isLeaderboard} onChange={toggleSwitch}/>
+            </div>
+
+            <div className="leaderboard-section">
+                <h2 className="profileSectionHeader">Recommendations Notifications</h2>
+                <p>Set here if you would like to be notified about new posts that might be relevant for you.</p>
+                <Switch className='switch' checked={isNotify} onChange={toggleSwitchNotify}/>
+            </div>
+
+            <div className="leaderboard-section">
+                <h2 className="profileSectionHeader">Remind Me Before Activities</h2>
+                <p>Set here if you would like to be notified an hour before a volunteering appointment.</p>
+                <Switch className='switch' checked={isRemind} onChange={toggleSwitchRemind}/>
             </div>
         </div>
     );
