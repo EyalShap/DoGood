@@ -818,7 +818,7 @@ public class VolunteeringService {
     }
 
     @Scheduled(cron = "0 0 * * * *")
-    private void remindBeforeActivity(){
+    protected void remindBeforeActivity(){
         facadeManager.getVolunteeringFacade().notifyUpcomingAppointments();
     }
 }
