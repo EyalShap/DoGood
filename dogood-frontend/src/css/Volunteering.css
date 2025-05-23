@@ -254,6 +254,17 @@
 }
 
 @media (max-width: 500px) {
+    .volunteerData {
+        flex-direction: column;
+    }
+    .locationAssignment {
+        flex-direction: column;
+    }
+
+    .locationOption {
+        margin: 5px 0;
+    }
+
     .volInfo {
         flex-direction: column;
         align-items: center;

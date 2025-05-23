@@ -9,6 +9,7 @@ import java.util.*;
 @Entity
 public class User {
     @Id
+    @Column(columnDefinition = "VARCHAR(255) COLLATE utf8mb4_bin")
     private String username;
     @ElementCollection(fetch = FetchType.EAGER)
     private List<String> emails;
