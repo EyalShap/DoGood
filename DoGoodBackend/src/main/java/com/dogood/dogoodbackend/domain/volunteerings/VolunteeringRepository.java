@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface VolunteeringRepository {
     public Volunteering getVolunteering(int volunteeringId);
+    public Volunteering getVolunteeringForWrite(int volunteeringId);
     public List<Volunteering> getAllVolunteerings();
     public Volunteering addVolunteering(int organizationId, String name, String description);
     public void updateVolunteering(int volunteeringId, String name, String description);

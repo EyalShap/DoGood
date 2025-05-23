@@ -30,4 +30,6 @@ public interface SchedulingManager {
     void userLeave(int volunteeringId, String userId);
 
     void updateRequestDescription(String userId, int volunteeringId, Date start, String newDescription);
+
+    void removeAppointmentsOfVolunteer(int volunteeringId, String volunteerId);
 }

@@ -52,7 +52,7 @@
     width: 100%;
     border-radius: 12px;
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-    /*text-shadow:1px 1px 10px rgba(218, 0, 0, 0.6);*/
+    text-shadow:1px 1px 10px rgba(218, 0, 0, 0.6);
     transition: 1s
 }
 
@@ -148,15 +148,46 @@
     color: #222;
 }
 
-.volunteerUsername {
+.volunteerData {
     font-size: 1.1rem;
-    margin: 10px 30px;
+    margin: 10px 30px 0;
     background: #ffffff;
     padding: 10px;
     border-radius: 8px;
-    font-weight: bold;
     border: 1px solid #ddd;
     box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    width: 95%;
+}
+
+.locationAssignment {
+    background: #ffffff;
+    padding: 0;
+    max-height: 0;
+    overflow: hidden;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    width: 80%;
+    margin-bottom: 10px;
+    transition: max-height 0.1s ease-in-out 0s, padding 0.1s ease-in-out 0s;
+}
+
+.openLocationAssignment {
+    padding: 10px;
+    max-height: 500px;
+}
+
+.volunteerRow {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 100%;
 }
 
 .scanButtons {
@@ -223,6 +254,17 @@
 }
 
 @media (max-width: 500px) {
+    .volunteerData {
+        flex-direction: column;
+    }
+    .locationAssignment {
+        flex-direction: column;
+    }
+
+    .locationOption {
+        margin: 5px 0;
+    }
+
     .volInfo {
         flex-direction: column;
         align-items: center;

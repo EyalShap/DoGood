@@ -6,6 +6,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequ
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointmentDTO;
 import com.dogood.dogoodbackend.service.Response;
 import com.dogood.dogoodbackend.service.VolunteeringService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.itextpdf.text.DocumentException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -451,5 +452,11 @@ public class VolunteeringAPI {
     public Response<String> updateActivityDescription(@RequestParam String userId, @RequestParam int volunteeringId, @RequestBody UpdateActivityDescriptionRequest body, HttpServletRequest request){
         String token = getToken(request);
         return volunteeringService.updateRequestDescription(token, userId, volunteeringId, body.getStart(), body.getDescription());
+    }
+
+    @PostMapping("/sendUpdateToVolunteers")
+    public Response<String> sendUpdateToVolunteers(@RequestBody JsonNode body, HttpServletRequest request){
+        String token = getToken(request);
+        return volunteeringService.sendUpdatesToVolunteers(token, body.get("userId").asText(), body.get("volunteeringId").asInt(), body.get("message").asText());
     }
 }

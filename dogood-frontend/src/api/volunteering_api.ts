@@ -480,9 +480,9 @@ export const moveVolunteerGroup = async (volunteeringId: number, groupId: number
     return response.data;
 }
 
-export const assignVolunteerToLocation = async (volunteeringId: number, locId: number): Promise<string> => {
+export const assignVolunteerToLocation = async (volunteerId: string,volunteeringId: number, locId: number): Promise<string> => {
     const body = {
-        volunteerId: localStorage.getItem('username'),
+        volunteerId: volunteerId,
         volunteeringId: volunteeringId,
         toId: locId,
     }
@@ -819,6 +819,23 @@ export const updateActivityDescription = async (volunteeringId: number, start: s
         description: description
     }
     let res = await axios.patch(`${server}/api/volunteering/updateActivityDescription?userId=${localStorage.getItem('username')}&volunteeringId=${volunteeringId}`, body,config);
+    const response: APIResponse<string[]> = await res.data;
+    if(response.error){
+        throw response.errorString;
+    }
+    return response.data;
+}
+
+export const sendUpdateToVolunteers = async (volunteeringId: number, message: string): Promise<string[]> => {
+    const config = {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+    };
+    const body = {
+        userId: localStorage.getItem("username"),
+        volunteeringId: volunteeringId,
+        message: message
+    }
+    let res = await axios.post(`${server}/api/volunteering/sendUpdateToVolunteers?`, body,config);
     const response: APIResponse<string[]> = await res.data;
     if(response.error){
         throw response.errorString;
