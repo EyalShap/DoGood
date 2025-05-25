@@ -54,7 +54,7 @@ public class TechnionPdfFormat implements PdfFormat{
 
     private void addText(int x, int y, String text, PdfContentByte over){
         over.beginText();
-        if(text.charAt(0) >= 'א' && text.charAt(0) <= 'ת'){
+        if(text != null && !text.isEmpty() && text.charAt(0) >= 'א' && text.charAt(0) <= 'ת'){
             text = (new StringBuilder()).append(text).reverse().toString();
         }
         over.setFontAndSize(bf, FONT_SIZE);
