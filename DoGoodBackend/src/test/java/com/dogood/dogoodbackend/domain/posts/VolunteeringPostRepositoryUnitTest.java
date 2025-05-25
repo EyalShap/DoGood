@@ -69,7 +69,7 @@ class VolunteeringPostRepositoryUnitTest {
 
     private void removePostAfterEach(int postId, VolunteeringPostRepository repository) {
         try {
-            VolunteeringPost post = repository.getVolunteeringPost(postId);
+            VolunteeringPost post = repository.getVolunteeringPostForRead(postId);
             repository.removeVolunteeringPost(postId);
         }
         catch (Exception e) {
@@ -106,7 +106,7 @@ class VolunteeringPostRepositoryUnitTest {
         assertDoesNotThrow(() -> volunteeringPostRepository.removeVolunteeringPost(postId1));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.getVolunteeringPost(postId1);
+            volunteeringPostRepository.getVolunteeringPostForRead(postId1);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1), exception.getMessage());
     }
@@ -152,20 +152,20 @@ class VolunteeringPostRepositoryUnitTest {
     // The same test as integration
     /*@ParameterizedTest
     @MethodSource("repoProvider")
-    void givenExistingId_whenGetVolunteeringPost_thenNoThrownException(VolunteeringPostRepository volunteeringPostRepository) {
+    void givenExistingId_whengetVolunteeringPostForRead_thenNoThrownException(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
         final VolunteeringPost[] post = new VolunteeringPost[1];
-        assertDoesNotThrow(() -> post[0] = volunteeringPostRepository.getVolunteeringPost(postId1));
+        assertDoesNotThrow(() -> post[0] = volunteeringPostRepository.getVolunteeringPostForRead(postId1));
         assertEquals(volunteeringPostMock1, post[0]);
     }*/
 
     @ParameterizedTest
     @MethodSource("repoProvider")
-    void givenNonExistingId_whenGetVolunteeringPost_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
+    void givenNonExistingId_whengetVolunteeringPostForRead_thenThrowException(VolunteeringPostRepository volunteeringPostRepository) {
         setIdByRepo(volunteeringPostRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.getVolunteeringPost(postId1 + 1);
+            volunteeringPostRepository.getVolunteeringPostForRead(postId1 + 1);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1 + 1), exception.getMessage());
     }
@@ -215,7 +215,7 @@ class VolunteeringPostRepositoryUnitTest {
         setIdByRepo(volunteeringPostRepository);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            volunteeringPostRepository.getVolunteeringPost(postId1 + 1);
+            volunteeringPostRepository.getVolunteeringPostForRead(postId1 + 1);
         });
 
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId1 + 1), exception.getMessage());

@@ -122,8 +122,27 @@ public class ChatAcceptanceTests {
                 new Date(),
                 null);
 
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(Optional.of(new VerificationData("", Instant.MAX,new RegisterRequest())));
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(organizationMangerId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("organization@manager.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(aliceId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("alice@dogood.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(bobId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("bob@dogood.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
         VerifyEmailRequest orgEmailRequest = new VerifyEmailRequest(organizationMangerId,"");
         VerifyEmailRequest alEmailRequest = new VerifyEmailRequest(aliceId,"");
         VerifyEmailRequest bobEmailRequest = new VerifyEmailRequest(bobId,"");

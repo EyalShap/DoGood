@@ -24,6 +24,7 @@ import com.dogood.dogoodbackend.api.userrequests.ResendVerificationCodeRequest;
 
 
 import java.util.Date;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -256,7 +257,7 @@ public class UserService {
     public Response<String> updateUserSkills(String token, String username, List<String> skills){
         try{
             checkToken(token, username);
-            usersFacade.updateUserSkills(username, skills);
+            usersFacade.updateUserSkills(username, new LinkedList<>(skills));
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
@@ -266,7 +267,7 @@ public class UserService {
     public Response<String> updateUserPreferences(String token, String username, List<String> categories){
         try{
             checkToken(token, username);
-            usersFacade.updateUserPreferences(username, categories);
+            usersFacade.updateUserPreferences(username, new LinkedList<>(categories));
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
