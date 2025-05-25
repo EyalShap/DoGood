@@ -126,8 +126,27 @@ public class PostAcceptanceTests {
         userService.register(bobId, "123456", "Bob Bob", "bob@dogood.com", "052-0520520", new Date(), null);
         facadeManager.getUsersFacade().registerAdmin(adminId, "123456", "Admin Admin", "admin@dogood.com", "052-0520520", new Date());
 
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.anyString(),Mockito.anyString()))
-                .thenReturn(Optional.of(new VerificationData("", Instant.MAX,new RegisterRequest())));
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(adminId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("admin@dogood.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(aliceId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("alice@dogood.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(bobId),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("bob@dogood.com");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
 
         VerifyEmailRequest orgEmailRequest = new VerifyEmailRequest(adminId,"");
         VerifyEmailRequest alEmailRequest = new VerifyEmailRequest(aliceId,"");

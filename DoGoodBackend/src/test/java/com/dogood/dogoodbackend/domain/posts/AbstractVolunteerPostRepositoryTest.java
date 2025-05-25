@@ -39,7 +39,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
     }
 
     public boolean verifyPostFields(String title, String description, Set<String> keywords, List<String> skills, List<String> categories) {
-        VolunteerPost post = repository.getVolunteerPost(postId);
+        VolunteerPost post = repository.getVolunteerPostForRead(postId);
         return verifyPostFields(post, title, description, keywords, skills, categories);
     }
 
@@ -95,12 +95,12 @@ abstract class AbstractVolunteerPostRepositoryTest {
     @MethodSource("validInputs")
     public void givenValidFields_whenCreateVolunteerPost_thenCreate(String title, String description, Set<String> keywords, List<String> skills, List<String> categories) {
         List<VolunteerPost> allPostsBefore = repository.getAllVolunteerPosts();
-        VolunteerPost post1 = repository.getVolunteerPost(postId);
+        VolunteerPost post1 = repository.getVolunteerPostForRead(postId);
         assertEquals(1, allPostsBefore.size());
         assertEquals(post1, allPostsBefore.get(0));
 
         int postId2 = repository.createVolunteerPost(title, description, keywords, posterUsername, skills, categories);
-        VolunteerPost post2 = repository.getVolunteerPost(postId2);
+        VolunteerPost post2 = repository.getVolunteerPostForRead(postId2);
 
         Map<Integer, VolunteerPost> allPostsAfter = new HashMap<>();
         for(VolunteerPost post : repository.getAllVolunteerPosts()) {
@@ -115,7 +115,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
     @Test
     public void givenInvalidFields_whenCreateVolunteerPost_thenThrowException() {
         List<VolunteerPost> allPostsBefore = repository.getAllVolunteerPosts();
-        VolunteerPost post1 = repository.getVolunteerPost(postId);
+        VolunteerPost post1 = repository.getVolunteerPostForRead(postId);
         List<VolunteerPost> expected = List.of(post1);
         assertEquals(expected, allPostsBefore);
 
@@ -130,12 +130,12 @@ abstract class AbstractVolunteerPostRepositoryTest {
 
     @Test
     public void givenExistingId_whenRemoveVolunteerPost_thenRemove() {
-        assertDoesNotThrow(() -> repository.getVolunteerPost(postId));
+        assertDoesNotThrow(() -> repository.getVolunteerPostForRead(postId));
 
         repository.removeVolunteerPost(postId);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteerPost(postId);
+            repository.getVolunteerPostForRead(postId);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId), exception.getMessage());
     }
@@ -174,9 +174,9 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String newUsername = "Moshe";
         List<String> expectedUsers = List.of(posterUsername, newUsername);
 
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
         repository.addRelatedUser(postId, newUsername);
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
@@ -191,7 +191,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
 
     @Test
     public void givenPoster_whenAddRelatedUser_thenThrowException() {
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.addRelatedUser(postId, posterUsername);
@@ -199,7 +199,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
 
         String expectedErr = PostErrors.makeUserIsRelatedToPost(posterUsername, this.title, true);
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
@@ -208,7 +208,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addRelatedUser(postId, newUsername);
 
         List<String> expectedUsers = List.of(posterUsername, newUsername);
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.addRelatedUser(postId, newUsername);
@@ -217,7 +217,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String expectedErr = PostErrors.makeUserIsRelatedToPost(newUsername, this.title, true);
         assertEquals(expectedErr, exception.getMessage());
 
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
@@ -226,10 +226,10 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addRelatedUser(postId, newUsername);
 
         List<String> expectedUsers = List.of(posterUsername, newUsername);
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         repository.removeRelatedUser(postId, newUsername, posterUsername);
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
@@ -249,39 +249,39 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addRelatedUser(postId, newUsername);
 
         List<String> expectedUsers = List.of(posterUsername, newUsername);
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.removeRelatedUser(postId, newUsername, nonPoster);
         });
         String expectedErr = PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, nonPoster, "remove user from");
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(expectedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(expectedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
     public void givenPoster_whenRemoveRelatedUser_thenThrowException() {
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.removeRelatedUser(postId, posterUsername, posterUsername);
         });
         String expectedErr = PostErrors.makePosterCanNotBeRemovedFromPost(posterUsername, this.title);
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
     public void givenNonExistingUser_whenRemoveRelatedUser_thenThrowException() {
         String newUsername = "Moshe";
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.removeRelatedUser(postId, newUsername, posterUsername);
         });
         String expectedErr = PostErrors.makeUserIsRelatedToPost(newUsername, this.title, false);
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(relatedUsers, repository.getVolunteerPost(postId).getRelatedUsers());
+        assertEquals(relatedUsers, repository.getVolunteerPostForRead(postId).getRelatedUsers());
     }
 
     @Test
@@ -289,9 +289,9 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String newPath = "dummyPath";
         List<String> expected = List.of(newPath);
 
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
         repository.addImage(postId, newPath, posterUsername);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
@@ -302,9 +302,9 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String newPath = "dummyPath";
         List<String> expected = List.of(newPath);
 
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
         repository.addImage(postId, newPath, newUser);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
@@ -321,7 +321,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String newUser = "Moshe";
         String newPath = "dummyPath";
 
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.addImage(postId, newPath, newUser);
@@ -329,7 +329,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String expectedErr = PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, newUser, "add image to");
         assertEquals(expectedErr, exception.getMessage());
 
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @ParameterizedTest
@@ -339,7 +339,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addImage(postId, newPath, posterUsername);
 
         List<String> expected = List.of(newPath);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.addImage(postId, existingPath, posterUsername);
@@ -347,14 +347,14 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String expectedErr = PostErrors.makeImagePathExists(newPath, posterUsername, true);
         assertEquals(expectedErr, exception.getMessage());
 
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @ParameterizedTest
     @NullSource
     @EmptySource
     public void givenInvalidImage_whenAddImage_thenThrowException(String invalidPath) {
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.addImage(postId, invalidPath, posterUsername);
@@ -362,7 +362,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
         String expectedErr = PostErrors.makeImagePathIsNotValid(invalidPath);
         assertEquals(expectedErr, exception.getMessage());
 
-        assertEquals(new ArrayList<String>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<String>(), repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
@@ -371,11 +371,11 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addImage(postId, newPath, posterUsername);
 
         List<String> expected = List.of(newPath);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
 
         repository.removeImage(postId, newPath, posterUsername);
 
-        assertEquals(new ArrayList<>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<>(), repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
@@ -386,11 +386,11 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addImage(postId, newPath, posterUsername);
 
         List<String> expected = List.of(newPath);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
 
         repository.removeImage(postId, newPath, newUser);
 
-        assertEquals(new ArrayList<>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<>(), repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
@@ -409,52 +409,52 @@ abstract class AbstractVolunteerPostRepositoryTest {
         repository.addImage(postId, newPath, posterUsername);
 
         List<String> expected = List.of(newPath);
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.removeImage(postId, newPath, newUser);
         });
         String expectedErr = PostErrors.makeUserIsNotAllowedToMakePostActionError(this.title, newUser, "remove image from");
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(expected, repository.getVolunteerPost(postId).getImages());
+        assertEquals(expected, repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
     public void givenNonExistingImage_whenRemoveImage_thenThrowException() {
         String newPath = "dummyPath";
 
-        assertEquals(new ArrayList<>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<>(), repository.getVolunteerPostForRead(postId).getImages());
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             repository.removeImage(postId, newPath, posterUsername);
         });
         String expectedErr = PostErrors.makeImagePathExists(newPath, posterUsername, false);
         assertEquals(expectedErr, exception.getMessage());
-        assertEquals(new ArrayList<>(), repository.getVolunteerPost(postId).getImages());
+        assertEquals(new ArrayList<>(), repository.getVolunteerPostForRead(postId).getImages());
     }
 
     @Test
-    public void givenExistingId_whenGetVolunteerPost_thenNoThrownException() {
+    public void givenExistingId_whengetVolunteerPostForRead_thenNoThrownException() {
         final VolunteerPost[] post = new VolunteerPost[1];
-        assertDoesNotThrow(() -> post[0] = repository.getVolunteerPost(postId));
+        assertDoesNotThrow(() -> post[0] = repository.getVolunteerPostForRead(postId));
         assertTrue(verifyPostFields(post[0], title, description, keywords, skills, categories));
     }
 
     @Test
-    public void givenNonExistingId_whenGetVolunteerPost_thenThrowException() {
+    public void givenNonExistingId_whengetVolunteerPostForRead_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteerPost(postId + 1);
+            repository.getVolunteerPostForRead(postId + 1);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());
     }
 
     @Test
     public void getAllVolunteerPosts() {
-        VolunteerPost post1 = repository.getVolunteerPost(postId);
+        VolunteerPost post1 = repository.getVolunteerPostForRead(postId);
 
         int postId2 = repository.createVolunteerPost("Title2", "Description2", Set.of("keyword21", "keyword22"), posterUsername, List.of("skill21", "skill22"), List.of("cat21", "cat22"));
-        VolunteerPost post2 = repository.getVolunteerPost(postId2);
+        VolunteerPost post2 = repository.getVolunteerPostForRead(postId2);
 
         int postId3 = repository.createVolunteerPost("Title3", "Description3", Set.of("keyword31", "keyword32"), posterUsername, List.of("skill31", "skill32"), List.of("cat31", "cat32"));
-        VolunteerPost post3 = repository.getVolunteerPost(postId3);
+        VolunteerPost post3 = repository.getVolunteerPostForRead(postId3);
 
         Map<Integer, VolunteerPost> res = new HashMap<>();
         for(VolunteerPost post : repository.getAllVolunteerPosts()) {
@@ -470,7 +470,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
     @Test
     public void givenNonExistingId_whenGetVolunteeringIdByPostId_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteerPost(postId + 1);
+            repository.getVolunteerPostForRead(postId + 1);
         });
 
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());

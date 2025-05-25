@@ -46,7 +46,7 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     }
 
     private boolean verifyPostFields(String title, String description, Set<String> keywords) {
-        VolunteeringPost post = repository.getVolunteeringPost(postId);
+        VolunteeringPost post = repository.getVolunteeringPostForRead(postId);
         return verifyPostFields(post, title, description, keywords);
     }
 
@@ -70,12 +70,12 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     @MethodSource("validInputs")
     void givenValidFields_whenCreateVolunteeringPost_thenCreate(String title, String description, Set<String> keywords) {
         List<VolunteeringPost> allPostsBefore = repository.getAllVolunteeringPosts();
-        VolunteeringPost post1 = repository.getVolunteeringPost(postId);
+        VolunteeringPost post1 = repository.getVolunteeringPostForRead(postId);
         List<VolunteeringPost> expectedBefore = List.of(post1);
         assertEquals(expectedBefore, allPostsBefore);
 
         int postId2 = repository.createVolunteeringPost(title, description, keywords, posterUsername, 0, 0);
-        VolunteeringPost post2 = repository.getVolunteeringPost(postId2);
+        VolunteeringPost post2 = repository.getVolunteeringPostForRead(postId2);
 
         List<VolunteeringPost> allPostsAfter = repository.getAllVolunteeringPosts();
         List<VolunteeringPost> expectedAfter = List.of(post1, post2);
@@ -85,7 +85,7 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     @Test
     void givenInvalidFields_whenCreateVolunteeringPost_thenThrowException() {
         List<VolunteeringPost> allPostsBefore = repository.getAllVolunteeringPosts();
-        VolunteeringPost post1 = repository.getVolunteeringPost(postId);
+        VolunteeringPost post1 = repository.getVolunteeringPostForRead(postId);
         List<VolunteeringPost> expected = List.of(post1);
         assertEquals(expected, allPostsBefore);
 
@@ -100,12 +100,12 @@ abstract class AbstractVolunteeringPostRepositoryTest {
 
     @Test
     void givenExistingId_whenRemoveVolunteeringPost_thenRemove() {
-        assertDoesNotThrow(() -> repository.getVolunteeringPost(postId));
+        assertDoesNotThrow(() -> repository.getVolunteeringPostForRead(postId));
 
         repository.removeVolunteeringPost(postId);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteeringPost(postId);
+            repository.getVolunteeringPostForRead(postId);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId), exception.getMessage());
     }
@@ -120,13 +120,13 @@ abstract class AbstractVolunteeringPostRepositoryTest {
 
     @Test
     void givenVolunteeringId_whenRemovePostsByVolunteeringId_thenRemove() {
-        VolunteeringPost post1 = repository.getVolunteeringPost(postId);
+        VolunteeringPost post1 = repository.getVolunteeringPostForRead(postId);
 
         int postId2 = repository.createVolunteeringPost("Title2", "Description2", Set.of("keyword21", "keyword22"), posterUsername, volunteeringId, organizationId);
-        VolunteeringPost post2 = repository.getVolunteeringPost(postId2);
+        VolunteeringPost post2 = repository.getVolunteeringPostForRead(postId2);
 
         int postId3 = repository.createVolunteeringPost("Title3", "Description3", Set.of("keyword31", "keyword32"), posterUsername, volunteeringId + 1, organizationId);
-        VolunteeringPost post3 = repository.getVolunteeringPost(postId3);
+        VolunteeringPost post3 = repository.getVolunteeringPostForRead(postId3);
 
         List<VolunteeringPost> expectedBefore = List.of(post1, post2, post3);
         List<VolunteeringPost> allPostsBefore = repository.getAllVolunteeringPosts();
@@ -147,9 +147,9 @@ abstract class AbstractVolunteeringPostRepositoryTest {
 
     @Test
     void givenExistingId_whenIncNumOfPeopleRequestedToJoin_thenInc() {
-        int requestsBefore = repository.getVolunteeringPost(postId).getNumOfPeopleRequestedToJoin();
+        int requestsBefore = repository.getVolunteeringPostForRead(postId).getNumOfPeopleRequestedToJoin();
         repository.incNumOfPeopleRequestedToJoin(postId);
-        int requestsAfter = repository.getVolunteeringPost(postId).getNumOfPeopleRequestedToJoin();
+        int requestsAfter = repository.getVolunteeringPostForRead(postId).getNumOfPeopleRequestedToJoin();
         assertEquals(1, requestsAfter - requestsBefore);
     }
 
@@ -183,29 +183,29 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     }
 
     @Test
-    void givenExistingId_whenGetVolunteeringPost_thenNoThrownException() {
+    void givenExistingId_whengetVolunteeringPostForRead_thenNoThrownException() {
         final VolunteeringPost[] post = new VolunteeringPost[1];
-        assertDoesNotThrow(() -> post[0] = repository.getVolunteeringPost(postId));
+        assertDoesNotThrow(() -> post[0] = repository.getVolunteeringPostForRead(postId));
         assertTrue(verifyPostFields(post[0], title, description, keywords));
     }
 
     @Test
-    void givenNonExistingId_whenGetVolunteeringPost_thenThrowException() {
+    void givenNonExistingId_whengetVolunteeringPostForRead_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteeringPost(postId + 1);
+            repository.getVolunteeringPostForRead(postId + 1);
         });
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());
     }
 
     @Test
     void getAllVolunteeringPosts() {
-        VolunteeringPost post1 = repository.getVolunteeringPost(postId);
+        VolunteeringPost post1 = repository.getVolunteeringPostForRead(postId);
 
         int postId2 = repository.createVolunteeringPost("Title2", "Description2", Set.of("keyword21", "keyword22"), posterUsername, volunteeringId, organizationId);
-        VolunteeringPost post2 = repository.getVolunteeringPost(postId2);
+        VolunteeringPost post2 = repository.getVolunteeringPostForRead(postId2);
 
         int postId3 = repository.createVolunteeringPost("Title3", "Description3", Set.of("keyword31", "keyword32"), posterUsername, volunteeringId, organizationId);
-        VolunteeringPost post3 = repository.getVolunteeringPost(postId3);
+        VolunteeringPost post3 = repository.getVolunteeringPostForRead(postId3);
 
         List<VolunteeringPost> expected = List.of(post1, post2, post3);
         List<VolunteeringPost> res = repository.getAllVolunteeringPosts();
@@ -214,13 +214,13 @@ abstract class AbstractVolunteeringPostRepositoryTest {
 
     @Test
     void givenOrganizationId_whenGetOrganizationVolunteeringPosts_thenReturn() {
-        VolunteeringPost post1 = repository.getVolunteeringPost(postId);
+        VolunteeringPost post1 = repository.getVolunteeringPostForRead(postId);
 
         int postId2 = repository.createVolunteeringPost("Title2", "Description2", Set.of("keyword21", "keyword22"), posterUsername, volunteeringId, organizationId);
-        VolunteeringPost post2 = repository.getVolunteeringPost(postId2);
+        VolunteeringPost post2 = repository.getVolunteeringPostForRead(postId2);
 
         int postId3 = repository.createVolunteeringPost("Title3", "Description3", Set.of("keyword31", "keyword32"), posterUsername, volunteeringId, organizationId + 1);
-        VolunteeringPost post3 = repository.getVolunteeringPost(postId3);
+        VolunteeringPost post3 = repository.getVolunteeringPostForRead(postId3);
 
         List<VolunteeringPost> expected1 = List.of(post1, post2);
         List<VolunteeringPost> expected2 = List.of(post3);
@@ -248,7 +248,7 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     @Test
     void givenNonExistingId_whenGetVolunteeringIdByPostId_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            repository.getVolunteeringPost(postId + 1);
+            repository.getVolunteeringPostForRead(postId + 1);
         });
 
         assertEquals(PostErrors.makePostIdDoesNotExistError(postId + 1), exception.getMessage());

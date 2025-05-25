@@ -81,7 +81,7 @@ abstract class AbstractOrganizationRepositoryTest {
         assertDoesNotThrow(() -> organizationRepository.removeOrganization(organizationId));
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            organizationRepository.getOrganization(organizationId);
+            organizationRepository.getOrganizationForRead(organizationId);
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId), exception.getMessage());
     }
@@ -122,19 +122,19 @@ abstract class AbstractOrganizationRepositoryTest {
 
     @Test
     void givenExistingId_whenSetVolunteeringIds_thenSet() {
-        List<Integer> resBefore = organizationRepository.getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> resBefore = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(new HashSet<>(), new HashSet<>(resBefore));
 
         List<Integer> volunteeringIds = List.of(1, 2, 3);
         organizationRepository.setVolunteeringIds(organizationId, volunteeringIds);
 
-        List<Integer> resAfter = organizationRepository.getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> resAfter = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(new HashSet<>(volunteeringIds), new HashSet<>(resAfter));
     }
 
     @Test
     void givenNonExistingId_whenSetVolunteeringIds_thThrowException() {
-        List<Integer> resBefore = organizationRepository.getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> resBefore = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(new HashSet<>(), new HashSet<>(resBefore));
 
         List<Integer> volunteeringIds = List.of(1, 2, 3);
@@ -144,20 +144,20 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId + 1), exception.getMessage());
 
-        List<Integer> resAfter = organizationRepository.getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> resAfter = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(new HashSet<>(), new HashSet<>(resAfter));
     }
 
     @Test
     void givenExistingId_whenSetManagers_thenSet() {
         List<String> expectedBefore = List.of(actor1);
-        List<String> resBefore = organizationRepository.getOrganization(organizationId).getManagerUsernames();
+        List<String> resBefore = organizationRepository.getOrganizationForRead(organizationId).getManagerUsernames();
         assertEquals(new HashSet<>(expectedBefore), new HashSet<>(resBefore));
 
         List<String> managers = List.of(actor1, "actor2", "actor3");
         organizationRepository.setManagers(organizationId, managers);
 
-        List<String> resAfter = organizationRepository.getOrganization(organizationId).getManagerUsernames();
+        List<String> resAfter = organizationRepository.getOrganizationForRead(organizationId).getManagerUsernames();
         assertEquals(new HashSet<>(managers), new HashSet<>(resAfter));
     }
 
@@ -176,12 +176,12 @@ abstract class AbstractOrganizationRepositoryTest {
         String newFounder = "actor2";
         organizationRepository.setManagers(organizationId, List.of(actor1, newFounder));
 
-        String resBefore = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resBefore = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resBefore);
 
         organizationRepository.setFounder(organizationId, newFounder);
 
-        String resAfter = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resAfter = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(newFounder, resAfter);
     }
 
@@ -190,7 +190,7 @@ abstract class AbstractOrganizationRepositoryTest {
         String newFounder = "actor2";
         organizationRepository.setManagers(organizationId, List.of(actor1, newFounder));
 
-        String resBefore = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resBefore = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resBefore);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -198,13 +198,13 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId + 1), exception.getMessage());
 
-        String resAfter = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resAfter = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resAfter);
     }
 
     @Test
     void givenNonManager_whenSetFounder_thThrowException() {
-        String resBefore = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resBefore = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resBefore);
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -212,26 +212,26 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals(OrganizationErrors.makeUserIsNotAManagerError("actor2", name), exception.getMessage());
 
-        String resAfter = organizationRepository.getOrganization(organizationId).getFounderUsername();
+        String resAfter = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resAfter);
     }
 
     @Test
     void givenExistingId_whenSetImages_thenSet() {
-        List<String> resBefore = organizationRepository.getOrganization(organizationId).getImagePaths();
+        List<String> resBefore = organizationRepository.getOrganizationForRead(organizationId).getImagePaths();
         assertEquals(0, resBefore.size());
 
         List<String> images = List.of("path");
         organizationRepository.setImages(organizationId, images);
 
-        List<String> resAfter = organizationRepository.getOrganization(organizationId).getImagePaths();
+        List<String> resAfter = organizationRepository.getOrganizationForRead(organizationId).getImagePaths();
         assertEquals(1, resAfter.size());
         assertEquals("path", resAfter.get(0));
     }
 
     @Test
     void givenNonExistingId_whenSetImages_thThrowException() {
-        List<String> resBefore = organizationRepository.getOrganization(organizationId).getImagePaths();
+        List<String> resBefore = organizationRepository.getOrganizationForRead(organizationId).getImagePaths();
         assertEquals(0, resBefore.size());
 
         List<String> images = List.of("path");
@@ -241,13 +241,13 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId + 1), exception.getMessage());
 
-        List<Integer> resAfter = organizationRepository.getOrganization(organizationId).getVolunteeringIds();
+        List<Integer> resAfter = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(0, resAfter.size());
     }
 
     @Test
     void givenExistingIdAndValidSignature_whenUploadSignature_thenUpload() throws IOException {
-        byte[] resBefore = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resBefore = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resBefore);
 
         byte[] randomBytes = new byte[16];
@@ -256,13 +256,13 @@ abstract class AbstractOrganizationRepositoryTest {
 
         organizationRepository.uploadSignature(organizationId, actor1, signature);
 
-        byte[] resAfter = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resAfter = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertArrayEquals(signature.getBytes(), resAfter);
     }
 
     @Test
     void givenNonExistingId_whenUploadSignature_thThrowException() {
-        byte[] resBefore = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resBefore = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resBefore);
 
         byte[] randomBytes = new byte[16];
@@ -274,7 +274,7 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId + 1), exception.getMessage());
 
-        byte[] resAfter = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resAfter = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resAfter);
     }
 
@@ -282,7 +282,7 @@ abstract class AbstractOrganizationRepositoryTest {
     void givenNonFounder_whenUploadSignature_thenThrowException() {
         organizationRepository.setManagers(organizationId, List.of(actor1, "actor2"));
 
-        byte[] resBefore = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resBefore = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resBefore);
 
         byte[] randomBytes = new byte[16];
@@ -294,7 +294,7 @@ abstract class AbstractOrganizationRepositoryTest {
         });
         assertEquals("Only organization founder can upload signature.", exception.getMessage());
 
-        byte[] resAfter = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resAfter = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resAfter);
     }
 
@@ -305,12 +305,12 @@ abstract class AbstractOrganizationRepositoryTest {
         MockMultipartFile signature = new MockMultipartFile("file","signature.png","image/png", randomBytes);
         organizationRepository.uploadSignature(organizationId, actor1, signature);
 
-        byte[] resBefore = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resBefore = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertArrayEquals(signature.getBytes(), resBefore);
 
         organizationRepository.uploadSignature(organizationId, actor1, null);
 
-        byte[] resAfter = organizationRepository.getOrganization(organizationId).getSignature();
+        byte[] resAfter = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resAfter);
     }
 
@@ -355,16 +355,16 @@ abstract class AbstractOrganizationRepositoryTest {
     }
 
     @Test
-    void givenExistingId_whenGetOrganization_thenNoThrownException() {
+    void givenExistingId_whengetOrganizationForRead_thenNoThrownException() {
         final Organization[] organizationWrapper = new Organization[1];
-        assertDoesNotThrow(() -> organizationWrapper[0] = organizationRepository.getOrganization(organizationId));
+        assertDoesNotThrow(() -> organizationWrapper[0] = organizationRepository.getOrganizationForRead(organizationId));
         assertEquals(organization, organizationWrapper[0]);
     }
 
     @Test
-    void givenNonExistingId_whenGetOrganization_thenThrowException() {
+    void givenNonExistingId_whengetOrganizationForRead_thenThrowException() {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            organizationRepository.getOrganization(organizationId + 1);
+            organizationRepository.getOrganizationForRead(organizationId + 1);
         });
         assertEquals(OrganizationErrors.makeOrganizationIdDoesNotExistError(organizationId + 1), exception.getMessage());
     }
