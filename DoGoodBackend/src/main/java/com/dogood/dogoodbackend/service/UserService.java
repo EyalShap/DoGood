@@ -81,6 +81,17 @@ public class UserService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    // Registers with automatic verification, for tests and such ? (no profile pic in arguments)
+    private Response<String> register(String username, String password, String name, String email, String phone, Date birthDate) {
+        try{
+            usersFacade.register(username, password, name, email, phone, birthDate);
+            return Response.createOK();
+        } catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     // VERIFICATION START
     public Response<String> verifyEmail(VerifyEmailRequest request) {
         try {
