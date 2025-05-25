@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.domain.externalAIAPI.CVSkillsAndPreferencesExtra
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndPreferences;
 import com.dogood.dogoodbackend.domain.reports.ReportsFacade;
 import com.dogood.dogoodbackend.domain.users.auth.AuthFacade;
+import com.dogood.dogoodbackend.domain.users.notificiations.NotificationNavigations;
 import com.dogood.dogoodbackend.domain.users.notificiations.NotificationSystem;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
@@ -17,6 +18,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.SecureRandom;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -761,5 +764,17 @@ public class UsersFacade {
         List<User> allUsers = repository.getAllUsers();
         List<String> usernames = allUsers.stream().map(user -> user.getUsername()).collect(Collectors.toList());
         return usernames;
+    }
+
+    public void notifyBirthday() {
+        for(User user : repository.getAllUsers()){
+            LocalDate birthdayDate = user.getBirthDate().toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+            LocalDate now = LocalDate.now();
+            if(birthdayDate.getMonth() == now.getMonth() && birthdayDate.getDayOfMonth() == now.getDayOfMonth()) {
+                notificationSystem.notifyUser(user.getUsername(), "Happy Birthday from DoGood!", NotificationNavigations.homepage);
+            }
+        }
     }
 }
