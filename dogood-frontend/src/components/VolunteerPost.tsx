@@ -512,6 +512,7 @@ function VolunteerPost() {
                             value={skillsInput}
                             onChange={(e) => setSkillsInput(e.target.value)}
                             placeholder="Enter skills separated by commas"
+                            readOnly={!isRelatedUser}
                         />
                         {isRelatedUser && <button onClick={saveSkillsOnClick} className="orangeCircularButton">Save Changes</button>}
                     </div>
@@ -532,6 +533,7 @@ function VolunteerPost() {
                             value={catsInput}
                             onChange={(e) => setCatsInput(e.target.value)}
                             placeholder="Enter categories separated by commas"
+                            readOnly={!isRelatedUser}
                         />
                         {isRelatedUser && <button onClick={saveCatsOnClick} className="orangeCircularButton">Save Changes</button>}
                     </div>

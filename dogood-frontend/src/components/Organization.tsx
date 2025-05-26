@@ -22,6 +22,7 @@ function Organization() {
     const [model, setModel] = useState<OrganizationModel>({id: -1, name: "", description: "", phoneNumber: "", email: "", volunteeringIds: [-1], managerUsernames: [], founderUsername: "", imagePaths: [], signature: null});
     let { id } = useParams();
     const [isManager, setIsManager] = useState(false);
+    const [isFounder, setIsFounder] = useState(false);
     const [userVolunteerings, setUserVolunteerings] = useState<number[]>([]);
     const [volunteerings, setVolunteerings] = useState<ListItem[]>([]);
     const [managers, setManagers] = useState<ListItem[]>([]);
@@ -130,6 +131,9 @@ function Organization() {
             else {
                 let isManager = await getIsManager(model.id);
                 setIsManager(isManager);
+
+                let isFounder = username === model.founderUsername;
+                setIsFounder(isFounder);
             }
         }
         catch(e){
@@ -490,7 +494,7 @@ function Organization() {
                 />
                 {dropdownOpen && (
                     <div className="actionDropdownMenu" onClick={toggleDropdown}>
-                        {isManager && <p className="actionDropdownItem" onClick = {handleRemoveOrganizationOnClick}>Remove</p>}
+                        {isFounder && <p className="actionDropdownItem" onClick = {handleRemoveOrganizationOnClick}>Remove</p>}
                         {isManager && <p className="actionDropdownItem" onClick = {handleEditOrganizationOnClick}>Edit</p>}
                         <p className="actionDropdownItem" onClick={(e) => { e.stopPropagation(); handleReportOnClick();}}>Report</p>
                     

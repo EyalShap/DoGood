@@ -1324,6 +1324,10 @@ function Volunteering() {
             {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
         
             <div className="volunteeringActions">
+                <link
+                    href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700&display=swap"
+                    rel="stylesheet"
+                />
                 <h2 className='relatedVolunteersHeader'>Posts Of This Volunteering</h2>
                 {postsListItems.length > 0 ?
                     <ListWithArrows data={postsListItems} limit = {9} navigateTo={'volunteeringPost'} clickable={() => true}></ListWithArrows>

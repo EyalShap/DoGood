@@ -74,7 +74,8 @@ function ManagerRequestsList() {
     const handleApproveManagerRequestOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to approve this request?`)) {
             handleAssignManagerRequest(organizationId, true);
-            let newRequests = managerRequests.filter((request) => request.objectId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
+            let newRequests = managerRequests.filter((request) => !(request.objectId === organizationId && request.assigneeUsername === localStorage.getItem("username")));
+            
             setManagerRequests(newRequests);
         }
     };
@@ -82,7 +83,7 @@ function ManagerRequestsList() {
     const handleDenyManagerRequestOnClick = (organizationId: number) => {
         if (window.confirm(`Are you sure you want to deny this request?`)) {
             handleAssignManagerRequest(organizationId, false);
-            let newRequests = managerRequests.filter((request) => request.objectId !== organizationId && request.assigneeUsername !== localStorage.getItem("username"));
+            let newRequests = managerRequests.filter((request) => !(request.objectId === organizationId && request.assigneeUsername === localStorage.getItem("username")));
             setManagerRequests(newRequests);
         }
     };

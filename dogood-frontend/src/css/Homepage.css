@@ -67,6 +67,10 @@
   .recommendedList .listItemHeader, .recommendedList .listItemDesc {
     max-width: 260px;
   }
+
+  .recommendedList {
+    width: 100%;
+  }
 }
 
 .homepageHeader {
@@ -77,4 +81,8 @@
 .homepageDescHeader {
   white-space: normal;
   word-wrap: break-word;
+}
+
+.recommendedList {
+  width: 80%;
 }
