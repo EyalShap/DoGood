@@ -531,10 +531,11 @@ public class UsersFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User not found");
         }
-
-        for(String email : emails) {
-            if(reportsFacade.isBannedEmail(email)) {
-                throw new IllegalArgumentException(email + " is banned from the system.");
+        if(emails != null) {
+            for (String email : emails) {
+                if (reportsFacade.isBannedEmail(email)) {
+                    throw new IllegalArgumentException(email + " is banned from the system.");
+                }
             }
         }
 

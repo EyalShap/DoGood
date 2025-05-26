@@ -239,6 +239,9 @@ public class ReportsFacade {
         if(!isAdmin(actor)) {
             throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, "ban a user"));
         }
+        if(isBannedEmail(email)){
+            throw new IllegalArgumentException("Email already banned");
+        }
         bannedRepository.ban(email);
     }
 

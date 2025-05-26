@@ -86,6 +86,17 @@ public class UseCases {
     VolunteerPostJPA volunteerPostJPA;
     @Autowired
     RequestJPA requestJPA;
+    @Autowired
+    BannedJPA bannedJPA;
+    @Autowired
+    AppointmentJPA appointmentJPA;
+    @Autowired
+    HourRequestJPA hourRequestJPA;
+    @Autowired
+    VolunteeringPostJPA volunteeringPostJPA;
+    @Autowired
+    ReportJPA reportJPA;
+
 
     @Autowired
     FacadeManager facadeManager;
@@ -100,6 +111,12 @@ public class UseCases {
         userJPA.deleteAll();
         volunteerPostJPA.deleteAll();
         requestJPA.deleteAll();
+        bannedJPA.deleteAll();
+        appointmentJPA.deleteAll();
+        hourRequestJPA.deleteAll();
+        reportJPA.deleteAll();
+        volunteeringPostJPA.deleteAll();
+        facadeManager.getAuthFacade().clearInvalidatedTokens();
     }
 
     public boolean registerUserUseCase(String username){
@@ -110,6 +127,18 @@ public class UseCases {
     public boolean registerStudentUserUseCase(String username){
         Response<String> response = userService.register(username, "123456", "Name name", "email@post.bgu.ac.il", "052-0520520", new Date(), "");
         return !response.getError();
+    }
+
+    public void verifyStudent(String username){
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail("email@post.bgu.ac.il");
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        VerifyEmailRequest emailRequest = new VerifyEmailRequest(username,"");
+        userService.verifyEmail(emailRequest);
     }
 
 
@@ -168,7 +197,7 @@ public class UseCases {
         }
         Response<List<VolunteeringPostDTO>> response2 =
                 postService.filterVolunteeringPosts(token,
-                        Set.of("Category"), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),
+                        Set.of("Category1"), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(),
                         username, response1.getData().stream().map(post -> post.getId()).toList(), false);
         if(response2.getError()){
             return null;
@@ -176,6 +205,16 @@ public class UseCases {
         Response<List<PostDTO>> response3 = postService.sortByPostingTime(token,username,
                 response2.getData().stream().map(dto -> (PostDTO)dto).toList());
         return response3.getError() ? null : response3.getData();
+    }
+
+    public boolean updateVolunteeringCategoriesUseCase(String token, String username, int volunteeringId){
+        Response<String> response = volunteeringService.updateVolunteeringCategories(token, username, volunteeringId, List.of("Category1", "Category2"));
+        return !response.getError();
+    }
+
+    public boolean updateVolunteeringSkillsUseCase(String token, String username, int volunteeringId){
+        Response<String> response = volunteeringService.updateVolunteeringSkills(token, username, volunteeringId, List.of("Skill1", "Skill2"));
+        return !response.getError();
     }
 
     public boolean sendVolunteeringJoinRequestUseCase(String token, String username, int volunteeringId){
@@ -196,7 +235,7 @@ public class UseCases {
     public boolean chooseVolunteeringRangeUseCase(String token, String username, int volunteeringId, int rangeId, int locId){
         Response<String> response = volunteeringService.
                 makeAppointment(token, username, volunteeringId, 0, locId, rangeId,
-                        10,0,12,0, null, LocalDate.now());
+                        0,0,23,59, null, LocalDate.now());
         return !response.getError();
     }
 
@@ -223,7 +262,7 @@ public class UseCases {
     public boolean makeHourRequestUseCase(String token, String username, int volunteeringId){
         LocalDate now = LocalDate.now();
         LocalTime start = LocalTime.of(10,0);
-        LocalTime end = LocalTime.of(10,0);
+        LocalTime end = LocalTime.of(12,0);
         Date startDate = Date.from(now.atTime(start).atZone(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(now.atTime(end).atZone(ZoneId.systemDefault()).toInstant());
         Response<String> response = volunteeringService.
@@ -234,7 +273,7 @@ public class UseCases {
     public boolean approveHoursUseCase(String token, String username, int volunteeringId, String approveTo){
         LocalDate now = LocalDate.now();
         LocalTime start = LocalTime.of(10,0);
-        LocalTime end = LocalTime.of(10,0);
+        LocalTime end = LocalTime.of(12,0);
         Date startDate = Date.from(now.atTime(start).atZone(ZoneId.systemDefault()).toInstant());
         Date endDate = Date.from(now.atTime(end).atZone(ZoneId.systemDefault()).toInstant());
         Response<String> response = volunteeringService.approveUserHours(token,username,volunteeringId,approveTo,startDate,endDate);
@@ -309,7 +348,7 @@ public class UseCases {
 
     public int newRangeUseCase(String token, String username, int volunteeringId, int locId){
         Response<Integer> response = volunteeringService.addScheduleRangeToGroup(token,username,volunteeringId,
-                0, locId, 10, 0, 12, 0, -1, -1, null, LocalDate.now());
+                0, locId, 0, 0, 23, 59, -1, -1, null, LocalDate.now());
         return response.getError() ? -1 : response.getData();
     }
 
@@ -366,10 +405,10 @@ public class UseCases {
     }
 
     public void registerAdmin(String username){
-        facadeManager.getUsersFacade().registerAdmin(username, "admin123", "Admin adm", "admin@admin.com", "052-0520520", new Date());
+        facadeManager.getUsersFacade().registerAdmin(username, "123456", "Admin adm", "email@gmail.com", "052-0520520", new Date());
     }
 
-    public List<ReportDTO> watchReportsUseCase(String token, String username, String emailToBlock){
+    public List<ReportDTO> watchReportsUseCase(String token, String username){
         Response<List<ReportDTO>> response = reportService.getAllReportDTOs(token,username);
         return response.getError() ? null : response.getData();
     }

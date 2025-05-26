@@ -103,4 +103,8 @@ public class AuthFacade {
             throw new IllegalArgumentException("Given token is already logged out of the system.");
         }
     }
+
+    public void clearInvalidatedTokens(){
+        this.invalidatedTokens.clear();
+    }
 }
