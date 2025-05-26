@@ -316,6 +316,9 @@ public class Volunteering {
             throw new IllegalArgumentException("User " + userId + " is not a volunteer in volunteering " + id);
         }
         int currentGroupId = volunteerToGroup.get(userId);
+        if(currentGroupId == groupIdTo){
+            throw new IllegalArgumentException("User " + userId + " is already in group " + groupIdTo);
+        }
         Group groupFrom = groups.get(currentGroupId);
         Group groupTo = groups.get(groupIdTo);
         groupFrom.removeUser(userId);
@@ -344,6 +347,12 @@ public class Volunteering {
         }
         Group g = groups.get(groupId);
         ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, weekDays, oneTime);
+        List<Integer> currentRanges = g.getRangesForLocation(locId);
+        for(ScheduleRange other : currentRanges.stream().map(rId -> scheduleRanges.get(rId)).toList()){
+            if(range.intersect(other)){
+                throw new IllegalArgumentException("Intersecting schedule range already exists");
+            }
+        }
         scheduleRanges.put(range.getId(), range);
         g.addScheduleToLocation(locId, range.getId());
         return range.getId();

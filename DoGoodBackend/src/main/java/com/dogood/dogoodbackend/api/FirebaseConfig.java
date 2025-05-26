@@ -16,15 +16,19 @@ public class FirebaseConfig {
 
     @Bean
     FirebaseApp firebaseApp() throws IOException {
-        ClassPathResource resource = new ClassPathResource("serviceAccountKey.json");
-        InputStream serviceAccount = resource.getInputStream();
+        if (FirebaseApp.getApps().isEmpty()) {
+            ClassPathResource resource = new ClassPathResource("serviceAccountKey.json");
+            InputStream serviceAccount = resource.getInputStream();
 
-        FirebaseOptions options = FirebaseOptions.builder()
-                .setProjectId("dogood-1039b")
-                .setCredentials(GoogleCredentials.fromStream(serviceAccount))
-                .build();
+            FirebaseOptions options = FirebaseOptions.builder()
+                    .setProjectId("dogood-1039b")
+                    .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+                    .build();
 
-        return FirebaseApp.initializeApp(options);
+            return FirebaseApp.initializeApp(options);
+        } else {
+            return FirebaseApp.getInstance();
+        }
     }
 
     @Bean

@@ -234,4 +234,8 @@ public class ScheduleRange {
             throw new IllegalArgumentException("Appointment days do not match range days");
         }
     }
+
+    public boolean intersect(ScheduleRange other) {
+        return daysMatch(other.getOneTime(), other.getDayArray()) && other.getEndTime().isAfter(startTime) && other.getStartTime().isBefore(endTime);
+    }
 }
