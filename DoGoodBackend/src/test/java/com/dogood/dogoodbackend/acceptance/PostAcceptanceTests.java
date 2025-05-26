@@ -3,12 +3,14 @@ package com.dogood.dogoodbackend.acceptance;
 import com.dogood.dogoodbackend.api.userrequests.RegisterRequest;
 import com.dogood.dogoodbackend.api.userrequests.VerifyEmailRequest;
 import com.dogood.dogoodbackend.domain.externalAIAPI.Gemini;
+import com.dogood.dogoodbackend.domain.posts.PostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostDTO;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostDTO;
 import com.dogood.dogoodbackend.domain.reports.Report;
 import com.dogood.dogoodbackend.domain.reports.ReportDTO;
 import com.dogood.dogoodbackend.domain.requests.RequestObject;
 import com.dogood.dogoodbackend.domain.users.notificiations.Notification;
+import com.dogood.dogoodbackend.domain.volunteerings.AddressTuple;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.emailverification.EmailSender;
 import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
@@ -1064,5 +1066,121 @@ public class PostAcceptanceTests {
         assertFalse(postService.getVolunteerPost(aliceToken, volunteerPostId, aliceId).getData().getRelatedUsers().contains("newUser"));
 
         verify(notificationSocketSender, times(0)).sendNotification(Mockito.anyString(), Mockito.any(Notification.class));
+    }
+
+    @Test
+    void whenSearchSortFilterPosts_thenReturnRelevantPosts() {
+        Response<Integer> createOrganization = organizationService.createOrganization(aliceToken, "Organization", "Description", "052-0520520", "organization@manager.com", aliceId);
+        this.organizationId = createOrganization.getData();
+        Response<Integer> createVolunteering = organizationService.createVolunteering(aliceToken, organizationId, "Volunteering1", "Description", aliceId);
+        int volunteeringId1 = createVolunteering.getData();
+        volunteeringService.updateVolunteeringSkills(aliceToken, aliceId, volunteeringId1, List.of("s1", "s2", "s3"));
+        createVolunteering = organizationService.createVolunteering(aliceToken, organizationId, "Volunteering2", "Description", aliceId);
+        int volunteeringId2 = createVolunteering.getData();
+        volunteeringService.updateVolunteeringSkills(aliceToken, aliceId, volunteeringId2, List.of("s3", "s4", "s5"));
+        volunteeringService.addVolunteeringLocation(aliceToken, aliceId, volunteeringId2, "loc1", new AddressTuple("Beer Sheva", "", ""));
+
+        userService.updateUserSkills(aliceToken, aliceId, List.of("s1", "s4"));
+        userService.updateUserPreferences(aliceToken, aliceId, List.of("s2"));
+        userService.updateUserPreferences(bobToken, bobId, List.of("s5"));
+
+        when(gemini.sendQuery(anyString()))
+                .thenReturn(
+                        "beach, cleanup, environment, community, volunteer",
+                        "food, distribution, community, help, volunteer",
+                        "trees, planting, environment, volunteer, outdoors",
+                        "animals, shelter, care, help, volunteer",
+                        "technology, teaching, senior citizens, community,help",
+                        "gardening, community, sustainability, environment, volunteer",
+                        "library, books, education, community, organization",
+                        "park, beautification, environment, community, cleaning",
+                        "recycling, education, community, environment, awareness",
+                        "marathon, event, support, community, volunteer");
+
+        int id1 = postService.createVolunteeringPost(aliceToken, "Beach Cleanup Drive", "Join us in cleaning up the local beach and making it safe and beautiful for everyone.", aliceId, volunteeringId1).getData();
+        int id2 = postService.createVolunteeringPost(aliceToken, "Food Bank Assistance", "Help organize, pack, and distribute food to families in need at the city food bank.", aliceId, volunteeringId2).getData();
+        int id3 = postService.createVolunteeringPost(aliceToken, "Tree Planting Campaign", "Plant trees in local neighborhoods and contribute to a greener tomorrow.", aliceId, volunteeringId1).getData();
+        int id4 = postService.createVolunteeringPost(aliceToken, "Animal Shelter Help", "Assist at the animal shelter by feeding, cleaning, and playing with rescued animals.", aliceId, volunteeringId2).getData();
+        int id5 = postService.createVolunteeringPost(aliceToken, "Senior Tech Help", "Help senior citizens learn to use smartphones and computers at our tech help desk.", aliceId, volunteeringId1).getData();
+        int id6 = postService.createVolunteeringPost(aliceToken, "Community Garden Project", "Work with local volunteers to create and maintain a sustainable community garden.", aliceId, volunteeringId2).getData();
+        int id7 = postService.createVolunteeringPost(aliceToken, "Library Book Sorting", "Sort and organize book donations at the community library to support literacy programs.", aliceId, volunteeringId1).getData();
+        int id8 = postService.createVolunteeringPost(aliceToken, "Park Beautification", "Help clean, paint, and decorate the city park to make it more welcoming for families.", aliceId, volunteeringId2).getData();
+        int id9 = postService.createVolunteeringPost(aliceToken, "Recycling Awareness Event", "Spread awareness about recycling by helping organize a community education event.", aliceId, volunteeringId1).getData();
+        int id10 = postService.createVolunteeringPost(aliceToken, "Local Marathon Support", "Support the local marathon by handing out water, guiding runners, and cheering them on.", aliceId, volunteeringId2).getData();
+        List<PostDTO> allPosts = postService.getAllVolunteeringPosts(aliceToken, aliceId).getData().stream().map((post) -> post).collect(Collectors.toList());
+
+        Set<Integer> search1Ids = postService.searchByKeywords(aliceToken, "environment", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id1, id3, id6, id8, id9), search1Ids);
+
+        Set<Integer> search2Ids = postService.searchByKeywords(aliceToken, "volunteer", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id1, id2, id3, id4, id6, id10), search2Ids);
+
+        Set<Integer> search3Ids = postService.searchByKeywords(aliceToken, "help", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id2, id4, id5, id8, id9), search3Ids);
+
+        Set<Integer> search4Ids = postService.searchByKeywords(aliceToken, "community", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id1, id2, id5, id6, id7, id8, id9, id10), search4Ids);
+
+        Set<Integer> search5Ids = postService.searchByKeywords(aliceToken, "animals", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id4), search5Ids);
+
+        Set<Integer> search6Ids = postService.searchByKeywords(aliceToken, "education", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id7, id9), search6Ids);
+
+        Set<Integer> search7Ids = postService.searchByKeywords(aliceToken, "event", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id9, id10), search7Ids);
+
+        Set<Integer> search8Ids = postService.searchByKeywords(aliceToken, "books", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id7), search8Ids);
+
+        Set<Integer> search9Ids = postService.searchByKeywords(aliceToken, "gardening", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id6), search9Ids);
+
+        Set<Integer> search10Ids = postService.searchByKeywords(aliceToken, "tech", aliceId, allPosts, true).getData()
+                .stream().map(post -> post.getId()).collect(Collectors.toSet());
+        assertEquals(Set.of(id5), search10Ids);
+
+        Set<Integer> filter1Ids = postService.filterVolunteeringPosts(aliceToken, Set.of(), Set.of("s1", "s2"), Set.of(), Set.of("Organization"), Set.of("Volunteering1"), aliceId, search1Ids.stream().toList(), false).getData()
+                .stream()
+                .map(post -> post.getId())
+                .collect(Collectors.toSet());
+        assertEquals(Set.of(id1, id3, id9), filter1Ids);
+
+        Set<Integer> filter2Ids = postService.filterVolunteeringPosts(aliceToken, Set.of(), Set.of("s1", "s2"), Set.of(), Set.of(), Set.of("Volunteering2"), aliceId, search1Ids.stream().toList(), false).getData()
+                .stream()
+                .map(post -> post.getId())
+                .collect(Collectors.toSet());
+        assertEquals(Set.of(), filter2Ids);
+
+        List<VolunteeringPostDTO> filter3Posts = postService.filterVolunteeringPosts(aliceToken, Set.of(), Set.of("s3", "s5"), Set.of(), Set.of(), Set.of(), aliceId, search1Ids.stream().toList(), false).getData();
+        Set<Integer> filter3Ids = filter3Posts
+                .stream()
+                .map(post -> post.getId())
+                .collect(Collectors.toSet());
+        assertEquals(Set.of(id1, id3, id6, id8, id9), filter3Ids);
+
+        Set<Integer> filter4Ids = postService.filterVolunteeringPosts(aliceToken, Set.of(), Set.of("s1"), Set.of("Beer Sheva"), Set.of(), Set.of("Volunteering2"), aliceId, search1Ids.stream().toList(), false).getData()
+                .stream()
+                .map(post -> post.getId())
+                .collect(Collectors.toSet());
+        assertEquals(Set.of(), filter4Ids);
+
+        List<Integer> aliceSortByRelevance = postService.sortByRelevance(aliceToken, aliceId, filter3Posts).getData().stream().map(post -> post.getId()).collect(Collectors.toList());
+        assertEquals(List.of(id1, id3, id9, id6, id8), aliceSortByRelevance);
+
+        List<Integer> bobSortByRelevance = postService.sortByRelevance(bobToken, bobId, filter3Posts).getData().stream().map(post -> post.getId()).collect(Collectors.toList());
+        assertEquals(List.of(id6, id8, id1, id3, id9), bobSortByRelevance);
+
+        List<Integer> sortByPostingTime = postService.sortByPostingTime(bobToken, bobId, filter3Posts.stream().collect(Collectors.toList())).getData().stream().map(post -> post.getId()).collect(Collectors.toList());
+        assertEquals(List.of(id9, id8, id6, id3, id1), sortByPostingTime);
     }
 }
