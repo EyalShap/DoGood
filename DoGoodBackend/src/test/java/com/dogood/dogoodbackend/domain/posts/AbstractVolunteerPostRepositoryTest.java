@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
 import com.dogood.dogoodbackend.utils.PostErrors;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,17 +18,18 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 abstract class AbstractVolunteerPostRepositoryTest {
     public VolunteerPostRepository repository;
 
     private int postId;
     private final String title = "Postito";
     private final String description = "Postito is a very cool post";
-    private final Set<String> keywords = Set.of("Animals", "Fruits");
+    private final Set<String> keywords = new HashSet<>(Set.of("Animals", "Fruits"));
     private final String posterUsername = "Poster";
-    private final List<String> skills = List.of("Driving");
-    private final List<String> categories = List.of("Healthcare");
-    private final List<String> relatedUsers = List.of(posterUsername);
+    private final List<String> skills = new ArrayList<>(List.of("Driving"));
+    private final List<String> categories = new ArrayList<>(List.of("Healthcare"));
+    private final List<String> relatedUsers = new ArrayList<>(List.of(posterUsername));
 
     protected abstract VolunteerPostRepository createRepository();
 
@@ -44,6 +46,9 @@ abstract class AbstractVolunteerPostRepositoryTest {
     }
 
     public boolean verifyPostFields(VolunteerPost post, String title, String description, Set<String> keywords, List<String> skills, List<String> categories) {
+        List<String> cats = post.getCategories(null);
+
+
         return post.getTitle().equals(title) &&
                 post.getDescription().equals(description) &&
                 new HashSet<>(post.getKeywords()).equals(new HashSet<>(keywords)) &&
@@ -56,37 +61,37 @@ abstract class AbstractVolunteerPostRepositoryTest {
                 Arguments.of(
                         "Help with Animals",
                         "Offering support in caring for rescued dogs, including feeding, walking, and emotional support.",
-                        Set.of("Animals", "Care", "Dogs"),
-                        List.of("Animal Handling", "Empathy", "Basic Veterinary Care"),
-                        List.of("Animal Welfare", "Community Service")
+                        new HashSet<>(Set.of("Animals", "Care", "Dogs")),
+                        new ArrayList<>(List.of("Animal Handling", "Empathy", "Basic Veterinary Care")),
+                        new ArrayList<>(List.of("Animal Welfare", "Community Service"))
                 ),
                 Arguments.of(
                         "Food Drive",
                         "Organizing and running a local food drive to support families in need.",
-                        Set.of("Food", "Community", "Event"),
-                        List.of("Organization", "Communication", "Logistics"),
-                        List.of("Social Impact", "Community Service")
+                        new HashSet<>(Set.of("Food", "Community", "Event")),
+                        new ArrayList<>(List.of("Organization", "Communication", "Logistics")),
+                        new ArrayList<>(List.of("Social Impact", "Community Service"))
                 ),
                 Arguments.of(
                         "Beach Cleanup",
                         "Leading beach cleanup activities to promote environmental responsibility.",
-                        Set.of("Environment", "Cleanup", "Ocean"),
-                        List.of("Team Leadership", "Environmental Awareness", "Physical Stamina"),
-                        List.of("Environment", "Sustainability")
+                        new HashSet<>(Set.of("Environment", "Cleanup", "Ocean")),
+                        new ArrayList<>(List.of("Team Leadership", "Environmental Awareness", "Physical Stamina")),
+                        new ArrayList<>(List.of("Environment", "Sustainability"))
                 ),
                 Arguments.of(
                         "Tutoring Kids",
                         "Providing tutoring sessions for children in subjects like math and reading.",
-                        Set.of("Education", "Kids", "Tutoring"),
-                        List.of("Teaching", "Patience", "Subject Knowledge"),
-                        List.of("Education", "Youth Development")
+                        new HashSet<>(Set.of("Education", "Kids", "Tutoring")),
+                        new ArrayList<>(List.of("Teaching", "Patience", "Subject Knowledge")),
+                                new ArrayList<>(List.of("Education", "Youth Development"))
                 ),
                 Arguments.of(
                         "Art Therapy",
                         "Facilitating art therapy workshops to promote mental well-being.",
-                        Set.of("Art", "Health", "Therapy"),
-                        List.of("Creativity", "Listening Skills", "Psychological Sensitivity"),
-                        List.of("Mental Health", "Creative Arts")
+                        new HashSet<>(Set.of("Art", "Health", "Therapy")),
+                        new ArrayList<>(List.of("Creativity", "Listening Skills", "Psychological Sensitivity")),
+                        new ArrayList<>(List.of("Mental Health", "Creative Arts"))
                 )
         );
     }
@@ -152,7 +157,7 @@ abstract class AbstractVolunteerPostRepositoryTest {
     @MethodSource("validInputs")
     public void givenExistingPostAndValidFields_whenEditVolunteerPost_thenEdit(String newTitle, String newDescription, Set<String> newKeywords, List<String> newSkills, List<String> newCategories) {
         assertDoesNotThrow(() -> repository.editVolunteerPost(postId, newTitle, newDescription, newKeywords, newSkills, newCategories));
-        assertTrue(verifyPostFields(newTitle, newDescription, newKeywords, skills, categories));
+        assertTrue(verifyPostFields(newTitle, newDescription, newKeywords, newSkills, newCategories));
     }
 
     @Test
@@ -450,10 +455,10 @@ abstract class AbstractVolunteerPostRepositoryTest {
     public void getAllVolunteerPosts() {
         VolunteerPost post1 = repository.getVolunteerPostForRead(postId);
 
-        int postId2 = repository.createVolunteerPost("Title2", "Description2", Set.of("keyword21", "keyword22"), posterUsername, List.of("skill21", "skill22"), List.of("cat21", "cat22"));
+        int postId2 = repository.createVolunteerPost("Title2", "Description2", new HashSet<>(Set.of("keyword21", "keyword22")), posterUsername, new ArrayList<>(List.of("skill21", "skill22")), new ArrayList<>(List.of("cat21", "cat22")));
         VolunteerPost post2 = repository.getVolunteerPostForRead(postId2);
 
-        int postId3 = repository.createVolunteerPost("Title3", "Description3", Set.of("keyword31", "keyword32"), posterUsername, List.of("skill31", "skill32"), List.of("cat31", "cat32"));
+        int postId3 = repository.createVolunteerPost("Title3", "Description3", new HashSet<>(Set.of("keyword31", "keyword32")), posterUsername, new ArrayList<>(List.of("skill31", "skill32")), new ArrayList<>(List.of("cat31", "cat32")));
         VolunteerPost post3 = repository.getVolunteerPostForRead(postId3);
 
         Map<Integer, VolunteerPost> res = new HashMap<>();

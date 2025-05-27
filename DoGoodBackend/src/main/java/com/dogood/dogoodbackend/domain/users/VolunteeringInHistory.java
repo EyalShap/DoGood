@@ -25,9 +25,9 @@ public class VolunteeringInHistory {
         this.orgId = dto.getOrgId();
         this.name = dto.getName();
         this.description = dto.getDescription();
-        this.skills = String.join(",", dto.getSkills());
-        this.categories = String.join(",", dto.getCategories());
-        this.imagePaths = String.join(",", dto.getImagePaths());
+        this.skills = dto.getSkills() == null ? "" : String.join(",", dto.getSkills());
+        this.categories = dto.getCategories() == null ? "" : String.join(",", dto.getCategories());
+        this.imagePaths = dto.getImagePaths() == null ? "" : String.join(",", dto.getImagePaths());
     }
 
     public VolunteeringDTO toDTO(){

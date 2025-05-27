@@ -1,5 +1,6 @@
 package com.dogood.dogoodbackend.domain.externalAIAPI;
 
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
@@ -13,6 +14,7 @@ import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @SpringBootTest
+@Transactional
 class KeywordExtractorTest {
     @Mock
     private AI ai;

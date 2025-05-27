@@ -4,11 +4,13 @@ import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.posts.VolunteeringPostRepository;
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.ApplicationContext;
 
 @SpringBootTest
+@Transactional
 public class OrganizationRepositoryIntegrationTest extends AbstractOrganizationRepositoryTest{
     @Autowired
     private ApplicationContext applicationContext;

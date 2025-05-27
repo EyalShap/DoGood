@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.jparepos.OrganizationJPA;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -27,6 +28,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
+@Transactional
 class OrganizationRepositoryUnitTest extends AbstractOrganizationRepositoryTest{
 
     @Override

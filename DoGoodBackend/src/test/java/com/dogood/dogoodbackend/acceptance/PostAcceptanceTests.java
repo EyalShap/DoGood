@@ -112,6 +112,8 @@ public class PostAcceptanceTests {
     @Autowired
     VolunteerPostJPA volunteerPostJPA;
     @Autowired
+    VolunteeringPostJPA volunteeringPostJPA;
+    @Autowired
     ReportJPA reportJPA;
 
     @BeforeEach
@@ -123,6 +125,7 @@ public class PostAcceptanceTests {
         userJPA.deleteAll();
         volunteerPostJPA.deleteAll();
         reportJPA.deleteAll();
+        volunteeringPostJPA.deleteAll();
 
         userService.register(aliceId, "123456", "Alice Alice", "alice@dogood.com", "052-0520520", new Date(), null);
         userService.register(bobId, "123456", "Bob Bob", "bob@dogood.com", "052-0520520", new Date(), null);
@@ -1109,7 +1112,8 @@ public class PostAcceptanceTests {
         int id10 = postService.createVolunteeringPost(aliceToken, "Local Marathon Support", "Support the local marathon by handing out water, guiding runners, and cheering them on.", aliceId, volunteeringId2).getData();
         List<PostDTO> allPosts = postService.getAllVolunteeringPosts(aliceToken, aliceId).getData().stream().map((post) -> post).collect(Collectors.toList());
 
-        Set<Integer> search1Ids = postService.searchByKeywords(aliceToken, "environment", aliceId, allPosts, true).getData()
+        Response<List<? extends PostDTO>> res = postService.searchByKeywords(aliceToken, "environment", aliceId, allPosts, true);
+        Set<Integer> search1Ids = res.getData()
                 .stream().map(post -> post.getId()).collect(Collectors.toSet());
         assertEquals(Set.of(id1, id3, id6, id8, id9), search1Ids);
 
