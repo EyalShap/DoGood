@@ -120,22 +120,26 @@ public class UserAcceptanceTests {
 //        bobToken = login3.getData();
     }
 
+    // registration with automatic verification, with mock, for now.
+    private void registerAndVerify(String username, String password, String name, String email, String phone, Date birthDate) {
+        Response<String> response1 = userService.register(username,password,name,email,phone,birthDate,null);
+        Assertions.assertFalse(response1.getError());
+        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username),Mockito.anyString()))
+                .thenAnswer(i -> {
+                    RegisterRequest request = new RegisterRequest();
+                    request.setUsername(i.getArgument(0));
+                    request.setEmail(email);
+                    return Optional.of(new VerificationData("", Instant.MAX,request));
+                });
+        VerifyEmailRequest userEmailRequest = new VerifyEmailRequest(username,"");
+        userService.verifyEmail(userEmailRequest);
+    }
+
     //1.1
     @Test
     public void whenRegister_givenValidData_userCreated(){
         // registration with automatic verification for now.
-        Response<String> response1 = userService.register(username1,password1,name1,email1,phone1,birthDate1,null);
-        Assertions.assertFalse(response1.getError());
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username1),Mockito.anyString()))
-                .thenAnswer(i -> {
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(i.getArgument(0));
-                    request.setEmail("organization@manager.com");
-                    return Optional.of(new VerificationData("", Instant.MAX,request));
-                });
-        VerifyEmailRequest user1EmailRequest = new VerifyEmailRequest(username1,"");
-        userService.verifyEmail(user1EmailRequest);
-
+        registerAndVerify(username1,password1,name1,email1,phone1,birthDate1);
 
         Response<User> response2 = userService.getUserByUsername(username1);
         Assertions.assertFalse(response2.getError());
@@ -149,23 +153,26 @@ public class UserAcceptanceTests {
         // register with bad password
         Response<String> response1 = userService.register(username1,password2,name1,email1,phone1,birthDate1,null);
         Assertions.assertTrue(response1.getError());
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username1),Mockito.anyString()))
-                .thenAnswer(i -> {
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(i.getArgument(0));
-                    request.setEmail("organization@manager.com");
-                    return Optional.of(new VerificationData("", Instant.MAX,request));
-                });
-        VerifyEmailRequest user1EmailRequest = new VerifyEmailRequest(username1,"");
-        userService.verifyEmail(user1EmailRequest);
-
 
         Response<User> response2 = userService.getUserByUsername(username1);
         Assertions.assertTrue(response2.getError());
     }
 
-    // test other register cases, test register same username twice (1.1)
-    // test register with verification mock (1.1)
+    //1.1 - test register same username twice
+    @Test
+    public void whenRegister_givenAlreadyRegistered_userNotCreated(){
+        // registration with automatic verification for now.
+        // register with bad password
+        registerAndVerify(username1,password1,name1,email1,phone1,birthDate1);
+        Response<User> response1 = userService.getUserByUsername(username1);
+        Assertions.assertFalse(response1.getError());
+        Assertions.assertEquals(response1.getData().getUsername(),username1);
+
+        Response<String> response2 = userService.register(username1,password1,name1,email1,phone1,birthDate1,null);
+        Assertions.assertTrue(response2.getError());
+    }
+
+    // test verification? register with verification mock (1.1)
     // test register with banned email (1.1, 5.2)
     // test email ban (5.2)
     // test login (1.2)
