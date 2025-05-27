@@ -17,7 +17,7 @@ function CodeScan() {
 
     return (
         <div>
-            <h1>Code Scanner</h1>
+            <h1 className="bigHeader" style={{textAlign: "center", marginTop:'20px', marginBottom:'20px'}}>Code Scanner</h1>
             <Scanner onScan={(result) => onScan(result[0].rawValue)}/>
         </div>
     )

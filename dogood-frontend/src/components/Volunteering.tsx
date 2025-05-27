@@ -1212,6 +1212,8 @@ function Volunteering() {
                     {isManager && <button className="orangeCircularButton" onClick={() => navigate("./code")}>Show Changing QR Code</button>}
                     {isManager && <button className="orangeCircularButton" onClick={handlePostVolunteeringOnClick}>Post Volunteering</button>}
 
+                    {!isManager && <button className="orangeCircularButton" onClick={() => navigate("/scan")}>Scan QR Code</button>}
+
                     {!isManager &&
                         <Popup trigger={<button className="orangeCircularButton">Request Hour Approvals Manually</button>} modal nested>
                             {/*
