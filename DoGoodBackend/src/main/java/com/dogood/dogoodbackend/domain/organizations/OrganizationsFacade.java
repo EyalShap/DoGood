@@ -108,7 +108,6 @@ public class OrganizationsFacade {
         organizationRepository.setVolunteeringIds(organizationId, organization.getVolunteeringIds());
 
         notifyManagers(String.format("A new volunteering \"%s\" was added to your organization \"%s\".", volunteeringName, organization.getName()), NotificationNavigations.volunteering(volunteeringId), organizationId);
-
         return volunteeringId;
     }
 

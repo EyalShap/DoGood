@@ -10,6 +10,7 @@ import com.dogood.dogoodbackend.domain.reports.ReportDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.AddressTuple;
 import com.dogood.dogoodbackend.domain.volunteerings.ApprovalType;
 import com.dogood.dogoodbackend.domain.volunteerings.ScanTypes;
+import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringDTO;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.HourApprovalRequest;
 import com.dogood.dogoodbackend.emailverification.EmailSender;
 import com.dogood.dogoodbackend.emailverification.VerificationCacheService;
@@ -441,5 +442,10 @@ public class UseCases {
     public boolean blockEmailUseCase(String token, String username, String emailToBlock){
         Response<Boolean> response = reportService.banEmail(token, username, emailToBlock);
         return !response.getError();
+    }
+
+    public int getOrganizationVolunteeringAmount(String token, String username, int orgId){
+        Response<List<VolunteeringDTO>> response = organizationService.getOrganizationVolunteerings(token,username,orgId);
+        return  response.getError() ? -1 : response.getData().size();
     }
 }

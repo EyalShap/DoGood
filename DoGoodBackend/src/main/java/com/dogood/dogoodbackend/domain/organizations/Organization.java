@@ -30,7 +30,7 @@ public class Organization {
     @Column(name = "organization_email")
     private String email;
 
-    @ElementCollection(fetch = FetchType.EAGER)
+    @ElementCollection(fetch = FetchType.LAZY)
     @CollectionTable(name = "organization_volunteering_ids", joinColumns = @JoinColumn(name = "organization_id"))
     @Column(name = "volunteering_id")
     private List<Integer> volunteeringIds;
