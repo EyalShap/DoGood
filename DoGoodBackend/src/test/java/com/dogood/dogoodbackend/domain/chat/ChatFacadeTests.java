@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringFacade;
 import com.dogood.dogoodbackend.jparepos.MessageJPA;
 import com.dogood.dogoodbackend.socket.ChatSocketSender;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -16,6 +17,7 @@ import java.util.List;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 public class ChatFacadeTests {
     private ChatFacade chatFacade;
     private VolunteeringFacade volunteeringFacade;

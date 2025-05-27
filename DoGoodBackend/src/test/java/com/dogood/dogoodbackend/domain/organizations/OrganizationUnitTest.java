@@ -12,6 +12,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+
 class OrganizationUnitTest {
     private final int id = 0;
     private final String name = "Magen David Adom";
@@ -288,6 +289,6 @@ class OrganizationUnitTest {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             organization.getSignature(actor2);
         });
-        assertEquals("Only organization founder can get signature.", exception.getMessage());
+        assertEquals("Only organization manager can get signature.", exception.getMessage());
     }
 }

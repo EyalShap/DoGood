@@ -20,6 +20,7 @@ import com.dogood.dogoodbackend.domain.volunteerings.VolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
 import com.dogood.dogoodbackend.jparepos.*;
 import com.dogood.dogoodbackend.service.FacadeManager;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,7 @@ import org.springframework.context.ApplicationContext;
 import static org.mockito.Mockito.spy;
 
 @SpringBootTest
+@Transactional
 public class PostsFacadeIntegrationTest extends AbstractPostsFacadeTest{
 
     @Autowired

@@ -2,12 +2,13 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.domain.volunteerings.Volunteering;
 import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
+import jakarta.transaction.Transactional;
 import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 
 import java.util.*;
-
+@Transactional
 public class DBVolunteeringPostRepositoryUnitTest extends AbstractVolunteeringPostRepositoryTest{
 
     private VolunteeringPostJPA mockJpa;
@@ -54,6 +55,17 @@ public class DBVolunteeringPostRepositoryUnitTest extends AbstractVolunteeringPo
         }).when(mockJpa).deleteById(Mockito.anyInt());
 
         Mockito.when(mockJpa.findById(Mockito.anyInt())).thenAnswer(new Answer<Optional<VolunteeringPost>>() {
+            @Override
+            public Optional<VolunteeringPost> answer(InvocationOnMock invocation) {
+                Integer id = invocation.getArgument(0);
+                if (posts.containsKey(id)) {
+                    return Optional.of(posts.get(id));
+                }
+                return Optional.empty();
+            }
+        });
+
+        Mockito.when(mockJpa.findByIdForUpdate(Mockito.anyInt())).thenAnswer(new Answer<Optional<VolunteeringPost>>() {
             @Override
             public Optional<VolunteeringPost> answer(InvocationOnMock invocation) {
                 Integer id = invocation.getArgument(0);

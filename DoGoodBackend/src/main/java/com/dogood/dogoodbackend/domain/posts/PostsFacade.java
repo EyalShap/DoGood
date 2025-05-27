@@ -447,8 +447,13 @@ public class PostsFacade {
         for(int postId : allPostIds) {
             VolunteeringPost post = volunteeringPostRepository.getVolunteeringPostForRead(postId);
             int volunteeringId = post.getVolunteeringId();
-            Set<String> volunteeringCategories = new HashSet<>(volunteeringFacade.getVolunteeringCategories(volunteeringId));
-            Set<String> volunteeringSkills = new HashSet<>(volunteeringFacade.getVolunteeringSkills(volunteeringId));
+
+            List<String> categoriesList = volunteeringFacade.getVolunteeringCategories(volunteeringId);
+            Set<String> volunteeringCategories = categoriesList == null ? new HashSet<>() : new HashSet<>(categoriesList);
+
+            List<String> skillsList = volunteeringFacade.getVolunteeringSkills(volunteeringId);
+            Set<String> volunteeringSkills = skillsList == null ? new HashSet<>() : new HashSet<>(skillsList);
+
             List<LocationDTO> volunteeringLocations = volunteeringFacade.getVolunteeringLocations(volunteeringId);
             Set<String> volunteeringCities = volunteeringLocations.stream().map(locationDTO -> locationDTO.getAddress().getCity()).collect(Collectors.toSet());
             String organizationName = organizationsFacade.getOrganization(post.getOrganizationId()).getName();
@@ -800,8 +805,12 @@ public class PostsFacade {
 
     private Set<String> getPostKeywords(PostDTO postDTO) {
         Set<String> postKeywords = postDTO.getKeywords();
-        Set<String> skills = new HashSet<>(postDTO.getSkills(this));
-        Set<String> categories = new HashSet<>(postDTO.getCategories(this));
+
+        List<String> skillsList = postDTO.getSkills(this);
+        Set<String> skills = skillsList == null ? new HashSet<>() : new HashSet<>(skillsList);
+
+        List<String> catsList = postDTO.getCategories(this);
+        Set<String> categories = catsList == null ? new HashSet<>() : new HashSet<>(catsList);
 
         postKeywords.addAll(skills);
         postKeywords.addAll(categories);

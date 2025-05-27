@@ -19,6 +19,7 @@ import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import com.dogood.dogoodbackend.utils.PostErrors;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.*;
@@ -41,6 +42,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles("test")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@Transactional
 abstract class AbstractPostsFacadeTest {
     protected PostsFacade postsFacade;
     protected UsersFacade usersFacade;
@@ -95,8 +97,8 @@ abstract class AbstractPostsFacadeTest {
         notificationSystem = createNotificationSystem();
         notificationSystem.setSender(sender);
 
-        createPostsFacade().getKeywordExtractor().setAI(this.ai);
-        createPostsFacade().getSkillsAndCategoriesExtractor().setAI(this.ai);
+        postsFacade.getKeywordExtractor().setAI(this.ai);
+        postsFacade.getSkillsAndCategoriesExtractor().setAI(this.ai);
 
         if (!Mockito.mockingDetails(spyKeywordExtractor).isSpy()) {
             spyKeywordExtractor = Mockito.spy(createPostsFacade().getKeywordExtractor());
@@ -128,10 +130,10 @@ abstract class AbstractPostsFacadeTest {
         usersFacade.register(otherManagerUsername, "password", "Yossi Levi", "yossi@gmail.com", "0541967544", new Date());
         usersFacade.register(nonPosterUsername, "password", "Miriam Cohen", "miriam@gmail.com", "0541967544", new Date());
         usersFacade.registerAdmin(admin, "password", "Admin Cohen", "moshe@gmail.com", "0541967544", new Date());
-        usersFacade.updateUserSkills(posterUsername, List.of("keyword1"));
-        usersFacade.updateUserSkills(otherManagerUsername, List.of("keyword2"));
-        usersFacade.updateUserSkills(nonPosterUsername, List.of("keyword3"));
-        usersFacade.updateUserSkills(admin, List.of("keyword5"));
+        usersFacade.updateUserSkills(posterUsername, new ArrayList<>(List.of("keyword1")));
+        usersFacade.updateUserSkills(otherManagerUsername, new ArrayList<>(List.of("keyword2")));
+        usersFacade.updateUserSkills(nonPosterUsername, new ArrayList<>(List.of("keyword3")));
+        usersFacade.updateUserSkills(admin, new ArrayList<>(List.of("keyword5")));
         this.organizationId = organizationsFacade.createOrganization("Organization", "This is a very cool organization.", "0541967544", "org@gmail.com", posterUsername);
         organizationsFacade.sendAssignManagerRequest(otherManagerUsername, posterUsername, organizationId);
         organizationsFacade.handleAssignManagerRequest(otherManagerUsername, organizationId, true);
@@ -195,12 +197,12 @@ abstract class AbstractPostsFacadeTest {
         List<String> recipients = recipientCaptor.getAllValues();
         List<Notification> notifications = captor.getAllValues();
 
-        assertTrue(recipients.subList(0, 3).containsAll(List.of(posterUsername, otherManagerUsername, nonPosterUsername)));
+        assertTrue(recipients.subList(0, 3).containsAll(new ArrayList<>(List.of(posterUsername, otherManagerUsername, nonPosterUsername))));
         for (Notification notification : notifications.subList(0, 3)) {
             assertEquals(newPostMessage, notification.getMessage());
         }
 
-        assertTrue(recipients.subList(3, 5).containsAll(List.of(posterUsername, otherManagerUsername)));
+        assertTrue(recipients.subList(3, 5).containsAll(new ArrayList<>(List.of(posterUsername, otherManagerUsername))));
         for (Notification notification : notifications.subList(3, 5)) {
             assertEquals(managersMessage, notification.getMessage());
         }
@@ -289,7 +291,7 @@ abstract class AbstractPostsFacadeTest {
         verify(spyReportsFacade).removeVolunteeringPostReports(volunteeringPostId);
 
         String message = String.format("The post \"%s\" of the volunteering \"%s\" in your organization \"%s\" was removed", title, "Volunteering1", "Organization");
-        verifyMessage(message, List.of(posterUsername, otherManagerUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername, otherManagerUsername)));
     }
 
     @Test
@@ -336,13 +338,13 @@ abstract class AbstractPostsFacadeTest {
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId2);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
 
-        List<VolunteeringPostDTO> expectedBefore = List.of(post1, post2, post3);
+        List<VolunteeringPostDTO> expectedBefore = new ArrayList<>(List.of(post1, post2, post3));
         List<VolunteeringPostDTO> allPostsBefore = postsFacade.getAllVolunteeringPosts(posterUsername);
         assertEquals(new HashSet<>(expectedBefore), new HashSet<>(allPostsBefore));
 
         postsFacade.removePostsByVolunteeringId(volunteeringId1);
 
-        List<VolunteeringPostDTO> expectedAfter = List.of(post3);
+        List<VolunteeringPostDTO> expectedAfter = new ArrayList<>(List.of(post3));
         List<VolunteeringPostDTO> allPostsAfter = postsFacade.getAllVolunteeringPosts(posterUsername);
         assertEquals(new HashSet<>(expectedAfter), new HashSet<>(allPostsAfter));
 
@@ -402,7 +404,7 @@ abstract class AbstractPostsFacadeTest {
         verify(spyKeywordExtractor, times(1)).getVolunteeringPostKeywords(Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString());
 
         String message = String.format("The post \"%s\" of the volunteering \"%s\" in your organization \"%s\" was edited.", title, "Volunteering1", "Organization");
-        verifyMessage(message, List.of(posterUsername, otherManagerUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername, otherManagerUsername)));
     }
 
     @Test
@@ -476,7 +478,7 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post2 = postsFacade.getVolunteeringPost(postId2, posterUsername);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
 
-        Set<String> newKeywords = Set.of("keyword1", "keyword2", "keyword3", "keyword4");
+        Set<String> newKeywords = new HashSet<>(Set.of("keyword1", "keyword2", "keyword3", "keyword4"));
         assertEquals(newKeywords, post1.getKeywords());
         assertEquals(newKeywords, post2.getKeywords());
         assertEquals(post3Before.getKeywords(), post3.getKeywords());
@@ -600,7 +602,7 @@ abstract class AbstractPostsFacadeTest {
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId2);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
 
-        List<VolunteeringPostDTO> expected = List.of(post1, post2, post3);
+        List<VolunteeringPostDTO> expected = new ArrayList<>(List.of(post1, post2, post3));
         List<VolunteeringPostDTO> res = postsFacade.getAllVolunteeringPosts(posterUsername);
         assertEquals(new HashSet<>(expected), new HashSet<>(res));
     }
@@ -682,7 +684,7 @@ abstract class AbstractPostsFacadeTest {
         assertEquals(1, numPeopleAfter - numPeopleBefore);
 
         String message = nonPosterUsername + " has requested to join volunteering Volunteering1";
-        verifyMessage(message, List.of(posterUsername, otherManagerUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername, otherManagerUsername)));
 
         verify(spyVolunteeringFacade).requestToJoinVolunteering(nonPosterUsername, volunteeringId, freeText);
         assertTrue(joinVolunteeringRequestExists(posterUsername, volunteeringId, nonPosterUsername));
@@ -781,12 +783,12 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     void sortByRelevance() {
-        usersFacade.updateUserPreferences(nonPosterUsername, List.of("Animals"));
-        usersFacade.updateUserSkills(nonPosterUsername, List.of("Driving", "Baking"));
+        usersFacade.updateUserPreferences(nonPosterUsername, new ArrayList<>(List.of("Animals")));
+        usersFacade.updateUserSkills(nonPosterUsername, new ArrayList<>(List.of("Driving", "Baking")));
 
         int volunteeringId3 = organizationsFacade.createVolunteering(organizationId, "Baking", "Driving animals while baking.", posterUsername);
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId3, List.of("BakiNg", "driving"));
-        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId3, List.of("Animals"));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId3, new ArrayList<>(List.of("BakiNg", "driving")));
+        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId3, new ArrayList<>(List.of("Animals")));
 
         int post1Id = postsFacade.createVolunteeringPost("Plants", "Gardening", posterUsername, volunteeringId1);
         int post2Id = postsFacade.createVolunteeringPost("Animals", "Driving", posterUsername, volunteeringId1);
@@ -798,7 +800,7 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(post3Id, posterUsername);
         VolunteeringPostDTO post4 = postsFacade.getVolunteeringPost(post4Id, posterUsername);
 
-        List<VolunteeringPostDTO> allPosts = List.of(post1, post2, post3, post4);
+        List<VolunteeringPostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3, post4));
 
         List<VolunteeringPostDTO> res = postsFacade.sortByRelevance(nonPosterUsername, allPosts);
         assertEquals(4, res.size());
@@ -840,7 +842,7 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post1 = postsFacade.getVolunteeringPost(volunteeringPostId, posterUsername);
         VolunteeringPostDTO post2 = postsFacade.getVolunteeringPost(postId2, posterUsername);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
-        List<VolunteeringPostDTO> allPosts = List.of(post1, post2, post3);
+        List<VolunteeringPostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3));
 
         VolunteeringPostDTO[] expected = new VolunteeringPostDTO[3];
         expected[3 - post1Popularity] = post1;
@@ -862,8 +864,8 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     void filterVolunteeringPosts() {
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, List.of("skill1"));
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, List.of("skill2"));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, new ArrayList<>(List.of("skill1")));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, new ArrayList<>(List.of("skill2")));
         volunteeringFacade.addVolunteeringLocation(posterUsername, volunteeringId1, "loc1", new AddressTuple("Beer Sheva", "", ""));
         volunteeringFacade.addVolunteeringLocation(posterUsername, volunteeringId2, "loc2", new AddressTuple("Tel Aviv", "", ""));
 
@@ -877,26 +879,26 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
         VolunteeringPostDTO post4 = postsFacade.getVolunteeringPost(postId4, posterUsername);
         VolunteeringPostDTO post5 = postsFacade.getVolunteeringPost(postId5, posterUsername);
-        List<Integer> allPosts = List.of(postId1, postId2, postId3, postId4, postId5);
+        List<Integer> allPosts = new ArrayList<>(List.of(postId1, postId2, postId3, postId4, postId5));
 
-        List<VolunteeringPostDTO> res = postsFacade.filterVolunteeringPosts(Set.of(), Set.of("skill1"), Set.of(), Set.of(), Set.of(), posterUsername, allPosts, false);
-        List<VolunteeringPostDTO> expected = List.of(post1, post2, post3);
+        List<VolunteeringPostDTO> res = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(Set.of("skill1")), new HashSet<>(), new HashSet<>(), new HashSet<>(), posterUsername, allPosts, false);
+        List<VolunteeringPostDTO> expected = new ArrayList<>(List.of(post1, post2, post3));
         assertEquals(expected, res);
 
-        res = postsFacade.filterVolunteeringPosts(Set.of(), Set.of(), Set.of(), Set.of("Organization"), Set.of("Volunteering2"), posterUsername, allPosts, false);
-        expected = List.of(post4, post5);
+        res = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(Set.of("Organization")), new HashSet<>(Set.of("Volunteering2")), posterUsername, allPosts, false);
+        expected = new ArrayList<>(List.of(post4, post5));
         assertEquals(expected, res);
 
-        res = postsFacade.filterVolunteeringPosts(Set.of(), Set.of(), Set.of("Tel Aviv", "Beer Sheva"), Set.of(), Set.of(), posterUsername, allPosts, false);
-        expected = List.of(post1, post2, post3, post4, post5);
+        res = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), new HashSet<>(Set.of("Tel Aviv", "Beer Sheva")), new HashSet<>(), new HashSet<>(), posterUsername, allPosts, false);
+        expected = new ArrayList<>(List.of(post1, post2, post3, post4, post5));
         assertEquals(expected, res);
 
-        res = postsFacade.filterVolunteeringPosts(Set.of(), Set.of(), Set.of(), Set.of(), Set.of(), posterUsername, allPosts, false);
-        expected = List.of(post1, post2, post3, post4, post5);
+        res = postsFacade.filterVolunteeringPosts(new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), posterUsername, allPosts, false);
+        expected = new ArrayList<>(List.of(post1, post2, post3, post4, post5));
         assertEquals(expected, res);
 
-        res = postsFacade.filterVolunteeringPosts(Set.of("NewSkill"), Set.of(), Set.of(), Set.of(), Set.of(), posterUsername, allPosts, false);
-        expected = List.of();
+        res = postsFacade.filterVolunteeringPosts(new HashSet<>(Set.of("NewSkill")), new HashSet<>(), new HashSet<>(), new HashSet<>(), new HashSet<>(), posterUsername, allPosts, false);
+        expected = new ArrayList<>(List.of());
         assertEquals(expected, res);
     }
 
@@ -914,21 +916,21 @@ abstract class AbstractPostsFacadeTest {
         VolunteerPostDTO post3 = postsFacade.getVolunteerPost(postId3, posterUsername);
         VolunteerPostDTO post4 = postsFacade.getVolunteerPost(postId4, posterUsername);
         VolunteerPostDTO post5 = postsFacade.getVolunteerPost(postId5, nonPosterUsername);
-        List<Integer> allPosts = List.of(postId1, postId2, postId3, postId4, postId5);
+        List<Integer> allPosts = new ArrayList<>(new ArrayList<>(List.of(postId1, postId2, postId3, postId4, postId5)));
 
-        List<PostDTO> expectedCommunityAndNature = List.of(post2, post3, post4, post5);
-        List<PostDTO> expectedTechnology = List.of(post3);
-        List<PostDTO> expectedReading = List.of(post5);
-        List<PostDTO> expectedAll = List.of(post1, post2, post3, post4, post5);
-        List<PostDTO> expectedNone = List.of();
-        List<PostDTO> expectedMine = List.of(post5);
+        List<PostDTO> expectedCommunityAndNature = new ArrayList<>(new ArrayList<>(List.of(post2, post3, post4, post5)));
+        List<PostDTO> expectedTechnology = new ArrayList<>(new ArrayList<>(List.of(post3)));
+        List<PostDTO> expectedReading = new ArrayList<>(new ArrayList<>(List.of(post5)));
+        List<PostDTO> expectedAll = new ArrayList<>(new ArrayList<>(List.of(post1, post2, post3, post4, post5)));
+        List<PostDTO> expectedNone = new ArrayList<>(new ArrayList<>(List.of()));
+        List<PostDTO> expectedMine = new ArrayList<>(new ArrayList<>(List.of(post5)));
 
-        List<VolunteerPostDTO> resCommunityAndNature = postsFacade.filterVolunteerPosts(Set.of("community", "nature"), Set.of(), posterUsername, allPosts, false);
-        List<VolunteerPostDTO> resTechnology = postsFacade.filterVolunteerPosts(Set.of("Technology"), Set.of(), posterUsername, allPosts, false);
-        List<VolunteerPostDTO> resReading = postsFacade.filterVolunteerPosts(Set.of(), Set.of("Reading"), posterUsername, allPosts, false);
-        List<VolunteerPostDTO> resAll = postsFacade.filterVolunteerPosts(Set.of(), Set.of(), posterUsername, allPosts, false);
-        List<VolunteerPostDTO> resNone = postsFacade.filterVolunteerPosts(Set.of("None"), Set.of(), posterUsername, allPosts, false);
-        List<VolunteerPostDTO> resMine = postsFacade.filterVolunteerPosts(Set.of(), Set.of(), nonPosterUsername, allPosts, true);
+        List<VolunteerPostDTO> resCommunityAndNature = postsFacade.filterVolunteerPosts(new HashSet<>(Set.of("community", "nature")), new HashSet<>(), posterUsername, allPosts, false);
+        List<VolunteerPostDTO> resTechnology = postsFacade.filterVolunteerPosts(new HashSet<>(Set.of("Technology")), new HashSet<>(), posterUsername, allPosts, false);
+        List<VolunteerPostDTO> resReading = postsFacade.filterVolunteerPosts(new HashSet<>(), new HashSet<>(Set.of("Reading")), posterUsername, allPosts, false);
+        List<VolunteerPostDTO> resAll = postsFacade.filterVolunteerPosts(new HashSet<>(), new HashSet<>(), posterUsername, allPosts, false);
+        List<VolunteerPostDTO> resNone = postsFacade.filterVolunteerPosts(new HashSet<>(Set.of("None")), new HashSet<>(), posterUsername, allPosts, false);
+        List<VolunteerPostDTO> resMine = postsFacade.filterVolunteerPosts(new HashSet<>(), new HashSet<>(), nonPosterUsername, allPosts, true);
 
         assertEquals(expectedCommunityAndNature, resCommunityAndNature);
         assertEquals(expectedTechnology, resTechnology);
@@ -940,34 +942,34 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     void getAllPostsCategories() {
-        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId1, List.of("cat1", "cat2", "cat3"));
-        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId2, List.of("cat4", "cat5", "cat6"));
+        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId1, new ArrayList<>(List.of("cat1", "cat2", "cat3")));
+        volunteeringFacade.updateVolunteeringCategories(posterUsername, volunteeringId2, new ArrayList<>(List.of("cat4", "cat5", "cat6")));
 
-        List<String> expectedVol1 = List.of("cat1", "cat2", "cat3");
+        List<String> expectedVol1 = new ArrayList<>(List.of("cat1", "cat2", "cat3"));
         List<String> resOnePost = postsFacade.getAllPostsCategories();
         assertEquals(new HashSet<>(expectedVol1), new HashSet<>(resOnePost));
 
         int postId2 = postsFacade.createVolunteeringPost("Title2", "Description2", posterUsername, volunteeringId1);
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId2);
 
-        List<String> expectedAll = List.of("cat1", "cat2", "cat3", "cat4", "cat5", "cat6");
+        List<String> expectedAll = new ArrayList<>(List.of("cat1", "cat2", "cat3", "cat4", "cat5", "cat6"));
         List<String> resAll = postsFacade.getAllPostsCategories();
         assertEquals(new HashSet<>(expectedAll), new HashSet<>(resAll));
     }
 
     @Test
     void getAllPostsSkills() {
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, List.of("skill1", "skill2", "skill3"));
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, List.of("skill4", "skill5", "skill6"));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, new ArrayList<>(List.of("skill1", "skill2", "skill3")));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, new ArrayList<>(List.of("skill4", "skill5", "skill6")));
 
-        List<String> expectedVol1 = List.of("skill1", "skill2", "skill3");
+        List<String> expectedVol1 = new ArrayList<>(List.of("skill1", "skill2", "skill3"));
         List<String> resOnePost = postsFacade.getAllPostsSkills();
         assertEquals(new HashSet<>(expectedVol1), new HashSet<>(resOnePost));
 
         int postId2 = postsFacade.createVolunteeringPost("Title2", "Description2", posterUsername, volunteeringId1);
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId2);
 
-        List<String> expectedAll = List.of("skill1", "skill2", "skill3", "skill4", "skill5", "skill6");
+        List<String> expectedAll = new ArrayList<>(List.of("skill1", "skill2", "skill3", "skill4", "skill5", "skill6"));
         List<String> resAll = postsFacade.getAllPostsSkills();
         assertEquals(new HashSet<>(expectedAll), new HashSet<>(resAll));
     }
@@ -982,7 +984,7 @@ abstract class AbstractPostsFacadeTest {
         int postId4 = postsFacade.createVolunteerPost("Beach Cleanup", "Help clean up our local beach and protect marine life.", posterUsername);
         int postId5 = postsFacade.createVolunteerPost("Library Reading Buddy", "Read books to kids at the local library every weekend.", nonPosterUsername);
 
-        List<String> expected = List.of("Animals", "Welfare", "Environment", "Community", "Education", "Community", "Environment", "Public Health", "Education", "Youth");
+        List<String> expected = new ArrayList<>(List.of("Animals", "Welfare", "Environment", "Community", "Education", "Community", "Environment", "Public Health", "Education", "Youth"));
         assertEquals(new HashSet<>(expected), new HashSet<>(postsFacade.getAllVolunteerPostsCategories()));
     }
 
@@ -996,7 +998,7 @@ abstract class AbstractPostsFacadeTest {
         int postId4 = postsFacade.createVolunteerPost("Beach Cleanup", "Help clean up our local beach and protect marine life.", posterUsername);
         int postId5 = postsFacade.createVolunteerPost("Library Reading Buddy", "Read books to kids at the local library every weekend.", nonPosterUsername);
 
-        List<String> expected = List.of("animal care", "empathy", "cleaning", "planting", "teamwork", "basic gardening", "basic tech support", "patience", "communication", "physical work", "trash sorting", "team coordination", "reading aloud", "working with children", "storytelling");
+        List<String> expected = new ArrayList<>(List.of("animal care", "empathy", "cleaning", "planting", "teamwork", "basic gardening", "basic tech support", "patience", "communication", "physical work", "trash sorting", "team coordination", "reading aloud", "working with children", "storytelling"));
                 assertEquals(new HashSet<>(expected), new HashSet<>(postsFacade.getAllVolunteerPostsSkills()));
     }
 
@@ -1007,14 +1009,14 @@ abstract class AbstractPostsFacadeTest {
         volunteeringFacade.addVolunteeringLocation(posterUsername, volunteeringId1, "loc3", new AddressTuple("city3", "street3", "num3"));
         volunteeringFacade.addVolunteeringLocation(posterUsername, volunteeringId2, "loc4", new AddressTuple("city4", "street4", "num4"));
 
-        List<String> expectedVol1 = List.of("city1", "city2", "city3");
+        List<String> expectedVol1 = new ArrayList<>(List.of("city1", "city2", "city3"));
         List<String> resOnePost = postsFacade.getAllPostsCities();
         assertEquals(new HashSet<>(expectedVol1), new HashSet<>(resOnePost));
 
         int postId2 = postsFacade.createVolunteeringPost("Title2", "Description2", posterUsername, volunteeringId1);
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId2);
 
-        List<String> expectedAll = List.of("city1", "city2", "city3", "city4");
+        List<String> expectedAll = new ArrayList<>(List.of("city1", "city2", "city3", "city4"));
         List<String> resAll = postsFacade.getAllPostsCities();
         assertEquals(new HashSet<>(expectedAll), new HashSet<>(resAll));
     }
@@ -1027,14 +1029,14 @@ abstract class AbstractPostsFacadeTest {
         int orgId3 = organizationsFacade.createOrganization("Org3", "Desc", "0541980766", "org@gmail.com", posterUsername);
         int volunteeringId4 = organizationsFacade.createVolunteering(orgId3, "Volunteering4", "This is a very cool volunteering.", posterUsername);
 
-        List<String> expectedVol1 = List.of("Organization");
+        List<String> expectedVol1 = new ArrayList<>(List.of("Organization"));
         List<String> resOnePost = postsFacade.getAllPostsOrganizations();
         assertEquals(new HashSet<>(expectedVol1), new HashSet<>(resOnePost));
 
         int postId2 = postsFacade.createVolunteeringPost("Title2", "Description2", posterUsername, volunteeringId3);
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId4);
 
-        List<String> expectedAll = List.of("Organization", "Org2", "Org3");
+        List<String> expectedAll = new ArrayList<>(List.of("Organization", "Org2", "Org3"));
         List<String> resAll = postsFacade.getAllPostsOrganizations();
         assertEquals(new HashSet<>(expectedAll), new HashSet<>(resAll));
     }
@@ -1047,14 +1049,14 @@ abstract class AbstractPostsFacadeTest {
         int orgId3 = organizationsFacade.createOrganization("Org3", "Desc", "0541980766", "org@gmail.com", posterUsername);
         int volunteeringId4 = organizationsFacade.createVolunteering(orgId3, "Volunteering4", "This is a very cool volunteering.", posterUsername);
 
-        List<String> expectedVol1 = List.of("Volunteering1");
+        List<String> expectedVol1 = new ArrayList<>(List.of("Volunteering1"));
         List<String> resOnePost = postsFacade.getAllPostsVolunteerings();
         assertEquals(new HashSet<>(expectedVol1), new HashSet<>(resOnePost));
 
         int postId2 = postsFacade.createVolunteeringPost("Title2", "Description2", posterUsername, volunteeringId3);
         int postId3 = postsFacade.createVolunteeringPost("Title3", "Description3", posterUsername, volunteeringId4);
 
-        List<String> expectedAll = List.of("Volunteering1", "Volunteering3", "Volunteering4");
+        List<String> expectedAll = new ArrayList<>(List.of("Volunteering1", "Volunteering3", "Volunteering4"));
         List<String> resAll = postsFacade.getAllPostsVolunteerings();
         assertEquals(new HashSet<>(expectedAll), new HashSet<>(resAll));
     }
@@ -1080,7 +1082,7 @@ abstract class AbstractPostsFacadeTest {
 
             volunteeringFacade.finishVolunteering(nonPosterUsername, volunteeringId1, experience);
 
-            List<PastExperience> expectedAfterLeaving = List.of(new PastExperience(nonPosterUsername, experience, mockedDate));
+            List<PastExperience> expectedAfterLeaving = new ArrayList<>(List.of(new PastExperience(nonPosterUsername, experience, mockedDate)));
             List<PastExperience> resAfterLeaving = postsFacade.getPostPastExperiences(volunteeringPostId);
             assertEquals(expectedAfterLeaving, resAfterLeaving);
         }
@@ -1104,8 +1106,8 @@ abstract class AbstractPostsFacadeTest {
     @Test
     void givenValidFields_whenCreateVolunteerPost_thenCreatePost() throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
-        map.put("skills", List.of("skill1", "skill2"));
-        map.put("categories", List.of("cat1", "cat2"));
+        map.put("skills", new ArrayList<>(List.of("skill1", "skill2")));
+        map.put("categories", new ArrayList<>(List.of("cat1", "cat2")));
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(map);
 
@@ -1143,8 +1145,8 @@ abstract class AbstractPostsFacadeTest {
     @Test
     void givenInvalidFields_whenCreateVolunteerPost_thenThrowException() throws JsonProcessingException {
         Map<String, Object> map = new HashMap<>();
-        map.put("skills", List.of("skill1", "skill2"));
-        map.put("categories", List.of("cat1", "cat2"));
+        map.put("skills", new ArrayList<>(List.of("skill1", "skill2")));
+        map.put("categories", new ArrayList<>(List.of("cat1", "cat2")));
         ObjectMapper mapper = new ObjectMapper();
         String jsonString = mapper.writeValueAsString(map);
 
@@ -1180,7 +1182,7 @@ abstract class AbstractPostsFacadeTest {
         verify(spyReportsFacade).removeVolunteerPostReports(volunteerPostId);
 
         String message = String.format("Your post \"%s\" was %s.", title, "removed");
-        verifyMessage(message, List.of(posterUsername, otherManagerUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername, otherManagerUsername)));
     }
 
     @Test
@@ -1235,7 +1237,7 @@ abstract class AbstractPostsFacadeTest {
         verify(spyKeywordExtractor, times(1)).getVolunteerPostKeywords(eq(newTitle), eq(newDescription));
 
         String message = String.format("Your post \"%s\" was %s.", title, "edited");
-        verifyMessage(message, List.of(posterUsername, otherManagerUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername, otherManagerUsername)));
     }
 
     @Test
@@ -1303,7 +1305,7 @@ abstract class AbstractPostsFacadeTest {
         assertDoesNotThrow(() -> postsFacade.getRequestRepository().getRequest(nonPosterUsername, volunteerPostId, RequestObject.VOLUNTEER_POST));
 
         String message = String.format("%s asked you to join the volunteer post \"%s\".", posterUsername, title);
-        verifyMessage(message, List.of(nonPosterUsername));
+        verifyMessage(message, new ArrayList<>(List.of(nonPosterUsername)));
     }
 
     @Test
@@ -1376,7 +1378,7 @@ abstract class AbstractPostsFacadeTest {
         postsFacade.sendAddRelatedUserRequest(volunteerPostId, nonPosterUsername, posterUsername);
 
         String message = String.format("%s asked you to join the volunteer post \"%s\".", posterUsername, title);
-        verifyMessage(message, List.of(nonPosterUsername));
+        verifyMessage(message, new ArrayList<>(List.of(nonPosterUsername)));
         assertDoesNotThrow(() -> postsFacade.getRequestRepository().getRequest(nonPosterUsername, volunteerPostId, RequestObject.VOLUNTEER_POST));
 
         reset(sender);
@@ -1427,7 +1429,7 @@ abstract class AbstractPostsFacadeTest {
         assertEquals(String.format("A request to assign %s to %s with id %d does not exist.", nonPosterUsername, "volunteer post", volunteerPostId), exception.getMessage());
 
         String message = String.format("%s has %s your request to join the post \"%s\".", nonPosterUsername, "approved", title);
-        verifyMessage(message, List.of(posterUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername)));
     }
 
     @Test
@@ -1447,7 +1449,7 @@ abstract class AbstractPostsFacadeTest {
         assertEquals(String.format("A request to assign %s to %s with id %d does not exist.", nonPosterUsername, "volunteer post", volunteerPostId), exception.getMessage());
 
         String message = String.format("%s has %s your request to join the post \"%s\".", nonPosterUsername, "denied", title);
-        verifyMessage(message, List.of(posterUsername));
+        verifyMessage(message, new ArrayList<>(List.of(posterUsername)));
     }
 
     @Test
@@ -1498,12 +1500,12 @@ abstract class AbstractPostsFacadeTest {
         List<String> recipients = recipientCaptor.getAllValues();
         List<Notification> notifications = captor.getAllValues();
 
-        assertTrue(recipients.subList(0, 2).containsAll(List.of(posterUsername, otherManagerUsername)));
+        assertTrue(recipients.subList(0, 2).containsAll(new ArrayList<>(List.of(posterUsername, otherManagerUsername))));
         for (Notification notification : notifications.subList(0, 2)) {
             assertEquals(String.format("%s was removed from the post \"%s\".", nonPosterUsername, title), notification.getMessage());
         }
 
-        assertTrue(recipients.subList(2, 3).containsAll(List.of(nonPosterUsername)));
+        assertTrue(recipients.subList(2, 3).containsAll(new ArrayList<>(List.of(nonPosterUsername))));
         for (Notification notification : notifications.subList(2, 3)) {
             assertEquals(String.format("You were removed from the post \"%s\".", title), notification.getMessage());
         }
@@ -1604,8 +1606,8 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     void givenExistingPost_whenGetRelatedUsers_thenReturnUsers() {
-        List<String> expected1 = List.of(posterUsername, otherManagerUsername);
-        List<String> expected2 = List.of(posterUsername, otherManagerUsername, nonPosterUsername, admin);
+        List<String> expected1 = new ArrayList<>(List.of(posterUsername, otherManagerUsername));
+        List<String> expected2 = new ArrayList<>(List.of(posterUsername, otherManagerUsername, nonPosterUsername, admin));
 
         List<String> res1 = postsFacade.getRelatedUsers(volunteerPostId);
 
@@ -1632,7 +1634,7 @@ abstract class AbstractPostsFacadeTest {
     @ValueSource(strings = {"Poster", "Manager"})
     public void givenNewImageByPosterOrRelatedUser_whenAddImage_thenAdd(String actor) {
         String newPath = "dummyPath";
-        List<String> expected = List.of(newPath);
+        List<String> expected = new ArrayList<>(List.of(newPath));
 
         assertEquals(new ArrayList<String>(), postsFacade.getVolunteerPost(volunteerPostId, posterUsername).getImages());
         postsFacade.addImage(volunteerPostId, newPath, actor);
@@ -1683,7 +1685,7 @@ abstract class AbstractPostsFacadeTest {
         String newPath = "dummyPath";
         postsFacade.addImage(volunteerPostId, newPath, posterUsername);
 
-        List<String> expected = List.of(newPath);
+        List<String> expected = new ArrayList<>(List.of(newPath));
         assertEquals(expected, postsFacade.getVolunteerPost(volunteerPostId, posterUsername).getImages());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -1716,7 +1718,7 @@ abstract class AbstractPostsFacadeTest {
         String newPath = "dummyPath";
         postsFacade.addImage(volunteerPostId, newPath, posterUsername);
 
-        List<String> expected = List.of(newPath);
+        List<String> expected = new ArrayList<>(List.of(newPath));
         assertEquals(expected, postsFacade.getVolunteerPost(volunteerPostId, posterUsername).getImages());
 
         postsFacade.removeImage(volunteerPostId, newPath, actor);
@@ -1729,7 +1731,7 @@ abstract class AbstractPostsFacadeTest {
         String newPath = "dummyPath";
         postsFacade.addImage(volunteerPostId, newPath, posterUsername);
 
-        List<String> expected = List.of(newPath);
+        List<String> expected = new ArrayList<>(List.of(newPath));
         assertEquals(expected, postsFacade.getVolunteerPost(volunteerPostId, posterUsername).getImages());
 
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
@@ -1754,7 +1756,7 @@ abstract class AbstractPostsFacadeTest {
         String newPath = "dummyPath";
         postsFacade.addImage(volunteerPostId, newPath, posterUsername);
 
-        List<String> expected = List.of(newPath);
+        List<String> expected = new ArrayList<>(List.of(newPath));
         assertEquals(expected, postsFacade.getVolunteerPost(volunteerPostId, posterUsername).getImages());
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
             postsFacade.removeImage(volunteerPostId, newPath, nonPosterUsername);
@@ -1796,8 +1798,8 @@ abstract class AbstractPostsFacadeTest {
             }
         });
 
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, List.of("reading"));
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, List.of("animals"));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, new ArrayList<>(List.of("reading")));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, new ArrayList<>(List.of("animals")));
 
         int postId1 = postsFacade.createVolunteeringPost("Animal Shelter Help", "Looking for volunteers to help feed and care for dogs and cats.", posterUsername, volunteeringId1);
         int postId2 = postsFacade.createVolunteeringPost("Community Garden Project", "Join us in planting and maintaining a local community garden.", posterUsername, volunteeringId1);
@@ -1809,13 +1811,13 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
         VolunteeringPostDTO post4 = postsFacade.getVolunteeringPost(postId4, posterUsername);
         VolunteeringPostDTO post5 = postsFacade.getVolunteeringPost(postId5, posterUsername);
-        List<PostDTO> allPosts = List.of(post1, post2, post3, post4, post5);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3, post4, post5));
 
-        List<PostDTO> expectedCommunity = List.of(post2, post3, post5);
-        List<PostDTO> expectedNature = List.of(post2, post4);
-        List<PostDTO> expectedCommunityAndNature = List.of(post2, post3, post4, post5);
-        List<PostDTO> expectedReading = List.of(post1, post2, post3, post5);
-        List<PostDTO> expectedAnimals = List.of(post1, post4, post5);
+        List<PostDTO> expectedCommunity = new ArrayList<>(List.of(post2, post3, post5));
+        List<PostDTO> expectedNature = new ArrayList<>(List.of(post2, post4));
+        List<PostDTO> expectedCommunityAndNature = new ArrayList<>(List.of(post2, post3, post4, post5));
+        List<PostDTO> expectedReading = new ArrayList<>(List.of(post1, post2, post3, post5));
+        List<PostDTO> expectedAnimals = new ArrayList<>(List.of(post1, post4, post5));
 
         List<VolunteeringPostDTO> resCommunity = (List<VolunteeringPostDTO>) postsFacade.searchByKeywords(" commUnity", posterUsername, allPosts, true);
         List<VolunteeringPostDTO> resNature = (List<VolunteeringPostDTO>) postsFacade.searchByKeywords("nAtuRe   ", posterUsername, allPosts, true);
@@ -1832,8 +1834,8 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     public void givenEmptySearchStringInVolunteeringPosts_whenSearchByKeywords_thenReturnPosts() {
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, List.of("reading"));
-        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, List.of("animals"));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId1, new ArrayList<>(List.of("reading")));
+        volunteeringFacade.updateVolunteeringSkills(posterUsername, volunteeringId2, new ArrayList<>(List.of("animals")));
 
         int postId1 = postsFacade.createVolunteeringPost("Animal Shelter Help", "Looking for volunteers to help feed and care for dogs and cats.", posterUsername, volunteeringId1);
         int postId2 = postsFacade.createVolunteeringPost("Community Garden Project", "Join us in planting and maintaining a local community garden.", posterUsername, volunteeringId1);
@@ -1846,7 +1848,7 @@ abstract class AbstractPostsFacadeTest {
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
         VolunteeringPostDTO post4 = postsFacade.getVolunteeringPost(postId4, posterUsername);
         VolunteeringPostDTO post5 = postsFacade.getVolunteeringPost(postId5, posterUsername);
-        List<PostDTO> allPosts = List.of(post0, post1, post2, post3, post4, post5);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post0, post1, post2, post3, post4, post5));
 
         List<VolunteeringPostDTO> res = (List<VolunteeringPostDTO>) postsFacade.searchByKeywords("        ", posterUsername, allPosts, true);
 
@@ -1876,28 +1878,28 @@ abstract class AbstractPostsFacadeTest {
             }
             else {
                 if (prompt.contains("Animal Shelter Help")) {
-                    map.put("skills", List.of("animal care", "empathy", "cleaning"));
-                    map.put("categories", List.of("Animals", "Welfare"));
+                    map.put("skills", new ArrayList<>(List.of("animal care", "empathy", "cleaning")));
+                    map.put("categories", new ArrayList<>(List.of("Animals", "Welfare")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 } else if (prompt.contains("Community Garden Project")) {
-                    map.put("skills", List.of("planting", "teamwork", "basic gardening"));
-                    map.put("categories", List.of("Environment", "Community"));
+                    map.put("skills", new ArrayList<>(List.of("planting", "teamwork", "basic gardening")));
+                    map.put("categories", new ArrayList<>(List.of("Environment", "Community")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 } else if (prompt.contains("Elderly Tech Support")) {
-                    map.put("skills", List.of("basic tech support", "patience", "communication"));
-                    map.put("categories", List.of("Education", "Community"));
+                    map.put("skills", new ArrayList<>(List.of("basic tech support", "patience", "communication")));
+                    map.put("categories", new ArrayList<>(List.of("Education", "Community")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 } else if (prompt.contains("Beach Cleanup")) {
-                    map.put("skills", List.of("physical work", "trash sorting", "team coordination"));
-                    map.put("categories", List.of("Environment", "Public Health"));
+                    map.put("skills", new ArrayList<>(List.of("physical work", "trash sorting", "team coordination")));
+                    map.put("categories", new ArrayList<>(List.of("Environment", "Public Health")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 } else if (prompt.contains("Library Reading Buddy")) {
-                    map.put("skills", List.of("reading aloud", "working with children", "storytelling"));
-                    map.put("categories", List.of("Education", "Youth"));
+                    map.put("skills", new ArrayList<>(List.of("reading aloud", "working with children", "storytelling")));
+                    map.put("categories", new ArrayList<>(List.of("Education", "Youth")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 } else {
-                    map.put("skills", List.of("planting", "teamwork", "basic gardening"));
-                    map.put("categories", List.of("Environment", "Community"));
+                    map.put("skills", new ArrayList<>(List.of("planting", "teamwork", "basic gardening")));
+                    map.put("categories", new ArrayList<>(List.of("Environment", "Community")));
                     return (new ObjectMapper()).writeValueAsString(map);
                 }
             }
@@ -1918,16 +1920,16 @@ abstract class AbstractPostsFacadeTest {
         VolunteerPostDTO post3 = postsFacade.getVolunteerPost(postId3, posterUsername);
         VolunteerPostDTO post4 = postsFacade.getVolunteerPost(postId4, posterUsername);
         VolunteerPostDTO post5 = postsFacade.getVolunteerPost(postId5, posterUsername);
-        List<PostDTO> allPosts = List.of(post1, post2, post3, post4, post5);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3, post4, post5));
 
-        List<PostDTO> expectedCommunity = List.of(post2, post3, post5);
-        List<PostDTO> expectedNature = List.of(post2, post4);
-        List<PostDTO> expectedTechnology = List.of(post3);
-        List<PostDTO> expectedReading = List.of(post5);
-        List<PostDTO> expectedTeamwork = List.of(post2, post4);
-        List<PostDTO> expectedAnimals = List.of(post1);
-        List<PostDTO> expectedEnvironment = List.of(post2, post4);
-        List<PostDTO> expectedEducation = List.of(post3, post5);
+        List<PostDTO> expectedCommunity = new ArrayList<>(List.of(post2, post3, post5));
+        List<PostDTO> expectedNature = new ArrayList<>(List.of(post2, post4));
+        List<PostDTO> expectedTechnology = new ArrayList<>(List.of(post3));
+        List<PostDTO> expectedReading = new ArrayList<>(List.of(post5));
+        List<PostDTO> expectedTeamwork = new ArrayList<>(List.of(post2, post4));
+        List<PostDTO> expectedAnimals = new ArrayList<>(List.of(post1));
+        List<PostDTO> expectedEnvironment = new ArrayList<>(List.of(post2, post4));
+        List<PostDTO> expectedEducation = new ArrayList<>(List.of(post3, post5));
 
         List<VolunteerPostDTO> resCommunity = (List<VolunteerPostDTO>) postsFacade.searchByKeywords("community", posterUsername, allPosts, false);
         List<VolunteerPostDTO> resNature = (List<VolunteerPostDTO>) postsFacade.searchByKeywords("nature", posterUsername, allPosts, false);
@@ -1961,7 +1963,7 @@ abstract class AbstractPostsFacadeTest {
         VolunteerPostDTO post3 = postsFacade.getVolunteerPost(postId3, posterUsername);
         VolunteerPostDTO post4 = postsFacade.getVolunteerPost(postId4, posterUsername);
         VolunteerPostDTO post5 = postsFacade.getVolunteerPost(postId5, posterUsername);
-        List<PostDTO> allPosts = List.of(post0, post1, post2, post3, post4, post5);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post0, post1, post2, post3, post4, post5));
 
         List<VolunteerPostDTO> res = (List<VolunteerPostDTO>) postsFacade.searchByKeywords("  ", posterUsername, allPosts, false);
         res.sort(Comparator.comparing(VolunteerPostDTO::getId));
@@ -1992,7 +1994,7 @@ abstract class AbstractPostsFacadeTest {
         post2.setPostedTime(mockedDate2);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
         post3.setPostedTime(mockedDate3);
-        List<PostDTO> allPosts = List.of(post1, post2, post3);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3));
 
         PostDTO[] expected = new PostDTO[3];
         expected[3 - post1Day] = post1;
@@ -2029,7 +2031,7 @@ abstract class AbstractPostsFacadeTest {
         post2.setLastEditedTime(mockedDate2);
         VolunteeringPostDTO post3 = postsFacade.getVolunteeringPost(postId3, posterUsername);
         post3.setLastEditedTime(mockedDate3);
-        List<PostDTO> allPosts = List.of(post1, post2, post3);
+        List<PostDTO> allPosts = new ArrayList<>(List.of(post1, post2, post3));
 
         PostDTO[] expected = new PostDTO[3];
         expected[3 - post1Day] = post1;

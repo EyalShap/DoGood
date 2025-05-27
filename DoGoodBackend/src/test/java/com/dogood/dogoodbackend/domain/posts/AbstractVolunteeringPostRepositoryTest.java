@@ -2,6 +2,7 @@ package com.dogood.dogoodbackend.domain.posts;
 
 import com.dogood.dogoodbackend.jparepos.VolunteeringPostJPA;
 import com.dogood.dogoodbackend.utils.PostErrors;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 abstract class AbstractVolunteeringPostRepositoryTest {
     protected VolunteeringPostRepository repository;
 
@@ -37,7 +39,7 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     @BeforeEach
     void setup() {
         repository = createRepository();
-        postId = repository.createVolunteeringPost(title, description, keywords, posterUsername, volunteeringId, organizationId);
+        postId = repository.createVolunteeringPost(title, description, new HashSet<>(keywords), posterUsername, volunteeringId, organizationId);
     }
 
     @AfterEach
@@ -164,7 +166,7 @@ abstract class AbstractVolunteeringPostRepositoryTest {
     @ParameterizedTest
     @MethodSource("validInputs")
     void givenExistingPostAndValidFields_whenEditVolunteeringPost_thenEdit(String newTitle, String newDescription, Set<String> newKeywords) {
-        assertDoesNotThrow(() -> repository.editVolunteeringPost(postId, newTitle, newDescription, newKeywords));
+        assertDoesNotThrow(() -> repository.editVolunteeringPost(postId, newTitle, newDescription, new HashSet<>(newKeywords)));
         assertTrue(verifyPostFields(newTitle, newDescription, newKeywords));
     }
 

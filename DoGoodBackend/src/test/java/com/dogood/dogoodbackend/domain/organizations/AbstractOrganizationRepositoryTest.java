@@ -1,6 +1,7 @@
 package com.dogood.dogoodbackend.domain.organizations;
 
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 abstract class AbstractOrganizationRepositoryTest {
     private OrganizationRepository organizationRepository;
 
@@ -125,7 +127,7 @@ abstract class AbstractOrganizationRepositoryTest {
         List<Integer> resBefore = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
         assertEquals(new HashSet<>(), new HashSet<>(resBefore));
 
-        List<Integer> volunteeringIds = List.of(1, 2, 3);
+        List<Integer> volunteeringIds = new ArrayList<>(List.of(1, 2, 3));
         organizationRepository.setVolunteeringIds(organizationId, volunteeringIds);
 
         List<Integer> resAfter = organizationRepository.getOrganizationForRead(organizationId).getVolunteeringIds();
@@ -154,7 +156,7 @@ abstract class AbstractOrganizationRepositoryTest {
         List<String> resBefore = organizationRepository.getOrganizationForRead(organizationId).getManagerUsernames();
         assertEquals(new HashSet<>(expectedBefore), new HashSet<>(resBefore));
 
-        List<String> managers = List.of(actor1, "actor2", "actor3");
+        List<String> managers = new ArrayList<>(List.of(actor1, "actor2", "actor3"));
         organizationRepository.setManagers(organizationId, managers);
 
         List<String> resAfter = organizationRepository.getOrganizationForRead(organizationId).getManagerUsernames();
@@ -174,7 +176,7 @@ abstract class AbstractOrganizationRepositoryTest {
     @Test
     void givenExistingIdAndManager_whenSetFounder_thenSet() {
         String newFounder = "actor2";
-        organizationRepository.setManagers(organizationId, List.of(actor1, newFounder));
+        organizationRepository.setManagers(organizationId, new ArrayList<>(List.of(actor1, newFounder)));
 
         String resBefore = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resBefore);
@@ -188,7 +190,7 @@ abstract class AbstractOrganizationRepositoryTest {
     @Test
     void givenNonExistingId_whenSetFounder_thThrowException() {
         String newFounder = "actor2";
-        organizationRepository.setManagers(organizationId, List.of(actor1, newFounder));
+        organizationRepository.setManagers(organizationId, new ArrayList<>(List.of(actor1, newFounder)));
 
         String resBefore = organizationRepository.getOrganizationForRead(organizationId).getFounderUsername();
         assertEquals(actor1, resBefore);
@@ -221,7 +223,7 @@ abstract class AbstractOrganizationRepositoryTest {
         List<String> resBefore = organizationRepository.getOrganizationForRead(organizationId).getImagePaths();
         assertEquals(0, resBefore.size());
 
-        List<String> images = List.of("path");
+        List<String> images = new ArrayList<>(List.of("path"));
         organizationRepository.setImages(organizationId, images);
 
         List<String> resAfter = organizationRepository.getOrganizationForRead(organizationId).getImagePaths();
@@ -280,7 +282,7 @@ abstract class AbstractOrganizationRepositoryTest {
 
     @Test
     void givenNonFounder_whenUploadSignature_thenThrowException() {
-        organizationRepository.setManagers(organizationId, List.of(actor1, "actor2"));
+        organizationRepository.setManagers(organizationId, new ArrayList<>(List.of(actor1, "actor2")));
 
         byte[] resBefore = organizationRepository.getOrganizationForRead(organizationId).getSignature();
         assertNull(resBefore);
@@ -316,14 +318,14 @@ abstract class AbstractOrganizationRepositoryTest {
 
     @Test
     void givenManager_whenGetSignature_thenReturnSignature() {
-        organizationRepository.setManagers(organizationId, List.of(actor1, "actor2"));
+        organizationRepository.setManagers(organizationId, new ArrayList<>(List.of(actor1, "actor2")));
 
         byte[] randomBytes = new byte[16];
         new java.security.SecureRandom().nextBytes(randomBytes);
         MockMultipartFile signature = new MockMultipartFile("file","signature.png","image/png", randomBytes);
 
         organizationRepository.uploadSignature(organizationId, actor1, signature);
-        organizationRepository.setManagers(organizationId, List.of(actor1, "actor2"));
+        organizationRepository.setManagers(organizationId, new ArrayList<>(List.of(actor1, "actor2")));
 
         byte[] res1 = organizationRepository.getSignature(organizationId, actor1);
         byte[] res2 = organizationRepository.getSignature(organizationId, "actor2");

@@ -14,6 +14,7 @@ import com.dogood.dogoodbackend.service.FacadeManager;
 import com.dogood.dogoodbackend.socket.NotificationSocketSender;
 import com.dogood.dogoodbackend.utils.OrganizationErrors;
 import com.dogood.dogoodbackend.utils.ReportErrors;
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -39,6 +40,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
+@Transactional
 class OrganizationsFacadeIntegrationTest {
     @Autowired
     private ApplicationContext applicationContext;
