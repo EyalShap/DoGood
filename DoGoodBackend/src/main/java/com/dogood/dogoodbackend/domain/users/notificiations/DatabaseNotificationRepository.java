@@ -1,9 +1,11 @@
 package com.dogood.dogoodbackend.domain.users.notificiations;
 
 import com.dogood.dogoodbackend.jparepos.NotificationJPA;
+import jakarta.transaction.Transactional;
 
 import java.util.List;
 
+@Transactional
 public class DatabaseNotificationRepository implements NotificationRepository {
     private NotificationJPA jpa;
 

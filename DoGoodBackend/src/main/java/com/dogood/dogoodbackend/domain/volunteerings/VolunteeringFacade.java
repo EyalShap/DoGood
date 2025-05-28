@@ -289,26 +289,19 @@ public class VolunteeringFacade {
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
-        System.out.println(userId + "waiting for lock");
         Volunteering volunteering = repository.getVolunteeringForWrite(volunteeringId);
-        System.out.println(userId + "acquire lock");
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
-        System.out.println(userId + "not null");
         if(volunteering.hasVolunteer(userId)){
             throw new IllegalArgumentException("User " + userId + " is already a volunteer in volunteering " + volunteeringId);
         }
-        System.out.println(userId + "has volunteer");
         if(isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is already a manager in organization of volunteering " + volunteeringId);
         }
-        System.out.println(userId + "is manager");
         volunteering.addJoinRequest(userId, new JoinRequest(userId, freeText));
         repository.updateVolunteeringInDB(volunteering);
-        organizationFacade.notifyManagers(userId+ " has requested to join volunteering " + volunteering.getName(), NotificationNavigations.volunteeringJoinRequest(volunteeringId),volunteering.getOrganizationId());
-        System.out.println(userId + "release lock");
-    }
+        organizationFacade.notifyManagers(userId+ " has requested to join volunteering " + volunteering.getName(), NotificationNavigations.volunteeringJoinRequest(volunteeringId),volunteering.getOrganizationId());}
 
 
     public void acceptUserJoinRequest(String userId, int volunteeringId, String joinerId, int groupId){
@@ -610,7 +603,7 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
 
-        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        Volunteering volunteering = repository.getVolunteeringForWrite(volunteeringId);
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
@@ -656,7 +649,7 @@ public class VolunteeringFacade {
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
         }
-        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        Volunteering volunteering = repository.getVolunteeringForWrite(volunteeringId);
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
@@ -675,7 +668,7 @@ public class VolunteeringFacade {
         if(!userExists(volunteerId)){
             throw new IllegalArgumentException("User " + volunteerId + " does not exist");
         }
-        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        Volunteering volunteering = repository.getVolunteeringForWrite(volunteeringId);
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
@@ -697,7 +690,7 @@ public class VolunteeringFacade {
         if(!userExists(volunteerId)){
             throw new IllegalArgumentException("User " + volunteerId + " does not exist");
         }
-        Volunteering volunteering = repository.getVolunteering(volunteeringId);
+        Volunteering volunteering = repository.getVolunteeringForWrite(volunteeringId);
         if(volunteering == null){
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }

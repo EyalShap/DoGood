@@ -1,7 +1,9 @@
 package com.dogood.dogoodbackend.acceptance.nonfunctional;
 
 import java.util.Map;
+import java.util.concurrent.Future;
 
+@FunctionalInterface
 public interface ParametricUseCaseExecutor {
-    public boolean execute(Map<String,String> parameters);
+    public Future<Boolean> execute(Map<String,String> parameters);
 }
