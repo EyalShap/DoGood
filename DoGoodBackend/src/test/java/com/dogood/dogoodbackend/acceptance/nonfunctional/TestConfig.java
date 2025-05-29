@@ -6,6 +6,5 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 @Configuration
 @EnableAsync
-@EnableTransactionManagement
 public class TestConfig {
 }

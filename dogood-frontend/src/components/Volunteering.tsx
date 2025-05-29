@@ -107,12 +107,16 @@ function GroupRow({ groupId, volunteeringId, volunteers, deleteGroup, onDragStar
                 <div className='volunteerRow'>
                     <div className='volunteerData'>
                         <p draggable onDragStart={(e) => onDragStart(e, volunteer, groupId)}
-                        >{volunteer} {locationMapping.hasOwnProperty(volunteer) && `(Volunteers at ${locationMapping[volunteer].name})`}
+                        >{volunteer} {locationMapping.hasOwnProperty(volunteer) && locationMapping[volunteer].id > -1 && `(Volunteers at ${locationMapping[volunteer].name})`}
                         </p>
-                        <button className="orangeCircularButton" onClick={() => setUserToAssign(userToAssign === volunteer ? null : volunteer)}>Assign Location</button>
+                        {(!locationMapping.hasOwnProperty(volunteer) || locationMapping[volunteer].id > -1) && <button className="orangeCircularButton" onClick={() => setUserToAssign(userToAssign === volunteer ? null : volunteer)}>Assign Location</button>}
                     </div>
-                    <div className={`locationAssignment${userToAssign === volunteer ? " openLocationAssignment" : ""}`}>
-                        {availableLocations.map(location => <button disabled={locationMapping[volunteer] && locationMapping[volunteer].id === location.id} className="orangeCircularButton locationOption" onClick={() => assignVolunteerLocation(volunteer, location.id)}>{location.name}</button>)}
+                    <div
+                        className={`locationAssignment${userToAssign === volunteer ? " openLocationAssignment" : ""}`}>
+                        {availableLocations.map(location => <button
+                            disabled={locationMapping[volunteer] && locationMapping[volunteer].id === location.id}
+                            className="orangeCircularButton locationOption"
+                            onClick={() => assignVolunteerLocation(volunteer, location.id)}>{location.name}</button>)}
                     </div>
                 </div>)}
             <hr/>
@@ -812,6 +816,7 @@ function Volunteering() {
     const [permissionsLoaded, setPemissionsLoaded] = useState(false)
     const [hasLocation, setHasLocation] = useState(false)
     const [currentLocation, setCurrentLocation] = useState(-2)
+    const [fetchedLocation, setFetchedLocation] = useState(false);
 
     const [warnings, setWarnings] = useState<string[]>([]);
     const [rerenderManager, setRenenderManager] = useState(3);
@@ -879,6 +884,7 @@ function Volunteering() {
             let location = await getUserAssignedLocation(parseInt(id!));
             setHasLocation(location > -2);
             setCurrentLocation(location);
+            setFetchedLocation(true)
         } catch (e) {
             //send to error page
             alert(e)
@@ -1319,7 +1325,7 @@ function Volunteering() {
                 </TabPanel>
             </Tabs>}
 
-            {!isManager && currentLocation !== -1 && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} currentLocation={currentLocation} />}
+            {!isManager && fetchedLocation && currentLocation !== -1 && <LocationSelector assignUser={assignUserToLocation} volunteeringId={parseInt(id!)} currentLocation={currentLocation} />}
             
             {permissionsLoaded && !isManager && hasLocation ? <AppointmentCalender volunteeringId={parseInt(id!)}/> : <></>}
         
