@@ -104,58 +104,12 @@ public class AsyncUseCases {
     @Autowired
     private ReportService reportService;
 
-    public void reset(){
-        messageJPA.deleteAll();
-        volunteeringJPA.deleteAll();
-        organizationJPA.deleteAll();
-        notificationJPA.deleteAll();
-        userJPA.deleteAll();
-        volunteerPostJPA.deleteAll();
-        requestJPA.deleteAll();
-        bannedJPA.deleteAll();
-        appointmentJPA.deleteAll();
-        hourRequestJPA.deleteAll();
-        reportJPA.deleteAll();
-        volunteeringPostJPA.deleteAll();
-        facadeManager.getAuthFacade().clearInvalidatedTokens();
-    }
-
     public CompletableFuture<Boolean> registerUserUseCase(String username){
         Response<String> response = userService.register(username, "123456", "Name name", "email@gmail.com", "052-0520520", new Date(), "");
         if(response.getError()){
             System.out.println(response.getErrorString());
         }
         return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<Boolean> registerStudentUserUseCase(String username){
-        Response<String> response = userService.register(username, "123456", "Name name", "email@post.bgu.ac.il", "052-0520520", new Date(), "");
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public void verifyStudent(String username){
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username),Mockito.anyString()))
-                .thenAnswer(i -> {
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(i.getArgument(0));
-                    request.setEmail("email@post.bgu.ac.il");
-                    return Optional.of(new VerificationData("", Instant.MAX,request));
-                });
-        VerifyEmailRequest emailRequest = new VerifyEmailRequest(username,"");
-        userService.verifyEmail(emailRequest);
-    }
-
-
-    public void verifyUsername(String username){
-        Mockito.when(verificationCacheService.getAndValidateVerificationData(Mockito.eq(username),Mockito.anyString()))
-                .thenAnswer(i -> {
-                    RegisterRequest request = new RegisterRequest();
-                    request.setUsername(i.getArgument(0));
-                    request.setEmail("email@gmail.com");
-                    return Optional.of(new VerificationData("", Instant.MAX,request));
-                });
-        VerifyEmailRequest emailRequest = new VerifyEmailRequest(username,"");
-        userService.verifyEmail(emailRequest);
     }
 
     public CompletableFuture<String> loginUserUseCase(String username){
@@ -251,29 +205,8 @@ public class AsyncUseCases {
         return CompletableFuture.completedFuture(!response.getError());
     }
 
-    public CompletableFuture<Boolean> chooseScanTypeUseCase(String token, String username, int volunteeringId){
-        Response<String> response = volunteeringService.updateVolunteeringScanDetails(token,username,volunteeringId, ScanTypes.ONE_SCAN, ApprovalType.AUTO_FROM_SCAN);
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<String> createQrCodeUseCase(String token, String username,int volunteeringId){
-        Response<String> response = volunteeringService.makeVolunteeringCode(token,username,volunteeringId,false);
-        return CompletableFuture.completedFuture(response.getError() ? null : response.getData());
-    }
-
     public CompletableFuture<Boolean> scanCodeUseCase(String token, String username, String code){
         Response<String> response = volunteeringService.scanCode(token,username,code);
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<Boolean> makeHourRequestUseCase(String token, String username, int volunteeringId){
-        LocalDate now = LocalDate.now();
-        LocalTime start = LocalTime.of(10,0);
-        LocalTime end = LocalTime.of(12,0);
-        Date startDate = Date.from(now.atTime(start).atZone(ZoneId.systemDefault()).toInstant());
-        Date endDate = Date.from(now.atTime(end).atZone(ZoneId.systemDefault()).toInstant());
-        Response<String> response = volunteeringService.
-                requestHoursApproval(token,username, volunteeringId,startDate,endDate);
         return CompletableFuture.completedFuture(!response.getError());
     }
 
@@ -287,9 +220,9 @@ public class AsyncUseCases {
         return CompletableFuture.completedFuture(!response.getError());
     }
 
-    public List<HourApprovalRequest> viewSummaryUseCase(String token, String username){
+    public CompletableFuture<List<HourApprovalRequest>> viewSummaryUseCase(String token, String username){
         Response<List<HourApprovalRequest>> response = userService.getApprovedHours(token,username);
-        return response.getError() ? null : response.getData();
+        return CompletableFuture.completedFuture(response.getError() ? null : response.getData());
     }
 
     public CompletableFuture<Boolean> leaveVolunteeringUseCase(String token, String username, int volunteeringId){
@@ -337,11 +270,6 @@ public class AsyncUseCases {
         return CompletableFuture.completedFuture(!response.getError());
     }
 
-    public CompletableFuture<Boolean> deleteOrganizationUseCase(String token, String username, int orgId){
-        Response<Boolean> response = organizationService.removeOrganization(token,orgId,username);
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
     public CompletableFuture<Integer> newVolunteeringUseCase(String token, String username, int orgId){
         Response<Integer> response = organizationService.createVolunteering(token, orgId, "Name", "Description", username);
         return CompletableFuture.completedFuture(response.getError() ? -1 : response.getData());
@@ -364,18 +292,8 @@ public class AsyncUseCases {
         return CompletableFuture.completedFuture(!response.getError());
     }
 
-    public CompletableFuture<Integer> createGroupUseCase(String token, String username, int volunteeringId){
-        Response<Integer> response = volunteeringService.createNewGroup(token,username,volunteeringId);
-        return CompletableFuture.completedFuture(response.getError() ? -1 : response.getData());
-    }
-
     public CompletableFuture<Boolean> moveGroupUseCase(String token, String username, int volunteeringId, int groupId, String volunteer){
         Response<String> response = volunteeringService.moveVolunteerGroup(token,username,volunteer,volunteeringId,groupId);
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<Boolean> sendNotificationsUseCase(String token, String username, int volunteeringId){
-        Response<String> response = volunteeringService.sendUpdatesToVolunteers(token, username, volunteeringId, "Message");
         return CompletableFuture.completedFuture(!response.getError());
     }
 
@@ -389,35 +307,14 @@ public class AsyncUseCases {
         return CompletableFuture.completedFuture(!response.getError());
     }
 
-    public CompletableFuture<Boolean> uploadSignatureUseCase(String token, String username, int organizationId) throws IOException {
-        File signature = ResourceUtils.getFile("classpath:signature-example.png");
-        FileInputStream signatureStream = new FileInputStream(signature);
-        Response<Boolean> response = organizationService.uploadSignature(token, organizationId, username,new MockMultipartFile("signature-example.png", signatureStream));
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
     public CompletableFuture<Boolean> sendOrganizationManagerRequestUseCase(String token, String username, int organizationId, String to){
         Response<Boolean> response = organizationService.sendAssignManagerRequest(token, to, username, organizationId);
-        return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<Boolean> handleOrganizationManagerRequestUseCase(String token, String username, int organizationId, boolean approved){
-        Response<Boolean> response = organizationService.handleAssignManagerRequest(token,username,organizationId,approved);
         return CompletableFuture.completedFuture(!response.getError());
     }
 
     public CompletableFuture<Boolean> sendVolunteerPostChatMessageUseCase(String token, String username, int postId, String with){
         Response<Integer> response = chatService.sendPostMessage(token,username, "Message", postId,with);
         return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public void registerAdmin(String username){
-        facadeManager.getUsersFacade().registerAdmin(username, "123456", "Admin adm", "email@gmail.com", "052-0520520", new Date());
-    }
-
-    public CompletableFuture<List<ReportDTO>> watchReportsUseCase(String token, String username){
-        Response<List<ReportDTO>> response = reportService.getAllReportDTOs(token,username);
-        return CompletableFuture.completedFuture(response.getError() ? null : response.getData());
     }
 
     public CompletableFuture<Boolean> reportVolunteeringUseCase(String token, String username, int volunteeringId){
@@ -448,10 +345,5 @@ public class AsyncUseCases {
     public CompletableFuture<Boolean> blockEmailUseCase(String token, String username, String emailToBlock){
         Response<Boolean> response = reportService.banEmail(token, username, emailToBlock);
         return CompletableFuture.completedFuture(!response.getError());
-    }
-
-    public CompletableFuture<Integer> getOrganizationVolunteeringAmount(String token, String username, int orgId){
-        Response<List<VolunteeringDTO>> response = organizationService.getOrganizationVolunteerings(token,username,orgId);
-        return  CompletableFuture.completedFuture(response.getError() ? -1 : response.getData().size());
     }
 }

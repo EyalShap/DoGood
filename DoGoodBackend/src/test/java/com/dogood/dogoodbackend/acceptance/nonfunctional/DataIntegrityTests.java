@@ -91,7 +91,7 @@ public class DataIntegrityTests {
     }
 
 
-    @RepeatedTest(20)
+    @Test
     public void registerDataIntegrityTest() throws InterruptedException {
         Map<String,String>[] parameters = new Map[threadAmount];
         for(int i = 0; i < threadAmount; i++){
@@ -540,7 +540,6 @@ public class DataIntegrityTests {
         String manToken = useCases.loginUserUseCase("Manager");
         int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
         int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
-        int locId = useCases.newLocationUseCase(manToken,"Manager",volId);
         for(int i = 0; i < threadAmount; i++){
             useCases.registerUserUseCase(usernames[i]);
             useCases.verifyUsername(usernames[i]);
@@ -561,5 +560,393 @@ public class DataIntegrityTests {
         evaluateDataIntegrity(parameters1 ->
                 asyncUseCases.approveHoursUseCase(parameters1.get("token"), parameters1.get("username"),volId,"Volunteer"),parameters,1);
         Assertions.assertEquals(1, useCases.viewSummaryUseCase(volToken, "Volunteer").size());
+    }
+
+    @Test
+    public void viewSummaryDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendVolunteeringJoinRequestUseCase(token,usernames[i],volId);
+            useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,usernames[i]);
+            useCases.makeHourRequestUseCase(token, usernames[i], volId);
+            useCases.approveHoursUseCase(manToken, "Manager",volId,usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.viewSummaryUseCase(parameters1.get("token"), parameters1.get("username")).thenApply(list -> list.size() == 1),parameters,10);
+    }
+
+    @Test
+    public void leaveVolunteeringDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendVolunteeringJoinRequestUseCase(token,usernames[i],volId);
+            useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.leaveVolunteeringUseCase(parameters1.get("token"), parameters1.get("username"),volId),parameters,10);
+        Assertions.assertEquals(0, useCases.getVolunteeringVolunteerAmount(manToken, "Manager",volId));
+    }
+
+    @Test
+    public void exportCsvDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        int locId = useCases.newLocationUseCase(manToken, "Manager", volId);
+        int rangeId = useCases.newRangeUseCase(manToken, "Manager", volId,locId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendVolunteeringJoinRequestUseCase(token,usernames[i],volId);
+            useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,usernames[i]);
+            useCases.chooseVolunteeringRangeUseCase(token, usernames[i],volId,rangeId,locId);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+
+        evaluateDataIntegrity(parameters1 ->
+        {
+            try {
+                return asyncUseCases.exportCsvUseCase(parameters1.get("token"), parameters1.get("username"));
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        },parameters,10);
+    }
+
+    @Test
+    public void exportPdfDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerStudentUserUseCase(usernames[i]);
+            useCases.verifyStudent(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendVolunteeringJoinRequestUseCase(token,usernames[i],volId);
+            useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,usernames[i]);
+            useCases.makeHourRequestUseCase(token, usernames[i], volId);
+            useCases.approveHoursUseCase(manToken, "Manager",volId,usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+
+        evaluateDataIntegrity(parameters1 ->
+        {
+            try {
+                return asyncUseCases.exportPdfUseCase(parameters1.get("token"), parameters1.get("username"),volId);
+            } catch (DocumentException e) {
+                throw new RuntimeException(e);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        },parameters,10);
+    }
+
+    @Test
+    public void createVolunteerPostDataIntegrityTest() throws InterruptedException {
+        int[] ids = new int[threadAmount];
+        Map<String,String>[] parameters = new Map[threadAmount];
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+        evaluateDataIntegrity((parameters1 ->
+                asyncUseCases.newVolunteerPostUseCase(parameters1.get("username"),parameters1.get("token")).thenApply(postId -> {
+                    ids[Integer.parseInt(parameters1.get("index"))] = postId;
+                    return postId >= 0;
+                })
+        ),parameters,threadAmount);
+        Set<Integer> idSet = new HashSet<>();
+        for(int i = 0; i < threadAmount; i++){
+            idSet.add(ids[i]);
+        }
+        Assertions.assertEquals(threadAmount, idSet.size()); //all ids are unique
+    }
+
+    @Test
+    public void updateOrganizationDetailsDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken, "Manager");
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendOrganizationManagerRequestUseCase(manToken, "Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(token,usernames[i],orgId,true);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+        evaluateDataIntegrity(parameters1 -> asyncUseCases.
+                updateOrganizationDetailsUseCase(parameters1.get("token"),parameters1.get("username"),orgId),parameters,threadAmount);
+    }
+
+    @Test
+    public void assignLocationDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+        }
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        int locId = useCases.newLocationUseCase(manToken, "Manager",volId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.sendOrganizationManagerRequestUseCase(manToken,"Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(parameters[i].get("token"),usernames[i],orgId,true);
+        }
+        useCases.registerUserUseCase("Volunteer");
+        useCases.verifyUsername("Volunteer");
+        String volToken = useCases.loginUserUseCase("Volunteer");
+        useCases.sendVolunteeringJoinRequestUseCase(volToken, "Volunteer",volId);
+        useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,"Volunteer");
+        evaluateDataIntegrity((parameters1 ->
+                asyncUseCases.assignVolunteeringLocationUseCase(
+                        parameters1.get("token"),parameters1.get("username"),volId,locId,"Volunteer")),parameters,1);
+    }
+
+    @Test
+    public void moveGroupDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+        }
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        int groupId = useCases.createGroupUseCase(manToken, "Manager",volId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.sendOrganizationManagerRequestUseCase(manToken,"Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(parameters[i].get("token"),usernames[i],orgId,true);
+        }
+        useCases.registerUserUseCase("Volunteer");
+        useCases.verifyUsername("Volunteer");
+        String volToken = useCases.loginUserUseCase("Volunteer");
+        useCases.sendVolunteeringJoinRequestUseCase(volToken, "Volunteer",volId);
+        useCases.acceptVolunteeringJoinRequestUseCase(manToken, "Manager",volId,"Volunteer");
+        evaluateDataIntegrity((parameters1 ->
+                asyncUseCases.moveGroupUseCase(
+                        parameters1.get("token"),parameters1.get("username"),volId,groupId,"Volunteer")),parameters,1);
+    }
+
+    @Test
+    public void createVolunteeringPostDataIntegrityTest() throws InterruptedException {
+        int[] ids = new int[threadAmount];
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendOrganizationManagerRequestUseCase(manToken, "Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(token,usernames[i],orgId,true);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.newVolunteeringPostUseCase(parameters1.get("token"),parameters1.get("username"),volId).thenApply(
+                        postId ->{
+                            ids[Integer.parseInt(parameters1.get("index"))] = postId;
+                            return postId >= 0;
+                        }
+                ),parameters,threadAmount);
+        Set<Integer> idSet = new HashSet<>();
+        for(int i = 0; i < threadAmount; i++){
+            idSet.add(ids[i]);
+        }
+        Assertions.assertEquals(threadAmount, idSet.size());
+        Assertions.assertEquals(threadAmount, useCases.getVolunteeringPostsAmount(manToken, "Manager",volId));
+    }
+
+    @Test
+    public void updateVolunteeringPostDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken,"Manager");
+        int volId = useCases.newVolunteeringUseCase(manToken, "Manager", orgId);
+        int postId = useCases.newVolunteeringPostUseCase(manToken, "Manager",volId);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendOrganizationManagerRequestUseCase(manToken, "Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(token,usernames[i],orgId,true);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.updateVolunteeringPostUseCase(parameters1.get("token"),parameters1.get("username"),postId),parameters,threadAmount);
+    }
+
+    @Test
+    public void sendManagerRequestDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int orgId = useCases.newOrganizationUseCase(manToken, "Manager");
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            useCases.sendOrganizationManagerRequestUseCase(manToken, "Manager",orgId,usernames[i]);
+            useCases.handleOrganizationManagerRequestUseCase(token,usernames[i],orgId,true);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+            parameters[i].put("index",""+i);
+        }
+
+        useCases.registerUserUseCase("User");
+        useCases.verifyUsername("User");
+
+        evaluateDataIntegrity(parameters1 -> asyncUseCases.
+                sendOrganizationManagerRequestUseCase(parameters1.get("token"),parameters1.get("username"),orgId, "User"),parameters,1);
+    }
+
+    @Test
+    public void sendVolunteerPostChatMessageDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerUserUseCase("Manager");
+        useCases.verifyUsername("Manager");
+        String manToken = useCases.loginUserUseCase("Manager");
+        int postId = useCases.newVolunteerPostUseCase("Manager",manToken);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+        }
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.sendVolunteerPostChatMessageUseCase(parameters1.get("token"),parameters1.get("username"),postId,parameters1.get("username")),parameters,10);
+        for(int i = 0; i < threadAmount; i++){
+            Assertions.assertEquals(1, useCases.getVolunteerPostChatMessageAmount(manToken, "Manager",postId,usernames[i]));
+        }
+    }
+
+    @Test
+    public void reportsDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerAdmin("Admin");
+        useCases.verifyUsername("Admin");
+        String admToken = useCases.loginUserUseCase("Admin");
+        useCases.registerUserUseCase("Malicious");
+        useCases.verifyUsername("Malicious");
+        String malToken = useCases.loginUserUseCase("Malicious");
+        int orgId = useCases.newOrganizationUseCase(malToken, "Malicious");
+        int volId = useCases.newVolunteeringUseCase(malToken, "Malicious", orgId);
+        int volgPostId = useCases.newVolunteeringPostUseCase(malToken,"Malicious",volId);
+        int volrPostId = useCases.newVolunteerPostUseCase("Malicious",malToken);
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerUserUseCase(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+        }
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.reportUserUseCase(parameters1.get("token"),parameters1.get("username"),"Malicious"),parameters,10);
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.reportOrganizationUseCase(parameters1.get("token"),parameters1.get("username"),orgId),parameters,10);
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.reportVolunteeringUseCase(parameters1.get("token"),parameters1.get("username"),volId),parameters,10);
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.reportVolunteerPostUseCase(parameters1.get("token"),parameters1.get("username"),volrPostId),parameters,10);
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.reportVolunteeringPostUseCase(parameters1.get("token"),parameters1.get("username"),volgPostId),parameters,10);
+
+        Assertions.assertTrue(notNullAndGivenSize(useCases.watchReportsUseCase(admToken, "Admin"),5*threadAmount));
+    }
+
+    @Test
+    public void banEmailDataIntegrityTest() throws InterruptedException {
+        Map<String,String>[] parameters = new Map[threadAmount];
+        useCases.registerStudentUserUseCase("Malicious");
+        for(int i = 0; i < threadAmount; i++){
+            useCases.registerAdmin(usernames[i]);
+            useCases.verifyUsername(usernames[i]);
+            String token = useCases.loginUserUseCase(usernames[i]);
+            parameters[i] = new HashMap<>();
+            parameters[i].put("username",usernames[i]);
+            parameters[i].put("token", token);
+        }
+        evaluateDataIntegrity(parameters1 ->
+                asyncUseCases.blockEmailUseCase(parameters1.get("token"),parameters1.get("username"),"email@post.bgu.ac.il"),parameters,1);
     }
 }

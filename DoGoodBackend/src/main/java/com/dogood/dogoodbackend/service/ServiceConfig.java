@@ -4,6 +4,7 @@ import com.dogood.dogoodbackend.domain.chat.DatabaseMessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
 import com.dogood.dogoodbackend.domain.reports.DBBannedRepository;
+import com.dogood.dogoodbackend.domain.reports.EmailBanner;
 import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteerPostRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
@@ -49,7 +50,8 @@ public class ServiceConfig {
                 new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)),
                 applicationContext.getBean(EmailSender.class),
                 applicationContext.getBean(VerificationCacheService.class),
-                applicationContext.getBean(PdfFactory.class));
+                applicationContext.getBean(PdfFactory.class),
+                applicationContext.getBean(EmailBanner.class));
     }
 
     /*@Bean

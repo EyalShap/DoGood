@@ -471,4 +471,19 @@ public class UseCases {
         Response<List<MessageDTO>> response = chatService.getVolunteeringChatMessages(token,username,volId);
         return  response.getError() ? -1 : response.getData().size();
     }
+
+    public int getVolunteerPostChatMessageAmount(String token, String username, int postId, String with) {
+        Response<List<MessageDTO>> response = chatService.getPostChatMessages(token,username,postId,with);
+        return  response.getError() ? -1 : response.getData().size();
+    }
+
+    public int getVolunteeringVolunteerAmount(String token, String username, int volId){
+        Response<Map<String,Integer>> response = volunteeringService.getVolunteeringVolunteers(token,username,volId);
+        return  response.getError() ? -1 : response.getData().keySet().size();
+    }
+
+    public int getVolunteeringPostsAmount(String token, String username, int volId){
+        Response<List<VolunteeringPostDTO>> response = postService.getAllVolunteeringPostsOfVolunteering(token,username,volId);
+        return  response.getError() ? -1 : response.getData().size();
+    }
 }

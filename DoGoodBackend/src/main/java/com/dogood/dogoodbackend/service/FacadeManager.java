@@ -7,6 +7,7 @@ import com.dogood.dogoodbackend.domain.externalAIAPI.KeywordExtractor;
 import com.dogood.dogoodbackend.domain.externalAIAPI.SkillsAndCategoriesExtractor;
 import com.dogood.dogoodbackend.domain.organizations.*;
 import com.dogood.dogoodbackend.domain.reports.BannedRepository;
+import com.dogood.dogoodbackend.domain.reports.EmailBanner;
 import com.dogood.dogoodbackend.domain.requests.RequestRepository;
 import com.dogood.dogoodbackend.domain.posts.PostsFacade;
 import com.dogood.dogoodbackend.domain.posts.VolunteerPostRepository;
@@ -42,7 +43,7 @@ public class FacadeManager {
     private NotificationSystem notificationSystem;
 
     public FacadeManager(UserRegisterer userRegisterer, String jwtSecretKey, VolunteeringRepository volRepo, OrganizationRepository orgRepo, VolunteeringPostRepository volunteeringPostRepo, VolunteerPostRepository volunteerPostRepo,
-                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo, EmailSender emailSender, VerificationCacheService verificationCacheService,PdfFactory pdfFactory){
+                         RequestRepository reqRepo, ReportRepository repRepo, BannedRepository bannedRepo, UserRepository userRepo, SchedulingManager schedMan, KeywordExtractor keyExt, SkillsAndCategoriesExtractor skillsCatExt, CVSkillsAndPreferencesExtractor cvExt, MessageRepository messageRepository, NotificationRepository notificationRepo, EmailSender emailSender, VerificationCacheService verificationCacheService, PdfFactory pdfFactory, EmailBanner emailBanner){
         this.authFacade = new AuthFacade(jwtSecretKey);
         this.usersFacade = new UsersFacade(userRepo, authFacade, cvExt, emailSender, verificationCacheService);
         this.usersFacade.setUserRegisterer(userRegisterer);
@@ -64,7 +65,7 @@ public class FacadeManager {
         this.chatFacade = new ChatFacade(volunteeringFacade, postsFacade, messageRepository);
         this.chatFacade.setNotificationSystem(notificationSystem);
         this.postsFacade.setNotificationSystem(notificationSystem);
-        // Initialize new services
+        this.reportsFacade.setEmailBanner(emailBanner);
     }
 
     public VolunteeringFacade getVolunteeringFacade() {
