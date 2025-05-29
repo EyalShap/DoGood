@@ -20,7 +20,7 @@ public class PdfFactory {
             throw new UnsupportedOperationException("University not supported");
         }
         PdfFormat format;
-        Files.createDirectories(Paths.get("./"+approvedHoursList.get(0).getUserId()));
+        Files.createDirectories(Paths.get("./"+username));
         if(uni == University.BGU){
             format = new BGUPdfFormat(username,signature,fontLocation);
         }else if(uni == University.TECH){

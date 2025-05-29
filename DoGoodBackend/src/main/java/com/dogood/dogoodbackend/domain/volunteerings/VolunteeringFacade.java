@@ -382,6 +382,9 @@ public class VolunteeringFacade {
         if(!isManager(userId, volunteering.getOrganizationId())){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + volunteering.getOrganizationId());
         }
+        if(name.isEmpty()){
+            throw new IllegalArgumentException("Location name cannot be empty");
+        }
         int locId = volunteering.addLocation(name, address);
         repository.updateVolunteeringInDB(volunteering);
         return locId;
@@ -814,6 +817,9 @@ public class VolunteeringFacade {
             throw new IllegalArgumentException("Volunteering with id " + volunteeringId + " does not exist");
         }
         User userData = usersFacade.getUser(userId);
+        if(!userData.isStudent()){
+            throw new UnsupportedOperationException("User " + userId + " is not a student");
+        }
         OrganizationDTO orgData = organizationFacade.getOrganization(volunteering.getOrganizationId());
         String[] nameSplit = userData.getName().split(" "); //TODO: make this better
         String email = userData.getEmails().get(0); //TODO: make this better
@@ -830,6 +836,9 @@ public class VolunteeringFacade {
     public String getAppointmentsCsv(String userId, int numOfWeeks) throws IOException {
         if(!userExists(userId)){
             throw new IllegalArgumentException("User " + userId + " does not exist");
+        }
+        if(numOfWeeks < 0){
+            throw new IllegalArgumentException("Number of weeks cannot be negative");
         }
         User userData = usersFacade.getUser(userId);
         String csv = "Subject,Start Date,Start Time,End Time\n";

@@ -79,7 +79,7 @@ public class ScheduleAppointmentDTO {
         for(int i = 0; i < weekDays.length; i++){
             if(weekDays[i]){
                 for(int j = 0; j < numOfWeeks; j++){
-                    csv += volunteeringName + "," + dateTimeFormatter.format(now.with(TemporalAdjusters.next(DayOfWeek.of(i%7))).plusWeeks(j)) + "," + timeFormatter.format(startTime) + "," + timeFormatter.format(endTime) + "\n";
+                    csv += volunteeringName + "," + dateTimeFormatter.format(now.with(TemporalAdjusters.next(DayOfWeek.of(i == 0 ? 7 : i))).plusWeeks(j)) + "," + timeFormatter.format(startTime) + "," + timeFormatter.format(endTime) + "\n";
                 }
             }
         }
