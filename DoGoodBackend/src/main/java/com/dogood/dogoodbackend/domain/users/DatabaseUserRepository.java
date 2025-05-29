@@ -54,6 +54,11 @@ public class DatabaseUserRepository implements UserRepository {
     }
 
     @Override
+    public User getUserForCheck(String username) {
+        return jpa.findById(username).orElse(null);
+    }
+
+    @Override
     public User getUser(String username) {
         User user = jpa.findById(username).orElse(null);
         if (user == null) {

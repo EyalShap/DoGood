@@ -4,11 +4,13 @@ import com.dogood.dogoodbackend.domain.chat.DatabaseMessageRepository;
 import com.dogood.dogoodbackend.domain.externalAIAPI.*;
 import com.dogood.dogoodbackend.domain.organizations.DBOrganizationRepository;
 import com.dogood.dogoodbackend.domain.reports.DBBannedRepository;
+import com.dogood.dogoodbackend.domain.reports.EmailBanner;
 import com.dogood.dogoodbackend.domain.requests.DBRequestRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteerPostRepository;
 import com.dogood.dogoodbackend.domain.posts.DBVolunteeringPostRepository;
 import com.dogood.dogoodbackend.domain.reports.DBReportRepository;
 import com.dogood.dogoodbackend.domain.users.DatabaseUserRepository;
+import com.dogood.dogoodbackend.domain.users.UserRegisterer;
 import com.dogood.dogoodbackend.domain.users.notificiations.DatabaseNotificationRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.DatabaseVolunteeringRepository;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.DatabaseSchedulingManager;
@@ -29,7 +31,7 @@ public class ServiceConfig {
     @Bean
     public FacadeManager facadeManager(ApplicationContext applicationContext){
         //this is singleton
-        return new FacadeManager(applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
+        return new FacadeManager(applicationContext.getBean(UserRegisterer.class),applicationContext.getEnvironment().getProperty("security.jwt.secret-key"),
                 new DatabaseVolunteeringRepository(applicationContext.getBean(VolunteeringJPA.class)),
                 new DBOrganizationRepository(applicationContext.getBean(OrganizationJPA.class)),
                 new DBVolunteeringPostRepository(applicationContext.getBean(VolunteeringPostJPA.class)),
@@ -48,7 +50,8 @@ public class ServiceConfig {
                 new DatabaseNotificationRepository(applicationContext.getBean(NotificationJPA.class)),
                 applicationContext.getBean(EmailSender.class),
                 applicationContext.getBean(VerificationCacheService.class),
-                applicationContext.getBean(PdfFactory.class));
+                applicationContext.getBean(PdfFactory.class),
+                applicationContext.getBean(EmailBanner.class));
     }
 
     /*@Bean

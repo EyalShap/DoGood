@@ -150,7 +150,7 @@ public class OrganizationsFacade {
         if(!userExists(newManager)){
             throw new IllegalArgumentException("User " + newManager + " doesn't exist");
         }
-        Organization organization = organizationRepository.getOrganizationForRead(organizationId);
+        Organization organization = organizationRepository.getOrganizationForWrite(organizationId);
         if(!organization.isManager(actor)) {
             throw new IllegalArgumentException(OrganizationErrors.makeNonManagerCanNotPreformActionError(actor, organization.getName(), "send assign manager request"));
         }

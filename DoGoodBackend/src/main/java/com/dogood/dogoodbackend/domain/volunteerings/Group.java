@@ -97,6 +97,9 @@ public class Group {
         if(!users.contains(userId)){
             throw new IllegalArgumentException("User not in group");
         }
+        if(volunteersToLocation.containsKey(userId) && volunteersToLocation.get(userId) == locId){
+            throw new IllegalArgumentException("User already assigned to location " +locId);
+        }
         volunteersToLocation.put(userId, locId);
     }
 

@@ -9,6 +9,8 @@ import jakarta.transaction.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Transactional
 public class ReportsFacade {
@@ -18,6 +20,7 @@ public class ReportsFacade {
     private PostsFacade postsFacade;
     private VolunteeringFacade volunteeringFacade;
     private OrganizationsFacade organizationsFacade;
+    private EmailBanner emailBanner;
 
     public ReportsFacade(UsersFacade usersFacade, ReportRepository reportRepository, BannedRepository bannedRepository, PostsFacade postsFacade, VolunteeringFacade volunteeringFacade, OrganizationsFacade organizationsFacade) {
         this.usersFacade = usersFacade;
@@ -26,6 +29,10 @@ public class ReportsFacade {
         this.postsFacade = postsFacade;
         this.volunteeringFacade = volunteeringFacade;
         this.organizationsFacade = organizationsFacade;
+    }
+
+    public void setEmailBanner(EmailBanner emailBanner) {
+        this.emailBanner = emailBanner;
     }
 
     private ReportDTO createReport(String actor, String description, String reportedId, ReportObject reportObject) {
@@ -239,7 +246,16 @@ public class ReportsFacade {
         if(!isAdmin(actor)) {
             throw new IllegalArgumentException(ReportErrors.makeUserUnauthorizedToMakeActionError(actor, "ban a user"));
         }
-        bannedRepository.ban(email);
+        synchronized (email.intern()) {
+            if(emailBanner == null){
+                if (isBannedEmail(email)) {
+                    throw new IllegalArgumentException("Email already banned");
+                }
+                bannedRepository.ban(email);
+            }else{
+                emailBanner.banEmail(bannedRepository,email);
+            }
+        }
     }
 
     public void unbanEmail(String email, String actor) {

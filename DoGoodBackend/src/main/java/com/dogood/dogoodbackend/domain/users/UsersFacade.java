@@ -15,12 +15,15 @@ import com.dogood.dogoodbackend.emailverification.VerificationData;
 import com.dogood.dogoodbackend.api.userrequests.RegisterRequest; // Import RegisterRequest DTO
 
 import jakarta.transaction.Transactional;
+import org.springframework.context.ApplicationContext;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.security.SecureRandom;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
 
 @Transactional
@@ -31,10 +34,12 @@ public class UsersFacade {
     private ReportsFacade reportsFacade;
     private NotificationSystem notificationSystem;
     private CVSkillsAndPreferencesExtractor extractor;
+    private UserRegisterer userRegisterer;
 
     private final Random random = new SecureRandom();
     private final EmailSender emailSender; // This IS final and needs to be initialized
     private final VerificationCacheService verificationCache; // Ensure type is correct
+    private final ConcurrentMap<String, Object> usernameLocks = new ConcurrentHashMap<>();
 
     public UsersFacade(UserRepository repository, AuthFacade authFacade, CVSkillsAndPreferencesExtractor extractor) {
         this.repository = repository;
@@ -49,6 +54,10 @@ public class UsersFacade {
         this.extractor = extractor;
         this.emailSender = emailSender; // NOW CORRECTLY ASSIGNED
         this.verificationCache = verificationCache; // NOW CORRECTLY ASSIGNED
+    }
+
+    public void setUserRegisterer(UserRegisterer userRegisterer) {
+        this.userRegisterer = userRegisterer;
     }
 
     public void setVolunteeringFacade(VolunteeringFacade volunteeringFacade) {
@@ -97,21 +106,21 @@ public class UsersFacade {
     }
 
     public void register(String username, String password, String name, String email, String phone, Date birthDate, String profilePicUrl) {
-        User newUser = null;
-        try {
-            User user = getUser(username);
-            // if user with the same username exists, cannot register it again
-            throw new IllegalArgumentException("Register failed - username " + username + " already exists.");
-        } catch (IllegalArgumentException e) {
+        if(reportsFacade.isBannedEmail(email)) {
+            throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
+        }
 
-            if(reportsFacade.isBannedEmail(email)) {
-                throw new IllegalArgumentException(String.format("The email %s is banned from the system.", email));
+        User newUser = null;
+        synchronized (usernameLocks.computeIfAbsent(username, uname -> new Object())) {
+            if (userRegisterer == null) {
+                User user = repository.getUserForCheck(username);
+                if (user != null) {
+                    throw new IllegalArgumentException("The username " + username + " is already in use.");
+                }
+                newUser = repository.createUser(username, email, name, password, phone, birthDate, profilePicUrl);
+            } else {
+                newUser = userRegisterer.registerUser(repository, username, password, name, email, phone, birthDate, profilePicUrl);
             }
-            // If the exception is for "username already exists" (thrown above), rethrow it.
-            if (e.getMessage().equals("Register failed - username " + username + " already exists.")) {
-                throw e;
-            }
-            newUser = repository.createUser(username, email, name, password, phone, birthDate,profilePicUrl);
         }
         // VERIFICATION START
         if (newUser != null) { // User was successfully created in the catch block
@@ -531,10 +540,11 @@ public class UsersFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User not found");
         }
-
-        for(String email : emails) {
-            if(reportsFacade.isBannedEmail(email)) {
-                throw new IllegalArgumentException(email + " is banned from the system.");
+        if(emails != null) {
+            for (String email : emails) {
+                if (reportsFacade.isBannedEmail(email)) {
+                    throw new IllegalArgumentException(email + " is banned from the system.");
+                }
             }
         }
 

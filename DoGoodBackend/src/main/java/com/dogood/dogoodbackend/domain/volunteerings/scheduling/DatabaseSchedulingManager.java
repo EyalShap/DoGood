@@ -117,7 +117,7 @@ public class DatabaseSchedulingManager implements SchedulingManager{
                 requestToApprove = request;
             }
         }
-        if(requestToApprove == null){
+        if(requestToApprove == null || requestToApprove.isApproved()){
             throw new UnsupportedOperationException("There is no hour approval request for user " + username + " in volunteering " + volunteeringId + " from " + start + " to " + end);
         }
         requestToApprove.approve();
