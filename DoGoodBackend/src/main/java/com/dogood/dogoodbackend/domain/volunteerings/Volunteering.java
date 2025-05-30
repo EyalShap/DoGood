@@ -345,6 +345,12 @@ public class Volunteering {
         if(minimumAppointmentMinutes > 0 && maximumAppointmentMinutes > 0 && minimumAppointmentMinutes > maximumAppointmentMinutes){
             throw new IllegalArgumentException("Illegal appointment minutes range");
         }
+        if(!groups.containsKey(groupId)){
+            throw new UnsupportedOperationException("There is no group with id "+groupId);
+        }
+        if(!locations.containsKey(locId)){
+            throw new UnsupportedOperationException("There is no location with id "+locId);
+        }
         Group g = groups.get(groupId);
         ScheduleRange range = new ScheduleRange(availableRangeId++, id, startTime, endTime, minimumAppointmentMinutes, maximumAppointmentMinutes, weekDays, oneTime);
         List<Integer> currentRanges = g.getRangesForLocation(locId);

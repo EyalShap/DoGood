@@ -155,6 +155,12 @@ public class ScheduleRange {
     }
 
     public void addRestriction(RestrictionTuple restriction) {
+        if(restriction.getAmount() < 0){
+            throw new IllegalArgumentException("Restriction amount cannot be negative");
+        }
+        if(!restriction.getStartTime().isBefore(restriction.getEndTime())){
+            throw new IllegalArgumentException("Restriction start time must be before restriction end time");
+        }
         if(restriction.getStartTime().isBefore(startTime) || restriction.getEndTime().isAfter(endTime)){
             throw new IllegalArgumentException("Restriction times are outside range times");
         }
