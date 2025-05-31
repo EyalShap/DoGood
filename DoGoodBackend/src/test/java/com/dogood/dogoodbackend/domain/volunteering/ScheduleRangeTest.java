@@ -5,11 +5,18 @@ import com.dogood.dogoodbackend.domain.volunteerings.scheduling.RestrictionTuple
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class ScheduleRangeTest {
 
     private ScheduleRange scheduleRange;
@@ -48,6 +55,14 @@ class ScheduleRangeTest {
         RestrictionTuple restriction = new RestrictionTuple(LocalTime.of(8, 0), LocalTime.of(9, 0), 1);
         IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> scheduleRange.addRestriction(restriction));
         assertEquals("Restriction times are outside range times", thrown.getMessage());
+    }
+
+    @Test
+    void whenAddRestriction_givenIntersects_thenException() {
+        RestrictionTuple restriction = new RestrictionTuple(LocalTime.of(10, 0), LocalTime.of(11, 0), 1);
+        scheduleRange.addRestriction(restriction);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class, () -> scheduleRange.addRestriction(restriction));
+        assertEquals("Cannot add restriction that intersects an existing one", thrown.getMessage());
     }
 
     @Test

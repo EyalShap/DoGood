@@ -544,7 +544,7 @@ public class VolunteeringAcceptanceTests {
         LocalTime now = LocalTime.now();
         Response<String> makeAppointment =
                 volunteeringService.makeAppointment(aliceToken
-                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 23 ? now.getHour() + 2 : 23,now.getHour() < 23 ? 0 : 59, null, LocalDate.now());
+                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 22 ? now.getHour() + 2 : 23,now.getHour() < 22 ? 0 : 59, null, LocalDate.now());
         Assertions.assertFalse(makeAppointment.getError());
         Response<String> makeVolunteeringCode = volunteeringService.makeVolunteeringCode(organizationManagerToken,organizationMangerId,volunteeringId,false);
         Assertions.assertFalse(makeVolunteeringCode.getError());
@@ -583,7 +583,7 @@ public class VolunteeringAcceptanceTests {
         LocalTime now = LocalTime.now();
         Response<String> makeAppointment =
                 volunteeringService.makeAppointment(aliceToken
-                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 23 ? now.getHour() + 2 : 23,now.getHour() < 23 ? 0 : 59, null, LocalDate.now());
+                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 22 ? now.getHour() + 2 : 23,now.getHour() < 22 ? 0 : 59, null, LocalDate.now());
         Assertions.assertFalse(makeAppointment.getError());
         Response<String> makeVolunteeringCode = volunteeringService.makeVolunteeringCode(organizationManagerToken,organizationMangerId,volunteeringId,false);
         Assertions.assertFalse(makeVolunteeringCode.getError());
@@ -663,7 +663,7 @@ public class VolunteeringAcceptanceTests {
         LocalTime now = LocalTime.now();
         Response<String> makeAppointment =
                 volunteeringService.makeAppointment(aliceToken
-                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 23 ? now.getHour() + 2 : 23,now.getHour() < 23 ? 0 : 59, null, LocalDate.now());
+                        ,aliceId,volunteeringId,0,locationId,rangeId,now.getHour(),0,now.getHour() < 22 ? now.getHour() + 2 : 23,now.getHour() < 22 ? 0 : 59, null, LocalDate.now());
         Assertions.assertFalse(makeAppointment.getError());
         Response<String> makeVolunteeringCode = volunteeringService.makeVolunteeringCode(organizationManagerToken,organizationMangerId,volunteeringId,false);
         Assertions.assertFalse(makeVolunteeringCode.getError());

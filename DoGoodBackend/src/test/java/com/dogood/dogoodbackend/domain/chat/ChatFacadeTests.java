@@ -71,12 +71,29 @@ public class ChatFacadeTests {
     }
 
     @Test
+    public void givenMessageDoesntExist_whenDeleteMessage_thenThrowException(){
+        int id = chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
+        Assertions.assertThrows(IllegalArgumentException.class, ()->chatFacade.deleteMessage("Eyal", -1));
+        Message m = jpa.findById(id).orElse(null);
+        Assertions.assertNotNull(m);
+    }
+
+    @Test
     public void givenMessageSender_whenEditMessage_thenEditMessage(){
         int id = chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
         chatFacade.editMessage("Eyal", id, "Hola");
         Message m = jpa.findById(id).orElse(null);
         Assertions.assertNotNull(m);
         Assertions.assertEquals("Hola", m.getContent());
+    }
+
+    @Test
+    public void givenMessageDoesntExist_whenEditMessage_thenThrowException(){
+        int id = chatFacade.sendPrivateMessage("Eyal","Hello!", "Dana");
+        Assertions.assertThrows(IllegalArgumentException.class, ()->chatFacade.editMessage("Eyal", -1, "Hola"));
+        Message m = jpa.findById(id).orElse(null);
+        Assertions.assertNotNull(m);
+        Assertions.assertEquals("Hello!", m.getContent());
     }
 
     @Test
