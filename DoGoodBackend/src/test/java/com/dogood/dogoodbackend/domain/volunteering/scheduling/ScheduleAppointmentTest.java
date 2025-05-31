@@ -3,19 +3,27 @@ package com.dogood.dogoodbackend.domain.volunteering.scheduling;
 import com.dogood.dogoodbackend.domain.volunteerings.scheduling.ScheduleAppointment;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ScheduleAppointmentTest {
 
     private ScheduleAppointment appointment;
-
+    private boolean[] weekDays;
     @BeforeEach
     void setUp() {
-        appointment = new ScheduleAppointment("user1", 100, 1, LocalTime.of(9, 0), LocalTime.of(12, 0), null, new boolean[]{true, false, false, false, false, false, false});
+        this.weekDays = new boolean[]{true, false, false, false, false, false, false};
+        appointment = new ScheduleAppointment("user1", 100, 1, LocalTime.of(9, 0), LocalTime.of(12, 0), null,weekDays );
     }
 
     @Test
@@ -69,7 +77,15 @@ public class ScheduleAppointmentTest {
 
     @Test
     void whenGetDefiniteRange_givenNonMatchingDate_thenException() {
-        LocalDate day = LocalDate.now().plusDays(1);
+        int dayOfAppointment = -1;
+        for(int i = 0; i < 7; i++){
+            if(weekDays[i]){
+                dayOfAppointment = i;
+                break;
+            }
+        }
+        LocalDate now = LocalDate.now();
+        LocalDate day = now.plusDays(now.getDayOfWeek().getValue()%7 == dayOfAppointment ? 1 : 0);
         assertThrows(UnsupportedOperationException.class, () -> appointment.getDefiniteRange(day));
     }
 

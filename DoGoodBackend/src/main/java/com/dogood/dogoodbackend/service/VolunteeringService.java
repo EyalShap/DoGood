@@ -80,7 +80,6 @@ public class VolunteeringService {
         this.facadeManager.getPostsFacade().createVolunteeringPost("We are training puppies!", "Come join us to help train the puppies", "DanaManager", volId);*/
         ////this.facadeManager.getVolunteeringFacade().updateVolunteeringSkills("DanaManager", volId, List.of("Training", "Animal Care"));
         ////this.facadeManager.getVolunteeringFacade().updateVolunteeringCategories("DanaManager", volId, List.of("Animals", "Sports", "Puppies"));
-        facadeManager.getUsersFacade().registerAdmin("EyalAdmin","123456","Eyal Admin", "eyalm1000@gmail.com","052-0520520",new Date());
     }
 
     private void checkToken(String token, String username) {

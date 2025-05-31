@@ -54,6 +54,11 @@ public class ServiceConfig {
                 applicationContext.getBean(EmailBanner.class));
     }
 
+    @Bean(initMethod = "setUp")
+    public Setup setup(){
+        return new Setup();
+    }
+
     /*@Bean
     public FacadeManager facadeManager(ApplicationContext applicationContext){
         //this will memory for now but will actually db later

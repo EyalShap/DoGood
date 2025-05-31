@@ -6,11 +6,17 @@ import com.dogood.dogoodbackend.domain.volunteerings.Volunteering;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestInstance;
 import org.mockito.Mockito;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+@SpringBootTest
+@ActiveProfiles("test")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class VolunteeringUnitTests {
     private Volunteering volunteering;
     private BarcodeHandler barcodeHandler;
@@ -58,6 +64,12 @@ public class VolunteeringUnitTests {
         volunteering.approveJoinRequest("Jim", gid);
         Assertions.assertThrows(UnsupportedOperationException.class, () -> volunteering.removeGroup(gid));
         Assertions.assertEquals(2, volunteering.getGroups().size());
+    }
+
+    @Test
+    public void whenRemoveGroup_givenNoOtherGroups_throwException() {
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> volunteering.removeGroup(0));
+        Assertions.assertEquals(1, volunteering.getGroups().size());
     }
 
     @Test
