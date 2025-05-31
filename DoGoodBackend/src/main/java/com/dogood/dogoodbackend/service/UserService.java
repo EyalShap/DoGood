@@ -81,6 +81,17 @@ public class UserService {
             return Response.createResponse(e.getMessage());
         }
     }
+
+    // Registers with automatic verification, for tests and such ? (no profile pic in arguments)
+    private Response<String> register(String username, String password, String name, String email, String phone, Date birthDate) {
+        try{
+            usersFacade.register(username, password, name, email, phone, birthDate);
+            return Response.createOK();
+        } catch (Exception e){
+            return Response.createResponse(e.getMessage());
+        }
+    }
+
     // VERIFICATION START
     public Response<String> verifyEmail(VerifyEmailRequest request) {
         try {
@@ -248,7 +259,10 @@ public class UserService {
     public Response<String> updateUserFields(String token, String username, String password, List<String> emails, String name, String phone){
         try{
             checkToken(token, username);
-            usersFacade.updateUserFields(username, password, emails, name, phone);
+            if (emails == null) {
+                throw new IllegalArgumentException("Emails list cannot be null."); // throw better explained error message
+            }
+            usersFacade.updateUserFields(username, password, new LinkedList<>(emails), name, phone);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
@@ -258,6 +272,9 @@ public class UserService {
     public Response<String> updateUserSkills(String token, String username, List<String> skills){
         try{
             checkToken(token, username);
+            if (skills == null) {
+                throw new IllegalArgumentException("Skills list cannot be null."); // throw better explained error message
+            }
             usersFacade.updateUserSkills(username, new LinkedList<>(skills));
             return Response.createOK();
         }catch (Exception e){
@@ -268,6 +285,9 @@ public class UserService {
     public Response<String> updateUserPreferences(String token, String username, List<String> categories){
         try{
             checkToken(token, username);
+            if (categories == null) {
+                throw new IllegalArgumentException("Categories list cannot be null."); // throw better explained error message
+            }
             usersFacade.updateUserPreferences(username, new LinkedList<>(categories));
             return Response.createOK();
         }catch (Exception e){

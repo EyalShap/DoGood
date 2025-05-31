@@ -6,6 +6,9 @@ import jakarta.persistence.*;
 
 import java.util.*;
 
+import static com.dogood.dogoodbackend.utils.ValidateFields.isValidEmail;
+import static com.dogood.dogoodbackend.utils.ValidateFields.isValidPhoneNumber;
+
 @Entity
 public class User {
     @Id
@@ -116,6 +119,14 @@ public class User {
         if (!isValidPassword(password)) {
             throw new IllegalArgumentException(("Given password isn't valid, it has to be at least 6 characters long."));
         }
+        for (String email : emails) {
+            if (!isValidEmail(email)) {
+                throw new IllegalArgumentException(String.format("Invalid email given: %s.", email));
+            }
+        }
+        if (!isValidPhoneNumber(phone)) {
+            throw new IllegalArgumentException(String.format("Invalid phone given: %s.", phone));
+        }
         this.username = username;
         this.emails = new ArrayList<>(emails);
         this.name = name;
@@ -182,12 +193,31 @@ public class User {
     }
 
     public void updateFields(List<String> emails, String name, String phoneNumber) {
+        for (String email : emails) {
+            if (!isValidEmail(email)) {
+                throw new IllegalArgumentException(String.format("Invalid email given: %s.", email));
+            }
+        }
+        if (!isValidPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException(String.format("Invalid phone given: %s.", phoneNumber));
+        }
         this.emails = emails;
         this.name = name;
         this.phone = phoneNumber;
     }
 
     public void updateFields(List<String> emails, String name, String password, String phoneNumber) {
+        for (String email : emails) {
+            if (!isValidEmail(email)) {
+                throw new IllegalArgumentException(String.format("Invalid email given: %s.", email));
+            }
+        }
+        if (!isValidPhoneNumber(phoneNumber)) {
+            throw new IllegalArgumentException(String.format("Invalid phone given: %s.", phoneNumber));
+        }
+        if (!isValidPassword(password)) {
+            throw new IllegalArgumentException(("Given password isn't valid, it has to be at least 6 characters long."));
+        }
         this.emails = emails;
         this.name = name;
         this.passwordHash = Cryptography.hashString(password);
@@ -195,6 +225,9 @@ public class User {
     }
 
     public void updatePassword(String newPassword) {
+        if (!isValidPassword(newPassword)) {
+            throw new IllegalArgumentException(("Given password isn't valid, it has to be at least 6 characters long."));
+        }
         this.passwordHash = Cryptography.hashString(newPassword);
     }
 

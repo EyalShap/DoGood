@@ -758,6 +758,9 @@ public class UsersFacade {
 
     public void generateSkillsAndPreferences(String username) {
         User user = repository.getUser(username);
+        if (user.getCv() == null) {
+            throw new IllegalArgumentException("Cannot extract skills and preferences with no CV file uploaded.");
+        }
         SkillsAndPreferences skillsAndPreferences = extractor.getSkillsAndPreferences(user.getCv(), new HashSet<>(user.getSkills()), new HashSet<>(user.getPreferredCategories()));
 
         Set<String> aiSkills = new HashSet<>(skillsAndPreferences.getSkills());
