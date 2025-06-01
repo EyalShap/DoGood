@@ -259,10 +259,7 @@ public class UserService {
     public Response<String> updateUserFields(String token, String username, String password, List<String> emails, String name, String phone){
         try{
             checkToken(token, username);
-            if (emails == null) {
-                throw new IllegalArgumentException("Emails list cannot be null."); // throw better explained error message
-            }
-            usersFacade.updateUserFields(username, password, new LinkedList<>(emails), name, phone);
+            usersFacade.updateUserFields(username, password, emails == null ? null : new LinkedList<>(emails), name, phone);
             return Response.createOK();
         }catch (Exception e){
             return Response.createResponse(e.getMessage());
