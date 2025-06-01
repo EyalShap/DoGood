@@ -88,6 +88,12 @@ public class VolunteeringFacade {
         if(!isManager(userId, organizationId)){
             throw new IllegalArgumentException("User " + userId + " is not a manager in organization " + organizationId);
         }
+        if (name == null) {
+            throw new IllegalArgumentException("Volunteering name cannot be null.");
+        }
+        if (description == null) {
+            throw new IllegalArgumentException("Volunteering description cannot be null.");
+        }
         Volunteering newVol = repository.addVolunteering(organizationId, name, description);
         return newVol.getId();
     }
