@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Id;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ReportDTO {
     private String reportingUser;
@@ -70,5 +71,17 @@ public class ReportDTO {
 
     public void setReportObject(ReportObject reportObject) {
         this.reportObject = reportObject;
+    }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReportDTO report = (ReportDTO) o;
+        return Objects.equals(reportingUser, report.reportingUser) && Objects.equals(description, report.description) && Objects.equals(date, report.date) && Objects.equals(reportedId, report.reportedId) && reportObject == report.reportObject;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reportingUser, description, date, reportedId, reportObject);
     }
 }
