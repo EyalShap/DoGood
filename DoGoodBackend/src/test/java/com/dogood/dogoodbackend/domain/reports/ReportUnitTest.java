@@ -1,6 +1,6 @@
 package com.dogood.dogoodbackend.domain.reports;
 
-import net.bytebuddy.implementation.bind.annotation.Empty;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -12,36 +12,33 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class ReportUnitTest {
-    private Report report;
-    private final int id = 0;
+//    private Report report;
+//    private final String id = "0";
     private final String reportingUser = "NotTheDoctor";
-    private final int reportedPostId = 0;
+    private final String reportedId = "0";
     private final String description = "Offensive";
 
     @BeforeEach
     void setUp() {
-        //this.report = new VolunteeringPostReport(id, reportingUser, description, reportedPostId);
+//        this.report = new Report(reportingUser, description, reportedId, ReportObject.USER);
     }
 
+    // Note: don't need to test edit/get
+
     @Test
-    void givenValidFields_whenEdit_thenEdit() {
+    void givenValidFields_whenConstructor_thenSuccess() {
         String newDescription = "A new description";
-        this.report.edit(newDescription);
-        //Report edited = new VolunteeringPostReport(id, reportingUser, newDescription, reportedPostId);
-        //assertEquals(edited, this.report);
+        Assertions.assertDoesNotThrow(() -> new Report(reportingUser, newDescription, reportedId, ReportObject.USER));
     }
 
     @ParameterizedTest
     @NullSource
     @EmptySource
     @ValueSource(strings = {"d", "ddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddescription"})
-    void givenInvalidFields_whenEdit_thenThrowException(String invalidDescription) {
+    void givenInvalidFields_whenConstructor_thenThrowException(String invalidDescription) {
         Exception exception = assertThrows(IllegalArgumentException.class, () -> {
-            this.report.edit(invalidDescription);
+            new Report(reportingUser, invalidDescription, reportedId, ReportObject.USER);
         });
         assertEquals(String.format("Invalid report description: %s.", invalidDescription), exception.getMessage());
-
-        //Report notEdited = new VolunteeringPostReport(id, reportingUser, description, reportedPostId);
-        //assertEquals(notEdited, this.report);
     }
 }
