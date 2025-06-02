@@ -4,7 +4,7 @@ import com.dogood.dogoodbackend.domain.reports.ReportKey;
 
 public class ReportErrors {
     public static String makeReportAlreadyExistsError(ReportKey key) {
-        return String.format("A report on %s by %s on %s already exists.", key.getReportedId(), key.getReportingUser(), key.getDate().toString());
+        return String.format("A report on %s %s by %s on %s already exists.", key.getReportObject().toString(), key.getReportedId(), key.getReportingUser(), key.getDate().toString());
     }
 
     public static String makeReportContentAlreadyExistsError() {

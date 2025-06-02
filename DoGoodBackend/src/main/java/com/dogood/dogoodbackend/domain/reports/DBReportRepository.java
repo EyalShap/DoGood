@@ -22,9 +22,19 @@ public class DBReportRepository implements ReportRepository{
         this.jpa = jpa;
     }
 
+    private boolean reportExists(ReportKey reportKey) {
+        return jpa.existsById(reportKey);
+    }
+
     @Override
     public Report createReport(String reportingUser, String reportedId, String description, ReportObject reportObject) {
         Report report = new Report(reportingUser, description, reportedId, reportObject);
+        ReportKey reportKey = new ReportKey(reportingUser, report.getDate(), reportedId, reportObject);
+
+        if(reportExists(reportKey)) {
+            throw new IllegalArgumentException(ReportErrors.makeReportAlreadyExistsError(reportKey));
+        }
+
         jpa.save(report);
         return report;
     }
