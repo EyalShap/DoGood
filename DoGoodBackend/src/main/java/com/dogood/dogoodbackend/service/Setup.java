@@ -31,7 +31,7 @@ public class Setup {
         if(!DO_SETUP){
             return;
         }
-        facadeManager.getUsersFacade().register("EyalManager","123456","Eyal Manager","eyalm1000@gmail.com","052-0520520",new Date());
+        facadeManager.getUsersFacade().register("EyalShap","123456","Eyal Manager","eyalm1000@gmail.com","052-0520520",new Date());
         facadeManager.getUsersFacade().register("DanaManager","123456","Dana Manager","dafr@gmail.com","052-0520520",new Date());
         facadeManager.getUsersFacade().register("EyalBGU","123456","אייל שפירו","eyald@post.bgu.ac.il","052-8585519",new Date());
         facadeManager.getUsersFacade().register("EyalTechnion","123456","אייל שפירו","eyald@campus.technion.ac.il","052-8585519",new Date());
@@ -66,7 +66,7 @@ public class Setup {
         LocalDate now = LocalDate.now();
         LocalTime start = LocalTime.of(12,0);
         LocalTime end = LocalTime.of(14,0);
-        for(int i = 0; i < 30; i++){
+        for(int i = 0; i < 10; i++){
             LocalDate day = now.minusWeeks(i);
             Date startDate = Date.from(day.atTime(start).atZone(ZoneId.systemDefault()).toInstant());
             Date endDate = Date.from(day.atTime(end).atZone(ZoneId.systemDefault()).toInstant());
@@ -77,6 +77,60 @@ public class Setup {
             volunteeringService.approveUserHours(danaToken,"DanaManager", volId1,"EyalBGU",startDate,endDate);
             volunteeringService.approveUserHours(danaToken,"DanaManager", volId1,"EyalTechnion",startDate,endDate);
             volunteeringService.approveUserHours(danaToken,"DanaManager", volId1,"EyalHaifa",startDate,endDate);
+            volunteeringService.updateRequestDescription(bguToken, "EyalBGU", volId1, startDate, "עזרה לחתולים");
+            volunteeringService.updateRequestDescription(technionToken, "EyalTechnion", volId1, startDate, "עזרה לחתולים");
+            volunteeringService.updateRequestDescription(haifaToken, "EyalHaifa", volId1, startDate, "עזרה לחתולים");
         }
+        facadeManager.getUsersFacade().register("NoaGreen", "123456", "Noa Green", "noa.green@gmail.com", "052-1111111", new Date());
+        facadeManager.getUsersFacade().register("IdanV", "123456", "Idan Vaknin", "idan.v@gmail.com", "052-2222222", new Date());
+        facadeManager.getUsersFacade().register("TamarB", "123456", "Tamar Ben-David", "tamar.b@gmail.com", "052-3333333", new Date());
+        facadeManager.getUsersFacade().register("LiorK", "123456", "Lior Katz", "lior.k@gmail.com", "052-4444444", new Date());
+
+// Login
+        Response<String> noaLogin = userService.login("NoaGreen", "123456");
+        Response<String> idanLogin = userService.login("IdanV", "123456");
+        Response<String> tamarLogin = userService.login("TamarB", "123456");
+        Response<String> liorLogin = userService.login("LiorK", "123456");
+
+        String noaToken = noaLogin.getData();
+        String idanToken = idanLogin.getData();
+        String tamarToken = tamarLogin.getData();
+        String liorToken = liorLogin.getData();
+
+// Noa creates one organization (Green Earth) and volunteerings
+        Response<Integer> noaOrg = organizationService.createOrganization(noaToken, "Green Earth", "Environmental cleanup and awareness", "052-1111111", "noa.green@gmail.com", "NoaGreen");
+        int greenEarthId = noaOrg.getData();
+
+        Response<Integer> cleanupVol = organizationService.createVolunteering(noaToken, greenEarthId, "Beach Cleanup", "Join us to clean Israel's beaches and protect wildlife", "NoaGreen");
+        Response<Integer> treeVol = organizationService.createVolunteering(noaToken, greenEarthId, "Tree Planting", "Plant trees in cities and parks for a greener tomorrow", "NoaGreen");
+
+        int cleanupId = cleanupVol.getData();
+        int treeId = treeVol.getData();
+
+// Create posts under Green Earth
+        postService.createVolunteeringPost(noaToken, "Clean the shores of Tel Aviv!", "Bring gloves and bags. We’re restoring the coastline.", "NoaGreen", cleanupId);
+        postService.createVolunteeringPost(noaToken, "Cleanup in Herzliya Beach", "Trash levels are high – we need volunteers this weekend!", "NoaGreen", cleanupId);
+        postService.createVolunteeringPost(noaToken, "Tree Planting in Ramat Gan", "Let’s make the city greener together with community effort.", "NoaGreen", treeId);
+        postService.createVolunteeringPost(noaToken, "Saplings for Schools!", "Help us plant trees around public schools.", "NoaGreen", treeId);
+
+// Simulate volunteers joining
+        postService.joinVolunteeringRequest(idanToken, cleanupId, "IdanV", "");
+        postService.joinVolunteeringRequest(tamarToken, cleanupId, "TamarB", "");
+        postService.joinVolunteeringRequest(liorToken, treeId, "LiorK", "");
+
+// Noa creates another org (Youth Empowerment)
+        Response<Integer> noaYouthOrg = organizationService.createOrganization(noaToken, "Youth Empowerment", "Helping youth with education and life skills", "052-1111111", "noa.green@gmail.com", "NoaGreen");
+        int youthEmpId = noaYouthOrg.getData();
+
+        Response<Integer> tutorVol = organizationService.createVolunteering(noaToken, youthEmpId, "Tutoring Sessions", "Help teens succeed in school", "NoaGreen");
+        Response<Integer> lifeSkillsVol = organizationService.createVolunteering(noaToken, youthEmpId, "Life Skills Workshops", "Teach CV writing, interviews, and more", "NoaGreen");
+
+        int tutorId = tutorVol.getData();
+        int skillsId = lifeSkillsVol.getData();
+
+        postService.createVolunteeringPost(noaToken, "Math tutors needed", "One hour a week could change a teen’s life. Great for students!", "NoaGreen", tutorId);
+        postService.createVolunteeringPost(noaToken, "Workshop: CV writing for teens", "Join our team to guide youth into the workforce.", "NoaGreen", skillsId);
+        postService.createVolunteeringPost(noaToken, "English tutoring help", "Help students improve their spoken and written English.", "NoaGreen", tutorId);
+
     }
 }
