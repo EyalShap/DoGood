@@ -54,4 +54,9 @@ public class DBRequestRepository implements RequestRepository{
     public void removeObjectRequests(int objectId, RequestObject requestObject) {
         jpa.deleteByObjectIdAndRequestObject(objectId, requestObject);
     }
+
+    @Override
+    public void clear() {
+        jpa.deleteAll();
+    }
 }
