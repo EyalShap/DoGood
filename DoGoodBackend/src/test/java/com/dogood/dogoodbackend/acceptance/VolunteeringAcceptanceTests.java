@@ -626,6 +626,10 @@ public class VolunteeringAcceptanceTests {
         }else{
             startHour = now.getHour()-2;
             endHour = now.getHour()-1;
+            if(startHour < 0){
+                startHour = 0;
+                endHour = 1;
+            }
         }
         Response<String> makeAppointment =
                 volunteeringService.makeAppointment(aliceToken
