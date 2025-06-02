@@ -10,4 +10,5 @@ public interface RequestRepository {
     public Request getRequest(String assigneeUsername, int objectId, RequestObject requestObject);
     public List<Request> getUserRequests(String username, RequestObject requestObject);
     public void removeObjectRequests(int objectId, RequestObject requestObject);
+    public void clear();
 }
