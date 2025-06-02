@@ -570,6 +570,9 @@ public class UsersFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User not found");
         }
+        if(skills == null){
+            throw new IllegalArgumentException("skills cannot be null");
+        }
         User user = getUser(username);
         user.updateSkills(skills);
         repository.saveUser(user);
@@ -579,6 +582,10 @@ public class UsersFacade {
         if(!userExists(username)){
             throw new IllegalArgumentException("User not found");
         }
+        if(categories==null){
+            throw new IllegalArgumentException("categories cannot be null");
+        }
+
         User user = getUser(username);
         user.updatePreferences(categories);
         repository.saveUser(user);
