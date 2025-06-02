@@ -5,6 +5,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.time.LocalDate;
+import java.util.Objects;
 
 @Embeddable
 public class ReportKey {
@@ -52,5 +53,18 @@ public class ReportKey {
 
     public void setReportObject(ReportObject reportObject) {
         this.reportObject = reportObject;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ReportKey reportKey = (ReportKey) o;
+        return Objects.equals(reportingUser, reportKey.reportingUser) && Objects.equals(date, reportKey.date) && Objects.equals(reportedId, reportKey.reportedId) && reportObject == reportKey.reportObject;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(reportingUser, date, reportedId, reportObject);
     }
 }

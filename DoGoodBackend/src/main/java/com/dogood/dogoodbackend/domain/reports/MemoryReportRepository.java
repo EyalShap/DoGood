@@ -14,7 +14,7 @@ public class MemoryReportRepository implements ReportRepository{
     }
 
     @Override
-    public Report createReport(String reportingUser, String description, String reportedId, ReportObject reportObject) {
+    public Report createReport(String reportingUser, String reportedId, String description, ReportObject reportObject) {
         Report newReport = new Report(reportingUser, description, reportedId, reportObject);
         ReportKey reportKey = new ReportKey(reportingUser, newReport.getDate(), reportedId, reportObject);
 
