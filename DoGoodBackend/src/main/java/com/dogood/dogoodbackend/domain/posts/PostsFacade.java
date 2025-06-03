@@ -339,6 +339,41 @@ public class PostsFacade {
         return matching;
     }
 
+    private int countCommonsMaxSubstring(Set<String> s1, Set<String> s2) {
+        int matching = 0;
+        for (String item1 : s1) {
+            item1 = item1.toLowerCase().trim();
+            for(String item2 : s2) {
+                item2 = item2.toLowerCase().trim();
+                int maxSubstring = maxCommStr(item1, item2);
+                if (maxSubstring >= 0.9 * Math.min(item1.length(), item2.length())) {
+                    matching++;
+                }
+            }
+        }
+        return matching;
+    }
+
+    private int maxCommStr(String s1, String s2) {
+        int m = s1.length();
+        int n = s2.length();
+
+        int res = 0;
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < n; j++) {
+                int curr = 0;
+                while ((i + curr) < m && (j + curr) < n
+                        && s1.charAt(i + curr) == s2.charAt(j + curr)) {
+                    curr++;
+                }
+                res = Math.max(res, curr);
+            }
+        }
+        return res;
+    }
+
+
     private int countCommonsStrict(Set<String> s1, Set<String> s2) {
         int matching = 0;
         for (String item1 : s1) {
@@ -379,7 +414,7 @@ public class PostsFacade {
 
         Set<String> postKeywords = getPostKeywords(post);
 
-        int relevance = countCommons(userKeywords, postKeywords) + matchByHistory(actor, volunteeringDTO);
+        int relevance = countCommonsMaxSubstring(userKeywords, postKeywords) + matchByHistory(actor, volunteeringDTO);
         return relevance;
     }
 
