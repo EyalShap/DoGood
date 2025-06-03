@@ -783,6 +783,8 @@ abstract class AbstractPostsFacadeTest {
 
     @Test
     void sortByRelevance() {
+        when(ai.sendQuery(Mockito.anyString())).thenReturn("dont, care");
+
         usersFacade.updateUserPreferences(nonPosterUsername, new ArrayList<>(List.of("Animals")));
         usersFacade.updateUserSkills(nonPosterUsername, new ArrayList<>(List.of("Driving", "Baking")));
 
@@ -793,7 +795,7 @@ abstract class AbstractPostsFacadeTest {
         int post1Id = postsFacade.createVolunteeringPost("Plants", "Gardening", posterUsername, volunteeringId1);
         int post2Id = postsFacade.createVolunteeringPost("Animals", "Driving", posterUsername, volunteeringId1);
         int post3Id = postsFacade.createVolunteeringPost("Cars", "Driving", posterUsername, volunteeringId1);
-        int post4Id = postsFacade.createVolunteeringPost("Idk", "Idk", posterUsername, volunteeringId3);
+        int post4Id = postsFacade.createVolunteeringPost("children", "working with children", posterUsername, volunteeringId3);
 
         VolunteeringPostDTO post1 = postsFacade.getVolunteeringPost(post1Id, posterUsername);
         VolunteeringPostDTO post2 = postsFacade.getVolunteeringPost(post2Id, posterUsername);

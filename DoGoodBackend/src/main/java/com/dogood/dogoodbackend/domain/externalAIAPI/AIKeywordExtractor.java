@@ -21,7 +21,7 @@ public class AIKeywordExtractor implements KeywordExtractor{
             return getKeywords(finalPrompt);
         }
         catch (Exception e) {
-            return new HashSet<>(Arrays.asList((volunteeringName + " " + volunteeringDescription + " " + postTitle + " " + postDescription).split(" ")));
+            return new HashSet<>();
         }
     }
 
@@ -32,7 +32,7 @@ public class AIKeywordExtractor implements KeywordExtractor{
             return getKeywords(finalPrompt);
         }
         catch (Exception e) {
-            return new HashSet<>(Arrays.asList((postTitle + " " + postDescription).split(" ")));
+            return new HashSet<>();
         }
     }
 
