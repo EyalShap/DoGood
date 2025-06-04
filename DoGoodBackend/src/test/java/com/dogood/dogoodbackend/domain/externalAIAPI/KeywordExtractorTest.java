@@ -35,10 +35,10 @@ class KeywordExtractorTest {
     }
 
     @Test
-    void givenNotWorkingAI_whenGetVolunteeringPostKeywords_thenReturnKeywords() {
+    void givenNotWorkingAI_whenGetVolunteeringPostKeywords_thenReturnEmpty() {
         when(ai.sendQuery(anyString())).thenThrow(new IllegalArgumentException(""));
 
-        Set<String> expected = Set.of("Volunteering", "VolunteeringDescription", "Title", "PostDescription");
+        Set<String> expected = Set.of();
         Set<String> res = keywordExtractor.getVolunteeringPostKeywords("Volunteering", "VolunteeringDescription", "Title", "PostDescription");
         assertEquals(expected, res);
     }
@@ -56,7 +56,7 @@ class KeywordExtractorTest {
     void givenNonWorkingAI_getVolunteerPostKeywords_thenReturnKeywords() {
         when(ai.sendQuery(anyString())).thenThrow(new IllegalArgumentException(""));
 
-        Set<String> expected = Set.of("Title", "Description");
+        Set<String> expected = Set.of();
         Set<String> res = keywordExtractor.getVolunteerPostKeywords("Title", "Description");
         assertEquals(expected, res);
     }

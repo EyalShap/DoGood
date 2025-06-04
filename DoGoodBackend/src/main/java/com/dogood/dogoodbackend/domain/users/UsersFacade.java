@@ -665,6 +665,7 @@ public class UsersFacade {
         List<Integer> allIds = new LinkedList<>();
         allIds.addAll(user.getVolunteeringIds());
         allIds.addAll(user.getVolunteeringsInHistory().stream().map(dto -> dto.getId()).toList());
+        allIds = new LinkedList<>(new HashSet<>(allIds));
         return volunteeringFacade.getUserApprovedHours(user.getUsername(), allIds);
     }
 
