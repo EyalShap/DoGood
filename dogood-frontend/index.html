@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
+    <meta name="description" content="DoGood is an app for finding and managing volunteering activities that aims to simplify the volunteering experience.">
     <link rel="icon" type="image/svg+xml" href="/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -12,22 +13,5 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
-    <script>
-      if ('serviceWorker' in navigator) {
-        window.addEventListener('load', function () {
-          navigator.serviceWorker.register('/worker.js').then(function (registration) {
-
-            console.log('Worker registration successful', registration.scope);
-          }, function (err) {
-            console.log('Worker registration failed', err);
-          }).catch(function (err) {
-            console.log(err);
-          });
-        });
-      } else {
-        console.log('Service Worker is not supported by browser.');
-      }
-
-    </script>
   </body>
 </html>
