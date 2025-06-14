@@ -17,7 +17,7 @@ import { getUserByUsername } from '../api/user_api';
 import { getOpenPostChats } from '../api/chat_api';
 import User from '../models/UserModel';
 import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
-import defaultVolunteerPostPic from '/src/assets/defaultVolunteerPostDog.jpg';
+import defaultVolunteerPostPic from '/src/assets/defaultVolunteeringImage.png';
 
 function VolunteerPost() {
     const navigate = useNavigate();

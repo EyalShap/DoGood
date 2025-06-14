@@ -12,7 +12,7 @@ import { getUserByUsername } from '../api/user_api';
 import { getVolunteeringImages } from '../api/post_api';
 import { supabase } from '../api/general';
 import ListWithPlus from "./ListWithPlus.tsx";
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 
 function MyVolunteerings() {
     const navigate = useNavigate();

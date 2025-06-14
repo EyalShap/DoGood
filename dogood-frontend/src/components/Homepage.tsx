@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel';
 import { getAllVolunteeringPosts, getVolunteeringImages, sortByRelevance } from '../api/post_api';
 import {PostModel} from "../models/PostModel.ts";
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 
 
 function Homepage() {
@@ -21,7 +22,7 @@ function Homepage() {
 
         const listItemsPromises = allPosts.map(async (post: VolunteeringPostModel) => {
         const images = await getVolunteeringImages(post.volunteeringId);
-        const image = images.length > 0 ? images[0] : 'https://cdn.thewirecutter.com/wp-content/media/2021/03/dogharnesses-2048px-6907-1024x682.webp';
+        const image = images.length > 0 ? images[0] : defaultVolunteeringPic;
             return {
                 id: (post as PostModel).id,
                 image: image,

@@ -3,8 +3,8 @@ import './../css/ListWithArrows.css'
 import './../css/CommonElements.css'
 import { useNavigate } from "react-router-dom";
 import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
-import defaultVolunteerPostDog from "/src/assets/defaultVolunteerPostDog.jpg";
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteerPostDog from "/src/assets/defaultVolunteeringImage.png";
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 
 export interface ListItem {
   id: number | string;

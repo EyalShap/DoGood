@@ -60,7 +60,7 @@ import { getOrganizationName } from '../api/organization_api';
 import Info from "./Info.tsx";
 
 import ListWithArrows, { ListItem } from './ListWithArrows.tsx';
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 import { supabase } from '../api/general.ts';
 import { VolunteeringPostModel } from '../models/VolunteeringPostModel.ts';
 import { PostModel } from '../models/PostModel.ts';

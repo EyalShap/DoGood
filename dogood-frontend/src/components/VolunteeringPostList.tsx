@@ -11,8 +11,8 @@ import { ListItem } from './ListWithArrows';
 import { PostModel } from '../models/PostModel';
 import { VolunteerPostModel } from '../models/VolunteerPostModel';
 import { Switch } from '@mui/material';
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
-import defaultVolunteerPostPic from '/src/assets/defaultVolunteerPostDog.jpg';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
+import defaultVolunteerPostPic from '/src/assets/defaultVolunteeringImage.png';
 
 function VolunteeringPostList() {
     const isMobile = window.innerWidth <= 768;

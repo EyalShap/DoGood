@@ -1,12 +1,13 @@
 .notifications {
     font-family: 'Montserrat', sans-serif;
-    max-width: 800px;
     margin: 0 auto;
     padding: 20px;
     background-color: #f9f9f9;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
     margin-top: 20px;
+    width: 50%;
+    overflow: scroll;
 }
 
 .dropdownNotification {
@@ -57,11 +58,16 @@
 }
 
 .float-first-child-element {
-  flex: 1;
+    width: 100%;
 }
 
 .float-second-child-element .timestamp {
   font-size: 14px;
   color: #555;
-  white-space: nowrap;
+}
+
+@media (max-width: 500px) {
+    .notifications {
+        width: 80%;
+    }
 }
