@@ -14,7 +14,7 @@ import { createOrganizationReport } from '../api/report_api';
 import SignatureCanvas from "react-signature-canvas";
 import defaultOrgImage from "/src/assets/defaultOrganizationDog.jpg";
 import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 
 
 function Organization() {

@@ -11,7 +11,7 @@ import './../css/CommonElements.css'
 import { createVolunteeringPostReport } from '../api/report_api';
 import PastExperienceModel from '../models/PastExpreienceModel';
 import ListWithArrows, { ListItem } from './ListWithArrows';
-import defaultVolunteeringPic from '/src/assets/defaultVolunteeringDog.webp';
+import defaultVolunteeringPic from '/src/assets/defaultVolunteeringImage.png';
 import defaultProfilePic from '/src/assets/defaultProfilePic.jpg';
 import { getUserByUsername } from '../api/user_api';
 
