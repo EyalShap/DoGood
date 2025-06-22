@@ -90,7 +90,7 @@ function VolunteerPost() {
             }
         }
         catch(e) {
-            alert(e);
+            navigate("/pageNotFound");
         }
     }
 

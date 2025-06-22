@@ -5,7 +5,7 @@ import Organization from './components/Organization'
 import CreateVolunteering from './components/CreateVolunteering'
 import OrganizationList from './components/OrganizationList'
 import CreateOrganization from './components/CreateOrganization'
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate} from 'react-router-dom';
 import CodeView from './components/CodeView';
 import CodeScan from './components/CodeScan';
 import HourApprovalRequestList from './components/HourApprovalRequestList';
@@ -144,6 +144,7 @@ function App() {
                             <Route path='/volunteerPost/:id/chat/:username' element={<VolunteerPostChat other={true}/>}/>
                             <Route path='/easterEgg' element={<EasterEgg/>}/>
                             <Route path='/pageNotFound' element={<PageNotFound/>}/>
+                            <Route path="*" element={<Navigate to="/pageNotFound" replace />} />
                         </Routes>
                     </div>
                     <Footer/>

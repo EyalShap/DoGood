@@ -87,8 +87,7 @@ function VolunteeringSettings({volunteeringName, volunteeringDescription} : {vol
         try {
             var isAllowed = await userHasSettingsPermission(parseInt(id!));
             if (!isAllowed) {
-                navigate("/volunteeringPostList");
-                alert("You are not a manager for this volunteering");
+                navigate("/pageNotFound")
             }
             setAllowed(isAllowed);
         } catch (e) {
