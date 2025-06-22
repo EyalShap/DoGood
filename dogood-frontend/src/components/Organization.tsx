@@ -62,8 +62,7 @@ function Organization() {
             
         }
         catch(e){
-            //send to error page
-            alert(e)
+            navigate("/pageNotFound");
         }
     }
 

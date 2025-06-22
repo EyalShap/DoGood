@@ -864,8 +864,7 @@ function Volunteering() {
 
             setReady(true);
         } catch (e) {
-            //send to error page
-            alert(e)
+            navigate("/pageNotFound");
         }
     }
 

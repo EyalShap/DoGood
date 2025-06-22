@@ -67,7 +67,7 @@ function VolunteeringPost() {
             }
         }
         catch(e) {
-            alert(e);
+            navigate("/pageNotFound");
         }
     }
 
@@ -124,11 +124,13 @@ function VolunteeringPost() {
 
     useEffect(() => {
         fetchVolunteeringPost();
-        fetchPastExperiences();
     }, [id])
 
     useEffect(() => {
-        fetchImages();
+        if(ready){
+            fetchPastExperiences();
+            fetchImages();
+        }
     }, [model])
 
 
