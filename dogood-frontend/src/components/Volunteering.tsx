@@ -403,7 +403,7 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges, show, setSho
                         </FormGroup>
                     </div> : <LocalizationProvider dateAdapter={AdapterDayjs}><DatePicker value={oneTime} onChange={newValue => newValue != null && setOneTime(newValue)} format='DD/MM/YYYY' slotProps={{textField: {InputLabelProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},InputProps: {sx: {fontFamily: 'Montserrat, sans-serif',},},},}}/></LocalizationProvider>}
             </div>
-            <div style={{display: 'flex', flexDirection:'row', alignItems:'center'}}>
+            <div className="optionalInput">
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMinMin(e.target.checked)
                     e.target.checked ? setMinimumMinutes(0) : setMinimumMinutes(-1)
@@ -411,7 +411,7 @@ function RangeMaker({groupId, locId, volunteeringId, refreshRanges, show, setSho
                 <Info text="Minimum number of minutes volunteers will have to sign up for"/>
                 {showMinMin && <NumberInput value={minimumMinutes} onChange={(_, val) => val != null && setMinimumMinutes(val)} min={0} />}
             </div>
-            <div style={{display: 'flex', flexDirection:'row', alignItems:'center'}}>
+            <div className="optionalInput">
                 <FormControlLabel control={<Checkbox onChange={e => {
                     setShowMaxMin(e.target.checked)
                     e.target.checked ? setMaximumMinutes(0) : setMaximumMinutes(-1)
