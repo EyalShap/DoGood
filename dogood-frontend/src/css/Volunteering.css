@@ -373,6 +373,18 @@
     display: none;
 }
 
+.optionalInput {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+@media (max-width: 500px) {
+    .optionalInput {
+        flex-direction: column;
+    }
+}
+
 .rs__control,
 .rs__single-value,
 .rs__menu,
